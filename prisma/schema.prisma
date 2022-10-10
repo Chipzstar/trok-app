@@ -33,7 +33,7 @@ type Address {
   line2    String?
   city     String
   postcode String
-  county   String
+  region   String
   country  String  @default("GB")
 }
 
