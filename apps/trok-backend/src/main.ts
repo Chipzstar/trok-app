@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  */
 import * as express from 'express';
+import * as cors from 'cors';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { expressHandler } from 'trpc-playground/handlers/express';
 import { appRouter } from './app/routes';
@@ -10,6 +11,7 @@ import { createContext } from './app/trpc';
 
 const runApp = async () => {
 	const app = express();
+	app.use(cors());
 	const trpcApiEndpoint = '/api/trpc';
 	const playgroundEndpoint = '/api/trpc-playground';
 
@@ -42,6 +44,6 @@ const runApp = async () => {
 		console.log(`Listening at http://localhost:${port}/api`);
 	});
 	server.on('error', console.error);
-}
+};
 
-runApp().then(r => "Server is online!");
+runApp().then(r => 'Server is online!');

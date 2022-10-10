@@ -1,0 +1,14 @@
+model User {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime   @default(now())
+  updatedAt DateTime @updatedAt
+  email String  @unique
+  full_name String
+  firstname  String
+  lastname  String
+  phone String
+  company_name String
+  address Address?
+  business BusinessInfo?
+  stripe StripeInfo?
+}

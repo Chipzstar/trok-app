@@ -1,0 +1,32 @@
+type StripeInfo {
+    customerId String
+    bankAccount BankAccount
+}
+
+type BankAccount {
+    id String
+    fingerprint String
+    account_holder_name String
+    account_number String
+    sort_code String
+    currency String
+    status String
+}
+
+type Address {
+    line1 String
+    line2 String?
+    city String
+    postcode String
+    county String
+    country String @default("GB")
+}
+
+type BusinessInfo {
+    legal_name String
+    business_type String?
+    business_email String
+    business_phone String
+    merchant_category_code String
+    business_url String
+}
