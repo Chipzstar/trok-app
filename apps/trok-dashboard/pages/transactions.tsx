@@ -1,4 +1,4 @@
-import { Group, Text, Avatar, Switch } from '@mantine/core';
+import { Group, Text, Avatar, Switch, Button } from '@mantine/core';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import DataGrid from '../components/DataGrid';
@@ -66,6 +66,9 @@ const transactions = () => {
 
 	return (
 		<div className='container p-5'>
+			<div className='mt-2 mb-6 flex items-center justify-between px-2'>
+				<span className="text-3xl font-semibold">Transactions</span>
+			</div>
 			<DataGrid
 				rows={rows}
 				activePage={activePage}

@@ -100,7 +100,7 @@ const Sidebar = ({setAuth}) => {
 			},
 			{
 				link: '/drivers',
-				label: 'Drivers',
+				label: 'Cards & Drivers',
 				icon: IconUsers,
 				isActive: router.pathname === PATHS.DRIVERS,
 			},
