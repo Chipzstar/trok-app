@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Checkbox, Group, PasswordInput, Stack, TextInput } from '@mantine/core';
 
-const Step1 = () => {
+const Step1 = ({nextStep}) => {
 	const form = useForm({
 		initialValues: {
 			full_name: '',
@@ -18,14 +18,15 @@ const Step1 = () => {
 	});
 
 	const handleSubmit = useCallback((values) => {
-			alert(values);
+			console.log(values);
+			nextStep(values)
 		},
 		[]
 	);
 
 	return (
 		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex'>
-			<Stack className="w-2/3 mx-auto my-auto">
+			<Stack className="w-1/3 mx-auto my-auto">
 				<TextInput
 					required
 					label='Full Name'

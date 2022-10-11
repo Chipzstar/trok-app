@@ -24,8 +24,9 @@ const Step2 = () => {
 	);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex'>
-			<Stack className="w-2/3 mx-auto">
+		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex flex-col'>
+			<h1 className="text-2xl text-center font-semibold mb-4">Tell us about your company</h1>
+			<Stack className="mx-auto">
 				<TextInput
 					required
 					label='Company Legal Name'
@@ -63,7 +64,7 @@ const Step2 = () => {
 						minLength={8}
 						maxLength={8}
 						required
-						label='Company Registration Number'
+						label='Company Reg Number'
 						placeholder='CRN'
 						{...form.getInputProps('crn')}
 					/>
@@ -86,7 +87,7 @@ const Step2 = () => {
 					maxSize={3 * 1024 ** 2}
 					accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.pdf]}
 				>
-					<Group position='center' spacing='xl' style={{ minHeight: 100, pointerEvents: 'none' }}>
+					<Group position='center' spacing='xl' style={{ minHeight: 80, pointerEvents: 'none' }}>
 						<Dropzone.Accept>
 							<IconUpload
 								size={50}

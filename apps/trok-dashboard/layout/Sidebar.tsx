@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
-	IconCar,
 	IconGauge,
-	IconLicense, IconLogout,
+	IconLogout,
 	IconReceipt,
 	IconSwitchHorizontal,
 	IconUsers
@@ -107,7 +106,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 	};
 });
 
-const Sidebar = () => {
+const Sidebar = ({setAuth}) => {
 	const { classes, cx } = useStyles();
 	const [section, setSection] = useState<'account' | 'general'>('general');
 	const [active, setActive] = useState('Dashboard');
@@ -143,13 +142,12 @@ const Sidebar = () => {
 					<IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
 					<span>Change account</span>
 				</a>
-				<a href='#' className={classes.link} onClick={(event) => event.preventDefault()}>
+				<div className={classes.link} onClick={() => setAuth(false)}>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>
-				</a>
+				</div>
 			</Navbar.Section>
 		</Navbar>
 	)
-		;
 };
 
 export default Sidebar;

@@ -4,10 +4,12 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import Layout from '../layout/Layout';
 import Favicon from '../components/Favicon';
+import { useLocalStorage } from '@mantine/hooks';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function CustomApp({ Component, pageProps }: AppProps) {
+	const [auth, setAuth] = useLocalStorage({ key: 'auth', defaultValue: false });
 	return (
 		<>
 			<MantineProvider
@@ -19,7 +21,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
 					colorScheme: 'light'
 				}}
 			>
-				<Layout>
+				<Layout auth={auth} setAuth={setAuth}>
 					<Head>
 						<Favicon />
 						<title>Trok</title>
@@ -31,7 +33,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
 						<meta httpEquiv='content-language' content='en-GB' />
 						<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
 					</Head>
-					<Component {...pageProps} />
+					<Component auth={auth} setAuth={setAuth} {...pageProps} />
 				</Layout>
 			</MantineProvider>
 		</>

@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { useForm } from '@mantine/form';
-import { NumberInput, Stack, TextInput, Text, Button, Group } from '@mantine/core';
+import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
-import { IconCurrencyPound, IconFolders, IconPhoto, IconUpload, IconX } from '@tabler/icons';
+import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
 
 const Step3 = () => {
 	const form = useForm({
@@ -17,8 +17,9 @@ const Step3 = () => {
 	);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex'>
-			<Stack className="w-1/2 mx-auto my-auto">
+		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex flex-col'>
+			<h1 className="text-2xl text-center font-semibold mb-4">Tell us about your finances</h1>
+			<Stack className="mx-auto my-auto">
 				<NumberInput
 					required
 					icon={<IconCurrencyPound size={16} />}
@@ -55,10 +56,12 @@ const Step3 = () => {
 						<Dropzone.Idle>
 							<IconFolders size={40} stroke={1.5} />
 						</Dropzone.Idle>
-
 						<div>
 							<Text size='xl' inline>
 								Upload bank statements
+							</Text>
+							<Text size='xs' color='dimmed' mt={7} className="md:w-80">
+								PDF format required. Uploading bank statements may increase processing time for your application
 							</Text>
 						</div>
 					</Group>
