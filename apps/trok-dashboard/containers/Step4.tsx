@@ -81,7 +81,7 @@ const Step4 = ({ nextStep }) => {
 					required
 					label='Use a different shipping address'
 				/>
-				<h1 className='text-2xl text-center font-semibold mb-4'>Configure Card Details</h1>
+				<h1 className='text-2xl text-center font-semibold'>Configure Card Details</h1>
 				<TextInput
 					required
 					label='Business Name on card'
@@ -101,6 +101,7 @@ const Step4 = ({ nextStep }) => {
 					orientation='vertical'
 					label='Select shipping speed'
 					withAsterisk
+					{...form.getInputProps('shipping_speed')}
 				>
 					<Radio value='standard' label='3-8 days. Cards left at address' />
 					<Radio value='express' label='2-3 days. Cards left at address' />

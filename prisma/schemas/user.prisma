@@ -8,6 +8,7 @@ model User {
   lastname  String
   phone String
   company_name String
+  password String
   address Address?
   business BusinessInfo?
   stripe StripeInfo?

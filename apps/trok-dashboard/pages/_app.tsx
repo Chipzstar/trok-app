@@ -9,7 +9,7 @@ import { useLocalStorage } from '@mantine/hooks';
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function CustomApp({ Component, pageProps }: AppProps) {
-	const [auth, setAuth] = useLocalStorage({ key: 'auth', defaultValue: false });
+	const [auth, setAuth] = useLocalStorage({ key: 'auth', defaultValue: true });
 	return (
 		<>
 			<MantineProvider

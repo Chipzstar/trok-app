@@ -5,36 +5,12 @@ import {
 	IconGauge,
 	IconLogout,
 	IconReceipt,
-	IconSwitchHorizontal,
+	IconSwitchHorizontal, IconUser,
 	IconUsers
 } from '@tabler/icons';
 import Image from 'next/image';
-
-const tabs = {
-	general: [
-		{
-			link: '',
-			label: 'Dashboard',
-			icon: IconGauge
-		},
-		{
-			link: '',
-			label: 'Transactions',
-			icon: IconArrowsLeftRight
-		},
-		{
-			link: '',
-			label: 'Drivers',
-			icon: IconUsers
-		},
-
-		{
-			link: '',
-			label: 'Billing',
-			icon: IconReceipt
-		}
-	]
-};
+import { useRouter } from 'next/router';
+import { PATHS } from '../utils/constants';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -107,23 +83,49 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 const Sidebar = ({setAuth}) => {
+	const router = useRouter();
+	const tabs = {
+		general: [
+			{
+				link: '/',
+				label: 'Dashboard',
+				icon: IconGauge,
+				isActive: router.pathname === PATHS.HOME,
+			},
+			{
+				link: '/transactions',
+				label: 'Transactions',
+				icon: IconArrowsLeftRight,
+				isActive: router.pathname === PATHS.TRANSACTIONS,
+			},
+			{
+				link: '/drivers',
+				label: 'Drivers',
+				icon: IconUsers,
+				isActive: router.pathname === PATHS.DRIVERS,
+			},
+
+			{
+				link: '/billing',
+				label: 'Billing',
+				icon: IconReceipt,
+				isActive: router.pathname === PATHS.BILLING
+			}
+		]
+	};
 	const { classes, cx } = useStyles();
 	const [section, setSection] = useState<'account' | 'general'>('general');
-	const [active, setActive] = useState('Dashboard');
 
-	const links = tabs[section].map((item) => (
-		<a
-			className={cx(classes.link, { [classes.linkActive]: item.label === active })}
-			href={item.link}
-			key={item.label}
-			onClick={(event) => {
-				event.preventDefault();
-				setActive(item.label);
-			}}
+	const links = tabs[section].map((item, index) => (
+		<div
+			role="button"
+			className={cx(classes.link, { [classes.linkActive]: item.isActive })}
+			key={index}
+			onClick={() => router.push(item.link)}
 		>
 			<item.icon className={classes.linkIcon} stroke={1.5} />
 			<span>{item.label}</span>
-		</a>
+		</div>
 	));
 
 	return (
@@ -139,8 +141,8 @@ const Sidebar = ({setAuth}) => {
 			</Navbar.Section>
 			<Navbar.Section className={classes.footer}>
 				<a href='#' className={classes.link} onClick={(event) => event.preventDefault()}>
-					<IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-					<span>Change account</span>
+					<IconUser className={classes.linkIcon} stroke={1.5} />
+					<span>Profile</span>
 				</a>
 				<div className={classes.link} onClick={() => setAuth(false)}>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>

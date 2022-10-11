@@ -2,7 +2,7 @@ import { Button } from '@mantine/core';
 import React from 'react';
 import { useRouter } from 'next/router';
 
-export function Index({ auth, setAuth }) {
+export function Index({ setAuth }) {
 	const router = useRouter();
 	return (
 		<div className='h-screen flex flex-col justify-center p-5 w-full'>
