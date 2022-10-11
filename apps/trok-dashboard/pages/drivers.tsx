@@ -52,9 +52,6 @@ const drivers = () => {
 						>
 							<IconPencil />
 						</ActionIcon>
-						<ActionIcon size='sm' color='red' onClick={() => null}>
-							<IconTrash />
-						</ActionIcon>
 					</Group>
 				</td>
 			</tr>

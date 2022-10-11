@@ -68,6 +68,9 @@ const transactions = () => {
 		<div className='container p-5'>
 			<div className='mt-2 mb-6 flex items-center justify-between px-2'>
 				<span className="text-3xl font-semibold">Transactions</span>
+				<Button className='' onClick={() => null}>
+					<span className='text-base'>Export</span>
+				</Button>
 			</div>
 			<DataGrid
 				rows={rows}
