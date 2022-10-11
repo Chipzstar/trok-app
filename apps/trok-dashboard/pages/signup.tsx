@@ -13,7 +13,7 @@ export function Signup({ auth, setAuth }) {
 	const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
 	return (
-		<div className='h-screen flex flex-col justify-center p-5 overflow-hidden w-full'>
+		<div className='min-h-screen flex flex-col justify-center p-5 overflow-x-hidden w-full'>
 			{!newAccount ? <Step1 nextStep={setNewAccount} /> :
 				<Stepper
 					active={active}
