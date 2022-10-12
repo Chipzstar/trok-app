@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Group, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
 import { IconCurrencyPound, IconPhoto, IconUpload, IconX } from '@tabler/icons';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 
 const Step2 = () => {
+	const [files, setFiles] = useState<File>(null);
 	const form = useForm({
 		initialValues: {
 			legal_name: '',
@@ -17,45 +18,37 @@ const Step2 = () => {
 		}
 	});
 
-	const handleSubmit = useCallback((values) => {
-			alert(values);
-		},
-		[]
-	);
+	const handleSubmit = useCallback(values => {
+		alert(values);
+	}, []);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='h-full w-full flex flex-col'>
-			<h1 className="text-2xl text-center font-semibold mb-4">Tell us about your company</h1>
-			<Stack className="mx-auto">
+		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
+			<h1 className='mb-4 text-2xl font-medium'>Your company</h1>
+			<Stack>
+				<TextInput required label='Company legal name' {...form.getInputProps('legal_name')} />
 				<TextInput
 					required
-					label='Company Legal Name'
-					placeholder='Your company name'
-					{...form.getInputProps('legal_name')}
-
-				/>
-				<TextInput
-					required
-					label='Weekly Fuel and Maintenance Spend'
-					placeholder='100'
+					label='Weekly fuel and maintenance spend'
 					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('weekly_fuel_spend')}
 				/>
 				<Group grow>
 					<Select
 						required
-						label='Type of Business'
-						placeholder='Your Business Type'
+						label='Type of business'
 						{...form.getInputProps('business_type')}
 						data={['LLC', 'Private Company', 'Public Company', 'Non Profit Organization', 'LLP', 'Other']}
-
 					/>
 					<Select
 						required
-						label='Type of Industry'
-						placeholder='Your Industry Type'
+						label='Type of industry'
 						{...form.getInputProps('industry_type')}
-						data={['Transportation - Other', 'Transportation - Motor Freight, Carriers & Trucking', 'Other']}
+						data={[
+							'Transportation - Other',
+							'Transportation - Motor Freight, Carriers & Trucking',
+							'Other'
+						]}
 					/>
 				</Group>
 				<Group grow>
@@ -64,24 +57,19 @@ const Step2 = () => {
 						minLength={8}
 						maxLength={8}
 						required
-						label='Company Reg Number'
-						placeholder='CRN'
+						label='Company Reg No.'
 						{...form.getInputProps('crn')}
 					/>
-					<NumberInput
-						label='Number of Vehicles'
-						placeholder='30'
-						required
-						{...form.getInputProps('num_vehicles')}
-					/>
+					<NumberInput label='Number of Vehicles' required {...form.getInputProps('num_vehicles')} />
 				</Group>
-				<TextInput
-					type='text'
-					label='Business URL'
-					placeholder='Business URL'
-					{...form.getInputProps('url')}
-				/>
-				<Dropzone
+				<TextInput type='text' label='Business URL' {...form.getInputProps('url')} />
+				<div>
+					<Text size='md'>Upload front of Driver's License</Text>
+					<FileButton onChange={setFiles} accept='image/png,image/jpeg'>
+						{props => <Button variant="outline" fullWidth {...props}>Upload picture</Button>}
+					</FileButton>
+				</div>
+				{/*<Dropzone
 					onDrop={(files) => console.log('accepted files', files)}
 					onReject={(files) => console.log('rejected files', files)}
 					maxSize={3 * 1024 ** 2}
@@ -101,29 +89,30 @@ const Step2 = () => {
 							/>
 						</Dropzone.Reject>
 						<Dropzone.Idle>
-							<IconPhoto size={50} stroke={1.5} />
+							<IconPhoto size={30} stroke={1.5} />
 						</Dropzone.Idle>
 
 						<div>
 							<Text size='xl' inline>
-								Upload front of Driver's License
-							</Text>
-							<Text size='sm' color='dimmed' inline mt={7}>
-								We need this to verify your identity
+								Upload picture
 							</Text>
 						</div>
 					</Group>
-				</Dropzone>
-				<Group grow mt='lg'>
-					<Button type='submit' variant='filled' color='dark' size='lg' classNames={{
-						root: 'bg-black w-full'
-					}}>
+				</Dropzone>*/}
+				<Group position='right'>
+					<Button
+						type='submit'
+						variant='filled'
+						size='md'
+						style={{
+							width: 200
+						}}
+					>
 						Continue
 					</Button>
 				</Group>
 			</Stack>
 		</form>
-
 	);
 };
 

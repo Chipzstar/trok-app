@@ -2,9 +2,12 @@ import dayjs from "dayjs";
 
 export const PATHS = {
 	HOME: '/',
+	SIGNUP: '/signup',
 	TRANSACTIONS: '/transactions',
 	DRIVERS: '/drivers',
 	BILLING: '/billing',
+	ONBOARDING: '/onboarding',
+
 }
 
 export const SAMPLE_DRIVERS = [

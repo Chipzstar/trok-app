@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { AppShell, Navbar } from '@mantine/core';
+import React from 'react';
+import { AppShell } from '@mantine/core';
 import Sidebar from './Sidebar';
-import { useLocalStorage } from '@mantine/hooks';
 
 const Layout = ({ children, auth, setAuth }) => {
 	return (
-		<div className='relative flex min-h-screen'>
+		<div className='relative flex min-h-screen font-aeonik'>
 			<AppShell
 				padding={0}
 				navbar={auth && <Sidebar setAuth={setAuth}/>}

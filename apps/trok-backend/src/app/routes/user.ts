@@ -14,14 +14,14 @@ const userRouter = t.router({
 				full_name: z.string().min(5),
 				email: z.string().email('Invalid email'),
 				phone: z.string(),
-				company_name: z.string(),
+				password: z.string(),
 				address: z
 					.object({
 						line1: z.string(),
 						line2: z.string().optional(),
 						city: z.string(),
 						postcode: z.string(),
-						county: z.string(),
+						region: z.string(),
 						country: z.string().optional()
 					})
 					.optional(),
@@ -41,7 +41,7 @@ const userRouter = t.router({
 					.optional(),
 				business: z
 					.object({
-						legal_name: z.string(),
+						business_legal_name: z.string(),
 						business_type: z.string().optional(),
 						business_email: z.string(),
 						business_phone: z.string(),

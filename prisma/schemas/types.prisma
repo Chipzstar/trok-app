@@ -23,7 +23,7 @@ type Address {
 }
 
 type BusinessInfo {
-    legal_name String
+    business_legal_name String
     business_type String?
     business_email String
     business_phone String

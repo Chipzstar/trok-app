@@ -17,7 +17,23 @@ function CustomApp({ Component, pageProps }: AppProps) {
 				withGlobalStyles
 				withNormalizeCSS
 				theme={{
-					/** Put your mantine theme override here */
+					colors: {
+						'brand': [
+							'#CDD0E8',
+							'#ADB1E1',
+							'#8A91E0',
+							'#636EE6',
+							'#3646F5',
+							'#2F3EDE',
+							'#333FBF',
+							'#3A439F',
+							'#3E4486',
+							'#3E4272'
+						]
+					},
+					primaryShade: 5,
+					primaryColor: 'brand',
+					fontFamily: 'Aeonik, sans-serif',
 					colorScheme: 'light'
 				}}
 			>

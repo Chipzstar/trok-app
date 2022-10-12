@@ -66,26 +66,24 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const SignUpComplete = ({auth, setAuth}) => {
-
 	const router = useRouter();
 	const { classes } = useStyles();
 
 	return (
-		<div className='h-full w-full flex justify-center items-center'>
-			<div className="w-2/5">
-				<Title className={classes.title}>Congratulations!</Title>
-				<Text weight={500} size='lg' mb={5}>
-					You're now signed up with Trok
-				</Text>
+		<div className='h-screen w-full flex justify-center items-center'>
+			<div className="w-2/5 space-y-5">
+				<Title weight={500} order={2} mb={5}>
+					You are all signed up!
+				</Title>
 				<Text size='sm' color='dimmed'>
 					We still need to verify some of your documents. This may take time, but we will notify you by email once all checks are complete. For now feel free to explore your Trok dashboard.
 				</Text>
 				<div className={classes.controls}>
-					<Button onClick={() => {
-						router.push('/')
+					<Button px="xl" size="md" onClick={() => {
 						setAuth(true)
+						router.push('/')
 					}}>
-						Go to Dashboard
+						<Text weight={500}>Go to Dashboard</Text>
 					</Button>
 				</div>
 			</div>
