@@ -55,16 +55,16 @@ const Step4 = ({ finish }) => {
 					<>
 						<h1 className='text-2xl font-medium'>Shipping address</h1>
 						<Group grow>
-							<TextInput required label='Address line 1' {...form.getInputProps('line1')} />
-							<TextInput label='Address line 2' {...form.getInputProps('line2')} />
+							<TextInput required label='Address line 1' {...form.getInputProps('shipping_address.line1')} />
+							<TextInput label='Address line 2' {...form.getInputProps('shipping_address.line2')} />
 						</Group>
 						<Group grow>
-							<TextInput required label='City' {...form.getInputProps('city')} />
-							<TextInput required label='Postal code' {...form.getInputProps('postcode')} />
+							<TextInput required label='City' {...form.getInputProps('shipping_address.city')} />
+							<TextInput required label='Postal code' {...form.getInputProps('shipping_address.postcode')} />
 						</Group>
 						<Group grow>
-							<TextInput required label='County/Region' {...form.getInputProps('region')} />
-							<TextInput readOnly label='Country' {...form.getInputProps('country')} />
+							<TextInput required label='County/Region' {...form.getInputProps('shipping_address.region')} />
+							<TextInput readOnly label='Country' {...form.getInputProps('shipping_address.country')} />
 						</Group>
 					</>
 				)}

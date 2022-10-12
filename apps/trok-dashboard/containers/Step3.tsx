@@ -1,17 +1,20 @@
 import React, { useCallback } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
 
-const Step3 = () => {
+const ONE_GB = 1073741824; // in bytes units
+
+const Step3 = ({nextStep}) => {
 	const form = useForm({
 		initialValues: {
 			average_monthly_revenue: null
 		}
 	});
 	const handleSubmit = useCallback(values => {
-		alert(values);
+		console.log(values)
+		nextStep()
 	}, []);
 
 	return (
@@ -22,7 +25,6 @@ const Step3 = () => {
 					required
 					icon={<IconCurrencyPound size={16} />}
 					label='What is your average monthly revenue?'
-					placeholder='0'
 					{...form.getInputProps('average_monthly_revenue')}
 				/>
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
@@ -41,8 +43,9 @@ const Step3 = () => {
 				<Dropzone
 					onDrop={files => console.log('accepted files', files)}
 					onReject={files => console.log('rejected files', files)}
-					maxSize={3 * 1024 ** 2}
-					accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.pdf]}
+					maxSize={ONE_GB} // 1GB
+					multiple
+					accept={PDF_MIME_TYPE}
 				>
 					<Group position='center' spacing='xl' style={{ minHeight: 100, pointerEvents: 'none' }}>
 						<Dropzone.Accept>

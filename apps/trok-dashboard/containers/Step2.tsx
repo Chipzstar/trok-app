@@ -4,7 +4,7 @@ import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput 
 import { IconCurrencyPound, IconPhoto, IconUpload, IconX } from '@tabler/icons';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 
-const Step2 = () => {
+const Step2 = ({nextStep}) => {
 	const [files, setFiles] = useState<File>(null);
 	const form = useForm({
 		initialValues: {
@@ -19,7 +19,8 @@ const Step2 = () => {
 	});
 
 	const handleSubmit = useCallback(values => {
-		alert(values);
+		console.log(values)
+		nextStep();
 	}, []);
 
 	return (

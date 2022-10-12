@@ -62,12 +62,12 @@ const Step1 = ({ setNewAccount }) => {
 				</Group>
 				<TextInput
 					withAsterisk
-					label='Business Email'
+					label='Business email'
 					{...form.getInputProps('email', { withError: true })}
 				/>
 				<TextInput
 					withAsterisk
-					label='Business Phone Number'
+					label='Business phone number'
 					{...form.getInputProps('phone', { withError: true })}
 				/>
 				<PasswordInput
@@ -76,8 +76,7 @@ const Step1 = ({ setNewAccount }) => {
 					{...form.getInputProps('password', { withError: true })}
 				/>
 				<TextInput
-					label='Referral Code'
-					placeholder='Your referral code'
+					label='Referral code'
 					{...form.getInputProps('referral_code')}
 				/>
 				<Checkbox

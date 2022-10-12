@@ -35,24 +35,26 @@ const onboarding = ({ auth, setAuth }) => {
 								padding: 0
 							},
 							stepIcon: {
-								borderWidth: 4
+								// border: '2px solid #D0D7DE',
+								borderWidth: 2
 							},
 							separator: {
 								marginLeft: -2,
 								marginRight: -2,
+								// background:	'repeating-linear-gradient(to right,lightgray 0,lightgray 10px,transparent 10px,transparent 12px)'
 							}
 						}}
 						classNames={{
 							root: 'flex flex-col items-center',
 							steps: 'w-1/3 px-20',
-							content: 'w-1/3 h-full'
+							content: 'w-1/3 h-full',
 						}}
 					>
 						<Stepper.Step icon={<div />} label='First step' description='Create an account'>
-							<Step2 />
+							<Step2 nextStep={nextStep} />
 						</Stepper.Step>
 						<Stepper.Step icon={<div />} label='Second step' description='Financial'>
-							<Step3 />
+							<Step3 nextStep={nextStep} />
 						</Stepper.Step>
 						<Stepper.Step icon={<div />} label='Final step' description='Location'>
 							<Step4 finish={setComplete} />
