@@ -40,8 +40,6 @@ const onboarding = ({ auth, setAuth }) => {
 							separator: {
 								marginLeft: -2,
 								marginRight: -2,
-								border: '1px dotted #000',
-								background:	'repeating-linear-gradient(to right,red 0,red 10px,transparent 10px,transparent 12px)'
 							}
 						}}
 						classNames={{
