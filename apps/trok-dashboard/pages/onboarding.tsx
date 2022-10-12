@@ -8,7 +8,6 @@ import SignUpComplete from '../containers/SignUpComplete';
 import { useLocalStorage } from '@mantine/hooks';
 
 const onboarding = ({ auth, setAuth }) => {
-	const [newAccount, setAccount] = useLocalStorage({ key: 'account', defaultValue: null });
 	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
 	const [active, setActive] = useState(0);
 	const { height } = useWindowSize();
@@ -38,11 +37,11 @@ const onboarding = ({ auth, setAuth }) => {
 							stepIcon: {
 								borderWidth: 4
 							},
-
 							separator: {
 								marginLeft: -2,
 								marginRight: -2,
-								height: 10
+								border: '1px dotted #000',
+								background:	'repeating-linear-gradient(to right,red 0,red 10px,transparent 10px,transparent 12px)'
 							}
 						}}
 						classNames={{
