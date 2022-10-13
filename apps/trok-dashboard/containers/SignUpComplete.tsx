@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button, createStyles, Text, Title } from '@mantine/core';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useLocalStorage } from '@mantine/hooks';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const useStyles = createStyles((theme) => ({
 	wrapper: {
@@ -65,7 +66,8 @@ const useStyles = createStyles((theme) => ({
 	}
 }));
 
-const SignUpComplete = ({ auth, setAuth }) => {
+const SignUpComplete = ({ setAuth }) => {
+	const [account, setAccount] = useLocalStorage({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
 	const router = useRouter();
 	const { classes } = useStyles();
 
@@ -73,10 +75,13 @@ const SignUpComplete = ({ auth, setAuth }) => {
 		<div className='h-screen w-full flex justify-center items-center'>
 			<div className="w-2/5 space-y-5">
 				<Title weight={500} order={2} mb={5}>
-					You are all signed up!
+					Thank you for submitting your application
 				</Title>
 				<Text size='sm' color='dimmed'>
-					We still need to verify some of your documents. This may take time, but we will notify you by email once all checks are complete. For now feel free to explore your Trok dashboard.
+					Before we approve your application, we need you to confirm your email.
+				</Text>
+				<Text size='sm' color='dimmed'>
+					Please check your inbox at <span className="font-medium">{account?.email}</span> for an email confirmation link. <br/>You have 24 hours to confirm your email.
 				</Text>
 				<div className={classes.controls}>
 					<Button px="xl" size="md" onClick={() => {
@@ -87,7 +92,6 @@ const SignUpComplete = ({ auth, setAuth }) => {
 					</Button>
 				</div>
 			</div>
-			<Image src='/static/images/success.svg' width={250} height={300} className={classes.image} />
 		</div>
 	);
 };
