@@ -23,7 +23,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 	return {
 		header: {
 			paddingRight: theme.spacing.md,
-			paddingLeft: theme.spacing.md,
+			paddingLeft: theme.spacing.sm,
 			paddingTop: theme.spacing.xs,
 			color: theme.colorScheme === 'dark' ? theme.white : theme.black,
 			minHeight: DEFAULT_HEADER_HEIGHT -10
