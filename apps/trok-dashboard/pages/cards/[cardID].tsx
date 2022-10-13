@@ -69,7 +69,7 @@ const CardDetails = () => {
 				</PageContainer.Header>
 			}
 		>
-			<PageContainer.Body extraClassNames='px-4'>
+			<PageContainer.Body extraClassNames='px-10'>
 				<Group className='pb-6'>
 					<Title order={1} weight={500}>
 						Card **** {card.last4}
