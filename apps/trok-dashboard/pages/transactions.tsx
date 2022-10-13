@@ -127,9 +127,9 @@ const Transactions = () => {
 		>
 			<PageContainer.Body>
 				<Tabs defaultValue="all" classNames={{
-					root: '',
+					root: 'flex flex-col grow',
 					tabsList: '',
-					tab: 'test2 mx-4'
+					tab: 'mx-4'
 				}}>
 					<Tabs.List>
 						<Tabs.Tab value="all">All</Tabs.Tab>
@@ -137,15 +137,15 @@ const Transactions = () => {
 						<Tabs.Tab value="declined">Declined</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value="all" pt="xs">
+					<Tabs.Panel value="all" pt="xs" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value="approved" pt="xs">
+					<Tabs.Panel value="approved" pt="xs" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value="declined" pt="xs">
+					<Tabs.Panel value="declined" pt="xs" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 				</Tabs>

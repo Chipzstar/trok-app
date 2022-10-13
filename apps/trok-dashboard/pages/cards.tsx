@@ -125,9 +125,9 @@ const Cards = () => {
 				<Tabs
 					defaultValue='all'
 					classNames={{
-						root: '',
+						root: 'flex flex-col grow',
 						tabsList: '',
-						tab: 'test2 mx-4'
+						tab: 'mx-4'
 					}}
 				>
 					<Tabs.List>
@@ -136,15 +136,15 @@ const Cards = () => {
 						<Tabs.Tab value='inactive'>Inactive</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value='all' pt='xs'>
+					<Tabs.Panel value='all' pt='xs' className="h-full">
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='active' pt='xs'>
+					<Tabs.Panel value='active' pt='xs' className="h-full">
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='inactive' pt='xs'>
+					<Tabs.Panel value='inactive' pt='xs' className="h-full">
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 				</Tabs>

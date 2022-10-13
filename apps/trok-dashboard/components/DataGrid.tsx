@@ -4,6 +4,7 @@ import useTable from '../hooks/useTable';
 import useWindowSize from '../hooks/useWindowSize';
 import { IconChevronDown, IconChevronUp, IconSelector } from '@tabler/icons';
 import { TableHeadings } from '../utils/types';
+import CustomPagination from './CustomPagination';
 
 const useStyles = createStyles(theme => ({
 	th: {
@@ -87,7 +88,7 @@ const DataGrid = ({
 	const { height: windowHeight } = useWindowSize();
 	const { slice, range } = useTable(rows, activePage, windowHeight - offset, rowHeight);
 	return rows?.length ? (
-		<div className='flex flex-col justify-between'>
+		<div className='flex h-full flex-col justify-between'>
 			<Table
 				withBorder={false}
 				withColumnBorders={false}
@@ -117,7 +118,14 @@ const DataGrid = ({
 				</thead>
 				<tbody>{slice}</tbody>
 			</Table>
-			<Pagination page={activePage} onChange={setPage} total={range.length} position='center' />
+			<CustomPagination
+				page={activePage}
+				onChange={setPage}
+				numRows={rows.length}
+				total={range.length}
+				position='center'
+				spacing={50}
+			/>
 		</div>
 	) : (
 		<EmptyTable content={emptyContent} />
