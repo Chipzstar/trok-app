@@ -1,83 +1,115 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
-import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
-import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
+import { Button, Checkbox, Group, NumberInput, Radio, Text, Stack, TextInput } from '@mantine/core';
+import { STORAGE_KEYS } from '../utils/constants';
+import { useLocalStorage } from '@mantine/hooks';
 
-const ONE_GB = 1073741824; // in bytes units
-
-const Step3 = ({nextStep}) => {
-	const form = useForm({
-		initialValues: {
-			average_monthly_revenue: null
+const Step3 = ({ finish }) => {
+	const [locationForm, setLocationForm] = useLocalStorage({
+		key: STORAGE_KEYS.COMPANY_FORM,
+		defaultValue: {
+			line1: '',
+			line2: '',
+			city: '',
+			postcode: '',
+			region: '',
+			country: 'GB',
+			card_business_name: '',
+			num_cards: null,
+			shipping_speed: 'standard',
+			same_shipping_address: false,
+			shipping_address: {
+				line1: '',
+				line2: '',
+				city: '',
+				postcode: '',
+				region: '',
+				country: 'GB'
+			}
 		}
 	});
+	const form = useForm({
+		initialValues: {
+			...locationForm
+		}
+	});
+
 	const handleSubmit = useCallback(values => {
-		console.log(values)
-		nextStep()
+		console.log(values);
+		finish(true);
 	}, []);
+
+	useEffect(() => {
+		const storedValue = window.localStorage.getItem(STORAGE_KEYS.LOCATION_FORM);
+		if (storedValue) {
+			try {
+				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.LOCATION_FORM)));
+			} catch (e) {
+				console.log('Failed to parse stored value');
+				console.error(e);
+			}
+		}
+	}, []);
+
+	useEffect(() => {
+		window.localStorage.setItem(STORAGE_KEYS.LOCATION_FORM, JSON.stringify(form.values));
+	}, [form.values]);
 
 	return (
 		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
-			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
+			<h1 className='mb-4 text-2xl font-medium'>Your location</h1>
 			<Stack>
-				<NumberInput
-					required
-					icon={<IconCurrencyPound size={16} />}
-					label='What is your average monthly revenue?'
-					{...form.getInputProps('average_monthly_revenue')}
+				<Group grow>
+					<TextInput required label='Address line 1' {...form.getInputProps('line1')} />
+					<TextInput label='Address line 2' {...form.getInputProps('line2')} />
+				</Group>
+				<Group grow>
+					<TextInput required label='City' {...form.getInputProps('city')} />
+					<TextInput required label='Postal Code' {...form.getInputProps('postcode')} />
+				</Group>
+				<Group grow>
+					<TextInput required label='County / Region' {...form.getInputProps('region')} />
+					<TextInput readOnly label='Country' {...form.getInputProps('country')} />
+				</Group>
+				<Checkbox
+					label='Use a different shipping address'
+					{...form.getInputProps('same_shipping_address', { type: 'checkbox' })}
 				/>
-				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
-				<div className='flex flex-row flex-col items-center justify-center space-y-4'>
-					<Button px='xl' fullWidth>
-						<Text weight='normal'>Link Business Bank Account</Text>
-					</Button>
-					<Text align='center' size='xs' color='dimmed'>
-						Trok uses Plaid for a safe & secure connection
-						<br />
-						Recommended for instant approval
-					</Text>
-				</div>
-
-				<span className="text-center">Can’t link your bank? Upload bank statements from the last three months.</span>
-				<Dropzone
-					onDrop={files => console.log('accepted files', files)}
-					onReject={files => console.log('rejected files', files)}
-					maxSize={ONE_GB} // 1GB
-					multiple
-					accept={PDF_MIME_TYPE}
+				{form.values.same_shipping_address && (
+					<>
+						<h1 className='text-2xl font-medium'>Shipping address</h1>
+						<Group grow>
+							<TextInput required label='Address line 1' {...form.getInputProps('shipping_address.line1')} />
+							<TextInput label='Address line 2' {...form.getInputProps('shipping_address.line2')} />
+						</Group>
+						<Group grow>
+							<TextInput required label='City' {...form.getInputProps('shipping_address.city')} />
+							<TextInput required label='Postal code' {...form.getInputProps('shipping_address.postcode')} />
+						</Group>
+						<Group grow>
+							<TextInput required label='County/Region' {...form.getInputProps('shipping_address.region')} />
+							<TextInput readOnly label='Country' {...form.getInputProps('shipping_address.country')} />
+						</Group>
+					</>
+				)}
+				<h1 className='text-2xl font-medium'>Configure card details</h1>
+				<TextInput required label='Business name on card' {...form.getInputProps('card_business_name')} />
+				<NumberInput min={1} max={50} required label='Number of cards' {...form.getInputProps('num_cards')} />
+				<Radio.Group
+					spacing='xs'
+					name='Shipping Speed'
+					orientation='vertical'
+					label='Select shipping speed'
+					withAsterisk
+					{...form.getInputProps('shipping_speed')}
 				>
-					<Group position='center' spacing='xl' style={{ minHeight: 100, pointerEvents: 'none' }}>
-						<Dropzone.Accept>
-							<IconUpload size={50} stroke={1.5} />
-						</Dropzone.Accept>
-						<Dropzone.Reject>
-							<IconX size={50} stroke={1.5} />
-						</Dropzone.Reject>
-						<Dropzone.Idle>
-							<IconFolders size={40} stroke={1.5} />
-						</Dropzone.Idle>
-						<div>
-							<Text size='xl' inline>
-								Upload bank statements
-							</Text>
-							<Text size='xs' color='dimmed' mt={7} className='md:w-80'>
-								PDF format required. Uploading bank statements may increase processing time for your
-								application
-							</Text>
-						</div>
-					</Group>
-				</Dropzone>
-				<Group mt='md' position="right">
-					<Button
-						type='submit'
-						variant='filled'
-						size='md'
-						style={{
-							width: 200
-						}}
-					>
-						<Text weight="normal">Continue</Text>
+					<Radio value='standard' label='3-8 days. Cards left at address' />
+					<Radio value='express' label='2-3 days. Cards left at address' />
+					<Radio value='signature' label='2-3 days. Signature required at delivery' />
+				</Radio.Group>
+				<Group mt='lg' position='right'>
+					<Button type='submit' variant='filled' size='md' px='xl'>
+						<Text weight='normal'>Complete Application</Text>
 					</Button>
 				</Group>
 			</Stack>

@@ -5,12 +5,13 @@ import {
 	IconGauge,
 	IconLogout,
 	IconReceipt,
-	IconSwitchHorizontal, IconUser,
+	IconUser,
 	IconUsers
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { PATHS } from '../utils/constants';
+import { useLocalStorage } from '@mantine/hooks';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -82,6 +83,8 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 const Sidebar = ({setAuth}) => {
 	const router = useRouter();
+	const [newAccount, setAccount] = useLocalStorage({ key: 'account', defaultValue: null });
+	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
 	const tabs = {
 		general: [
 			{
@@ -129,25 +132,36 @@ const Sidebar = ({setAuth}) => {
 	return (
 		<Navbar width={{ base: 300 }} p='xs'>
 			<Navbar.Section className={classes.header}>
-				<Group spacing="xs">
-					<Image src='/static/images/logo-blue.svg' width={30} height={30}/>
-					<Text size="xl" weight="600">Trok</Text>
+				<Group spacing='xs'>
+					<Image src='/static/images/logo-blue.svg' width={30} height={30} />
+					<Text size='xl' weight='600'>
+						Trok
+					</Text>
 				</Group>
 			</Navbar.Section>
 			<Navbar.Section grow mt='xl'>
 				{links}
 			</Navbar.Section>
 			<Navbar.Section className={classes.footer}>
-				<a href='#' className={classes.link} onClick={(event) => event.preventDefault()}>
+				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
 					<IconUser className={classes.linkIcon} stroke={1.5} />
 					<span>Profile</span>
 				</a>
-				<div className={classes.link} onClick={() => setAuth(false)}>
+				<div
+					role="button"
+					className={classes.link}
+					onClick={() => {
+						setAccount(null);
+						setComplete(false);
+						setAuth(false);
+						router.push(PATHS.SIGNUP);
+					}}
+				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>
 				</div>
 			</Navbar.Section>
 		</Navbar>
-	)
+	);
 };
 
 export default Sidebar;

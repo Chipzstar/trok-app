@@ -1,13 +1,22 @@
 import dayjs from "dayjs";
 
+export const STORAGE_KEYS = {
+	AUTH: 'auth',
+	COMPLETE: 'complete',
+	ACCOUNT: 'account',
+	SIGNUP_FORM: 'signup-form',
+	COMPANY_FORM: 'onboarding-company-form',
+	FINANCIAL_FORM: 'financial-form',
+	LOCATION_FORM: 'location-form'
+}
+
 export const PATHS = {
 	HOME: '/',
 	SIGNUP: '/signup',
 	TRANSACTIONS: '/transactions',
 	DRIVERS: '/drivers',
 	BILLING: '/billing',
-	ONBOARDING: '/onboarding',
-
+	ONBOARDING: '/onboarding'
 }
 
 export const SAMPLE_DRIVERS = [

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
 import { ScrollArea, Text, Stepper } from '@mantine/core';
+import Step1 from '../containers/Step1';
 import Step2 from '../containers/Step2';
 import Step3 from '../containers/Step3';
-import Step4 from '../containers/Step4';
 import SignUpComplete from '../containers/SignUpComplete';
 import { useLocalStorage } from '@mantine/hooks';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const onboarding = ({ auth, setAuth }) => {
-	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
+	const [complete, setComplete] = useLocalStorage({ key: STORAGE_KEYS.COMPLETE, defaultValue: false });
 	const [active, setActive] = useState(0);
 	const { height } = useWindowSize();
 	const nextStep = () => setActive(current => (current < 4 ? current + 1 : current));
@@ -51,13 +52,13 @@ const onboarding = ({ auth, setAuth }) => {
 						}}
 					>
 						<Stepper.Step icon={<div />} label='First step' description='Create an account'>
-							<Step2 nextStep={nextStep} />
+							<Step1 nextStep={nextStep} />
 						</Stepper.Step>
 						<Stepper.Step icon={<div />} label='Second step' description='Financial'>
-							<Step3 nextStep={nextStep} />
+							<Step2 nextStep={nextStep} />
 						</Stepper.Step>
 						<Stepper.Step icon={<div />} label='Final step' description='Location'>
-							<Step4 finish={setComplete} />
+							<Step3 finish={setComplete} />
 						</Stepper.Step>
 					</Stepper>
 				</div>

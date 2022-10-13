@@ -5,11 +5,12 @@ import Head from 'next/head';
 import Layout from '../layout/Layout';
 import Favicon from '../components/Favicon';
 import { useLocalStorage } from '@mantine/hooks';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function CustomApp({ Component, pageProps }: AppProps) {
-	const [auth, setAuth] = useLocalStorage({ key: 'auth', defaultValue: true });
+	const [auth, setAuth] = useLocalStorage({ key: STORAGE_KEYS.AUTH, defaultValue: false });
 	return (
 		<>
 			<MantineProvider

@@ -65,7 +65,7 @@ const useStyles = createStyles((theme) => ({
 	}
 }));
 
-const SignUpComplete = ({auth, setAuth}) => {
+const SignUpComplete = ({ auth, setAuth }) => {
 	const router = useRouter();
 	const { classes } = useStyles();
 
