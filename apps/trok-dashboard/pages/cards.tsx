@@ -1,11 +1,12 @@
 import React from 'react';
 import PageContainer from '../layout/PageContainer';
-import { Button, Tabs, Text } from '@mantine/core';
+import { ActionIcon, Button, Group, Tabs, Text } from '@mantine/core';
 import CardsTable from '../containers/CardsTable';
 import { GBP } from '../utils/constants';
 import { capitalize, sanitize } from '../utils/functions';
 import classNames from 'classnames';
 import { CARD_STATUS } from '../utils/types';
+import { IconChevronDown, IconChevronRight, IconPencil } from '@tabler/icons';
 
 const data = [
 	{
@@ -103,8 +104,12 @@ const Cards = () => {
 				<td colSpan={1}>
 					<span>{GBP(element.spending_limit.weekly).format()}</span>
 				</td>
-				<td colSpan={1}>
-
+				<td role="button" onClick={() => null}>
+					<Group grow position='left'>
+						<ActionIcon size='sm'>
+							<IconChevronRight />
+						</ActionIcon>
+					</Group>
 				</td>
 			</tr>
 		);

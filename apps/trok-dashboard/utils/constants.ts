@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import currency from 'currency.js';
+import { PAYMENT_STATUS } from './types';
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
@@ -114,3 +115,78 @@ export const SAMPLE_DRIVERS = [
 		spending_limit: 350000
 	}
 ];
+
+export const SAMPLE_PAYMENTS = [
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.IN_PROGRESS,
+		recipient: {
+			id: '',
+			name: 'John Smith'
+		}
+	},
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.IN_PROGRESS,
+		recipient: {
+			id: '',
+			name: 'George Smith'
+		}
+	},
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.COMPLETE,
+		recipient: {
+			id: '',
+			name: 'Rayan Bannai'
+		}
+	},
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.COMPLETE,
+		recipient: {
+			id: '',
+			name: 'King Dave'
+		}
+	},
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.IN_PROGRESS,
+		recipient: {
+			id: '',
+			name: 'John Smith'
+		}
+	},
+	{
+		id: '',
+		created_at: dayjs().unix(),
+		finish_date: dayjs().unix(),
+		type: 'Bank Transfer',
+		amount: 650000,
+		status: PAYMENT_STATUS.FAILED,
+		recipient: {
+			id: '',
+			name: 'Michael Phelps'
+		}
+	}
+]
