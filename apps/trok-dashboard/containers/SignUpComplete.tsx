@@ -66,7 +66,7 @@ const useStyles = createStyles((theme) => ({
 	}
 }));
 
-const SignUpComplete = ({ setAuth }) => {
+const SignUpComplete = ({ auth, setAuth }) => {
 	const [account, setAccount] = useLocalStorage({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
 	const router = useRouter();
 	const { classes } = useStyles();
