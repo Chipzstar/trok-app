@@ -104,7 +104,7 @@ const CardDetails = () => {
 						<Stack justify='space-between' className='h-full'>
 							<div className='space-y-2'>
 								<Text weight={600}>Driver</Text>
-								<span>John Smith</span>
+								<span>{card?.cardholder_name}</span>
 							</div>
 							<div className='flex-end block'>
 								<Button size='md'>Disable Card</Button>

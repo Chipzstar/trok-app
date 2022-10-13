@@ -121,7 +121,7 @@ export const SAMPLE_CARDS = [
 		id: 'card_0001',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
+		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
 		spending_limit: {
 			weekly: 468000
@@ -143,7 +143,7 @@ export const SAMPLE_CARDS = [
 		id: 'card_0003',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
+		last4: '5410',
 		cardholder_name: 'Daniel Oguibe',
 		spending_limit: {
 			weekly: 468000
@@ -154,7 +154,7 @@ export const SAMPLE_CARDS = [
 		id: 'card_0004',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
+		last4: '7341',
 		cardholder_name: 'King Dave',
 		spending_limit: {
 			weekly: 468000
@@ -162,10 +162,10 @@ export const SAMPLE_CARDS = [
 		balance: 4679995
 	},
 	{
-		id: 'card_0004',
+		id: 'card_0005',
 		created_at: 1665414165,
 		status: CARD_STATUS.INACTIVE,
-		last4: '2681',
+		last4: '9127',
 		cardholder_name: 'Rayan Bannai',
 		spending_limit: {
 			weekly: 468000
