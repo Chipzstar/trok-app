@@ -3,9 +3,9 @@ import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
 	IconCalendar,
+	IconChartLine,
 	IconCreditCard,
 	IconFileText,
-	IconGauge,
 	IconGift,
 	IconLogout,
 	IconUser,
@@ -81,7 +81,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 	};
 });
 
-const Sidebar = ({setAuth}) => {
+const Sidebar = ({ setAuth }) => {
 	const router = useRouter();
 	const [newAccount, setAccount] = useLocalStorage({ key: 'account', defaultValue: null });
 	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
@@ -90,44 +90,44 @@ const Sidebar = ({setAuth}) => {
 			{
 				link: PATHS.HOME,
 				label: 'Dashboard',
-				icon: IconGauge,
-				isActive: router.pathname === PATHS.HOME,
+				icon: IconChartLine,
+				isActive: router.pathname === PATHS.HOME
 			},
 			{
 				link: PATHS.TRANSACTIONS,
 				label: 'Transactions',
 				icon: IconArrowsLeftRight,
-				isActive: router.pathname === PATHS.TRANSACTIONS,
+				isActive: router.pathname === PATHS.TRANSACTIONS
 			},
 			{
 				link: PATHS.CARDS,
 				label: 'Cards',
 				icon: IconCreditCard,
-				isActive: router.pathname === PATHS.CARDS,
+				isActive: router.pathname.includes(PATHS.CARDS)
 			},
 			{
 				link: PATHS.DRIVERS,
 				label: 'Drivers',
 				icon: IconUsers,
-				isActive: router.pathname === PATHS.DRIVERS,
+				isActive: router.pathname.includes(PATHS.DRIVERS)
 			},
 			{
 				link: PATHS.PAYMENTS,
 				label: 'Payments',
 				icon: IconCalendar,
-				isActive: router.pathname === PATHS.PAYMENTS,
+				isActive: router.pathname === PATHS.PAYMENTS
 			},
 			{
 				link: PATHS.STATEMENTS,
 				label: 'Statements',
 				icon: IconFileText,
-				isActive: router.pathname === PATHS.STATEMENTS,
+				isActive: router.pathname === PATHS.STATEMENTS
 			},
 			{
 				link: PATHS.BANK_ACCOUNT,
 				label: 'Payment Method',
 				icon: IconWallet,
-				isActive: router.pathname === PATHS.BANK_ACCOUNT,
+				isActive: router.pathname === PATHS.BANK_ACCOUNT
 			}
 		]
 	};
@@ -136,7 +136,7 @@ const Sidebar = ({setAuth}) => {
 
 	const links = tabs[section].map((item, index) => (
 		<div
-			role="button"
+			role='button'
 			className={cx(classes.link, { [classes.linkActive]: item.isActive })}
 			key={index}
 			onClick={() => router.push(item.link)}
@@ -147,8 +147,8 @@ const Sidebar = ({setAuth}) => {
 	));
 
 	return (
-		<Navbar width={{ base: 250 }}  p='xs'>
-			<Navbar.Section className={classes.header} >
+		<Navbar width={{ base: 250 }} p='xs'>
+			<Navbar.Section className={classes.header}>
 				<Group spacing='xs'>
 					<Image src='/static/images/logo-blue.svg' width={35} height={35} />
 					<Text size={28} weight='600'>
@@ -156,9 +156,7 @@ const Sidebar = ({setAuth}) => {
 					</Text>
 				</Group>
 			</Navbar.Section>
-			<Navbar.Section grow >
-				{links}
-			</Navbar.Section>
+			<Navbar.Section grow>{links}</Navbar.Section>
 			<Navbar.Section className={classes.footer}>
 				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
 					<IconGift className={classes.linkIcon} stroke={1.5} />
@@ -169,7 +167,7 @@ const Sidebar = ({setAuth}) => {
 					<span>Profile</span>
 				</a>
 				<div
-					role="button"
+					role='button'
 					className={classes.link}
 					onClick={() => {
 						setAccount(null);

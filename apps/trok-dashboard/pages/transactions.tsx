@@ -3,77 +3,10 @@ import React from 'react';
 import dayjs from 'dayjs';
 import PageContainer from '../layout/PageContainer';
 import TransactionTable from '../containers/TransactionTable';
-
-const data = [
-	{
-		date_of_transaction: 1665414165,
-		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
-		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
-	},
-	{
-		date_of_transaction: 1665414165,
-		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
-		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
-	},
-	{
-		date_of_transaction: 1665414165,
-		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
-		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
-	},
-	{
-		date_of_transaction: 1665414165,
-		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
-		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
-	},
-	{
-		date_of_transaction: 1665414165,
-		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
-		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
-	}
-];
+import { SAMPLE_TRANSACTIONS } from '../utils/constants';
 
 const Transactions = () => {
-	const rows = data.map((element, index) => {
+	const rows = SAMPLE_TRANSACTIONS.map((element, index) => {
 		return (
 			<tr key={index} style={{
 				border: 'none'

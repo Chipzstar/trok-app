@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import currency from 'currency.js';
-import { PAYMENT_STATUS } from './types';
+import { CARD_STATUS, PAYMENT_STATUS } from './types';
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
@@ -116,6 +116,64 @@ export const SAMPLE_DRIVERS = [
 	}
 ];
 
+export const SAMPLE_CARDS = [
+	{
+		id: 'card_0001',
+		created_at: 1665414165,
+		status: CARD_STATUS.ACTIVE,
+		last4: '2681',
+		cardholder_name: 'Joel Cambridge',
+		spending_limit: {
+			weekly: 468000
+		},
+		balance: 4679995
+	},
+	{
+		id: 'card_0002',
+		created_at: 1665414165,
+		status: CARD_STATUS.ACTIVE,
+		last4: '2681',
+		cardholder_name: 'Ola Oladapo',
+		spending_limit: {
+			weekly: 468000
+		},
+		balance: 4679995
+	},
+	{
+		id: 'card_0003',
+		created_at: 1665414165,
+		status: CARD_STATUS.ACTIVE,
+		last4: '2681',
+		cardholder_name: 'Daniel Oguibe',
+		spending_limit: {
+			weekly: 468000
+		},
+		balance: 4679995
+	},
+	{
+		id: 'card_0004',
+		created_at: 1665414165,
+		status: CARD_STATUS.ACTIVE,
+		last4: '2681',
+		cardholder_name: 'King Dave',
+		spending_limit: {
+			weekly: 468000
+		},
+		balance: 4679995
+	},
+	{
+		id: 'card_0004',
+		created_at: 1665414165,
+		status: CARD_STATUS.INACTIVE,
+		last4: '2681',
+		cardholder_name: 'Rayan Bannai',
+		spending_limit: {
+			weekly: 468000
+		},
+		balance: 4679995
+	}
+]
+
 export const SAMPLE_PAYMENTS = [
 	{
 		id: '',
@@ -190,3 +248,71 @@ export const SAMPLE_PAYMENTS = [
 		}
 	}
 ]
+
+export const SAMPLE_TRANSACTIONS = [
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	}
+];

@@ -1,6 +1,4 @@
 import React from 'react';
-import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../utils/constants';
 
 interface PageContainerProps {
 	children: JSX.Element | JSX.Element[];
@@ -9,7 +7,6 @@ interface PageContainerProps {
 }
 
 const PageContainer = ({ children, header = null, classNames = 'h-screen flex flex-col' }: PageContainerProps) => {
-	const [business, setBusinessInfo] = useLocalStorage({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
 	return (
 		<div className={classNames}>
 			{header}
@@ -33,8 +30,8 @@ const Header = ({ children, classNames = 'bg-white mb-6 flex items-center justif
 
 PageContainer.Header = Header;
 
-const Body = ({ children, classNames = 'px-6 flex flex-col grow' }) => {
-	return <div className={classNames}>{children}</div>;
+const Body = ({ children, classNames = 'px-6 flex flex-col grow', extraClassNames="" }) => {
+	return <div className={`${classNames} ${extraClassNames}`}>{children}</div>;
 };
 
 PageContainer.Body = Body;

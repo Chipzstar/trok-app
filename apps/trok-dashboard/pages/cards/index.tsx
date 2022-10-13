@@ -1,68 +1,17 @@
 import React from 'react';
-import PageContainer from '../layout/PageContainer';
-import { ActionIcon, Button, Group, Tabs, Text } from '@mantine/core';
-import CardsTable from '../containers/CardsTable';
-import { GBP } from '../utils/constants';
-import { capitalize, sanitize } from '../utils/functions';
+import PageContainer from '../../layout/PageContainer';
+import { ActionIcon, Button, Group, Tabs } from '@mantine/core';
+import CardsTable from '../../containers/CardsTable';
+import { GBP, PATHS, SAMPLE_CARDS } from '../../utils/constants';
+import { sanitize } from '../../utils/functions';
 import classNames from 'classnames';
-import { CARD_STATUS } from '../utils/types';
-import { IconChevronDown, IconChevronRight, IconPencil } from '@tabler/icons';
-
-const data = [
-	{
-		created_at: 1665414165,
-		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
-		cardholder_name: 'Joel Cambridge',
-		spending_limit: {
-			weekly: 468000
-		},
-		balance: 4679995
-	},
-	{
-		created_at: 1665414165,
-		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
-		cardholder_name: 'Ola Oladapo',
-		spending_limit: {
-			weekly: 468000
-		},
-		balance: 4679995
-	},
-	{
-		created_at: 1665414165,
-		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
-		cardholder_name: 'Daniel Oguibe',
-		spending_limit: {
-			weekly: 468000
-		},
-		balance: 4679995
-	},
-	{
-		created_at: 1665414165,
-		status: CARD_STATUS.ACTIVE,
-		last4: '2681',
-		cardholder_name: 'King Dave',
-		spending_limit: {
-			weekly: 468000
-		},
-		balance: 4679995
-	},
-	{
-		created_at: 1665414165,
-		status: CARD_STATUS.INACTIVE,
-		last4: '2681',
-		cardholder_name: 'Rayan Bannai',
-		spending_limit: {
-			weekly: 468000
-		},
-		balance: 4679995
-	}
-];
+import { CARD_STATUS } from '../../utils/types';
+import { IconChevronRight } from '@tabler/icons';
+import { useRouter } from 'next/router';
 
 const Cards = () => {
-	const rows = data.map((element, index) => {
+	const router = useRouter();
+	const rows = SAMPLE_CARDS.map((element, index) => {
 		const statusClass = classNames({
 			'py-1': true,
 			'w-28': true,
@@ -104,7 +53,7 @@ const Cards = () => {
 				<td colSpan={1}>
 					<span>{GBP(element.spending_limit.weekly).format()}</span>
 				</td>
-				<td role="button" onClick={() => null}>
+				<td role="button" onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
 					<Group grow position='left'>
 						<ActionIcon size='sm'>
 							<IconChevronRight />

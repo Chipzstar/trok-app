@@ -12,7 +12,6 @@ import classNames from 'classnames';
 import { PAYMENT_STATUS } from '../utils/types';
 
 const Payments = () => {
-	const router = useRouter();
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 
 	const rows = SAMPLE_PAYMENTS.map((element, index) => {
@@ -56,7 +55,7 @@ const Payments = () => {
 						<span>
 							<span
 								style={{
-									fontSize: 10
+									fontSize: 9
 								}}
 							>
 								●
@@ -106,7 +105,7 @@ const Payments = () => {
 						label='Viewing payments between:'
 						placeholder='Pick dates range'
 						value={value}
-						inputFormat="MM/DD/YYYY"
+						inputFormat="DD/MM/YYYY"
 						labelSeparator=" → "
 						labelFormat="MMM YYYY"
 						onChange={setValue}

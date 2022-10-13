@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { useRouter } from 'next/router';
+import { MantineNumberSize } from '@mantine/core';
 
-const TransactionTable = ({rows}) => {
-	const router = useRouter();
+const TransactionTable = ({rows, spacingY="md"}) => {
 	const [activePage, setPage] = useState(1);
 	return (
 		<DataGrid
 			rows={rows}
 			activePage={activePage}
 			setPage={setPage}
-			spacingY='md'
+			spacingY={spacingY as MantineNumberSize}
 			headings={[
 				{ label: 'Transacted', key: null },
 				{ label: 'Merchant', key: null },

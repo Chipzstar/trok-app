@@ -15,6 +15,7 @@
     "nx:dashboard:build": "nx build trok-dashboard",
     "nx:dashboard:serve:local": "nx serve trok-dashboard --prod",
     "nx:dashboard:serve:prod": "nx serve trok-dashboard --prod --hostname 0.0.0.0",
+    "nx:dashboard:test": "nx build trok-dashboard && nx serve trok-dashboard --prod",
     "nx:cache-clean": "nx clear-cache",
     "prisma:generate": "npx prismerge -i prismerge.json && npx prisma generate"
   },
