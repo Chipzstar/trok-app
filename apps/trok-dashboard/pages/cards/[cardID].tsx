@@ -72,9 +72,9 @@ const CardDetails = () => {
 			<PageContainer.Body extraClassNames='px-10'>
 				<Group className='pb-6'>
 					<Title order={1} weight={500}>
-						Card **** {card.last4}
+						Card **** {card?.last4}
 					</Title>
-					<span className='font-medium uppercase text-success'>{card.status}</span>
+					<span className='font-medium uppercase text-success'>{card?.status}</span>
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
