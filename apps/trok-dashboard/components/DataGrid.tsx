@@ -27,11 +27,7 @@ const useStyles = createStyles(theme => ({
 }));
 
 const EmptyTable = ({ content }) => {
-	return (
-		<div className="py-5 flex justify-center items-center h-full">
-			{content}
-		</div>
-	)
+	return <div className='flex h-full items-center justify-center py-5'>{content}</div>;
 };
 
 interface ThProps {
@@ -49,7 +45,7 @@ function Th({ children, reversed, sorted, onSort }: ThProps) {
 		<th className={classes.th}>
 			<UnstyledButton onClick={onSort} className={classes.control}>
 				<Group position='apart'>
-					<Text color="dark" weight={500}>
+					<Text color='dark' weight={500}>
 						{children}
 					</Text>
 					<Center className={classes.icon}>
@@ -75,28 +71,53 @@ export interface DataGridProps {
 	rowHeight?: number;
 }
 
-const DataGrid = ({ rows, activePage, setPage, sortBy, reversed, onSort, headings = [], emptyContent, spacingY = 'sm', offset = 0, rowHeight = 100 }: DataGridProps) => {
+const DataGrid = ({
+	rows,
+	activePage,
+	setPage,
+	sortBy,
+	reversed,
+	onSort,
+	headings = [],
+	emptyContent,
+	spacingY = 'sm',
+	offset = 0,
+	rowHeight = 100
+}: DataGridProps) => {
 	const { height: windowHeight } = useWindowSize();
 	const { slice, range } = useTable(rows, activePage, windowHeight - offset, rowHeight);
 	return rows?.length ? (
 		<div className='flex flex-col justify-between'>
-			<Table verticalSpacing={spacingY} fontSize='md'>
+			<Table
+				withBorder={false}
+				withColumnBorders={false}
+				verticalSpacing={spacingY}
+				fontSize='md'
+				style={{
+					borderCollapse: 'separate',
+					border: 'none'
+				}}
+			>
 				<thead>
-				<tr>
-					{headings?.map(({ key, label }, index) => {
-						return key ? (
-							<Th sorted={sortBy === key} reversed={reversed} onSort={() => onSort(key)}>
-								{label}
-							</Th>
-						) : (
-							<th key={index}>{label}</th>
-						);
-					})}
-				</tr>
+					<tr
+						style={{
+							border: 'none'
+						}}
+					>
+						{headings?.map(({ key, label }, index) => {
+							return key ? (
+								<Th sorted={sortBy === key} reversed={reversed} onSort={() => onSort(key)}>
+									{label}
+								</Th>
+							) : (
+								<th key={index}>{label}</th>
+							);
+						})}
+					</tr>
 				</thead>
 				<tbody>{slice}</tbody>
 			</Table>
-			<Pagination page={activePage} onChange={setPage} total={range.length} position='left' />
+			<Pagination page={activePage} onChange={setPage} total={range.length} position='center' />
 		</div>
 	) : (
 		<EmptyTable content={emptyContent} />

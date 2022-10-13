@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
+	IconCalendar,
+	IconCreditCard,
+	IconFileText,
 	IconGauge,
+	IconGift,
 	IconLogout,
-	IconReceipt,
 	IconUser,
-	IconUsers
+	IconUsers,
+	IconWallet
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { PATHS } from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 
 const useStyles = createStyles((theme, _params, getRef) => {
@@ -18,12 +22,11 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 	return {
 		header: {
-			padding: theme.spacing.md,
+			paddingRight: theme.spacing.md,
+			paddingLeft: theme.spacing.md,
 			paddingTop: theme.spacing.xs,
 			color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-			borderBottom: `1px solid ${
-				theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-			}`,
+			minHeight: DEFAULT_HEADER_HEIGHT
 		},
 		navbar: {
 			backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white
@@ -63,8 +66,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 		linkActive: {
 			'&, &:hover': {
-				backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor })
-					.background,
+				backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
 				color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
 				[`& .${icon}`]: {
 					color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color
@@ -73,9 +75,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 		},
 
 		footer: {
-			borderTop: `1px solid ${
-				theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-			}`,
+			borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
 			paddingTop: theme.spacing.md
 		}
 	};
@@ -88,29 +88,46 @@ const Sidebar = ({setAuth}) => {
 	const tabs = {
 		general: [
 			{
-				link: '/',
+				link: PATHS.HOME,
 				label: 'Dashboard',
 				icon: IconGauge,
 				isActive: router.pathname === PATHS.HOME,
 			},
 			{
-				link: '/transactions',
+				link: PATHS.TRANSACTIONS,
 				label: 'Transactions',
 				icon: IconArrowsLeftRight,
 				isActive: router.pathname === PATHS.TRANSACTIONS,
 			},
 			{
-				link: '/drivers',
-				label: 'Cards & Drivers',
+				link: PATHS.CARDS,
+				label: 'Cards',
+				icon: IconCreditCard,
+				isActive: router.pathname === PATHS.CARDS,
+			},
+			{
+				link: PATHS.DRIVERS,
+				label: 'Drivers',
 				icon: IconUsers,
 				isActive: router.pathname === PATHS.DRIVERS,
 			},
-
 			{
-				link: '/billing',
-				label: 'Billing',
-				icon: IconReceipt,
-				isActive: router.pathname === PATHS.BILLING
+				link: PATHS.PAYMENTS,
+				label: 'Payments',
+				icon: IconCalendar,
+				isActive: router.pathname === PATHS.PAYMENTS,
+			},
+			{
+				link: PATHS.STATEMENTS,
+				label: 'Statements',
+				icon: IconFileText,
+				isActive: router.pathname === PATHS.STATEMENTS,
+			},
+			{
+				link: PATHS.BANK_ACCOUNT,
+				label: 'Payment Method',
+				icon: IconWallet,
+				isActive: router.pathname === PATHS.BANK_ACCOUNT,
 			}
 		]
 	};
@@ -130,19 +147,23 @@ const Sidebar = ({setAuth}) => {
 	));
 
 	return (
-		<Navbar width={{ base: 300 }} p='xs'>
-			<Navbar.Section className={classes.header}>
+		<Navbar width={{ base: 250 }}  p='xs'>
+			<Navbar.Section className={classes.header} >
 				<Group spacing='xs'>
-					<Image src='/static/images/logo-blue.svg' width={30} height={30} />
-					<Text size='xl' weight='600'>
+					<Image src='/static/images/logo-blue.svg' width={35} height={35} />
+					<Text size={28} weight='600'>
 						Trok
 					</Text>
 				</Group>
 			</Navbar.Section>
-			<Navbar.Section grow mt='xl'>
+			<Navbar.Section grow >
 				{links}
 			</Navbar.Section>
 			<Navbar.Section className={classes.footer}>
+				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
+					<IconGift className={classes.linkIcon} stroke={1.5} />
+					<span>Refer & Earn</span>
+				</a>
 				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
 					<IconUser className={classes.linkIcon} stroke={1.5} />
 					<span>Profile</span>

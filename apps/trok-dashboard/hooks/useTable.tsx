@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// @ts-ignore
-const calculateRange = (data, rowsPerPage): Number[] => {
+const calculateRange = (data, rowsPerPage): number[] => {
 	const range = [];
 	const num = Math.ceil(data.length / rowsPerPage);
 	for (let i = 1; i <= num; i++) {
@@ -10,14 +9,12 @@ const calculateRange = (data, rowsPerPage): Number[] => {
 	return range;
 };
 
-// @ts-ignore
 const sliceData = (data, page, rowsPerPage) => {
 	return data.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 };
 
-// @ts-ignore
 export function useTable(data, page, height, rowHeight) {
-	const [tableRange, setTableRange] = useState<Number[]>([]);
+	const [tableRange, setTableRange] = useState<number[]>([]);
 	const [slice, setSlice] = useState<any[]>([]);
 	const rowsPerPage = Math.floor(height / rowHeight);
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, createStyles, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../utils/constants';
+import { STORAGE_KEYS } from '../../utils/constants';
 
 const useStyles = createStyles((theme) => ({
 	wrapper: {

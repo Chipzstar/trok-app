@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
-import { IconCurrencyPound, IconPhoto, IconUpload, IconX } from '@tabler/icons';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { IconCurrencyPound } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../utils/constants';
+import { STORAGE_KEYS } from '../../utils/constants';
 
-const Step1 = ({nextStep}) => {
+const Step1 = ({ nextStep }) => {
 	const [files, setFiles] = useState<File>(null);
 	const [companyForm, setCompanyForm] = useLocalStorage({
 		key: STORAGE_KEYS.COMPANY_FORM,
@@ -25,15 +24,14 @@ const Step1 = ({nextStep}) => {
 		initialValues: {
 			...companyForm
 		},
-		validate:  {
-			weekly_fuel_spend: (val) => Number(val) <= 0 ? "Value must be at least £100" : null,
-			num_vehicles: (val) => Number(val) <= 0 ? "You must have at least 1 vehicle" : null
+		validate: {
+			weekly_fuel_spend: val => (Number(val) <= 0 ? 'Value must be at least £100' : null),
+			num_vehicles: val => (Number(val) <= 0 ? 'You must have at least 1 vehicle' : null)
 		}
 	});
 
-
 	const handleSubmit = useCallback(values => {
-		console.log(values)
+		console.log(values);
 		nextStep();
 	}, []);
 
@@ -91,13 +89,23 @@ const Step1 = ({nextStep}) => {
 						label='Company Reg No.'
 						{...form.getInputProps('crn')}
 					/>
-					<NumberInput label='Number of Vehicles' min={1} max={100} required {...form.getInputProps('num_vehicles')} />
+					<NumberInput
+						label='Number of Vehicles'
+						min={1}
+						max={100}
+						required
+						{...form.getInputProps('num_vehicles')}
+					/>
 				</Group>
 				<TextInput type='text' label='Business URL' {...form.getInputProps('url')} />
 				<div>
-					<Text size='md'>Upload front of Driver's License</Text>
+					<Text size='md'>{"Upload front of Driver's License"}</Text>
 					<FileButton onChange={setFiles} accept='image/png,image/jpeg'>
-						{props => <Button variant="outline" fullWidth {...props}>Upload picture</Button>}
+						{props => (
+							<Button variant='outline' fullWidth {...props}>
+								Upload picture
+							</Button>
+						)}
 					</FileButton>
 				</div>
 				{/*<Dropzone

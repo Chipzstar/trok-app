@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
 import { ScrollArea, Text, Stepper } from '@mantine/core';
-import Step1 from '../containers/Step1';
-import Step2 from '../containers/Step2';
-import Step3 from '../containers/Step3';
-import SignUpComplete from '../containers/SignUpComplete';
+import Step1 from '../containers/signup/Step1';
+import Step2 from '../containers/signup/Step2';
+import Step3 from '../containers/signup/Step3';
+import SignUpComplete from '../containers/signup/SignUpComplete';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const onboarding = ({ auth, setAuth }) => {
+const Onboarding = ({ auth, setAuth }) => {
 	const [complete, setComplete] = useLocalStorage({ key: STORAGE_KEYS.COMPLETE, defaultValue: false });
 	const [active, setActive] = useState(0);
 	const { height } = useWindowSize();
@@ -69,4 +69,4 @@ const onboarding = ({ auth, setAuth }) => {
 	);
 };
 
-export default onboarding;
+export default Onboarding;

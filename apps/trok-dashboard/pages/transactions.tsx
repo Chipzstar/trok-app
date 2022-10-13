@@ -1,9 +1,8 @@
-import { Group, Text, Avatar, Switch, Button } from '@mantine/core';
-import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import DataGrid from '../components/DataGrid';
-import Empty from '../components/Empty';
+import { Button, Tabs, Text } from '@mantine/core';
+import React from 'react';
 import dayjs from 'dayjs';
+import PageContainer from '../layout/PageContainer';
+import TransactionTable from '../containers/TransactionTable';
 
 const data = [
 	{
@@ -11,6 +10,59 @@ const data = [
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
 		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
+		driver: 'Joel Cambridge',
+		amount: 468000,
+		net_discount: 4679995,
+		type: 'fuel',
+		litres: 120,
+		price_per_litre: 17080
+	},
+	{
+		date_of_transaction: 1665414165,
+		posted_date: 1665421245,
+		merchant: 'BP Fuel',
+		location: '319 Cambridge Heath Rd, London E2 9LH',
+		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
 		net_discount: 4679995,
@@ -20,17 +72,14 @@ const data = [
 	}
 ];
 
-const transactions = () => {
-	const router = useRouter();
-	const [activePage, setPage] = useState(1);
+const Transactions = () => {
 	const rows = data.map((element, index) => {
 		return (
-			<tr key={index}>
+			<tr key={index} style={{
+				border: 'none'
+			}}>
 				<td colSpan={1}>
-					<span>{dayjs.unix(element.date_of_transaction).format('DD MMM YY HH:mm')}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{dayjs.unix(element.posted_date).format('DD MMM YY HH:mm')}</span>
+					<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
 				</td>
 				<td colSpan={1}>
 					<span>{element.merchant}</span>
@@ -41,9 +90,10 @@ const transactions = () => {
 					</div>
 				</td>
 				<td colSpan={1}>
-					<Text weight={500}>
-						{element.driver}
-					</Text>
+					<span>{element.last4}</span>
+				</td>
+				<td colSpan={1}>
+					<Text weight={500}>{element.driver}</Text>
 				</td>
 				<td colSpan={1}>
 					<span className='text-base font-normal'>£{element.amount / 100}</span>
@@ -58,57 +108,50 @@ const transactions = () => {
 					<span>{element.litres}</span>
 				</td>
 				<td colSpan={1}>
-					<span>£{element.price_per_litre / 100}</span>
+					<span>£{element.price_per_litre / 100}p</span>
 				</td>
 			</tr>
 		);
 	});
 
 	return (
-		<div className='container p-5'>
-			<div className='mt-2 mb-6 flex items-center justify-between px-2'>
-				<span className="text-3xl font-semibold">Transactions</span>
-				<Button className='' onClick={() => null}>
-					<span className='text-base'>Export</span>
-				</Button>
-			</div>
-			<DataGrid
-				rows={rows}
-				activePage={activePage}
-				setPage={setPage}
-				spacingY='md'
-				headings={[
-					{ label: 'Transaction Date', key: null },
-					{
-						label: 'Posted Date',
-						key: null
-					},
-					{ label: 'Merchant', key: null },
-					{ label: 'Location', key: null },
-					{
-						label: 'Driver',
-						key: null
-					},
-					{ label: 'Amount', key: null },
-					{ label: 'Net of Discount', key: null },
-					{ label: 'Type', key: null },
-					{ label: 'Litres', key: null },
-					{ label: 'Price Per Litre', key: null }
-				]}
-				emptyContent={
-					<Empty
-						message={
-							<span className='text-center text-2xl'>
-								You have no transactions
-								<br />
-								Your transaction will appear once your drivers start using their fuel cards
-							</span>
-						}
-					/>
-				}
-			/>
-		</div>
+		<PageContainer
+			header={
+				<PageContainer.Header>
+					<span className='text-2xl font-medium'>Transactions</span>
+					<Button className='' onClick={() => null}>
+						<span className='text-base font-normal'>Export</span>
+					</Button>
+				</PageContainer.Header>
+			}
+		>
+			<PageContainer.Body>
+				<Tabs defaultValue="all" classNames={{
+					root: '',
+					tabsList: '',
+					tab: 'test2 mx-4'
+				}}>
+					<Tabs.List>
+						<Tabs.Tab value="all">All</Tabs.Tab>
+						<Tabs.Tab value="approved" >Approved</Tabs.Tab>
+						<Tabs.Tab value="declined">Declined</Tabs.Tab>
+					</Tabs.List>
+
+					<Tabs.Panel value="all" pt="xs">
+						<TransactionTable rows={rows}/>
+					</Tabs.Panel>
+
+					<Tabs.Panel value="approved" pt="xs">
+						<TransactionTable rows={rows}/>
+					</Tabs.Panel>
+
+					<Tabs.Panel value="declined" pt="xs">
+						<TransactionTable rows={rows}/>
+					</Tabs.Panel>
+				</Tabs>
+			</PageContainer.Body>
+		</PageContainer>
 	);
 };
 
-export default transactions;
+export default Transactions;

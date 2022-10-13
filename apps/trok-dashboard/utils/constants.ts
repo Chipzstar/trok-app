@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 
+export const DEFAULT_HEADER_HEIGHT = 70
+
 export const STORAGE_KEYS = {
 	AUTH: 'auth',
 	COMPLETE: 'complete',
@@ -16,7 +18,11 @@ export const PATHS = {
 	TRANSACTIONS: '/transactions',
 	DRIVERS: '/drivers',
 	BILLING: '/billing',
-	ONBOARDING: '/onboarding'
+	ONBOARDING: '/onboarding',
+	CARDS: '/cards',
+	PAYMENTS: '/payments',
+	BANK_ACCOUNT: '/bank-account',
+	STATEMENTS: '/statements',
 }
 
 export const SAMPLE_DRIVERS = [

@@ -14,11 +14,11 @@ export function useWindowSize() {
 		height: undefined,
 	});
 
-	// @ts-ignore
 	useEffect(() => {
 		// only execute all the code below in client side
 		if (typeof window !== 'undefined') {
 			// Handler to call on window resize
+			// eslint-disable-next-line no-inner-declarations
 			function handleResize() {
 				// Set window width/height to state
 				setWindowSize({

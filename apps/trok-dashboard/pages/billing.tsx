@@ -1,6 +1,6 @@
 import React from 'react';
 
-const billing = () => {
+const Billing = () => {
 	return (
 		<div className='container py-5'>
 			
@@ -8,4 +8,4 @@ const billing = () => {
 	);
 };
 
-export default billing;
+export default Billing;

@@ -9,6 +9,7 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
+    "nx:dashboard:lint": "nx lint trok-dashboard",
     "nx:backend:serve": "doppler run -p backend -c dev -- nx serve trok-backend",
     "nx:dashboard:serve": "nx serve trok-dashboard",
     "nx:dashboard:build": "nx build trok-dashboard",
@@ -99,4 +100,3 @@
     "typescript": "~4.8.2"
   }
 }
-

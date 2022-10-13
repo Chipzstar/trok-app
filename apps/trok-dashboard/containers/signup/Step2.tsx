@@ -3,7 +3,7 @@ import { useForm } from '@mantine/form';
 import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
 import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
-import { STORAGE_KEYS } from '../utils/constants';
+import { STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 
 const ONE_GB = 1073741824; // in bytes units

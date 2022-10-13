@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import { PATHS } from '../utils/constants';
 
-export function Index({ setAuth }) {
+export function Dashboard({ setAuth }) {
 	const router = useRouter();
 	const [newAccount, setAccount] = useLocalStorage({ key: 'account', defaultValue: null });
 	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
@@ -29,4 +29,4 @@ export function Index({ setAuth }) {
 	);
 }
 
-export default Index;
+export default Dashboard;

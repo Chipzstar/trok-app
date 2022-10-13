@@ -1,14 +1,13 @@
-import { Group, Text, Avatar, Switch, ActionIcon, Button } from '@mantine/core';
+import { ActionIcon, Avatar, Button, Group } from '@mantine/core';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
-import dayjs from 'dayjs';
-import { IconCreditCard, IconPencil, IconTrash } from '@tabler/icons';
+import { IconCreditCard, IconPencil } from '@tabler/icons';
 import { SAMPLE_DRIVERS } from '../utils/constants';
+import PageContainer from '../layout/PageContainer';
 
-
-const drivers = () => {
+const Drivers = () => {
 	const router = useRouter();
 	const [activePage, setPage] = useState(1);
 
@@ -17,10 +16,7 @@ const drivers = () => {
 			<tr key={index}>
 				<td colSpan={1}>
 					<Group spacing='sm'>
-						<IconCreditCard
-							size={30}
-							stroke={1}
-						/>
+						<IconCreditCard size={30} stroke={1} />
 						<span>{element.last4}</span>
 					</Group>
 				</td>
@@ -46,10 +42,7 @@ const drivers = () => {
 				</td>
 				<td>
 					<Group spacing='md' position='left'>
-						<ActionIcon
-							size='sm'
-							onClick={() => null}
-						>
+						<ActionIcon size='sm' onClick={() => null}>
 							<IconPencil />
 						</ActionIcon>
 					</Group>
@@ -59,9 +52,9 @@ const drivers = () => {
 	});
 
 	return (
-		<div className='container p-5'>
+		<PageContainer>
 			<div className='mt-2 mb-6 flex items-center justify-between px-2'>
-				<span className="text-3xl font-semibold">Cards</span>
+				<span className='text-3xl font-semibold'>Cards</span>
 				<Button className='' onClick={() => null}>
 					<span className='text-base'>Add Card</span>
 				</Button>
@@ -87,14 +80,14 @@ const drivers = () => {
 							<span className='text-center text-2xl'>
 								You have no drivers
 								<br />
-								Click the 'Add Driver' button to add one
+								{"Click the 'Add Driver' button to add one"}
 							</span>
 						}
 					/>
 				}
 			/>
-		</div>
+		</PageContainer>
 	);
 };
 
-export default drivers;
+export default Drivers;

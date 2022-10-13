@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Checkbox, Group, NumberInput, Radio, Text, Stack, TextInput } from '@mantine/core';
-import { STORAGE_KEYS } from '../utils/constants';
+import { STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 
 const Step3 = ({ finish }) => {
