@@ -1,4 +1,7 @@
 import dayjs from "dayjs";
+import currency from 'currency.js';
+
+export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
 export const DEFAULT_HEADER_HEIGHT = 70
 
@@ -44,6 +47,8 @@ export const SAMPLE_DRIVERS = [
 		city: 'Dagenham',
 		postcode: 'RM10 8EH',
 		last4: '8202',
+		current_spend: 21780200,
+		spending_limit: 350000
 	},
 	{
 		id: '',
@@ -63,6 +68,8 @@ export const SAMPLE_DRIVERS = [
 		postcode: 'RM10 8EH',
 		last4: '8202',
 		vin: 'JH4DB7540SS801338',
+		current_spend: 21780200,
+		spending_limit: 350000
 	},
 	{
 		id: '',
@@ -82,6 +89,8 @@ export const SAMPLE_DRIVERS = [
 		postcode: 'RM10 8EH',
 		last4: '8202',
 		vin: 'JF2SHADC3DG417185',
+		current_spend: 21780200,
+		spending_limit: 350000
 	},
 	{
 		id: '',
@@ -101,5 +110,7 @@ export const SAMPLE_DRIVERS = [
 		postcode: 'RM10 8EH',
 		last4: '8202',
 		vin: 'JH4KA2640GC004861',
+		current_spend: 21780200,
+		spending_limit: 350000
 	}
 ];
