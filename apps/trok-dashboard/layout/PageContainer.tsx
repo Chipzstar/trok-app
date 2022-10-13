@@ -1,4 +1,5 @@
 import React from 'react';
+import { DEFAULT_HEADER_HEIGHT } from '../utils/constants';
 
 interface PageContainerProps {
 	children: JSX.Element | JSX.Element[];
@@ -15,12 +16,13 @@ const PageContainer = ({ children, header = null, classNames = 'h-screen flex fl
 	);
 };
 
-const Header = ({ children, classNames = 'bg-white mb-6 flex items-center justify-between px-6', height = 75 }) => {
+const Header = ({ children, classNames = 'bg-white mb-6 flex items-center justify-between px-6', height = DEFAULT_HEADER_HEIGHT }) => {
 	return (
 		<div
 			className={classNames}
 			style={{
-				height
+				height,
+				minHeight: height
 			}}
 		>
 			{children}

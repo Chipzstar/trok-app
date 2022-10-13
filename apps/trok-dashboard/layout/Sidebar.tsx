@@ -26,7 +26,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			paddingLeft: theme.spacing.md,
 			paddingTop: theme.spacing.xs,
 			color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-			minHeight: DEFAULT_HEADER_HEIGHT
+			minHeight: DEFAULT_HEADER_HEIGHT -10
 		},
 		navbar: {
 			backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white

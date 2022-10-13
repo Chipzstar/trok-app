@@ -4,7 +4,7 @@ import { CARD_STATUS, PAYMENT_STATUS } from './types';
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
-export const DEFAULT_HEADER_HEIGHT = 70
+export const DEFAULT_HEADER_HEIGHT = 75
 
 export const STORAGE_KEYS = {
 	AUTH: 'auth',
