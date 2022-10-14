@@ -15,7 +15,7 @@ const settings = () => {
 		>
 			<Page.Body>
 				<Tabs
-					defaultValue='all'
+					defaultValue='personal'
 					classNames={{
 						root: 'flex flex-col grow',
 						tabsList: '',

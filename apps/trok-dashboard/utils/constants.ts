@@ -27,8 +27,8 @@ export const PATHS = {
 	PAYMENTS: '/payments',
 	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
-	SETTINGS: '/settings'
-
+	SETTINGS: '/settings',
+	REFERRAL: '/referral'
 }
 
 export const SAMPLE_DRIVERS = [

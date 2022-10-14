@@ -31,7 +31,7 @@ const Company = () => {
 					</div>
 					<div className="flex flex-col">
 						<span>Business URL</span>
-						<span className="font-semibold">{business?.business_url || "N/Ac"}</span>
+						<span className="font-semibold">{business?.business_url || "N/A"}</span>
 					</div>
 					<Group py="xl">
 						<Button>

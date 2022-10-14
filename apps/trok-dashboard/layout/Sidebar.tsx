@@ -161,10 +161,10 @@ const Sidebar = ({ setAuth }) => {
 			</Navbar.Section>
 			<Navbar.Section grow>{links}</Navbar.Section>
 			<Navbar.Section className={classes.footer}>
-				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
+				<div role="button" className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })} onClick={() => router.push(PATHS.REFERRAL)}>
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
-				</a>
+				</div>
 				<div role="button" className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })} onClick={() => router.push(PATHS.SETTINGS)}>
 					<IconSettings className={classes.linkIcon} stroke={1.5} />
 					<span>Settings</span>
