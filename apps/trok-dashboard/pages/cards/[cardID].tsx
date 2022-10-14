@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import { Button, Group, Title, Card, Stack, Text, ActionIcon } from '@mantine/core';
+import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Text, Title } from '@mantine/core';
 import { IconChevronLeft, IconEdit } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
 import dayjs from 'dayjs';
+import { useForm } from '@mantine/form';
 
 const rows = SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
 	return (
@@ -52,12 +53,24 @@ const rows = SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
 });
 
 const CardDetails = () => {
+	const [opened, setOpened] = useState(false);
 	const router = useRouter();
 	const { cardID } = router.query;
 
 	const card = useMemo(() => {
 		return SAMPLE_CARDS.find(c => c.id === cardID);
 	}, [cardID]);
+
+	const form = useForm({
+		initialValues: {
+			per_transaction: null,
+			daily: null,
+			weekly: null,
+			monthly: null
+		}
+	});
+
+	const handleSubmit = useCallback(values => {}, []);
 
 	return (
 		<Page.Container
@@ -69,6 +82,72 @@ const CardDetails = () => {
 				</Page.Header>
 			}
 		>
+			<Drawer
+				opened={opened}
+				onClose={() => setOpened(false)}
+				padding='xl'
+				size='xl'
+				position='right'
+				classNames={{
+					drawer: 'flex h-full'
+				}}
+			>
+				<Stack>
+					<Title order={2} weight={500}>
+						<span>Edit Spend Limits</span>
+					</Title>
+					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
+						<NumberInput
+							label='Per Transaction Limit'
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
+							}
+							{...form.getInputProps('per_transaction')}
+						/>
+						<NumberInput
+							label='Daily Spend Limit'
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
+							}
+							{...form.getInputProps('daily')}
+						/>
+						<NumberInput
+							label='Weekly Spend Limit'
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
+							}
+							{...form.getInputProps('weekly')}
+						/>
+						<NumberInput
+							label='Monthly Spend Limit'
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
+							}
+							{...form.getInputProps('monthly')}
+						/>
+						<Group py='xl' position='right'>
+							<Button
+								type='submit'
+								styles={{
+									root: {
+										width: 120
+									}
+								}}
+							>
+								<Text weight={500}>Save</Text>
+							</Button>
+						</Group>
+					</form>
+				</Stack>
+			</Drawer>
 			<Page.Body extraClassNames='px-10'>
 				<Group className='pb-6'>
 					<Title order={1} weight={500}>
@@ -90,7 +169,7 @@ const CardDetails = () => {
 							<Stack>
 								<div className='flex items-center'>
 									<Text>Edit Spend Limits &nbsp;</Text>
-									<ActionIcon size='sm'>
+									<ActionIcon size='sm' onClick={() => setOpened(true)}>
 										<IconEdit />
 									</ActionIcon>
 								</div>
@@ -116,7 +195,7 @@ const CardDetails = () => {
 					Recent Transactions
 				</Title>
 				<div>
-					<TransactionTable rows={rows} spacingY="sm" />
+					<TransactionTable rows={rows} spacingY='sm' />
 				</div>
 			</Page.Body>
 		</Page.Container>

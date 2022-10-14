@@ -1,9 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import Page from '../layout/Page';
-import { ActionIcon, Button, Drawer, Group, NumberInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Drawer,
+	Group,
+	NumberInput,
+	SegmentedControl,
+	Select,
+	Stack,
+	Text,
+	TextInput,
+	Title
+} from '@mantine/core';
 import { IconCalendar, IconChevronRight, IconSearch } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
-import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
+import { GBP, SAMPLE_CARDS, SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
@@ -18,6 +30,7 @@ const Payments = () => {
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
+	const [section, setSection] = useState<'card' | 'account'>('account');
 
 	const rows = SAMPLE_PAYMENTS.map((element, index) => {
 		const statusClass = classNames({
@@ -91,7 +104,9 @@ const Payments = () => {
 		initialValues: {
 			account_holder_name: '',
 			account_number: '',
-			sort_code: ''
+			sort_code: '',
+			driver: '',
+			card: '',
 		}
 	});
 
@@ -127,18 +142,34 @@ const Payments = () => {
 						<span>Send Payment</span>
 					</Title>
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
-						<Group grow spacing='xl'>
-							<TextInput required label='Account Number' {...form.getInputProps('account_number')} />
-							<SortCodeInput
-								onChange={event => {
-									console.log(event.currentTarget.value);
-									form.setFieldValue('sort_code', event.currentTarget.value);
-								}}
-								value={form.values.sort_code}
-								required
-							/>
-						</Group>
+						<SegmentedControl
+							value={section}
+							onChange={(value: 'card' | 'account') => setSection(value)}
+							transitionTimingFunction='ease'
+							fullWidth
+							data={[
+								{ label: 'Account', value: 'account' },
+								{ label: 'Card', value: 'card' }
+							]}
+						/>
+						{section === 'account' ? (
+							<>
+								<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
+								<Group grow spacing='xl'>
+									<TextInput required label='Account Number' {...form.getInputProps('account_number')} />
+									<SortCodeInput
+										onChange={event => {
+											console.log(event.currentTarget.value);
+											form.setFieldValue('sort_code', event.currentTarget.value);
+										}}
+										value={form.values.sort_code}
+										required
+									/>
+								</Group>
+							</>
+						) : (
+							<Select required label='Select Card' data={SAMPLE_CARDS.map(c => c.last4)} {...form.getInputProps('card')} />
+						)}
 						<NumberInput
 							label='Amount'
 							min={100}
