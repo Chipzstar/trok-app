@@ -62,7 +62,7 @@ const Payments = () => {
 								●
 							</span>
 							&nbsp;
-							{capitalize(sanitize(element.status))}
+							{capitalize(sanitize(element?.status))}
 						</span>
 					</div>
 				</td>
@@ -96,7 +96,7 @@ const Payments = () => {
 			}}>
 				<Stack justify="center">
 					<Stack spacing='xs'>
-						<span>Payment <span className="font-semibold">{sanitize(selectedPayment?.status)}</span> to {selectedPayment?.recipient?.name}</span>
+						<span>Payment <span className="font-semibold">{sanitize(selectedPayment?.status ?? "in progress")}</span> to {selectedPayment?.recipient?.name}</span>
 						<span className='heading-1'>-{GBP(selectedPayment?.amount).format()}</span>
 					</Stack>
 					<Divider />
