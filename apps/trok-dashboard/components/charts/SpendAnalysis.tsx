@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarController, BarElement } from 'chart.js';
+import { Chart, CategoryScale, LinearScale, BarController, BarElement, BarOptions } from 'chart.js';
 import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
 
@@ -16,6 +16,43 @@ const SpendAnalysis = () => {
 		}}>
 			<Bar
 				options={{
+					plugins: {
+						legend: {
+							display: false
+						}
+					},
+					scales: {
+						x: {
+							grid: {
+								display: false
+							},
+							title: {
+								display: true,
+								font: {
+									weight: '600'
+								},
+								text: 'Days'
+							}
+						},
+						y: {
+							grid: {
+								display: false
+							},
+							title: {
+								display: true,
+								text: 'Amount Spent',
+								font: {
+									weight: '600'
+								}
+							},
+							ticks: {
+								stepSize: 20,
+								callback: function(value, index, ticks) {
+									return '£' + value;
+								}
+							}
+						}
+					},
 					maintainAspectRatio: false,
 					responsive: true,
 					color: '#3646F5'
@@ -23,7 +60,7 @@ const SpendAnalysis = () => {
 				data={{
 					datasets: [
 						{
-							data: Array(7).fill(0).map(val => Math.floor(Math.random() * (20 - 5 + 1) + 5)),
+							data: Array(7).fill(0).map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5)),
 							backgroundColor: ['rgba(54, 70, 245, 0.2)'],
 							borderColor: '#3646F5',
 							borderWidth: 1
