@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import PageContainer from '../../layout/PageContainer';
+import Page from '../../layout/Page';
 import { Button, Group, Title, Card, Stack, Text, ActionIcon } from '@mantine/core';
 import { IconChevronLeft, IconEdit } from '@tabler/icons';
 import { useRouter } from 'next/router';
@@ -60,16 +60,16 @@ const CardDetails = () => {
 	}, [cardID]);
 
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header>
+				<Page.Header>
 					<Button leftIcon={<IconChevronLeft />} variant='white' color='dark' onClick={() => router.back()}>
 						<span className='text-xl font-medium'>Back</span>
 					</Button>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
-			<PageContainer.Body extraClassNames='px-10'>
+			<Page.Body extraClassNames='px-10'>
 				<Group className='pb-6'>
 					<Title order={1} weight={500}>
 						Card **** {card?.last4}
@@ -118,8 +118,8 @@ const CardDetails = () => {
 				<div>
 					<TransactionTable rows={rows} spacingY="sm" />
 				</div>
-			</PageContainer.Body>
-		</PageContainer>
+			</Page.Body>
+		</Page.Container>
 	);
 };
 

@@ -1,7 +1,7 @@
 import { Button, Tabs, Text } from '@mantine/core';
 import React from 'react';
 import dayjs from 'dayjs';
-import PageContainer from '../layout/PageContainer';
+import Page from '../layout/Page';
 import TransactionTable from '../containers/TransactionTable';
 import { SAMPLE_TRANSACTIONS } from '../utils/constants';
 
@@ -48,17 +48,17 @@ const Transactions = () => {
 	});
 
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header>
+				<Page.Header>
 					<span className='text-2xl font-medium'>Transactions</span>
 					<Button className='' onClick={() => null}>
 						<span className='text-base font-normal'>Export</span>
 					</Button>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
-			<PageContainer.Body>
+			<Page.Body>
 				<Tabs defaultValue="all" classNames={{
 					root: 'flex flex-col grow',
 					tabsList: '',
@@ -82,8 +82,8 @@ const Transactions = () => {
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 				</Tabs>
-			</PageContainer.Body>
-		</PageContainer>
+			</Page.Body>
+		</Page.Container>
 	);
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import PageContainer from '../layout/PageContainer';
+import Page from '../layout/Page';
 import { GBP, STORAGE_KEYS } from '../utils/constants';
 import { Card, Text, SimpleGrid, Stack, Title, Divider, Group, Button } from '@mantine/core';
 import dayjs from 'dayjs';
@@ -11,18 +11,17 @@ const week_spend = GBP(21272900).format()
 const week_savings = GBP(726436).format()
 console.log(week_spend)
 
-export function Dashboard({ setAuth }) {
-	const router = useRouter();
+export function Dashboard() {
 	const [business, setBusinss] = useLocalStorage({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header extraClassNames="mb-3">
+				<Page.Header extraClassNames="mb-3">
 					<span className='text-2xl font-medium capitalize'>{business?.legal_name}</span>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
-			<PageContainer.Body extraClassNames="">
+			<Page.Body extraClassNames="">
 				<Title order={4} weight={500} mb='lg'>
 					Overview
 				</Title>
@@ -82,9 +81,11 @@ export function Dashboard({ setAuth }) {
 				<Title order={4} weight={500} my='lg'>
 					Spend Analysis
 				</Title>
-				<SpendAnalysis/>
-			</PageContainer.Body>
-		</PageContainer>
+				<Card shadow='sm' py="lg" radius='xs'>
+					<SpendAnalysis/>
+				</Card>
+			</Page.Body>
+		</Page.Container>
 	);
 }
 

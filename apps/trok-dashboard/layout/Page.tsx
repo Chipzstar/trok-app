@@ -7,7 +7,11 @@ interface PageContainerProps {
 	classNames?: string;
 }
 
-const PageContainer = ({ children, header = null, classNames = 'h-screen flex flex-col' }: PageContainerProps) => {
+const Page = ({children}) => {
+	return ({children})
+}
+
+const Container = ({ children, header = null, classNames = 'h-screen flex flex-col' }: PageContainerProps) => {
 	return (
 		<div className={classNames}>
 			{header}
@@ -15,6 +19,8 @@ const PageContainer = ({ children, header = null, classNames = 'h-screen flex fl
 		</div>
 	);
 };
+
+Page.Container = Container;
 
 const Header = ({ children, classNames = 'bg-white mb-4 flex items-center justify-between px-6', extraClassNames="", height = DEFAULT_HEADER_HEIGHT }) => {
 	return (
@@ -30,12 +36,12 @@ const Header = ({ children, classNames = 'bg-white mb-4 flex items-center justif
 	);
 };
 
-PageContainer.Header = Header;
+Page.Header = Header;
 
 const Body = ({ children, classNames = 'px-6 flex flex-col grow', extraClassNames="" }) => {
 	return <div className={`${classNames} ${extraClassNames}`}>{children}</div>;
 };
 
-PageContainer.Body = Body;
+Page.Body = Body;
 
-export default PageContainer;
+export default Page;

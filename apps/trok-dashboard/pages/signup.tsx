@@ -49,7 +49,7 @@ export function Signup() {
 	}, [form.values]);
 
 	return (
-		<div className='h-screen w-full overflow-x-hidden p-5'>
+		<div className='bg-white h-screen w-full overflow-x-hidden p-5'>
 			<form
 				onSubmit={form.onSubmit(handleSubmit)}
 				className='flex h-full w-full flex-col font-aeonik'

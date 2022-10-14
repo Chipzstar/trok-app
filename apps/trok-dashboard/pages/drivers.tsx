@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useState } from 'react';
 import { IconPencil } from '@tabler/icons';
 import { GBP, SAMPLE_DRIVERS } from '../utils/constants';
-import PageContainer from '../layout/PageContainer';
+import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 
@@ -66,14 +66,14 @@ const Drivers = () => {
 	}, [])
 
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header>
+				<Page.Header>
 					<span className='text-2xl font-medium'>Drivers</span>
 					<Button className='' onClick={() => setOpened(true)}>
 						<span className='text-base font-normal'>Add new driver</span>
 					</Button>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
 			<Drawer
@@ -135,10 +135,10 @@ const Drivers = () => {
 					</form>
 				</Stack>
 			</Drawer>
-			<PageContainer.Body>
+			<Page.Body>
 				<DriversTable rows={rows}/>
-			</PageContainer.Body>
-		</PageContainer>
+			</Page.Body>
+		</Page.Container>
 	);
 };
 

@@ -19,7 +19,19 @@ function CustomApp({ Component, pageProps }: AppProps) {
 				withNormalizeCSS
 				theme={{
 					colors: {
-						'brand': [
+						default: [
+							'#FFFFFF',
+							'#FCFCFC',
+							'#E7E7E7',
+							'#D3D3D3',
+							'#BEBEBE',
+							'#AAAAAA',
+							'#8E8E8E',
+							'#727272',
+							'#565656',
+							'#3A3A3A'
+						],
+						brand: [
 							'#CDD0E8',
 							'#ADB1E1',
 							'#8A91E0',

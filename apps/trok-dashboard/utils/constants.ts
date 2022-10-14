@@ -25,7 +25,7 @@ export const PATHS = {
 	ONBOARDING: '/onboarding',
 	CARDS: '/cards',
 	PAYMENTS: '/payments',
-	BANK_ACCOUNT: '/bank-account',
+	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
 }
 
@@ -314,5 +314,65 @@ export const SAMPLE_TRANSACTIONS = [
 		type: 'fuel',
 		litres: 120,
 		price_per_litre: 17080
+	}
+];
+
+export const SAMPLE_STATEMENTS = [
+	{
+		period_label: 'October 22',
+		created_at: 1665414165,
+		period_start: 1665421245,
+		period_end: 1665421245,
+		due_at: 1665421245,
+		total_balance: 468000,
+	},
+	{
+		period_label: 'November 22',
+		created_at: 1665414165,
+		period_start: 1665421245,
+		period_end: 1665421245,
+		due_at: 1665421245,
+		total_balance: 468000,
+	},
+	{
+		period_label: 'December 22',
+		created_at: 1665414165,
+		period_start: 1665421245,
+		period_end: 1665421245,
+		due_at: 1665421245,
+		total_balance: 468000,
+	},
+	{
+		period_label: 'January 23',
+		created_at: 1665414165,
+		period_start: 1665421245,
+		period_end: 1665421245,
+		due_at: 1665421245,
+		total_balance: 468000,
+	},
+	{
+		period_label: 'February 23',
+		created_at: 1665414165,
+		period_start: 1665421245,
+		period_end: 1665421245,
+		due_at: 1665421245,
+		total_balance: 468000,
+	}
+];
+
+export const SAMPLE_BANK_ACCOUNTS = [
+	{
+		account_holder_name: 'Ola Oladapo',
+		type: 'business_account',
+		account_number: 12345678,
+		sort_code: "09-12-90",
+		isDefault: true,
+	},
+	{
+		account_holder_name: 'Chisom',
+		type: 'business_account',
+		account_number: 87654321,
+		sort_code: "89-21-21",
+		isDefault: false,
 	}
 ];

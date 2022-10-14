@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PageContainer from '../layout/PageContainer';
+import Page from '../layout/Page';
 import { ActionIcon, Button, Divider, Drawer, Group, Stack, Textarea, TextInput } from '@mantine/core';
 import { IconCalendar, IconChevronRight, IconPencil, IconSearch } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
@@ -81,14 +81,14 @@ const Payments = () => {
 	});
 
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header>
+				<Page.Header>
 					<span className='text-2xl font-medium'>Payments</span>
 					<Button className='' onClick={() => null}>
 						<span className='text-base font-normal'>Send Payment</span>
 					</Button>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
 			<Drawer opened={opened} onClose={() => setOpened(false)} padding="xl" size='xl' position='right' classNames={{
@@ -132,7 +132,7 @@ const Payments = () => {
 					/>
 				</Stack>
 			</Drawer>
-			<PageContainer.Body>
+			<Page.Body>
 				<div className='mb-4 flex items-center justify-between'>
 					<TextInput
 						className='w-96'
@@ -158,8 +158,8 @@ const Payments = () => {
 					/>
 				</div>
 				<PaymentsTable rows={rows} />
-			</PageContainer.Body>
-		</PageContainer>
+			</Page.Body>
+		</Page.Container>
 	);
 };
 

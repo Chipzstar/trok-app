@@ -18,7 +18,7 @@ const Onboarding = ({ auth, setAuth }) => {
 	return (
 		<ScrollArea.Autosize maxHeight={height} mx='auto'>
 			{!complete ? (
-				<div className='flex min-h-screen flex-col justify-center p-5'>
+				<div className='bg-white flex min-h-screen flex-col justify-center p-5'>
 					<Text mb='md' size='lg' className='text-center'>
 						Step {active + 1} of 3
 					</Text>

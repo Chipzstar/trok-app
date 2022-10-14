@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import PageContainer from '../../layout/PageContainer';
+import Page from '../../layout/Page';
 import {
 	ActionIcon,
 	Button,
@@ -95,14 +95,14 @@ const Cards = () => {
 	}, []);
 
 	return (
-		<PageContainer
+		<Page.Container
 			header={
-				<PageContainer.Header>
+				<Page.Header>
 					<span className='text-2xl font-medium'>Cards</span>
 					<Button className='' onClick={() => setOpened(true)}>
 						<span className='text-base font-normal'>Add new card</span>
 					</Button>
-				</PageContainer.Header>
+				</Page.Header>
 			}
 		>
 			<Drawer
@@ -130,7 +130,7 @@ const Cards = () => {
 							}))}
 							{...form.getInputProps('driver')}
 						/>
-						<TextInput description="You can give this card nickname for easy identification" label='Card Name' {...form.getInputProps('card_name')} />
+						<TextInput description="You can give this card a nickname for easy identification" label='Card Name' {...form.getInputProps('card_name')} />
 						<Group grow spacing="xl">
 							<NumberInput
 								label='Spend Limit'
@@ -158,7 +158,7 @@ const Cards = () => {
 					</form>
 				</Stack>
 			</Drawer>
-			<PageContainer.Body>
+			<Page.Body>
 				<Tabs
 					defaultValue='all'
 					classNames={{
@@ -185,8 +185,8 @@ const Cards = () => {
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 				</Tabs>
-			</PageContainer.Body>
-		</PageContainer>
+			</Page.Body>
+		</Page.Container>
 	);
 };
 
