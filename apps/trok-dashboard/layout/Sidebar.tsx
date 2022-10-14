@@ -165,7 +165,7 @@ const Sidebar = ({ setAuth }) => {
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
 				</a>
-				<div role="button" className={classes.link} onClick={() => router.push(PATHS.SETTINGS)}>
+				<div role="button" className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })} onClick={() => router.push(PATHS.SETTINGS)}>
 					<IconSettings className={classes.linkIcon} stroke={1.5} />
 					<span>Settings</span>
 				</div>

@@ -1,9 +1,8 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import Page from '../layout/Page';
 import { GBP, STORAGE_KEYS } from '../utils/constants';
-import { Card, Text, SimpleGrid, Stack, Title, Divider, Group, Button } from '@mantine/core';
+import { Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
 
