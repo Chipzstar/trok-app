@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import PageContainer from '../../layout/PageContainer';
-import { ActionIcon, Button, Group, Tabs } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Text,
+	Drawer,
+	Group,
+	NumberInput,
+	Select,
+	Stack,
+	Tabs,
+	TextInput,
+	Title
+} from '@mantine/core';
 import CardsTable from '../../containers/CardsTable';
-import { GBP, PATHS, SAMPLE_CARDS } from '../../utils/constants';
+import { GBP, PATHS, SAMPLE_CARDS, SAMPLE_DRIVERS } from '../../utils/constants';
 import { sanitize } from '../../utils/functions';
 import classNames from 'classnames';
 import { CARD_STATUS } from '../../utils/types';
 import { IconChevronRight } from '@tabler/icons';
 import { useRouter } from 'next/router';
+import { useForm } from '@mantine/form';
 
 const Cards = () => {
+	const [opened, setOpened] = useState(false);
 	const router = useRouter();
 	const rows = SAMPLE_CARDS.map((element, index) => {
 		const statusClass = classNames({
@@ -53,7 +67,7 @@ const Cards = () => {
 				<td colSpan={1}>
 					<span>{GBP(element.spending_limit.weekly).format()}</span>
 				</td>
-				<td role="button" onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
+				<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
 					<Group grow position='left'>
 						<ActionIcon size='sm'>
 							<IconChevronRight />
@@ -64,17 +78,85 @@ const Cards = () => {
 		);
 	});
 
+	const form = useForm({
+		initialValues: {
+			type: '', // physical or virtual
+			driver: '', // driver id
+			card_name: '', // useful name to identify the cardholder
+			spending_limit: 100,
+			frequency: null,
+			payment_methods_allowed: []
+		}
+	});
+
+	const handleSubmit = useCallback(values => {
+		alert(JSON.stringify(values));
+		console.log(values);
+	}, []);
+
 	return (
 		<PageContainer
 			header={
 				<PageContainer.Header>
 					<span className='text-2xl font-medium'>Cards</span>
-					<Button className='' onClick={() => null}>
+					<Button className='' onClick={() => setOpened(true)}>
 						<span className='text-base font-normal'>Add new card</span>
 					</Button>
 				</PageContainer.Header>
 			}
 		>
+			<Drawer
+				opened={opened}
+				onClose={() => setOpened(false)}
+				padding='xl'
+				size='xl'
+				position='right'
+				classNames={{
+					drawer: 'flex h-full'
+				}}
+			>
+				<Stack justify='center'>
+					<Title order={2} weight={500}>
+						<span>Create new card</span>
+					</Title>
+					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
+						<Select label='Card Type' data={['Physical', 'Virtual']} {...form.getInputProps('type')} />
+						<Select
+							label='Assign Driver'
+							data={SAMPLE_DRIVERS.map(value => ({
+								label: value.full_name,
+								value: value.id
+							}))}
+							{...form.getInputProps('driver')}
+						/>
+						<TextInput label='Card Name' {...form.getInputProps('card_name')} />
+						<Group grow spacing="xl">
+							<NumberInput
+								label='Spend Limit'
+								min={100}
+								max={1000000}
+								step={100}
+								formatter={(value) =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('spending_limit')}
+							/>
+							<Select
+								label="Frequency"
+								data={['per transaction', 'daily', 'weekly', 'monthly']}
+								{...form.getInputProps('frequency')}
+							/>
+						</Group>
+						<Group py="xl" position="right">
+							<Button>
+								<Text weight={500}>Create</Text>
+							</Button>
+						</Group>
+					</form>
+				</Stack>
+			</Drawer>
 			<PageContainer.Body>
 				<Tabs
 					defaultValue='all'
@@ -90,15 +172,15 @@ const Cards = () => {
 						<Tabs.Tab value='inactive'>Inactive</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value='all' pt='xs' className="h-full">
+					<Tabs.Panel value='all' pt='xs' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='active' pt='xs' className="h-full">
+					<Tabs.Panel value='active' pt='xs' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='inactive' pt='xs' className="h-full">
+					<Tabs.Panel value='inactive' pt='xs' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 				</Tabs>
