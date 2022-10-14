@@ -30,3 +30,5 @@ body {
     line-height: inherit;
     margin: 0;
 }
+
+li { display: list-item; }
