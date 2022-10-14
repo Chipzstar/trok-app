@@ -8,7 +8,6 @@ import SpendAnalysis from '../components/charts/SpendAnalysis';
 
 const week_spend = GBP(21272900).format()
 const week_savings = GBP(726436).format()
-console.log(week_spend)
 
 export function Dashboard() {
 	const [business, setBusinss] = useLocalStorage({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });

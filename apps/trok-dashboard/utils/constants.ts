@@ -253,6 +253,7 @@ export const SAMPLE_PAYMENTS = [
 
 export const SAMPLE_TRANSACTIONS = [
 	{
+		id: '',
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
@@ -266,6 +267,7 @@ export const SAMPLE_TRANSACTIONS = [
 		price_per_litre: 17080
 	},
 	{
+		id: '',
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
@@ -279,6 +281,7 @@ export const SAMPLE_TRANSACTIONS = [
 		price_per_litre: 17080
 	},
 	{
+		id: '',
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
@@ -292,6 +295,7 @@ export const SAMPLE_TRANSACTIONS = [
 		price_per_litre: 17080
 	},
 	{
+		id: '',
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
@@ -305,6 +309,7 @@ export const SAMPLE_TRANSACTIONS = [
 		price_per_litre: 17080
 	},
 	{
+		id: '',
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',

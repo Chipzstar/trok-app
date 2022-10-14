@@ -1,63 +1,156 @@
-import { Button, Tabs, Text } from '@mantine/core';
-import React from 'react';
+import { Button, Drawer, Group, MultiSelect, Select, Stack, Tabs, Text, Title } from '@mantine/core';
+import React, { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
 import Page from '../layout/Page';
 import TransactionTable from '../containers/TransactionTable';
-import { SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { SAMPLE_CARDS, SAMPLE_DRIVERS, SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { useForm } from '@mantine/form';
+import { uniqueArray } from '../utils/functions';
+import { IconCalendar, IconFilter } from '@tabler/icons';
+import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
+
+const rows = SAMPLE_TRANSACTIONS.map((element, index) => {
+	return (
+		<tr key={index} style={{
+			border: 'none'
+		}}>
+			<td colSpan={1}>
+				<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+			</td>
+			<td colSpan={1}>
+				<span>{element.merchant}</span>
+			</td>
+			<td colSpan={1}>
+				<div className='flex flex-shrink flex-col'>
+					<span>{element.location}</span>
+				</div>
+			</td>
+			<td colSpan={1}>
+				<span>{element.last4}</span>
+			</td>
+			<td colSpan={1}>
+				<Text weight={500}>{element.driver}</Text>
+			</td>
+			<td colSpan={1}>
+				<span className='text-base font-normal'>£{element.amount / 100}</span>
+			</td>
+			<td colSpan={1}>
+				<span>£{element.net_discount / 100}</span>
+			</td>
+			<td colSpan={1}>
+				<span>{element.type}</span>
+			</td>
+			<td colSpan={1}>
+				<span>{element.litres}</span>
+			</td>
+			<td colSpan={1}>
+				<span>£{element.price_per_litre / 100}p</span>
+			</td>
+		</tr>
+	);
+});
+
+interface ExportForm {
+	file_type: 'CSV' | 'PDF',
+	transaction_range: DateRangePickerValue,
+	locations: string[],
+	cards: string[],
+	drivers: string[]
+}
 
 const Transactions = () => {
-	const rows = SAMPLE_TRANSACTIONS.map((element, index) => {
-		return (
-			<tr key={index} style={{
-				border: 'none'
-			}}>
-				<td colSpan={1}>
-					<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.merchant}</span>
-				</td>
-				<td colSpan={1}>
-					<div className='flex flex-shrink flex-col'>
-						<span>{element.location}</span>
-					</div>
-				</td>
-				<td colSpan={1}>
-					<span>{element.last4}</span>
-				</td>
-				<td colSpan={1}>
-					<Text weight={500}>{element.driver}</Text>
-				</td>
-				<td colSpan={1}>
-					<span className='text-base font-normal'>£{element.amount / 100}</span>
-				</td>
-				<td colSpan={1}>
-					<span>£{element.net_discount / 100}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.type}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.litres}</span>
-				</td>
-				<td colSpan={1}>
-					<span>£{element.price_per_litre / 100}p</span>
-				</td>
-			</tr>
-		);
-	});
+	const [opened, setOpened] = useState(false);
+
+	const form = useForm<ExportForm>({
+		initialValues: {
+			file_type: 'CSV',
+			transaction_range: [null, null],
+			locations: [],
+			cards: [],
+			drivers: []
+		}
+	})
+
+	const handleSubmit = useCallback(values => {
+		alert(JSON.stringify(values))
+		console.log(values)
+	}, [])
 
 	return (
 		<Page.Container
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Transactions</span>
-					<Button className='' onClick={() => null}>
+					<Button className='' onClick={() => setOpened(true)}>
 						<span className='text-base font-normal'>Export</span>
 					</Button>
 				</Page.Header>
 			}
 		>
+			<Drawer
+				opened={opened}
+				onClose={() => setOpened(false)}
+				padding='xl'
+				size='xl'
+				position='right'
+				classNames={{
+					drawer: 'flex h-full'
+				}}
+			>
+				<Stack justify='center'>
+					<Title order={2} weight={500}>
+						<span>Export</span>
+					</Title>
+					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
+						<Select required label='File Type' data={['PDF', 'CSV']} {...form.getInputProps('type')} />
+						<Group spacing={5}>
+							<IconFilter stroke={1.5}/>
+							<span className="font-medium">Filter</span>
+						</Group>
+						<DateRangePicker
+							icon={<IconCalendar size={18} />}
+							fullWidth
+							size='sm'
+							label='Transaction Range'
+							placeholder='Pick dates range'
+							value={form.values.transaction_range}
+							inputFormat='DD/MM/YYYY'
+							labelSeparator=' → '
+							labelFormat='MMM YYYY'
+							onChange={(value) => form.setFieldValue("transaction_range", value)}
+						/>
+						<MultiSelect
+							label='Locations'
+							data={uniqueArray(SAMPLE_TRANSACTIONS.map(value => ({
+								label: value.location,
+								value: value.id
+							})), "location")}
+							{...form.getInputProps('locations')}
+						/>
+						<MultiSelect
+							label='Cards'
+							data={SAMPLE_CARDS.map(value => ({
+								label: value.last4,
+								value: value.id
+							}))}
+							{...form.getInputProps('cards')}
+						/>
+						<MultiSelect
+							label='Drivers'
+							data={SAMPLE_DRIVERS.map(value => ({
+								label: value.full_name,
+								value: value.id
+							}))}
+							{...form.getInputProps('drivers')}
+						/>
+						<Group py="xl" position="right">
+							<Button type="submit">
+								<Text weight={500}>Export</Text>
+							</Button>
+						</Group>
+					</form>
+				</Stack>
+			</Drawer>
 			<Page.Body>
 				<Tabs defaultValue="all" classNames={{
 					root: 'flex flex-col grow',
