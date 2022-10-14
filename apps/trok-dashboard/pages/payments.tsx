@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Page from '../layout/Page';
-import { ActionIcon, Button, Divider, Drawer, Group, Stack, Textarea, TextInput } from '@mantine/core';
-import { IconCalendar, IconChevronRight, IconPencil, IconSearch } from '@tabler/icons';
+import { ActionIcon, Button, Drawer, Group, NumberInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { IconCalendar, IconChevronRight, IconSearch } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
 import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
@@ -9,9 +9,13 @@ import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
 import classNames from 'classnames';
 import { PAYMENT_STATUS } from '../utils/types';
+import PaymentDetails from '../modals/PaymentDetails';
+import SortCodeInput from '../components/SortCodeInput';
+import { useForm } from '@mantine/form';
 
 const Payments = () => {
 	const [opened, setOpened] = useState(false);
+	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 
@@ -66,10 +70,13 @@ const Payments = () => {
 						</span>
 					</div>
 				</td>
-				<td role='button' onClick={() => {
-					setSelectedPayment(element)
-					setOpened(true)
-				}}>
+				<td
+					role='button'
+					onClick={() => {
+						setSelectedPayment(element);
+						setOpened(true);
+					}}
+				>
 					<Group grow position='left'>
 						<ActionIcon size='sm'>
 							<IconChevronRight />
@@ -80,63 +87,89 @@ const Payments = () => {
 		);
 	});
 
+	const form = useForm({
+		initialValues: {
+			account_holder_name: '',
+			account_number: '',
+			sort_code: ''
+		}
+	});
+
+	const handleSubmit = useCallback(values => {
+		alert(JSON.stringify(values));
+		console.log(values);
+	}, []);
+
 	return (
 		<Page.Container
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Payments</span>
-					<Button className='' onClick={() => null}>
+					<Button className='' onClick={() => setPaymentOpened(true)}>
 						<span className='text-base font-normal'>Send Payment</span>
 					</Button>
 				</Page.Header>
 			}
 		>
-			<Drawer opened={opened} onClose={() => setOpened(false)} padding="xl" size='xl' position='right' classNames={{
-				drawer: 'flex h-full'
-			}}>
-				<Stack justify="center">
-					<Stack spacing='xs'>
-						<span>Payment <span className="font-semibold">{sanitize(selectedPayment?.status ?? "in progress")}</span> to {selectedPayment?.recipient?.name}</span>
-						<span className='heading-1'>-{GBP(selectedPayment?.amount).format()}</span>
-					</Stack>
-					<Divider />
-					<div className='flex flex-col space-y-12'>
-						<Stack spacing='xs'>
-							<span className="font-semibold">Payment Type</span>
-							<span>{selectedPayment?.type}</span>
-						</Stack>
-						<Stack spacing='xs'>
-							<span className="font-semibold">Payment Date</span>
-							<span>{dayjs.unix(selectedPayment?.created_at).format("MMM D")}</span>
-						</Stack>
-						<Stack spacing='xs'>
-							<span className="font-semibold">Payroll Period</span>
-							<span>Sept 15 - Sept 30</span>
-						</Stack>
-					</div>
-					<Divider />
-					<div className='flex flex-col space-y-12'>
-						<span>Add Memo</span>
-					</div>
-					<Textarea
-						rightSection={<IconPencil size={16} color={"gray"}/>}
-						px={0}
-						cols={1}
-						radius={0}
-						styles={{
-							input: {
-								border: 'none',
-								borderBottom: '2px solid lightgray'
+			<PaymentDetails opened={opened} setOpened={setOpened} payment={selectedPayment} />
+			<Drawer
+				opened={paymentOpened}
+				onClose={() => setPaymentOpened(false)}
+				padding='xl'
+				size='xl'
+				position='right'
+				classNames={{
+					drawer: 'flex h-full'
+				}}
+			>
+				<Stack>
+					<Title order={2} weight={500}>
+						<span>Send Payment</span>
+					</Title>
+					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
+						<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
+						<Group grow spacing='xl'>
+							<TextInput required label='Account Number' {...form.getInputProps('account_number')} />
+							<SortCodeInput
+								onChange={event => {
+									console.log(event.currentTarget.value);
+									form.setFieldValue('sort_code', event.currentTarget.value);
+								}}
+								value={form.values.sort_code}
+								required
+							/>
+						</Group>
+						<NumberInput
+							label='Amount'
+							min={100}
+							max={1000000}
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
 							}
-						}}
-					/>
+							{...form.getInputProps('spending_limit')}
+						/>
+						<Group py='xl' position='right'>
+							<Button
+								type='submit'
+								styles={{
+									root: {
+										width: 120
+									}
+								}}
+							>
+								<Text weight={500}>Send</Text>
+							</Button>
+						</Group>
+					</form>
 				</Stack>
 			</Drawer>
 			<Page.Body>
 				<div className='mb-4 flex items-center justify-between'>
 					<TextInput
 						className='w-96'
-						size="sm"
+						size='sm'
 						radius={0}
 						icon={<IconSearch size={18} />}
 						onChange={e => console.log(e.target.value)}
@@ -145,7 +178,7 @@ const Payments = () => {
 					<DateRangePicker
 						icon={<IconCalendar size={18} />}
 						fullWidth
-						size="sm"
+						size='sm'
 						radius={0}
 						className='w-80'
 						label='Viewing payments between:'
