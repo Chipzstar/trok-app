@@ -1,4 +1,17 @@
-import { Badge, Button, Checkbox, Drawer, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Badge,
+	Button,
+	Checkbox,
+	Drawer,
+	Group,
+	Menu,
+	Select,
+	Stack,
+	Text,
+	TextInput,
+	Title
+} from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 import Page from '../layout/Page';
 import { SAMPLE_BANK_ACCOUNTS } from '../utils/constants';
@@ -6,6 +19,7 @@ import BankAccountsTable from '../containers/BankAccountsTable';
 import { sanitize } from '../utils/functions';
 import { useForm } from '@mantine/form';
 import SortCodeInput from '../components/SortCodeInput';
+import { IconDots, IconPencil } from '@tabler/icons';
 
 const formatAccNumber = (accNumber: string): string => (accNumber ? '****' + accNumber : undefined);
 
@@ -33,10 +47,23 @@ const rows = SAMPLE_BANK_ACCOUNTS.map((element, index) => {
 				<span>{element.sort_code}</span>
 			</td>
 			<td>
-				{element.isDefault && (
+				{element.isDefault ? (
 					<Badge radius='xs' variant='light' color='gray'>
 						DEFAULT
 					</Badge>
+				) : (
+					<Menu transition='pop' withArrow position='bottom-end'>
+						<Menu.Target>
+							<ActionIcon>
+								<IconDots size={16} stroke={1.5} />
+							</ActionIcon>
+						</Menu.Target>
+						<Menu.Dropdown>
+							<Menu.Item color="gray" icon={<IconPencil size={16} stroke={1.5} />}>
+								Set as default
+							</Menu.Item>
+						</Menu.Dropdown>
+					</Menu>
 				)}
 			</td>
 		</tr>
@@ -109,7 +136,7 @@ const PaymentMethod = () => {
 							data={['Business', 'Personal']}
 							{...form.getInputProps('account_type')}
 						/>
-						<Group py="xs">
+						<Group py='xs'>
 							<Checkbox
 								size='sm'
 								label='Set as default'

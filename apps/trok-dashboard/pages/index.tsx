@@ -17,7 +17,7 @@ export function Dashboard() {
 		<Page.Container
 			header={
 				<Page.Header extraClassNames="mb-3">
-					<span className='text-2xl font-medium capitalize'>{business?.legal_name}</span>
+					<span className='heading-1 capitalize'>{business?.legal_name}</span>
 				</Page.Header>
 			}
 		>

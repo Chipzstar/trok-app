@@ -27,6 +27,8 @@ export const PATHS = {
 	PAYMENTS: '/payments',
 	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
+	SETTINGS: '/settings'
+
 }
 
 export const SAMPLE_DRIVERS = [
@@ -254,7 +256,7 @@ export const SAMPLE_TRANSACTIONS = [
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
+		location: 'London, E2 9LH',
 		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
@@ -267,7 +269,7 @@ export const SAMPLE_TRANSACTIONS = [
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
+		location: 'London, E2 9LH',
 		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
@@ -280,7 +282,7 @@ export const SAMPLE_TRANSACTIONS = [
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
+		location: 'London, E2 9LH',
 		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
@@ -293,7 +295,7 @@ export const SAMPLE_TRANSACTIONS = [
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
+		location: 'London, E2 9LH',
 		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
@@ -306,7 +308,7 @@ export const SAMPLE_TRANSACTIONS = [
 		date_of_transaction: 1665414165,
 		posted_date: 1665421245,
 		merchant: 'BP Fuel',
-		location: '319 Cambridge Heath Rd, London E2 9LH',
+		location: 'London, E2 9LH',
 		last4: '2681',
 		driver: 'Joel Cambridge',
 		amount: 468000,
@@ -369,7 +371,7 @@ export const SAMPLE_BANK_ACCOUNTS = [
 		isDefault: true,
 	},
 	{
-		account_holder_name: 'Chisom',
+		account_holder_name: 'Chisom Oguibe',
 		type: 'business_account',
 		account_number: 87654321,
 		sort_code: "89-21-21",

@@ -4,6 +4,7 @@ import StatementsTable from '../containers/StatementsTable';
 import { GBP, SAMPLE_STATEMENTS } from '../utils/constants';
 import { Button } from '@mantine/core';
 import { IconDownload } from '@tabler/icons';
+import dayjs from 'dayjs';
 
 const rows = SAMPLE_STATEMENTS.map((element, index) => {
 	return (
@@ -12,7 +13,7 @@ const rows = SAMPLE_STATEMENTS.map((element, index) => {
 				<span>{element.period_label}</span>
 			</td>
 			<td colSpan={1}>
-				<span>{element.due_at}</span>
+				<span>{dayjs.unix(element.due_at).format("MMM D")}</span>
 			</td>
 			<td colSpan={1}>
 				<span>{GBP(element.total_balance).format()}</span>

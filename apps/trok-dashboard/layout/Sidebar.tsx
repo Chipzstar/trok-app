@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
-	IconCalendar, IconCalendarTime,
+	IconCalendar,
+	IconCalendarTime,
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
 	IconGift,
-	IconLogout, IconSearch, IconSettings,
+	IconLogout,
+	IconSearch,
+	IconSettings,
 	IconUser,
 	IconUsers,
 	IconWallet
@@ -26,7 +29,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			paddingLeft: theme.spacing.sm,
 			paddingTop: theme.spacing.xs,
 			color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-			minHeight: DEFAULT_HEADER_HEIGHT -10
+			minHeight: DEFAULT_HEADER_HEIGHT - 10
 		},
 		navbar: {
 			backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white
@@ -162,10 +165,10 @@ const Sidebar = ({ setAuth }) => {
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
 				</a>
-				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
+				<div role="button" className={classes.link} onClick={() => router.push(PATHS.SETTINGS)}>
 					<IconSettings className={classes.linkIcon} stroke={1.5} />
 					<span>Settings</span>
-				</a>
+				</div>
 				<div
 					role='button'
 					className={classes.link}
