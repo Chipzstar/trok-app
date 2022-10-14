@@ -16,10 +16,10 @@ const PageContainer = ({ children, header = null, classNames = 'h-screen flex fl
 	);
 };
 
-const Header = ({ children, classNames = 'bg-white mb-6 flex items-center justify-between px-6', height = DEFAULT_HEADER_HEIGHT }) => {
+const Header = ({ children, classNames = 'bg-white mb-6 flex items-center justify-between px-6', extraClassNames="", height = DEFAULT_HEADER_HEIGHT }) => {
 	return (
 		<div
-			className={classNames}
+			className={`${classNames} ${extraClassNames}`}
 			style={{
 				height,
 				minHeight: height

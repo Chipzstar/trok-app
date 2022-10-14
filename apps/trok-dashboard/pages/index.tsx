@@ -17,13 +17,13 @@ export function Dashboard({ setAuth }) {
 	return (
 		<PageContainer
 			header={
-				<PageContainer.Header>
+				<PageContainer.Header extraClassNames="mb-3">
 					<span className='text-2xl font-medium capitalize'>{business?.legal_name}</span>
 				</PageContainer.Header>
 			}
 		>
-			<PageContainer.Body>
-				<Title order={3} weight={500} mb='lg'>
+			<PageContainer.Body extraClassNames="">
+				<Title order={4} weight={500} mb='lg'>
 					Overview
 				</Title>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -79,7 +79,7 @@ export function Dashboard({ setAuth }) {
 						</Group>
 					</Card>
 				</SimpleGrid>
-				<Title order={3} weight={500} my='lg'>
+				<Title order={4} weight={500} my='lg'>
 					Spend Analysis
 				</Title>
 				<SpendAnalysis/>

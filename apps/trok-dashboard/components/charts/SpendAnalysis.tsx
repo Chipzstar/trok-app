@@ -12,7 +12,7 @@ const SpendAnalysis = () => {
 	const { height } = useWindowSize()
 	return (
 		<div style={{
-			height: height - 470
+			height: height - 440
 		}}>
 			<Bar
 				options={{
