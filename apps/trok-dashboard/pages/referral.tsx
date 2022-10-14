@@ -20,6 +20,7 @@ const Referral = () => {
 						<Stack>
 							<span className="font-medium">You can share your personal referral link</span>
 							<TextInput
+								readOnly
 								styles={{
 									input: {
 										border: '1px solid #3646F5',
