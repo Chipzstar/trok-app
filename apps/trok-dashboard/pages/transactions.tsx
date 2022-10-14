@@ -139,7 +139,7 @@ const Transactions = () => {
 							label='Drivers'
 							data={SAMPLE_DRIVERS.map(value => ({
 								label: value.full_name,
-								value: value.id
+								value: value.full_name
 							}))}
 							{...form.getInputProps('drivers')}
 						/>
