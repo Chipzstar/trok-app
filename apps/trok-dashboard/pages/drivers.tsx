@@ -56,7 +56,7 @@ const Drivers = () => {
 			region: '',
 			country: 'GB',
 			spending_limit: 100,
-			frequency: 'daily'
+			frequency: ''
 		}
 	})
 
@@ -85,29 +85,36 @@ const Drivers = () => {
 			>
 				<Stack justify='center'>
 					<Title order={2} weight={500}>
-						<span>Create new card</span>
+						<span>Create new driver</span>
 					</Title>
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
 						<Group grow spacing="xl">
-							<TextInput label='First Name' {...form.getInputProps('firstname')} />
-							<TextInput label='Last Name' {...form.getInputProps('lastname')} />
+							<TextInput required label='First Name' {...form.getInputProps('firstname')} />
+							<TextInput required label='Last Name' {...form.getInputProps('lastname')} />
 						</Group>
 						<Group grow spacing="xl">
-							<TextInput label='Phone Number' {...form.getInputProps('phone')} />
-							<TextInput label='Email' {...form.getInputProps('email')} />
+							<TextInput required type="tel" label='Phone Number' {...form.getInputProps('phone')} />
+							<TextInput required type="email" label='Email' {...form.getInputProps('email')} />
 						</Group>
-						<NumberInput
-							label='Spend Limit'
-							min={100}
-							max={1000000}
-							step={100}
-							formatter={(value) =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('spending_limit')}
-						/>
+						<Group grow spacing="xl">
+							<NumberInput
+								label='Spend Limit'
+								min={100}
+								max={1000000}
+								step={100}
+								formatter={(value) =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('spending_limit')}
+							/>
+							<Select
+								label="Frequency"
+								data={['Per transaction', 'Daily', 'Weekly', 'Monthly']}
+								{...form.getInputProps('frequency')}
+							/>
+						</Group>
 						<Group grow spacing="xl">
 							<TextInput label='Address 1' {...form.getInputProps('line1')} />
 							<TextInput label='Address 2' {...form.getInputProps('line2')} />
@@ -121,7 +128,7 @@ const Drivers = () => {
 							<TextInput label='Country' readOnly {...form.getInputProps('country')} />
 						</Group>
 						<Group py="xl" position="right">
-							<Button>
+							<Button type="submit">
 								<Text weight={500}>Add Driver</Text>
 							</Button>
 						</Group>

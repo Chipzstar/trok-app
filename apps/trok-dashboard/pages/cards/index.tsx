@@ -83,7 +83,7 @@ const Cards = () => {
 			type: '', // physical or virtual
 			driver: '', // driver id
 			card_name: '', // useful name to identify the cardholder
-			spending_limit: 100,
+			spending_limit: null,
 			frequency: null,
 			payment_methods_allowed: []
 		}
@@ -120,8 +120,9 @@ const Cards = () => {
 						<span>Create new card</span>
 					</Title>
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<Select label='Card Type' data={['Physical', 'Virtual']} {...form.getInputProps('type')} />
+						<Select required label='Card Type' data={['Physical', 'Virtual']} {...form.getInputProps('type')} />
 						<Select
+							required
 							label='Assign Driver'
 							data={SAMPLE_DRIVERS.map(value => ({
 								label: value.full_name,
@@ -129,7 +130,7 @@ const Cards = () => {
 							}))}
 							{...form.getInputProps('driver')}
 						/>
-						<TextInput label='Card Name' {...form.getInputProps('card_name')} />
+						<TextInput description="You can give this card nickname for easy identification" label='Card Name' {...form.getInputProps('card_name')} />
 						<Group grow spacing="xl">
 							<NumberInput
 								label='Spend Limit'
@@ -145,12 +146,12 @@ const Cards = () => {
 							/>
 							<Select
 								label="Frequency"
-								data={['per transaction', 'daily', 'weekly', 'monthly']}
+								data={['Per transaction', 'Daily', 'Weekly', 'Monthly']}
 								{...form.getInputProps('frequency')}
 							/>
 						</Group>
 						<Group py="xl" position="right">
-							<Button>
+							<Button type="submit">
 								<Text weight={500}>Create</Text>
 							</Button>
 						</Group>
