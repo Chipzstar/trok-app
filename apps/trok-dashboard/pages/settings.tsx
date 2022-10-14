@@ -26,10 +26,10 @@ const settings = () => {
 						<Tabs.Tab value='personal'>Personal</Tabs.Tab>
 						<Tabs.Tab value='company'>Company</Tabs.Tab>
 					</Tabs.List>
-					<Tabs.Panel value='all' pt='xs' className='h-full'>
+					<Tabs.Panel value='personal' pt='xs' className='h-full'>
 						<Personal/>
 					</Tabs.Panel>
-					<Tabs.Panel value='approved' pt='xs' className='h-full'>
+					<Tabs.Panel value='company' pt='xs' className='h-full'>
 						<Company/>
 					</Tabs.Panel>
 				</Tabs>
