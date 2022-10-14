@@ -136,7 +136,7 @@ const Payments = () => {
 				<div className='mb-4 flex items-center justify-between'>
 					<TextInput
 						className='w-96'
-						size='md'
+						size="sm"
 						radius={0}
 						icon={<IconSearch size={18} />}
 						onChange={e => console.log(e.target.value)}
@@ -145,6 +145,7 @@ const Payments = () => {
 					<DateRangePicker
 						icon={<IconCalendar size={18} />}
 						fullWidth
+						size="sm"
 						radius={0}
 						className='w-80'
 						label='Viewing payments between:'
