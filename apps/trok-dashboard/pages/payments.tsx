@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PageContainer from '../layout/PageContainer';
-import { ActionIcon, Button, Group, TextInput } from '@mantine/core';
-import { IconCalendar, IconChevronRight, IconSearch } from '@tabler/icons';
-import { useRouter } from 'next/router';
+import { ActionIcon, Button, Divider, Drawer, Group, Stack, Textarea, TextInput } from '@mantine/core';
+import { IconCalendar, IconChevronRight, IconPencil, IconSearch } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
 import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
@@ -12,7 +11,9 @@ import classNames from 'classnames';
 import { PAYMENT_STATUS } from '../utils/types';
 
 const Payments = () => {
+	const [opened, setOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
+	const [selectedPayment, setSelectedPayment] = useState(null);
 
 	const rows = SAMPLE_PAYMENTS.map((element, index) => {
 		const statusClass = classNames({
@@ -65,7 +66,10 @@ const Payments = () => {
 						</span>
 					</div>
 				</td>
-				<td role='button' onClick={() => null}>
+				<td role='button' onClick={() => {
+					setSelectedPayment(element)
+					setOpened(true)
+				}}>
 					<Group grow position='left'>
 						<ActionIcon size='sm'>
 							<IconChevronRight />
@@ -87,6 +91,47 @@ const Payments = () => {
 				</PageContainer.Header>
 			}
 		>
+			<Drawer opened={opened} onClose={() => setOpened(false)} padding="xl" size='xl' position='right' classNames={{
+				drawer: 'flex h-full'
+			}}>
+				<Stack justify="center">
+					<Stack spacing='xs'>
+						<span>Payment <span className="font-semibold">{sanitize(selectedPayment?.status)}</span> to {selectedPayment?.recipient?.name}</span>
+						<span className='heading-1'>-{GBP(selectedPayment?.amount).format()}</span>
+					</Stack>
+					<Divider />
+					<div className='flex flex-col space-y-12'>
+						<Stack spacing='xs'>
+							<span className="font-semibold">Payment Type</span>
+							<span>{selectedPayment?.type}</span>
+						</Stack>
+						<Stack spacing='xs'>
+							<span className="font-semibold">Payment Date</span>
+							<span>{dayjs.unix(selectedPayment?.created_at).format("MMM D")}</span>
+						</Stack>
+						<Stack spacing='xs'>
+							<span className="font-semibold">Payroll Period</span>
+							<span>Sept 15 - Sept 30</span>
+						</Stack>
+					</div>
+					<Divider />
+					<div className='flex flex-col space-y-12'>
+						<span>Add Memo</span>
+					</div>
+					<Textarea
+						rightSection={<IconPencil size={16} color={"gray"}/>}
+						px={0}
+						cols={1}
+						radius={0}
+						styles={{
+							input: {
+								border: 'none',
+								borderBottom: '2px solid lightgray'
+							}
+						}}
+					/>
+				</Stack>
+			</Drawer>
 			<PageContainer.Body>
 				<div className='mb-4 flex items-center justify-between'>
 					<TextInput
@@ -105,9 +150,9 @@ const Payments = () => {
 						label='Viewing payments between:'
 						placeholder='Pick dates range'
 						value={value}
-						inputFormat="DD/MM/YYYY"
-						labelSeparator=" → "
-						labelFormat="MMM YYYY"
+						inputFormat='DD/MM/YYYY'
+						labelSeparator=' → '
+						labelFormat='MMM YYYY'
 						onChange={setValue}
 					/>
 				</div>

@@ -11,6 +11,12 @@
     }
 }
 
+@layer components {
+    .heading-1 {
+        @apply text-2xl font-medium
+    }
+}
+
 html {
     -webkit-text-size-adjust: 100%;
     font-family: Aeonik, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial,

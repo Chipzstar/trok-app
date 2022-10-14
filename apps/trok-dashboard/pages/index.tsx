@@ -31,13 +31,13 @@ export function Dashboard({ setAuth }) {
 						<Stack px="md" py='lg'>
 							<div className="flex flex-col space-y-1">
 								<span className='text-base'>Current Week Spend</span>
-								<span className="text-2xl font-medium">{week_spend.split(".")[0]}.
+								<span className="heading-1">{week_spend.split(".")[0]}.
 									<span className="text-base">{week_spend.split(".")[1]}</span>
 								</span>
 							</div>
 							<div className="flex flex-col space-y-1">
 								<span className='text-base'>Current Week Savings</span>
-								<span className="text-2xl font-medium">{week_savings.split(".")[0]}.
+								<span className="heading-1">{week_savings.split(".")[0]}.
 									<span className="text-base">{week_savings.split(".")[1]}</span>
 								</span>
 							</div>
@@ -55,7 +55,7 @@ export function Dashboard({ setAuth }) {
 							</div>
 							<div className="flex flex-col space-y-1">
 								<span className='text-base'>Weekly Available Credit</span>
-								<span className="text-2xl font-medium">£{GBP(100000).dollars()}</span>
+								<span className="heading-1">£{GBP(100000).dollars()}</span>
 							</div>
 						</Stack>
 						<Group position="center" py="xs">
@@ -66,11 +66,11 @@ export function Dashboard({ setAuth }) {
 						<Stack px="md" py='lg'>
 							<div className="flex flex-col space-y-1">
 								<span className='text-base'>Upcoming Balance</span>
-								<span className="text-2xl font-medium">-</span>
+								<span className="heading-1">-</span>
 							</div>
 							<div className="flex flex-col space-y-1">
 								<span className='text-base'>Due Date</span>
-								<span className="text-2xl font-medium">{dayjs().add(7, 'd').startOf("w").format("MMM D")}</span>
+								<span className="heading-1">{dayjs().add(7, 'd').startOf("w").format("MMM D")}</span>
 							</div>
 						</Stack>
 						<Divider px={0}/>
