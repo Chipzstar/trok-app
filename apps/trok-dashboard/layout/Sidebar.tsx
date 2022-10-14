@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
-	IconCalendar,
+	IconCalendar, IconCalendarTime,
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
 	IconGift,
-	IconLogout,
+	IconLogout, IconSearch, IconSettings,
 	IconUser,
 	IconUsers,
 	IconWallet
@@ -114,7 +114,7 @@ const Sidebar = ({ setAuth }) => {
 			{
 				link: PATHS.PAYMENTS,
 				label: 'Payments',
-				icon: IconCalendar,
+				icon: IconCalendarTime,
 				isActive: router.pathname === PATHS.PAYMENTS
 			},
 			{
@@ -163,8 +163,8 @@ const Sidebar = ({ setAuth }) => {
 					<span>Refer & Earn</span>
 				</a>
 				<a href='#' className={classes.link} onClick={event => event.preventDefault()}>
-					<IconUser className={classes.linkIcon} stroke={1.5} />
-					<span>Profile</span>
+					<IconSettings className={classes.linkIcon} stroke={1.5} />
+					<span>Settings</span>
 				</a>
 				<div
 					role='button'

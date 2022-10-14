@@ -57,18 +57,18 @@
     "zod": "^3.19.1"
   },
   "devDependencies": {
-    "@nrwl/cli": "14.8.4",
-    "@nrwl/cypress": "14.8.4",
-    "@nrwl/eslint-plugin-nx": "14.8.4",
-    "@nrwl/express": "14.8.4",
-    "@nrwl/jest": "14.8.4",
-    "@nrwl/linter": "14.8.4",
-    "@nrwl/next": "14.8.4",
-    "@nrwl/node": "14.8.4",
+    "@nrwl/cli": "14.8.5",
+    "@nrwl/cypress": "14.8.5",
+    "@nrwl/eslint-plugin-nx": "14.8.5",
+    "@nrwl/express": "14.8.5",
+    "@nrwl/jest": "14.8.5",
+    "@nrwl/linter": "14.8.5",
+    "@nrwl/next": "14.8.5",
+    "@nrwl/node": "14.8.5",
     "@nrwl/nx-cloud": "14.7.0",
-    "@nrwl/react": "14.8.4",
-    "@nrwl/web": "14.8.4",
-    "@nrwl/workspace": "14.8.4",
+    "@nrwl/react": "14.8.5",
+    "@nrwl/web": "14.8.5",
+    "@nrwl/workspace": "14.8.5",
     "@prisma-utils/prismerge": "^1.7.0",
     "@testing-library/react": "13.4.0",
     "@types/cors": "^2.8.12",
@@ -92,7 +92,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "jest": "28.1.1",
     "jest-environment-jsdom": "28.1.1",
-    "nx": "14.8.4",
+    "nx": "14.8.5",
     "postcss": "^8.4.17",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
@@ -104,3 +104,4 @@
     "typescript": "~4.8.2"
   }
 }
+
