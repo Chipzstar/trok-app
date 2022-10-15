@@ -9,6 +9,12 @@
     html {
         font-family: Aeonik, system-ui, sans-serif;
     }
+    ul {
+        list-style: disc;
+    }
+    ol {
+        list-style: revert;
+    }
 }
 
 @layer components {

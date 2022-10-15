@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const calculateRange = (data, rowsPerPage): number[] => {
 	const range = [];
@@ -18,6 +18,13 @@ export function useTable(data, page, height, rowHeight) {
 	const [slice, setSlice] = useState<any[]>([]);
 	const rowsPerPage = Math.floor(height / rowHeight);
 
+	const startIndex = useMemo(() => page * rowsPerPage - (rowsPerPage - 1), [page, rowsPerPage]);
+
+	const endIndex = useMemo(
+		() => (data.length / rowsPerPage <= page ? data.length : rowsPerPage * page),
+		[data, page, rowsPerPage]
+	);
+
 	useEffect(() => {
 		const range = calculateRange(data, rowsPerPage);
 		setTableRange([...range]);
@@ -26,7 +33,7 @@ export function useTable(data, page, height, rowHeight) {
 		setSlice([...slice]);
 	}, [data, setTableRange, page, setSlice, height]);
 
-	return { slice, range: tableRange };
+	return { startIndex, endIndex, slice, range: tableRange };
 }
 
 export default useTable;

@@ -248,7 +248,7 @@ export const SAMPLE_PAYMENTS = [
 			id: '',
 			name: 'Michael Phelps'
 		}
-	}
+	},
 ]
 
 export const SAMPLE_TRANSACTIONS = [

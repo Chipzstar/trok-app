@@ -83,10 +83,10 @@ const DataGrid = ({
 	emptyContent,
 	spacingY = 'sm',
 	offset = 0,
-	rowHeight = 100
+	rowHeight = 130
 }: DataGridProps) => {
 	const { height: windowHeight } = useWindowSize();
-	const { slice, range } = useTable(rows, activePage, windowHeight - offset, rowHeight);
+	const { startIndex, endIndex, slice, range } = useTable(rows, activePage, windowHeight - offset, rowHeight);
 	return rows?.length ? (
 		<div className='flex h-full flex-col justify-between'>
 			<Table
@@ -115,10 +115,12 @@ const DataGrid = ({
 				<tbody>{slice}</tbody>
 			</Table>
 			<CustomPagination
+				start={startIndex}
+				end={endIndex}
 				page={activePage}
 				onChange={setPage}
-				numRows={rows.length}
-				total={range.length}
+				numPages={range.length}
+				total={rows.length}
 			/>
 		</div>
 	) : (

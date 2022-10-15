@@ -197,7 +197,7 @@ const Payments = () => {
 				</Stack>
 			</Drawer>
 			<Page.Body>
-				<div className='mb-4 flex items-center justify-between'>
+				<div className='flex items-center justify-between'>
 					<TextInput
 						className='w-96'
 						size='sm'
