@@ -173,10 +173,8 @@ const Sidebar = ({ setAuth }) => {
 					role='button'
 					className={classes.link}
 					onClick={() => {
-						setAccount(null);
 						setComplete(false);
-						setAuth(false);
-						router.push(PATHS.SIGNUP);
+						router.push(PATHS.LOGIN).then(() => setAuth(false));
 					}}
 				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>

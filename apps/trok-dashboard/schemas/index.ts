@@ -10,3 +10,8 @@ export const SignupSchema = z.object({
 	password: z.string().max(50),
 	terms: z.boolean().refine(val => val, "Please check this box")
 });
+
+export const LoginSchema = z.object({
+	email: z.string().email({message: 'Invalid email'}).max(50),
+	password: z.string().max(50),
+})

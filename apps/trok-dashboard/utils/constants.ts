@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
 export const PATHS = {
 	HOME: '/',
 	SIGNUP: '/signup',
+	LOGIN: '/login',
 	TRANSACTIONS: '/transactions',
 	DRIVERS: '/drivers',
 	BILLING: '/billing',

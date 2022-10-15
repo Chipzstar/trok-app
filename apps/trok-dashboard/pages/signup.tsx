@@ -45,14 +45,13 @@ export function Signup() {
 
 	useEffect(() => {
 		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify(form.values));
-		console.log(form.values)
 	}, [form.values]);
 
 	return (
 		<div className='bg-white h-screen w-full overflow-x-hidden p-5'>
 			<form
 				onSubmit={form.onSubmit(handleSubmit)}
-				className='flex h-full w-full flex-col font-aeonik'
+				className='flex h-full w-full flex-col'
 				onError={() => console.log(form.errors)}
 			>
 				<Group position='apart' px='xl'>
@@ -62,7 +61,7 @@ export function Signup() {
 					</header>
 					<Group spacing='xl'>
 						<Text>Have an account?</Text>
-						<Button px='xl' variant='outline' color='dark'>
+						<Button px='xl' variant='outline' color='dark' onClick={() => router.push(PATHS.LOGIN)}>
 							Sign in
 						</Button>
 					</Group>
@@ -114,7 +113,6 @@ export function Signup() {
 							style={{
 								width: 200
 							}}
-							onClick={() => console.log(form.errors)}
 						>
 							<Text weight={500}>Sign up</Text>
 						</Button>
