@@ -173,15 +173,15 @@ const Cards = () => {
 						<Tabs.Tab value='inactive'>Inactive</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value='all' pt='xs' className='h-full'>
+					<Tabs.Panel value='all' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='active' pt='xs' className='h-full'>
+					<Tabs.Panel value='active' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='inactive' pt='xs' className='h-full'>
+					<Tabs.Panel value='inactive' className='h-full'>
 						<CardsTable rows={rows} />
 					</Tabs.Panel>
 				</Tabs>

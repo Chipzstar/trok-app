@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { useRouter } from 'next/router';
 import { MantineNumberSize } from '@mantine/core';
 
 const TransactionTable = ({rows, spacingY="md"}) => {

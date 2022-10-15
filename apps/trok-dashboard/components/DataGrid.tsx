@@ -95,16 +95,12 @@ const DataGrid = ({
 				verticalSpacing={spacingY}
 				fontSize='md'
 				style={{
-					borderCollapse: 'separate',
-					border: 'none'
+					borderSpacing: '0 1.25em',
+					borderCollapse: 'inherit',
 				}}
 			>
 				<thead>
-					<tr
-						style={{
-							border: 'none'
-						}}
-					>
+					<tr>
 						{headings?.map(({ key, label }, index) => {
 							return key ? (
 								<Th sorted={sortBy === key} reversed={reversed} onSort={() => onSort(key)}>
@@ -123,8 +119,6 @@ const DataGrid = ({
 				onChange={setPage}
 				numRows={rows.length}
 				total={range.length}
-				position='center'
-				spacing={50}
 			/>
 		</div>
 	) : (

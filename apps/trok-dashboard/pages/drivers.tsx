@@ -68,7 +68,7 @@ const Drivers = () => {
 	return (
 		<Page.Container
 			header={
-				<Page.Header>
+				<Page.Header extraClassNames="mb-0">
 					<span className='text-2xl font-medium'>Drivers</span>
 					<Button className='' onClick={() => setOpened(true)}>
 						<span className='text-base font-normal'>Add new driver</span>

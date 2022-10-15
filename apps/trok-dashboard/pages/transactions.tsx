@@ -11,9 +11,7 @@ import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 
 const rows = SAMPLE_TRANSACTIONS.map((element, index) => {
 	return (
-		<tr key={index} style={{
-			border: 'none'
-		}}>
+		<tr key={index}>
 			<td colSpan={1}>
 				<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
 			</td>
@@ -163,15 +161,15 @@ const Transactions = () => {
 						<Tabs.Tab value="declined">Declined</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value="all" pt="xs" className="h-full">
+					<Tabs.Panel value="all" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value="approved" pt="xs" className="h-full">
+					<Tabs.Panel value="approved" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value="declined" pt="xs" className="h-full">
+					<Tabs.Panel value="declined" className="h-full">
 						<TransactionTable rows={rows}/>
 					</Tabs.Panel>
 				</Tabs>
