@@ -64,7 +64,7 @@ const Referral = () => {
 								<List.Item>Share your referral link with another fleet owner</List.Item>
 								<List.Item>They sign up on Trok and start using our cards</List.Item>
 								<List.Item>
-									Once they’ve purchased 1000 Litres of fuel using our cards, we apply a £50 credit on
+									Once they’ve purchased 1000 litres of fuel using our cards, we apply a £50 credit on
 									your next statement. If the fleet you referred has over 10 vehicles, then we apply a
 									£300 credit
 								</List.Item>
