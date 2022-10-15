@@ -18,7 +18,8 @@
     "nx:dashboard:serve:dev": "nx serve trok-dashboard --prod --proxy-config apps/trok-dashboard/proxy/dev.conf.json",
     "nx:dashboard:test": "nx build trok-dashboard && nx serve trok-dashboard --prod",
     "nx:backend:build": "nx build trok-backend",
-    "nx:backend:serve:prod": "nx serve trok-backend --prod --hostname 0.0.0.0",
+    "nx:backend:serve:prod": "nx serve trok-backend --prod",
+    "nx:backend:serve:prod:verbose": "nx serve trok-backend --prod --verbose",
     "nx:cache-clean": "nx clear-cache",
     "prisma:generate": "npx prismerge -i prismerge.json && npx prisma generate"
   },
