@@ -1,10 +1,11 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarController, BarElement, BarOptions } from 'chart.js';
+import { Chart, CategoryScale, LinearScale, BarController, BarElement } from 'chart.js';
 import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
 const labels = [0, 1, 2, 3, 4, 5, 6].reverse().map(val => dayjs().subtract(val, 'd').format("MMM D"))
 
@@ -17,6 +18,11 @@ const SpendAnalysis = () => {
 			<Bar
 				options={{
 					plugins: {
+						datalabels: {
+							formatter: (value, context) => `£${value.toFixed(2)}`,
+							anchor: 'end',
+							align: 'top'
+						},
 						legend: {
 							display: false
 						}
