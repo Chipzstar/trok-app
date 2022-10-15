@@ -38,22 +38,9 @@ body {
     margin: 0;
 }
 
-thead > tr {
-    border: 1px solid black;
-}
-
 tbody > tr {
     border: none;
     background-color: white;
     box-shadow: rgba(173, 173, 173, 0.25) 0 7px 4px;
     /*box-shadow: 0 0 2rem transparentize( black, 0.9 );*/
-}
-
-tr > td {
-
-}
-
-
-li {
-    display: list-item;
 }
