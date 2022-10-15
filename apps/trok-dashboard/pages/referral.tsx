@@ -60,7 +60,7 @@ const Referral = () => {
 					<Card shadow='sm' p='lg' radius='xs'>
 						<Stack>
 							<span className='heading-1'>How it works</span>
-							<List type='ordered'>
+							<List type='ordered' spacing="xs">
 								<List.Item>Share your referral link with another fleet owner</List.Item>
 								<List.Item>They sign up on Trok and start using our cards</List.Item>
 								<List.Item>

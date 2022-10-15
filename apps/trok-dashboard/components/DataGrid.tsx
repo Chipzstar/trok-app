@@ -1,5 +1,5 @@
 import React from 'react';
-import { Center, createStyles, Group, MantineNumberSize, Pagination, Table, Text, UnstyledButton } from '@mantine/core';
+import { Center, createStyles, Group, MantineNumberSize, Table, Text, UnstyledButton } from '@mantine/core';
 import useTable from '../hooks/useTable';
 import useWindowSize from '../hooks/useWindowSize';
 import { IconChevronDown, IconChevronUp, IconSelector } from '@tabler/icons';
@@ -35,7 +35,6 @@ interface ThProps {
 	children: React.ReactNode;
 	reversed: boolean;
 	sorted: boolean;
-
 	onSort(): void;
 }
 
