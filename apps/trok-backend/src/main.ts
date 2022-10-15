@@ -35,6 +35,14 @@ const runApp = async () => {
 		})
 	);*/
 
+	app.use('/ping', (req, res) => {
+		const message = `Pinged at ${new Date().toUTCString()}`;
+		console.log(`${req.ip} - ${message}`);
+		res.status(200).json({
+			message
+		});
+	});
+
 	app.get('/api', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
 	});

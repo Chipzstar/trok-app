@@ -1,0 +1,6 @@
+{
+  "/api": {
+    "target": "https://trok-api-dev.onrender.com",
+    "secure": true
+  }
+}
