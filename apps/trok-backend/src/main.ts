@@ -8,7 +8,6 @@ import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
 import authRoutes from './app/routes/auth';
 import { appRouter } from './app/routes';
-import { limiterConsecutiveFailsByEmailAndIP } from './app/middleware/rateLimitController';
 
 const runApp = async () => {
 	const app = express();
