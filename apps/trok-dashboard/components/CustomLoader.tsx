@@ -7,7 +7,7 @@ export interface LoadingOverlayProps {
 
 export function CustomLoader(props: LoadingOverlayProps) {
 	return (
-		<div className="flex flex-col justify-center items-center space-y-1 h-screen">
+		<div className="flex flex-col justify-center items-center space-y-1">
 			<svg width='54' height='54' viewBox='0 0 38 38' xmlns='http://www.w3.org/2000/svg' stroke={DEFAULT_THEME.colors.blue[6]}>
 				<g fill='none' fillRule='evenodd'>
 					<g transform='translate(1 1)' strokeWidth='2'>
