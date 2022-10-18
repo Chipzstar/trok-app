@@ -14,7 +14,7 @@ datasource db {
 }
 
 type StripeInfo {
-  customerId  String
+  accountId   String
   bankAccount BankAccount
 }
 
@@ -38,25 +38,27 @@ type Address {
 }
 
 type BusinessInfo {
-  business_legal_name    String
-  business_type          String?
-  business_email         String
-  business_phone         String
+  legal_name             String
+  weekly_fuel_spend      Int
+  business_type          String
+  business_crn           String
   merchant_category_code String
   business_url           String
+  num_vehicles           Int
 }
 model User {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  email         String        @unique
-  full_name     String
-  firstname     String
-  lastname      String
-  phone         String
-  referral_code String?
-  password      String
-  address       Address?
-  business      BusinessInfo?
-  stripe        StripeInfo?
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  email            String        @unique
+  full_name        String
+  firstname        String
+  lastname         String
+  phone            String
+  referral_code    String?
+  password         String
+  address          Address?
+  shipping_address Address?
+  business         BusinessInfo?
+  stripe           StripeInfo?
 }

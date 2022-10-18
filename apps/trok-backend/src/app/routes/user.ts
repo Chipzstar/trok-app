@@ -15,6 +15,7 @@ const userRouter = t.router({
 				email: z.string().email('Invalid email'),
 				phone: z.string(),
 				password: z.string(),
+				referral_code: z.string().optional(),
 				address: z
 					.object({
 						line1: z.string(),
@@ -22,12 +23,22 @@ const userRouter = t.router({
 						city: z.string(),
 						postcode: z.string(),
 						region: z.string(),
-						country: z.string().optional()
+						country: z.string()
+					})
+					.optional(),
+				shipping_address: z
+					.object({
+						line1: z.string(),
+						line2: z.string().optional(),
+						city: z.string(),
+						postcode: z.string(),
+						region: z.string(),
+						country: z.string()
 					})
 					.optional(),
 				stripe: z
 					.object({
-						customerId: z.string(),
+						accountId: z.string(),
 						bankAccount: z.object({
 							id: z.string(),
 							fingerprint: z.string(),
@@ -41,12 +52,13 @@ const userRouter = t.router({
 					.optional(),
 				business: z
 					.object({
-						business_legal_name: z.string(),
-						business_type: z.string().optional(),
-						business_email: z.string(),
-						business_phone: z.string(),
+						legal_name: z.string(),
+						num_vehicles: z.number(),
+						weekly_fuel_spend: z.number(),
+						business_type: z.string(),
 						merchant_category_code: z.string(),
-						business_url: z.string()
+						business_url: z.string(),
+						business_crn: z.string()
 					})
 					.optional()
 			})

@@ -1,3 +1,5 @@
+import CryptoJS from 'crypto-js'
+
 interface selectInput {
 	value: string;
 	label: string;
@@ -13,4 +15,13 @@ export function sanitize(str: string): string {
 
 export function uniqueArray(array: selectInput[], key) {
 	return [...new Map(array.map(item => [item[key], item])).values()];
+}
+
+export function decryptPassword(password: string) {
+	let decryptedPassword =''
+	if (password) {
+		const bytes = CryptoJS.AES.decrypt(password, process.env.ENC_SECRET)
+		decryptedPassword = JSON.parse(bytes.toString());
+	}
+	return decryptedPassword
 }

@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"strict": true,
 		"outDir": "../../dist/out-tsc",
-		"module": "commonjs",
+		"module": "esnext",
+		"target": "es2017",
 		"types": ["node", "express"]
 	},
 	"exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"],

@@ -1,6 +1,11 @@
 import dayjs from "dayjs";
 import currency from 'currency.js';
 import { CARD_STATUS, PAYMENT_STATUS } from './types';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+
+export const phoneUtil = PhoneNumberUtil.getInstance();
+
+export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
@@ -11,9 +16,10 @@ export const STORAGE_KEYS = {
 	COMPLETE: 'complete',
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
-	COMPANY_FORM: 'onboarding-company-form',
+	COMPANY_FORM: 'company-form',
 	FINANCIAL_FORM: 'financial-form',
-	LOCATION_FORM: 'location-form'
+	LOCATION_FORM: 'location-form',
+	ONBOARDING_STEP: 'onboarding-step'
 }
 
 export const PATHS = {

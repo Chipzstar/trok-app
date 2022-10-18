@@ -1,11 +1,13 @@
-import { PrismaClient } from '@prisma/client';
 import * as trpc from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
+import prisma from './db';
+import redisClient from './redis';
 
 export const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => {
-	const prisma = new PrismaClient();
 	return {
-		prisma
+		user: null,
+		prisma,
+		redis: redisClient
 	};
 };
 

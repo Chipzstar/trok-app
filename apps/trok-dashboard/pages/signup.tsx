@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect } from 'react';
+import CryptoJS from 'crypto-js';
+import axios from 'axios';
+import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
 import { SignupSchema } from '../schemas';
-import { PATHS, STORAGE_KEYS } from '../utils/constants';
+import { PATHS, phoneUtil, STORAGE_KEYS } from '../utils/constants';
 import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
-import Image from 'next/image';
+import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 
-export function Signup() {
+export function Signup({ secret }) {
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [userForm, setUserForm] = useLocalStorage({
 		key: STORAGE_KEYS.SIGNUP_FORM,
@@ -24,10 +27,19 @@ export function Signup() {
 		validate: zodResolver(SignupSchema)
 	});
 
-	const handleSubmit = useCallback(values => {
+	const handleSubmit = useCallback(async values => {
 		values.full_name = values.firstname + ' ' + values.lastname;
-		console.log(values)
-		setNewAccount(values);
+		const phone = phoneUtil.parseAndKeepRawInput(values.phone, 'GB');
+		if (phoneUtil.getRegionCodeForNumber(phone) === 'GB') {
+			const E164Number = phoneUtil.format(phone, PNF.E164);
+			console.log('E164Number:', E164Number);
+			values.phone = E164Number;
+		}
+		setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
+		const result = (await axios.post('/api/auth/signup', values)).data;
+		console.log('-----------------------------------------------');
+		console.log(result);
+		console.log('-----------------------------------------------');
 		router.push(PATHS.ONBOARDING);
 	}, []);
 
@@ -35,7 +47,8 @@ export function Signup() {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.SIGNUP_FORM);
 		if (storedValue) {
 			try {
-				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.SIGNUP_FORM)));
+				const parsedData = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.SIGNUP_FORM));
+				form.setValues(parsedData);
 			} catch (e) {
 				console.log('Failed to parse stored value');
 				console.error(e);
@@ -44,11 +57,12 @@ export function Signup() {
 	}, []);
 
 	useEffect(() => {
+		// const decryptedData = JSON.parse(form.values.password.toString(CryptoJS.enc.Utf8));
 		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify(form.values));
 	}, [form.values]);
 
 	return (
-		<div className='bg-white h-screen w-full overflow-x-hidden p-5'>
+		<div className='h-screen w-full overflow-x-hidden bg-white p-5'>
 			<form
 				onSubmit={form.onSubmit(handleSubmit)}
 				className='flex h-full w-full flex-col'
@@ -122,5 +136,13 @@ export function Signup() {
 		</div>
 	);
 }
+
+export const getServerSideProps = context => {
+	return {
+		props: {
+			secret: process.env.ENC_SECRET
+		}
+	};
+};
 
 export default Signup;

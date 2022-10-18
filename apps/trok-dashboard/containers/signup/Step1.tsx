@@ -1,26 +1,30 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
-import { IconCurrencyPound } from '@tabler/icons';
+import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Loader } from '@mantine/core';
+import { IconCurrencyPound, IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../../utils/constants';
+import axios from 'axios';
+import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 
 const Step1 = ({ nextStep }) => {
-	const [files, setFiles] = useState<File>(null);
-	const [companyForm, setCompanyForm] = useLocalStorage({
+	const [loading, setLoading] = useState(false);
+	const [files, setFile] = useState<File>(null);
+	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const [companyForm, setCompanyForm] = useLocalStorage<OnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
 		defaultValue: {
 			legal_name: '',
 			weekly_fuel_spend: '',
-			business_type: '',
-			industry_type: '',
+			business_type: undefined,
+			merchant_category_code: null,
 			business_crn: '',
 			business_url: '',
 			num_vehicles: null
 		}
 	});
 
-	const form = useForm({
+	const form = useForm<OnboardingBusinessInfo>({
 		initialValues: {
 			...companyForm
 		},
@@ -30,10 +34,33 @@ const Step1 = ({ nextStep }) => {
 		}
 	});
 
-	const handleSubmit = useCallback(values => {
-		console.log(values);
-		nextStep();
-	}, []);
+	const handleSubmit = useCallback(
+		async values => {
+			setLoading(true);
+			console.log(values);
+			try {
+				const result = (
+					await axios.post('/api/auth/onboarding', values, {
+						params: {
+							email: account?.email,
+							step: 2
+						}
+					})
+				).data;
+				console.log('-----------------------------------------------');
+				console.log(result);
+				console.log('-----------------------------------------------');
+				setAccount({...account, business: values})
+				setLoading(false);
+				nextStep();
+			} catch (err) {
+				setLoading(false);
+				console.error(err);
+				notifyError('onboarding-step1-failure', err.error.message, <IconX size={20} />);
+			}
+		},
+		[account?.email, nextStep]
+	);
 
 	useEffect(() => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.COMPANY_FORM);
@@ -66,18 +93,30 @@ const Step1 = ({ nextStep }) => {
 					<Select
 						required
 						label='Type of business'
+						data={[
+							{
+								label: 'Public Company',
+								value: 'public_corporation'
+							},
+							{
+								label: 'Private Company',
+								value: 'private_corporation'
+							}
+						]}
 						{...form.getInputProps('business_type')}
-						data={['LLC', 'Private Company', 'Public Company', 'Non Profit Organization', 'LLP', 'Other']}
 					/>
 					<Select
 						required
 						label='Type of industry'
-						{...form.getInputProps('industry_type')}
 						data={[
-							'Transportation - Other',
-							'Transportation - Motor Freight, Carriers & Trucking',
-							'Other'
+							{
+								label: 'Transportation - Other',
+								value: '4789'
+							},
+							{ label: 'Transportation - Motor Freight, Carriers & Trucking', value: '4214' },
+							{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
 						]}
+						{...form.getInputProps('merchant_category_code')}
 					/>
 				</Group>
 				<Group grow>
@@ -87,7 +126,7 @@ const Step1 = ({ nextStep }) => {
 						maxLength={8}
 						required
 						label='Company Reg No.'
-						{...form.getInputProps('crn')}
+						{...form.getInputProps('business_crn')}
 					/>
 					<NumberInput
 						label='Number of Vehicles'
@@ -97,10 +136,16 @@ const Step1 = ({ nextStep }) => {
 						{...form.getInputProps('num_vehicles')}
 					/>
 				</Group>
-				<TextInput type='text' label='Business URL' {...form.getInputProps('url')} />
+				<TextInput
+					required
+					type='text'
+					label='Business URL'
+					{...form.getInputProps('business_url')}
+					description='If you do not have a website, please enter a short description of your business'
+				/>
 				<div>
 					<Text size='md'>{"Upload front of Driver's License"}</Text>
-					<FileButton onChange={setFiles} accept='image/png,image/jpeg'>
+					<FileButton onChange={setFile} accept='image/png,image/jpeg'>
 						{props => (
 							<Button variant='outline' fullWidth {...props}>
 								Upload picture
@@ -108,36 +153,6 @@ const Step1 = ({ nextStep }) => {
 						)}
 					</FileButton>
 				</div>
-				{/*<Dropzone
-					onDrop={(files) => console.log('accepted files', files)}
-					onReject={(files) => console.log('rejected files', files)}
-					maxSize={3 * 1024 ** 2}
-					accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.pdf]}
-				>
-					<Group position='center' spacing='xl' style={{ minHeight: 80, pointerEvents: 'none' }}>
-						<Dropzone.Accept>
-							<IconUpload
-								size={50}
-								stroke={1.5}
-							/>
-						</Dropzone.Accept>
-						<Dropzone.Reject>
-							<IconX
-								size={50}
-								stroke={1.5}
-							/>
-						</Dropzone.Reject>
-						<Dropzone.Idle>
-							<IconPhoto size={30} stroke={1.5} />
-						</Dropzone.Idle>
-
-						<div>
-							<Text size='xl' inline>
-								Upload picture
-							</Text>
-						</div>
-					</Group>
-				</Dropzone>*/}
 				<Group position='right'>
 					<Button
 						type='submit'
@@ -147,6 +162,7 @@ const Step1 = ({ nextStep }) => {
 							width: 200
 						}}
 					>
+						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} />
 						Continue
 					</Button>
 				</Group>

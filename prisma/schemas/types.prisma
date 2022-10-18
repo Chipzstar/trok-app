@@ -1,5 +1,5 @@
 type StripeInfo {
-    customerId String
+    accountId String
     bankAccount BankAccount
 }
 
@@ -23,10 +23,11 @@ type Address {
 }
 
 type BusinessInfo {
-    business_legal_name String
-    business_type String?
-    business_email String
-    business_phone String
+    legal_name String
+    weekly_fuel_spend Int
+    business_type String
+    business_crn String
     merchant_category_code String
     business_url String
+    num_vehicles Int
 }

@@ -10,6 +10,7 @@ model User {
   referral_code String?
   password String
   address Address?
+  shipping_address Address?
   business BusinessInfo?
   stripe StripeInfo?
 }

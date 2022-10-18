@@ -1,14 +1,18 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
+import { Button, Group, Loader, NumberInput, Stack, Text } from '@mantine/core';
 import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
 import { STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
+import axios from 'axios';
+import { notifyError } from '@trok-app/shared-utils';
 
 const ONE_GB = 1073741824; // in bytes units
 
-const Step2 = ({nextStep}) => {
+const Step2 = ({ prevStep, nextStep }) => {
+	const [loading, setLoading] = useState(false);
+	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [financialForm, setFinancialForm] = useLocalStorage({
 		key: STORAGE_KEYS.FINANCIAL_FORM,
 		defaultValue: {
@@ -20,10 +24,30 @@ const Step2 = ({nextStep}) => {
 			...financialForm
 		}
 	});
-	const handleSubmit = useCallback(values => {
-		console.log(values)
-		nextStep()
-	}, []);
+	const handleSubmit = useCallback(
+		async values => {
+			setLoading(false);
+			try {
+				const result = (
+					await axios.post('/api/auth/onboarding', values, {
+						params: {
+							email: account?.email,
+							step: 3
+						}
+					})
+				).data;
+				console.log('-----------------------------------------------');
+				console.log(result);
+				console.log('-----------------------------------------------');
+				nextStep();
+			} catch (err) {
+				setLoading(false);
+				console.error(err);
+				notifyError('onboarding-step1-failure', err.error.message, <IconX size={20} />);
+			}
+		},
+		[account?.email, nextStep]
+	);
 
 	useEffect(() => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.FINANCIAL_FORM);
@@ -46,24 +70,16 @@ const Step2 = ({nextStep}) => {
 			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
 			<Stack>
 				<NumberInput
-					required
-					icon={<IconCurrencyPound size={16} />}
 					label='What is your average monthly revenue?'
+					min={100}
+					max={1000000}
+					step={100}
+					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('average_monthly_revenue')}
 				/>
-				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
-				<div className='flex flex-row flex-col items-center justify-center space-y-4'>
-					<Button px='xl' fullWidth>
-						<Text weight='normal'>Link Business Bank Account</Text>
-					</Button>
-					<Text align='center' size='xs' color='dimmed'>
-						Trok uses Plaid for a safe & secure connection
-						<br />
-						Recommended for instant approval
-					</Text>
-				</div>
-
-				<span className="text-center">Can’t link your bank? Upload bank statements from the last three months.</span>
+				<span className='text-center'>
+					Can’t link your bank? Upload bank statements from the last three months.
+				</span>
 				<Dropzone
 					onDrop={files => console.log('accepted files', files)}
 					onReject={files => console.log('rejected files', files)}
@@ -92,7 +108,15 @@ const Step2 = ({nextStep}) => {
 						</div>
 					</Group>
 				</Dropzone>
-				<Group mt='md' position="right">
+				<Group mt='md' position='apart'>
+					<Button
+						type="button"
+						variant="white"
+						size="md"
+						onClick={prevStep}
+					>
+						<Text weight='normal'>Go Back</Text>
+					</Button>
 					<Button
 						type='submit'
 						variant='filled'
@@ -101,7 +125,8 @@ const Step2 = ({nextStep}) => {
 							width: 200
 						}}
 					>
-						<Text weight="normal">Continue</Text>
+						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} />
+						<Text weight='normal'>Continue</Text>
 					</Button>
 				</Group>
 			</Stack>
