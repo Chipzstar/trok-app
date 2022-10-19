@@ -13,9 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ShippingSpeed {
+  express
+  standard
+  signature
+}
 type StripeInfo {
   accountId   String
-  bankAccount BankAccount
+  bankAccount BankAccount?
 }
 
 type BankAccount {
@@ -38,27 +43,36 @@ type Address {
 }
 
 type BusinessInfo {
-  legal_name             String
-  weekly_fuel_spend      Int
-  business_type          String
-  business_crn           String
-  merchant_category_code String
-  business_url           String
-  num_vehicles           Int
+  legal_name              String
+  weekly_fuel_spend       Int
+  average_monthly_revenue Int
+  business_type           String
+  business_crn            String
+  merchant_category_code  String
+  business_url            String
+  num_vehicles            Int
+}
+
+type CardInfo {
+  card_business_name String
+  num_cards          Int
+  shipping_speed     ShippingSpeed
 }
 model User {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  email            String        @unique
-  full_name        String
-  firstname        String
-  lastname         String
-  phone            String
-  referral_code    String?
-  password         String
-  address          Address?
-  shipping_address Address?
-  business         BusinessInfo?
-  stripe           StripeInfo?
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  email              String        @unique
+  full_name          String
+  firstname          String
+  lastname           String
+  phone              String
+  referral_code      String?
+  terms              Boolean?
+  password           String
+  location           Address?
+  shipping_address   Address?
+  card_configuration CardInfo?
+  business           BusinessInfo?
+  stripe             StripeInfo?
 }

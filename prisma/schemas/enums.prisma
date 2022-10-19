@@ -1,0 +1,5 @@
+enum ShippingSpeed {
+    express
+    standard
+    signature
+}

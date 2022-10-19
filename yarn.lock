@@ -2948,6 +2948,11 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.2.tgz#6286b4c7228d58ab7866d19716f3696e03a09397"
   integrity sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==
 
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
+
 "@types/ws@^8.5.1":
   version "8.5.3"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.3.tgz#7d25a1ffbecd3c4f2d35068d0b283c037003274d"
@@ -5632,7 +5637,7 @@ express@^4.17.3, express@^4.18.1:
     utils-merge "1.0.1"
     vary "~1.1.2"
 
-extend@~3.0.2:
+extend@^3.0.2, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
@@ -5967,6 +5972,16 @@ functions-have-names@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.3.tgz#0404fe4ee2ba2f607f0e0ec3c80bae994133b834"
   integrity sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
+
+gaxios@^5.0.1:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/gaxios/-/gaxios-5.0.2.tgz#ca3a40e851c728d31d7001c2357062d46bf966d1"
+  integrity sha512-TjtV2AJOZoMQqRYoy5eM8cCQogYwazWNYLQ72QB0kwa6vHHruYkGmhhyrlzbmgNHK1dNnuP2WSH81urfzyN2Og==
+  dependencies:
+    extend "^3.0.2"
+    https-proxy-agent "^5.0.0"
+    is-stream "^2.0.0"
+    node-fetch "^2.6.7"
 
 generic-names@^4.0.0:
   version "4.0.0"
@@ -6807,14 +6822,6 @@ isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
-
-isomorphic-unfetch@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-unfetch/-/isomorphic-unfetch-3.1.0.tgz#87341d5f4f7b63843d468438128cb087b7c3e98f"
-  integrity sha512-geDJjpoZ8N0kWexiwkX8F9NkTsXhetLPVbZFQ+JTW239QNOwvB0gniuR1Wc6f0AMTn7/mFGyXvHTifrCp/GH8Q==
-  dependencies:
-    node-fetch "^2.6.1"
-    unfetch "^4.2.0"
 
 isstream@~0.1.2:
   version "0.1.2"
@@ -7727,6 +7734,13 @@ magic-string@^0.25.7:
   dependencies:
     sourcemap-codec "^1.4.8"
 
+mailer-send-ts@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/mailer-send-ts/-/mailer-send-ts-1.7.0.tgz#c08f56668322a42236f64199a9700320f7388509"
+  integrity sha512-PRcHQhE7qpxr/JHPSy3zWqtArDwpAs/Ytk7reIIWIXTYnVvWE+AhwWcAeAaWzHjTTOQ/HdSxz2F9DOURsSm9Dg==
+  dependencies:
+    gaxios "^5.0.1"
+
 mailerlite-api-v2-node@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/mailerlite-api-v2-node/-/mailerlite-api-v2-node-1.2.0.tgz#eb633c2aafcfa8a8ed22c6437d7327567852cf50"
@@ -7735,13 +7749,6 @@ mailerlite-api-v2-node@^1.2.0:
     axios "^0.21.4"
     camelcase-keys "^7.0.0"
     snakecase-keys "^5.0.0"
-
-mailersend@^1.4.5:
-  version "1.4.5"
-  resolved "https://registry.yarnpkg.com/mailersend/-/mailersend-1.4.5.tgz#4202898ba7730e0f4144d1e36c74ca080b99a91f"
-  integrity sha512-3+79NyFqGKDe1kTRF4WcJJR3Guk9AVLLrKC3gHdPzskGVga69eSJJ/FcevVvje78G7iHxz4yApLL2pJhNOwpQQ==
-  dependencies:
-    isomorphic-unfetch "^3.1.0"
 
 make-dir@^2.1.0:
   version "2.1.0"
@@ -8023,7 +8030,7 @@ node-addon-api@^3.2.1:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.2.1.tgz#81325e0a2117789c0128dab65e7e38f07ceba161"
   integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
 
-node-fetch@^2.6.1:
+node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
@@ -10454,11 +10461,6 @@ unbox-primitive@^1.0.2:
     has-symbols "^1.0.3"
     which-boxed-primitive "^1.0.2"
 
-unfetch@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-4.2.0.tgz#7e21b0ef7d363d8d9af0fb929a5555f6ef97a3be"
-  integrity sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==
-
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/unicode-canonical-property-names-ecmascript/-/unicode-canonical-property-names-ecmascript-2.0.0.tgz#301acdc525631670d39f6146e0e77ff6bbdebddc"
@@ -10602,6 +10604,11 @@ uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
 
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"

@@ -7,10 +7,14 @@ model User {
   firstname  String
   lastname  String
   phone String
+  email_verified Boolean @default(false)
+  verify_token String
   referral_code String?
+  terms Boolean?
   password String
-  address Address?
+  location Address?
   shipping_address Address?
+  card_configuration CardInfo?
   business BusinessInfo?
   stripe StripeInfo?
 }

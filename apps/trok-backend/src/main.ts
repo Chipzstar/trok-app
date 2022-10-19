@@ -8,10 +8,12 @@ import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
 import authRoutes from './app/routes/auth';
 import { appRouter } from './app/routes';
+import { v4 as uuidv4 } from 'uuid';
+import { sendMagicLink } from './app/helpers/email';
 
 const runApp = async () => {
 	const app = express();
-	app.set('trust proxy', 1)
+	app.set('trust proxy', 1);
 	app.use(cors());
 	// using protecting against HTTP Parameter Pollution attacks
 	app.use(hpp());
@@ -56,7 +58,6 @@ const runApp = async () => {
 	});
 
 	// ROUTES
-
 	// WELCOME ROUTE
 	app.get('/api', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
@@ -64,11 +65,25 @@ const runApp = async () => {
 	/**
 	 *	AUTH ROUTES
 	 */
-	app.use('/api/auth', authRoutes)
+	app.use('/api/auth', authRoutes);
+	/**
+	 * TEST ROUTES
+	 */
+	app.post('/test/email', async (req, res, next) => {
+		try {
+			const { email, name } = req.body;
+			const response = await sendMagicLink(email, name, uuidv4());
+			console.log(response);
+			res.status(200).json(response);
+		} catch (err) {
+			console.error(err);
+			next(err);
+		}
+	});
 	/**
 	 * ERROR HANDLERS
 	 */
-	app.use(errorHandler)
+	app.use(errorHandler);
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {

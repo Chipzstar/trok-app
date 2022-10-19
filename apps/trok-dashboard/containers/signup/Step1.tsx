@@ -15,7 +15,7 @@ const Step1 = ({ nextStep }) => {
 		key: STORAGE_KEYS.COMPANY_FORM,
 		defaultValue: {
 			legal_name: '',
-			weekly_fuel_spend: '',
+			weekly_fuel_spend: null,
 			business_type: undefined,
 			merchant_category_code: null,
 			business_crn: '',
@@ -83,7 +83,11 @@ const Step1 = ({ nextStep }) => {
 			<h1 className='mb-4 text-2xl font-medium'>Your company</h1>
 			<Stack>
 				<TextInput required label='Company legal name' {...form.getInputProps('legal_name')} />
-				<TextInput
+				<NumberInput
+					type="number"
+					min={100}
+					max={999999}
+					step={100}
 					required
 					label='Weekly fuel and maintenance spend'
 					icon={<IconCurrencyPound size={16} />}
@@ -129,6 +133,7 @@ const Step1 = ({ nextStep }) => {
 						{...form.getInputProps('business_crn')}
 					/>
 					<NumberInput
+						type="number"
 						label='Number of Vehicles'
 						min={1}
 						max={100}

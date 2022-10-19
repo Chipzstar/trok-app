@@ -1,17 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import {
-	Button,
-	Checkbox,
-	Group,
-	NumberInput,
-	Radio,
-	Text,
-	Stack,
-	TextInput,
-	Loader,
-	LoadingOverlay
-} from '@mantine/core';
+import { Button, Checkbox, Group, Loader, NumberInput, Radio, Stack, Text, TextInput } from '@mantine/core';
 import { phoneUtil, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
@@ -19,21 +8,22 @@ import {
 	isValidUrl,
 	notifyError,
 	OnboardingBusinessInfo,
+	OnboardingFinancialInfo,
 	OnboardingLocationInfo,
 	SignupInfo
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
-import CustomLoader from '../../components/CustomLoader';
 import { apiClient } from '../../utils/clients';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const Step3 = ({ prevStep, finish }) => {
+	const [account, setAccount] = useLocalStorage<SignupInfo & Record<"business", OnboardingBusinessInfo>>({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
 	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
-	const [financial, setFinancial] = useLocalStorage({ key: STORAGE_KEYS.FINANCIAL_FORM });
-	const [locationForm, setLocationForm] = useLocalStorage({
+	const [financialObj, setFinancial] = useLocalStorage<OnboardingFinancialInfo>({ key: STORAGE_KEYS.FINANCIAL_FORM });
+	const [locationForm, setLocationForm] = useLocalStorage<OnboardingLocationInfo>({
 		key: STORAGE_KEYS.LOCATION_FORM,
 		defaultValue: {
 			line1: '',
@@ -44,7 +34,7 @@ const Step3 = ({ prevStep, finish }) => {
 			country: 'GB',
 			card_business_name: '',
 			num_cards: null,
-			shipping_speed: 'standard',
+			shipping_speed: "standard",
 			diff_shipping_address: false,
 			shipping_address: {
 				line1: '',
@@ -68,14 +58,10 @@ const Step3 = ({ prevStep, finish }) => {
 			setLoading(true);
 			console.log(values);
 			try {
-				console.log(personalObj);
-				console.log(businessObj);
 				// convert phone number to E164 format
 				const phone = phoneUtil.parseAndKeepRawInput(personalObj.phone, 'GB');
 				if (phoneUtil.getRegionCodeForNumber(phone) === 'GB') {
-					const E164Number = phoneUtil.format(phone, PNF.E164);
-					console.log('E164Number:', E164Number);
-					personalObj.phone = E164Number;
+					personalObj.phone = phoneUtil.format(phone, PNF.E164);
 				}
 				const personResult = await Stripe.createToken('person', {
 					...(values.diff_shipping_address && {
@@ -125,7 +111,7 @@ const Step3 = ({ prevStep, finish }) => {
 					throw new Error(accountResult.error.message);
 				}
 				const isUrlValid = isValidUrl(businessObj.business_url);
-				const account = (
+				const user = (
 					await apiClient.post('/api/auth/complete-registration', {
 						accountToken: accountResult.token,
 						personToken: personResult.token,
@@ -133,11 +119,30 @@ const Step3 = ({ prevStep, finish }) => {
 							mcc: businessObj.merchant_category_code,
 							url: isUrlValid ? businessObj.business_url : undefined,
 							product_description: !isUrlValid ? businessObj.business_url : undefined
+						},
+						data: {
+							...personalObj,
+							...(values.diff_shipping_address && { shipping_address: values.shipping_address}),
+							business: { ...businessObj, ...financialObj },
+							location: {
+								line1: values.line1,
+								line2: values?.line2,
+								city: values.city,
+								postcode: values.postcode,
+								region: values.region,
+								country: values.country
+							},
+							card_configuration: {
+								name: values.card_business_name,
+								num_cards: values.num_cards,
+								shipping_speed: values.shipping_speed
+							},
+							full_name: `${personalObj.firstname} ${personalObj.lastname}`
 						}
 					})
 				).data;
 				console.log('************************************************');
-				console.log(account);
+				console.log("USER:", user);
 				console.log('************************************************');
 				setLoading(false);
 				finish(true);
@@ -147,7 +152,7 @@ const Step3 = ({ prevStep, finish }) => {
 				notifyError('onboarding-step1-failure', err.message, <IconX size={20} />);
 			}
 		},
-		[personalObj, businessObj]
+		[personalObj, businessObj, financialObj, finish]
 	);
 
 	useEffect(() => {
@@ -237,16 +242,16 @@ const Step3 = ({ prevStep, finish }) => {
 						withAsterisk
 						{...form.getInputProps('shipping_speed')}
 					>
-						<Radio value='standard' label='3-8 days. Cards left at address' />
-						<Radio value='express' label='2-3 days. Cards left at address' />
-						<Radio value='signature' label='2-3 days. Signature required at delivery' />
+						<Radio value="standard" label='3-8 days. Cards left at address' />
+						<Radio value="express" label='2-3 days. Cards left at address' />
+						<Radio value="signature" label='2-3 days. Signature required at delivery' />
 					</Radio.Group>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>
 						</Button>
 						<Button type='submit' variant='filled' size='md' px='xl'>
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color="white"/>
+							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 							<Text weight='normal'>Complete Application</Text>
 						</Button>
 					</Group>

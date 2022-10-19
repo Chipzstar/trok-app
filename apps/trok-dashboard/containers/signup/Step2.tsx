@@ -26,7 +26,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 	});
 	const handleSubmit = useCallback(
 		async values => {
-			setLoading(false);
+			setLoading(true);
 			try {
 				const result = (
 					await apiClient.post('/api/auth/onboarding', values, {
@@ -39,6 +39,8 @@ const Step2 = ({ prevStep, nextStep }) => {
 				console.log('-----------------------------------------------');
 				console.log(result);
 				console.log('-----------------------------------------------');
+				setAccount({ ...account, business: { ...account.business, ...values  } });
+				setLoading(false);
 				nextStep();
 			} catch (err) {
 				setLoading(false);
@@ -46,7 +48,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 				notifyError('onboarding-step1-failure', err.error.message, <IconX size={20} />);
 			}
 		},
-		[account?.email, nextStep]
+		[account, nextStep, setAccount]
 	);
 
 	useEffect(() => {

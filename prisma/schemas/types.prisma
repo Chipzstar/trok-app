@@ -1,6 +1,6 @@
 type StripeInfo {
     accountId String
-    bankAccount BankAccount
+    bankAccount BankAccount?
 }
 
 type BankAccount {
@@ -25,9 +25,16 @@ type Address {
 type BusinessInfo {
     legal_name String
     weekly_fuel_spend Int
+    average_monthly_revenue Int
     business_type String
     business_crn String
     merchant_category_code String
     business_url String
     num_vehicles Int
+}
+
+type CardInfo {
+    card_business_name String
+    num_cards Int
+    shipping_speed ShippingSpeed
 }
