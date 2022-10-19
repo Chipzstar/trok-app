@@ -7,7 +7,7 @@ import { DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
 
 const Layout = ({ children, auth, setAuth }) => {
 	const router = useRouter()
-	const isLoggedIn = useMemo(() => [PATHS.LOGIN, PATHS.SIGNUP].includes(router.pathname), [router]); 
+	const isLoggedIn = useMemo(() => ![PATHS.LOGIN, PATHS.SIGNUP].includes(router.pathname), [router]);
 	
 	return (
 		<div className='relative flex min-h-screen font-aeonik'>

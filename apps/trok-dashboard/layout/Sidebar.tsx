@@ -17,7 +17,7 @@ import {
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 
 const useStyles = createStyles((theme, _params, getRef) => {
@@ -86,8 +86,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 const Sidebar = ({ setAuth }) => {
 	const router = useRouter();
-	const [newAccount, setAccount] = useLocalStorage({ key: 'account', defaultValue: null });
-	const [complete, setComplete] = useLocalStorage({ key: 'complete', defaultValue: false });
+	const [complete, setComplete] = useLocalStorage({ key: STORAGE_KEYS.COMPLETE, defaultValue: false });
 	const tabs = {
 		general: [
 			{
