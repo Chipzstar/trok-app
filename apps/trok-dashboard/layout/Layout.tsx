@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AppShell, Header } from '@mantine/core';
 import Sidebar from './Sidebar';
 import { useRouter } from 'next/router';
 import VerifyBanner from '../components/VerifyBanner';
+import { DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
 
 const Layout = ({ children, auth, setAuth }) => {
 	const router = useRouter()
+	const isLoggedIn = useMemo(() => [PATHS.LOGIN, PATHS.SIGNUP].includes(router.pathname), [router]); 
+	
 	return (
 		<div className='relative flex min-h-screen font-aeonik'>
 			<AppShell
 				padding={0}
-				header={router.query?.token && <Header height={65} zIndex={50}><VerifyBanner/></Header>}
-				navbar={auth && <Sidebar setAuth={setAuth} />}
+				header={router.query?.token && <Header height={DEFAULT_HEADER_HEIGHT - 10} zIndex={50}><VerifyBanner/></Header>}
+				navbar={auth || isLoggedIn && <Sidebar setAuth={setAuth} />}
 				styles={theme => ({
 					main: {
 						backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0]

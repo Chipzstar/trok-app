@@ -5,6 +5,7 @@ import { phoneUtil, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constant
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
+	CreateUser,
 	isValidUrl,
 	notifyError,
 	OnboardingBusinessInfo,
@@ -81,7 +82,8 @@ const Step3 = ({ prevStep, finish }) => {
 					},
 					first_name: personalObj.firstname,
 					last_name: personalObj.lastname,
-					email: personalObj.email
+					email: personalObj.email,
+					phone: personalObj.phone
 				});
 				console.log('Person', personResult);
 				// generate secure tokens to create account + person in stripe
@@ -111,34 +113,36 @@ const Step3 = ({ prevStep, finish }) => {
 					throw new Error(accountResult.error.message);
 				}
 				const isUrlValid = isValidUrl(businessObj.business_url);
+				const payload: CreateUser = {
+					...personalObj,
+					...(values.diff_shipping_address && { shipping_address: values.shipping_address}),
+					business: { ...businessObj, ...financialObj },
+					location: {
+						line1: values.line1,
+						line2: values?.line2,
+						city: values.city,
+						postcode: values.postcode,
+						region: values.region,
+						country: values.country
+					},
+					card_configuration: {
+						card_business_name: values.card_business_name,
+						num_cards: values.num_cards,
+						shipping_speed: values.shipping_speed
+					},
+					full_name: `${personalObj.firstname} ${personalObj.lastname}`
+				}
 				const user = (
 					await apiClient.post('/api/auth/complete-registration', {
 						accountToken: accountResult.token,
 						personToken: personResult.token,
 						business_profile: {
+							support_email: personalObj.email,
 							mcc: businessObj.merchant_category_code,
 							url: isUrlValid ? businessObj.business_url : undefined,
 							product_description: !isUrlValid ? businessObj.business_url : undefined
 						},
-						data: {
-							...personalObj,
-							...(values.diff_shipping_address && { shipping_address: values.shipping_address}),
-							business: { ...businessObj, ...financialObj },
-							location: {
-								line1: values.line1,
-								line2: values?.line2,
-								city: values.city,
-								postcode: values.postcode,
-								region: values.region,
-								country: values.country
-							},
-							card_configuration: {
-								name: values.card_business_name,
-								num_cards: values.num_cards,
-								shipping_speed: values.shipping_speed
-							},
-							full_name: `${personalObj.firstname} ${personalObj.lastname}`
-						}
+						data: payload
 					})
 				).data;
 				console.log('************************************************');

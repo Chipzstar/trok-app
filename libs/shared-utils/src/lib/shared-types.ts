@@ -55,3 +55,16 @@ export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
 	diff_shipping_address: boolean;
 	shipping_address?: AddressInfo;
 }
+
+export interface StripeInfo {
+	accountId: string;
+	bankAccount: null;
+}
+
+export interface CreateUser extends SignupInfo {
+	business?: OnboardingBusinessInfo & OnboardingFinancialInfo;
+	location?: AddressInfo;
+	card_configuration?: CardConfiguration;
+	shipping_address?: AddressInfo;
+	stripe?: StripeInfo;
+}

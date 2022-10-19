@@ -9,7 +9,7 @@ export async function sendMagicLink(email: string, full_name: string, token: str
 				name: full_name,
 				account_name: 'Trok',
 				support_email: 'hello@trok.co',
-				verification_link: `https://trok-app-dev.onrender.com/verify?email=${email}&token=${token}`
+				verification_link: `https://trok-app-dev.onrender.com/?email=${email}&token=${token}`
 			}
 		}
 	];

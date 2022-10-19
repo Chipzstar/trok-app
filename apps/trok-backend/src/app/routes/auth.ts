@@ -76,10 +76,12 @@ router.post('/complete-registration', async (req, res, next) => {
 		// store user in database
 		const verify_token = uuidv4();
 		const user = await prisma.user.create({
-			...data,
-			verify_token,
-			stripe: {
-				accountId: account.id
+			data: {
+				...data,
+				verify_token,
+				stripe: {
+					accountId: account.id
+				}
 			}
 		});
 		await sendMagicLink(data.email, data.full_name, verify_token)
