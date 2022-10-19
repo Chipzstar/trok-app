@@ -6,15 +6,15 @@ const { withNx } = require('@nrwl/next/plugins/with-nx');
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const rewritesConfigLocal = [
 	{
-		source: '/api/:path*',
-		destination: 'http://localhost:3333/api/:path*' // Proxy to Backend
+		source: '/server/:path*',
+		destination: 'http://localhost:3333/server/:path*' // Proxy to Backend
 	}
 ];
 
 const rewritesConfigProd = [
 	{
-		source: '/api/:path*',
-		destination: 'https://trok-api-dev.onrender.com/api/:path*'
+		source: '/server/:path*',
+		destination: 'https://trok-api-dev.onrender.com/server/:path*'
 	}
 ];
 
