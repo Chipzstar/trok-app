@@ -56,10 +56,18 @@ const runApp = async () => {
 	});
 
 	// ROUTES
+
+	// WELCOME ROUTE
 	app.get('/api', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
 	});
+	/**
+	 *	AUTH ROUTES
+	 */
 	app.use('/api/auth', authRoutes)
+	/**
+	 * ERROR HANDLERS
+	 */
 	app.use(errorHandler)
 
 	const port = process.env.PORT || 3333;

@@ -23,9 +23,9 @@ import {
 	SignupInfo
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
-import axios from 'axios';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import CustomLoader from '../../components/CustomLoader';
+import { apiClient } from '../../utils/clients';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
@@ -126,7 +126,7 @@ const Step3 = ({ prevStep, finish }) => {
 				}
 				const isUrlValid = isValidUrl(businessObj.business_url);
 				const account = (
-					await axios.post('/api/auth/complete-registration', {
+					await apiClient.post('/api/auth/complete-registration', {
 						accountToken: accountResult.token,
 						personToken: personResult.token,
 						business_profile: {

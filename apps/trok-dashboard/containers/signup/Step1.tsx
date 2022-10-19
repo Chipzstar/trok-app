@@ -4,8 +4,8 @@ import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput,
 import { IconCurrencyPound, IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../../utils/constants';
-import axios from 'axios';
 import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
+import { apiClient } from '../../utils/clients';
 
 const Step1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const Step1 = ({ nextStep }) => {
 			console.log(values);
 			try {
 				const result = (
-					await axios.post('/api/auth/onboarding', values, {
+					await apiClient.post('/api/auth/onboarding', values, {
 						params: {
 							email: account?.email,
 							step: 2

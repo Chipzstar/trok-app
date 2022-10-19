@@ -5,8 +5,8 @@ import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
 import { STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
-import axios from 'axios';
 import { notifyError } from '@trok-app/shared-utils';
+import { apiClient } from '../../utils/clients';
 
 const ONE_GB = 1073741824; // in bytes units
 
@@ -29,7 +29,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 			setLoading(false);
 			try {
 				const result = (
-					await axios.post('/api/auth/onboarding', values, {
+					await apiClient.post('/api/auth/onboarding', values, {
 						params: {
 							email: account?.email,
 							step: 3

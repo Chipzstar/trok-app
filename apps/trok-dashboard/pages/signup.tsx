@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
 import CryptoJS from 'crypto-js';
-import axios from 'axios';
 import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
@@ -9,6 +8,7 @@ import { SignupSchema } from '../schemas';
 import { PATHS, phoneUtil, STORAGE_KEYS } from '../utils/constants';
 import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
+import { apiClient } from '../utils/clients';
 
 export function Signup({ secret }) {
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
@@ -36,7 +36,7 @@ export function Signup({ secret }) {
 			values.phone = E164Number;
 		}
 		setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
-		const result = (await axios.post('/api/auth/signup', values)).data;
+		const result = (await apiClient.post('/api/auth/signup', values)).data;
 		console.log('-----------------------------------------------');
 		console.log(result);
 		console.log('-----------------------------------------------');

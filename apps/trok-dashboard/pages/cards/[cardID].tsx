@@ -70,7 +70,10 @@ const CardDetails = () => {
 		}
 	});
 
-	const handleSubmit = useCallback(values => {}, []);
+	const handleSubmit = useCallback(values => {
+		alert(JSON.stringify(values))
+		console.log(values)
+	}, []);
 
 	return (
 		<Page.Container
