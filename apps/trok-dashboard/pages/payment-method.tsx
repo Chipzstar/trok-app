@@ -31,46 +31,46 @@ const formatCode = codeText => {
 		.join('-');
 };
 
-const rows = SAMPLE_BANK_ACCOUNTS.map((element, index) => {
-	return (
-		<tr key={index}>
-			<td colSpan={1}>
-				<span>{element.account_holder_name}</span>
-			</td>
-			<td colSpan={1}>
-				<span className='capitalize'>{sanitize(element.type)}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.account_number}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.sort_code}</span>
-			</td>
-			<td>
-				{element.isDefault ? (
-					<Badge radius='xs' variant='light' color='gray'>
-						DEFAULT
-					</Badge>
-				) : (
-					<Menu transition='pop' withArrow position='bottom-end'>
-						<Menu.Target>
-							<ActionIcon>
-								<IconDots size={16} stroke={1.5} />
-							</ActionIcon>
-						</Menu.Target>
-						<Menu.Dropdown>
-							<Menu.Item color="gray" icon={<IconPencil size={16} stroke={1.5} />}>
-								Set as default
-							</Menu.Item>
-						</Menu.Dropdown>
-					</Menu>
-				)}
-			</td>
-		</tr>
-	);
-});
+const PaymentMethod = ({testMode}) => {
 
-const PaymentMethod = () => {
+	const rows = testMode ? SAMPLE_BANK_ACCOUNTS.map((element, index) => {
+		return (
+			<tr key={index}>
+				<td colSpan={1}>
+					<span>{element.account_holder_name}</span>
+				</td>
+				<td colSpan={1}>
+					<span className='capitalize'>{sanitize(element.type)}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.account_number}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.sort_code}</span>
+				</td>
+				<td>
+					{element.isDefault ? (
+						<Badge radius='xs' variant='light' color='gray'>
+							DEFAULT
+						</Badge>
+					) : (
+						<Menu transition='pop' withArrow position='bottom-end'>
+							<Menu.Target>
+								<ActionIcon>
+									<IconDots size={16} stroke={1.5} />
+								</ActionIcon>
+							</Menu.Target>
+							<Menu.Dropdown>
+								<Menu.Item color="gray" icon={<IconPencil size={16} stroke={1.5} />}>
+									Set as default
+								</Menu.Item>
+							</Menu.Dropdown>
+						</Menu>
+					)}
+				</td>
+			</tr>
+		);
+	}) : [];
 	const [opened, setOpened] = useState(false);
 
 	const form = useForm({

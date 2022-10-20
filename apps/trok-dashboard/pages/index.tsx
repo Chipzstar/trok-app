@@ -8,10 +8,9 @@ import { getToken } from 'next-auth/jwt';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 
-const week_spend = GBP(21272900).format()
-const week_savings = GBP(726436).format()
-
-export function Dashboard({ user }) {
+export function Dashboard({ testMode, user }) {
+	const week_spend = GBP(testMode ? 21272900 : 0).format()
+	const week_savings = GBP(testMode ? 726436 : 0).format()
 	return (
 		<Page.Container
 			header={
@@ -57,7 +56,7 @@ export function Dashboard({ user }) {
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Weekly Available Credit</span>
-								<span className='heading-1'>£{GBP(100000).dollars()}</span>
+								<span className='heading-1'>£{GBP(testMode ? 100000 : 0).dollars()}</span>
 							</div>
 						</Stack>
 						<Group position='center' py='xs'>
@@ -74,7 +73,7 @@ export function Dashboard({ user }) {
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Due Date</span>
-								<span className='heading-1'>{dayjs().add(7, 'd').startOf('w').format('MMM D')}</span>
+								<span className='heading-1'>{testMode ? dayjs().add(7, 'd').startOf('w').format('MMM D') : "-"}</span>
 							</div>
 						</Stack>
 						<Divider px={0} />
@@ -87,7 +86,7 @@ export function Dashboard({ user }) {
 					Spend Analysis
 				</Title>
 				<Card shadow='sm' py='lg' radius='xs'>
-					<SpendAnalysis />
+					<SpendAnalysis testMode={testMode} />
 				</Card>
 			</Page.Body>
 		</Page.Container>

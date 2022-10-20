@@ -11,7 +11,7 @@ import { STORAGE_KEYS } from '../utils/constants';
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function CustomApp({ Component, pageProps }: AppProps) {
-	const [auth, setAuth] = useLocalStorage({ key: STORAGE_KEYS.AUTH, defaultValue: true });
+	const [testMode, setTestMode] = useLocalStorage({key: STORAGE_KEYS.TEST_MODE, defaultValue: false})
 	return (
 		<>
 			<MantineProvider
@@ -52,7 +52,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
 				}}
 			>
 				<NotificationsProvider position='top-right'>
-					<Layout auth={auth} setAuth={setAuth}>
+					<Layout>
 						<Head>
 							<Favicon />
 							<title>Trok</title>
@@ -64,7 +64,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
 							<meta httpEquiv='content-language' content='en-GB' />
 							<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
 						</Head>
-						<Component auth={auth} setAuth={setAuth} {...pageProps} />
+						<Component testMode={testMode} setAuth={setTestMode} {...pageProps} />
 					</Layout>
 				</NotificationsProvider>
 			</MantineProvider>

@@ -9,7 +9,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataL
 
 const labels = [0, 1, 2, 3, 4, 5, 6].reverse().map(val => dayjs().subtract(val, 'd').format("MMM D"))
 
-const SpendAnalysis = () => {
+const SpendAnalysis = ({testMode}) => {
 	const { height } = useWindowSize()
 	return (
 		<div style={{
@@ -66,7 +66,7 @@ const SpendAnalysis = () => {
 				data={{
 					datasets: [
 						{
-							data: Array(7).fill(0).map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5)),
+							data: testMode ? Array(7).fill(0).map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5)) : Array(7).fill(0),
 							backgroundColor: ['rgba(54, 70, 245, 0.2)'],
 							borderColor: '#3646F5',
 							borderWidth: 1

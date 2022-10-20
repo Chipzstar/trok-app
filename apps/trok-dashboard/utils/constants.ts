@@ -19,7 +19,8 @@ export const STORAGE_KEYS = {
 	COMPANY_FORM: 'company-form',
 	FINANCIAL_FORM: 'financial-form',
 	LOCATION_FORM: 'location-form',
-	ONBOARDING_STEP: 'onboarding-step'
+	ONBOARDING_STEP: 'onboarding-step',
+	TEST_MODE: 'test-mode'
 }
 
 export const PATHS = {

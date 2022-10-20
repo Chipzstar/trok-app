@@ -7,39 +7,38 @@ import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 
-const rows = SAMPLE_DRIVERS.map((element, index) => {
-	return (
-		<tr key={index}>
-			<td colSpan={1}>
-				<span>{element.firstname}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.lastname}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{GBP(element.current_spend).format()}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{GBP(element.spending_limit).format()}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.phone}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.email}</span>
-			</td>
-			<td>
-				<Group spacing='md' position='left'>
-					<ActionIcon size='sm' onClick={() => null}>
-						<IconPencil />
-					</ActionIcon>
-				</Group>
-			</td>
-		</tr>
-	);
-});
-
-const Drivers = () => {
+const Drivers = ({testMode}) => {
+	const rows = testMode ? SAMPLE_DRIVERS.map((element, index) => {
+		return (
+			<tr key={index}>
+				<td colSpan={1}>
+					<span>{element.firstname}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.lastname}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{GBP(element.current_spend).format()}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{GBP(element.spending_limit).format()}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.phone}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.email}</span>
+				</td>
+				<td>
+					<Group spacing='md' position='left'>
+						<ActionIcon size='sm' onClick={() => null}>
+							<IconPencil />
+						</ActionIcon>
+					</Group>
+				</td>
+			</tr>
+		);
+	}) : [];
 	const [opened, setOpened] = useState(false);
 	const router = useRouter();
 

@@ -25,14 +25,14 @@ import PaymentDetails from '../modals/PaymentDetails';
 import SortCodeInput from '../components/SortCodeInput';
 import { useForm } from '@mantine/form';
 
-const Payments = () => {
+const Payments = ({testMode}) => {
 	const [opened, setOpened] = useState(false);
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'card' | 'account'>('account');
 
-	const rows = SAMPLE_PAYMENTS.map((element, index) => {
+	const rows = testMode ? SAMPLE_PAYMENTS.map((element, index) => {
 		const statusClass = classNames({
 			'py-1': true,
 			'w-28': true,
@@ -98,7 +98,7 @@ const Payments = () => {
 				</td>
 			</tr>
 		);
-	});
+	}) : [];
 
 	const form = useForm({
 		initialValues: {

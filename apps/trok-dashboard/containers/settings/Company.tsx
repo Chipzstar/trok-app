@@ -28,7 +28,7 @@ const Company = ({business}) => {
 					</div>
 					<div className='flex flex-col'>
 						<span>Type of industry</span>
-						<DynamicInputField value={INDUSTRY_TYPES.find(item => item.value === business?.merchant_category_code).label} editMode={editMode} />
+						<DynamicInputField value={INDUSTRY_TYPES.find(item => item.value === business?.merchant_category_code)?.label} editMode={editMode} />
 					</div>
 					<div className='flex flex-col'>
 						<span>Company Reg No.</span>

@@ -22,10 +22,10 @@ import { IconChevronRight } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { useForm } from '@mantine/form';
 
-const Cards = () => {
+const Cards = ({testMode}) => {
 	const [opened, setOpened] = useState(false);
 	const router = useRouter();
-	const rows = SAMPLE_CARDS.map((element, index) => {
+	const rows = testMode ? SAMPLE_CARDS.map((element, index) => {
 		const statusClass = classNames({
 			'py-1': true,
 			'w-28': true,
@@ -76,7 +76,7 @@ const Cards = () => {
 				</td>
 			</tr>
 		);
-	});
+	}) : [];
 
 	const form = useForm({
 		initialValues: {

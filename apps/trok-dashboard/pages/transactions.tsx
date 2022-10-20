@@ -9,45 +9,6 @@ import { uniqueArray } from '../utils/functions';
 import { IconCalendar, IconFilter } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 
-const rows = SAMPLE_TRANSACTIONS.map((element, index) => {
-	return (
-		<tr key={index}>
-			<td colSpan={1}>
-				<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.merchant}</span>
-			</td>
-			<td colSpan={1}>
-				<div className='flex flex-shrink flex-col'>
-					<span>{element.location}</span>
-				</div>
-			</td>
-			<td colSpan={1}>
-				<span>{element.last4}</span>
-			</td>
-			<td colSpan={1}>
-				<Text weight={500}>{element.driver}</Text>
-			</td>
-			<td colSpan={1}>
-				<span className='text-base font-normal'>£{element.amount / 100}</span>
-			</td>
-			<td colSpan={1}>
-				<span>£{element.net_discount / 100}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.type}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.litres}</span>
-			</td>
-			<td colSpan={1}>
-				<span>£{element.price_per_litre / 100}p</span>
-			</td>
-		</tr>
-	);
-});
-
 interface ExportForm {
 	file_type: 'CSV' | 'PDF',
 	transaction_range: DateRangePickerValue,
@@ -56,9 +17,46 @@ interface ExportForm {
 	drivers: string[]
 }
 
-const Transactions = () => {
+const Transactions = ({testMode}) => {
 	const [opened, setOpened] = useState(false);
-
+	const rows = testMode ? SAMPLE_TRANSACTIONS.map((element, index) => {
+		return (
+			<tr key={index}>
+				<td colSpan={1}>
+					<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.merchant}</span>
+				</td>
+				<td colSpan={1}>
+					<div className='flex flex-shrink flex-col'>
+						<span>{element.location}</span>
+					</div>
+				</td>
+				<td colSpan={1}>
+					<span>{element.last4}</span>
+				</td>
+				<td colSpan={1}>
+					<Text weight={500}>{element.driver}</Text>
+				</td>
+				<td colSpan={1}>
+					<span className='text-base font-normal'>£{element.amount / 100}</span>
+				</td>
+				<td colSpan={1}>
+					<span>£{element.net_discount / 100}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.type}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.litres}</span>
+				</td>
+				<td colSpan={1}>
+					<span>£{element.price_per_litre / 100}p</span>
+				</td>
+			</tr>
+		);
+	}) : [];
 	const form = useForm<ExportForm>({
 		initialValues: {
 			file_type: 'CSV',
