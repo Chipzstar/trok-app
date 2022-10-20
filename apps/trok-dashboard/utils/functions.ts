@@ -31,7 +31,7 @@ export async function uploadFile(file, crn, documentType) {
 	try {
 		console.table({file, crn, documentType})
 		const filename = encodeURIComponent(file.name);
-		const res = (await apiClient.get(`/api/gcp/upload?crn=${crn}&filename=${filename}&type=${documentType}`)).data;
+		const res = (await apiClient.get(`/server/gcp/upload?crn=${crn}&filename=${filename}&type=${documentType}`)).data;
 		const { url, fields } = res;
 		const formData = new FormData();
 

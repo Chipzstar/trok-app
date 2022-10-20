@@ -25,8 +25,8 @@ const runApp = async () => {
 	app.use(logger('dev'));
 
 	app.disable('x-powered-by');
-	const trpcApiEndpoint = '/api/trpc';
-	const playgroundEndpoint = '/api/trpc-playground';
+	const trpcApiEndpoint = '/server/trpc';
+	const playgroundEndpoint = '/server/trpc-playground';
 
 	// TRPC ROUTES
 	app.use(
@@ -53,7 +53,7 @@ const runApp = async () => {
 	/*
 	 *  WELCOME ROUTE
 	 */
-	app.get('/api', (req, res) => {
+	app.get('/server', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
 	});
 
@@ -68,8 +68,8 @@ const runApp = async () => {
 	/**
 	 *	AUTH ROUTES
 	 */
-	app.use('/api/auth', authRoutes);
-	app.get('/api/gcp/upload', async (req, res, next) => {
+	app.use('/server/auth', authRoutes);
+	app.get('/server/gcp/upload', async (req, res, next) => {
 		try {
 			const { filename, crn, type } = req.query;
 			console.table({filename, crn, type});
@@ -111,7 +111,7 @@ const runApp = async () => {
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
-		console.log(`Listening at http://localhost:${port}/api`);
+		console.log(`Listening at http://localhost:${port}/server`);
 	});
 	server.on('error', console.error);
 };

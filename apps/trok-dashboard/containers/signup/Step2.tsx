@@ -51,7 +51,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 				}
 				await Promise.all(files.map(file => uploadFile(file, business.business_crn, "BANK_STATEMENTS")))
 				const result = (
-					await apiClient.post('/api/auth/onboarding', values, {
+					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
 							email: account?.email,
 							step: 3

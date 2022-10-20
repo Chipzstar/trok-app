@@ -93,8 +93,9 @@ router.post('/complete-registration', async (req, res, next) => {
 	}
 });
 
-router.post('/login', async (req, res, next) => {
+/*router.post('/login', async (req, res, next) => {
 	try {
+		console.table(req.body)
 		const { email, password } = req.body;
 		const user = await prisma.user.findFirst({
 			where: {
@@ -115,6 +116,6 @@ router.post('/login', async (req, res, next) => {
 		console.error(err);
 		next(err);
 	}
-});
+});*/
 
 export default router;

@@ -2,16 +2,13 @@ import React, { useState } from 'react';
 import { createStyles, Group, Navbar, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
-	IconCalendar,
 	IconCalendarTime,
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
 	IconGift,
 	IconLogout,
-	IconSearch,
 	IconSettings,
-	IconUser,
 	IconUsers,
 	IconWallet
 } from '@tabler/icons';
@@ -19,6 +16,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { DEFAULT_HEADER_HEIGHT, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
+import { signOut } from 'next-auth/react';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -173,7 +171,7 @@ const Sidebar = ({ setAuth }) => {
 					className={classes.link}
 					onClick={() => {
 						setComplete(false);
-						router.push(PATHS.LOGIN).then(() => setAuth(false));
+						signOut().then(r => console.log('Sign Out Success!'));
 					}}
 				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>

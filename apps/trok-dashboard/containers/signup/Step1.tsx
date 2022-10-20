@@ -41,6 +41,7 @@ const Step1 = ({ nextStep }) => {
 			...companyForm
 		},
 		validate: {
+			business_crn: val => val.length !== 8 ? 'Company registration number must be 8 digits' : null,
 			weekly_fuel_spend: val => (Number(val) <= 0 ? 'Value must be at least £100' : null),
 			num_vehicles: val => (Number(val) <= 0 ? 'You must have at least 1 vehicle' : null)
 		}
@@ -55,7 +56,7 @@ const Step1 = ({ nextStep }) => {
 				}
 				await uploadFile(file, values.business_crn, "DRIVING_LICENCE")
 				const result = (
-					await apiClient.post('/api/auth/onboarding', values, {
+					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
 							email: account?.email,
 							step: 2

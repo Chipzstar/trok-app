@@ -133,7 +133,7 @@ const Step3 = ({ prevStep, finish }) => {
 					full_name: `${personalObj.firstname} ${personalObj.lastname}`
 				}
 				const user = (
-					await apiClient.post('/api/auth/complete-registration', {
+					await apiClient.post('/server/auth/complete-registration', {
 						accountToken: accountResult.token,
 						personToken: personResult.token,
 						business_profile: {

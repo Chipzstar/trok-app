@@ -5,8 +5,8 @@ const { withNx } = require('@nrwl/next/plugins/with-nx');
 
 const rewritesConfig = [
 	{
-		source: '/api/:path*',
-		destination: `${process.env.API_BASE_URL}/api/:path*`
+		source: '/server/:path*',
+		destination: `${process.env.API_BASE_URL}/server/:path*`
 	}
 ];
 

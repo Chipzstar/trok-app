@@ -1,15 +1,18 @@
 import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import Page from '../layout/Page';
-import { GBP, STORAGE_KEYS } from '../utils/constants';
+import { GBP, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
+import { getToken } from 'next-auth/jwt';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
 
 const week_spend = GBP(21272900).format()
 const week_savings = GBP(726436).format()
 
-export function Dashboard() {
+export function Dashboard(props) {
 	const [business, setBusinss] = useLocalStorage({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
 	return (
 		<Page.Container
@@ -85,6 +88,26 @@ export function Dashboard() {
 			</Page.Body>
 		</Page.Container>
 	);
+}
+
+export async function getServerSideProps ({ req, res }) {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	const token = await getToken({ req });
+	console.log("SESSION:", session)
+	console.log("TOKEN:", token)
+	// check if the user is authenticated, it not, redirect back to login page
+	if (!session) {
+		return {
+			redirect: {
+				destination: PATHS.LOGIN,
+				permanent: false
+			}
+		};
+	}
+	return {
+		props: {}
+	};
 }
 
 export default Dashboard;

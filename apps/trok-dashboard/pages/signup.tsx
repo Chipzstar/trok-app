@@ -36,7 +36,7 @@ export function Signup({ secret }) {
 			values.phone = E164Number;
 		}
 		setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
-		const result = (await apiClient.post('/api/auth/signup', values)).data;
+		const result = (await apiClient.post('/server/auth/signup', values)).data;
 		console.log('-----------------------------------------------');
 		console.log(result);
 		console.log('-----------------------------------------------');
