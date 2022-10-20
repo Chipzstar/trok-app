@@ -9,7 +9,6 @@ import { PATHS, phoneUtil, STORAGE_KEYS } from '../utils/constants';
 import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import { apiClient } from '../utils/clients';
-import axios from 'axios';
 
 export function Signup({ secret }) {
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
@@ -42,7 +41,7 @@ export function Signup({ secret }) {
 		console.log(result);
 		console.log('-----------------------------------------------');
 		router.push(PATHS.ONBOARDING);
-	}, []);
+	}, [router, secret, setNewAccount]);
 
 	useEffect(() => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.SIGNUP_FORM);

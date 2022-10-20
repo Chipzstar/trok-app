@@ -83,14 +83,14 @@ const SignUpComplete = ({ auth, setAuth }) => {
 				<Text size='sm' color='dimmed'>
 					Please check your inbox at <span className="font-medium">{account?.email}</span> for an email confirmation link. <br/>You have 24 hours to confirm your email.
 				</Text>
-				<div className={classes.controls}>
+				{/*<div className={classes.controls}>
 					<Button px="xl" size="md" onClick={() => {
 						setAuth(true)
 						router.push('/')
 					}}>
 						<Text weight={500}>Go to Dashboard</Text>
 					</Button>
-				</div>
+				</div>*/}
 			</div>
 		</div>
 	);
