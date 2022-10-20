@@ -58,7 +58,7 @@ export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
 
 export interface StripeInfo {
 	accountId: string;
-	bankAccount: null;
+	bankAccount?: null;
 }
 
 export interface CreateUser extends SignupInfo {

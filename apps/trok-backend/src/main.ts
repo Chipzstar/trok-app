@@ -10,6 +10,7 @@ import authRoutes from './app/routes/auth';
 import { appRouter } from './app/routes';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMagicLink } from './app/helpers/email';
+import { storage } from './app/utils/clients';
 
 const runApp = async () => {
 	const app = express();
@@ -48,6 +49,14 @@ const runApp = async () => {
 		})
 	);*/
 
+	// ROUTES
+	/*
+	 *  WELCOME ROUTE
+	 */
+	app.get('/api', (req, res) => {
+		res.send({ message: 'Welcome to trok!' });
+	});
+
 	// Health check route for hosting platform
 	app.use('/ping', (req, res) => {
 		const message = `Pinged at ${new Date().toUTCString()}`;
@@ -56,16 +65,31 @@ const runApp = async () => {
 			message
 		});
 	});
-
-	// ROUTES
-	// WELCOME ROUTE
-	app.get('/api', (req, res) => {
-		res.send({ message: 'Welcome to trok!' });
-	});
 	/**
 	 *	AUTH ROUTES
 	 */
 	app.use('/api/auth', authRoutes);
+	app.get('/api/gcp/upload', async (req, res, next) => {
+		try {
+			const { filename, crn, type } = req.query;
+			console.table({filename, crn, type});
+			const bucket = storage.bucket(String(process.env.GCS_BUCKET_NAME));
+			console.log(bucket)
+			const filepath = `${crn}/${type}/${filename}`;
+			const file = bucket.file(filepath);
+			console.log(file)
+			console.log(`${filename} uploaded to ${process.env.GCS_BUCKET_NAME}`);
+			const options = {
+				expires: Date.now() + 1 * 60 * 1000, //  1 minute,
+				fields: { 'x-goog-meta-test': 'data' }
+			};
+			const [response] = await file.generateSignedPostPolicyV4(options);
+			res.status(200).json(response);
+		} catch (err) {
+			console.error(err);
+			next(err);
+		}
+	});
 	/**
 	 * TEST ROUTES
 	 */

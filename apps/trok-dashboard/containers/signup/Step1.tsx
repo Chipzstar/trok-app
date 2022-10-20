@@ -6,10 +6,22 @@ import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../../utils/constants';
 import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
+import { uploadFile } from '../../utils/functions';
+
+const DocumentInfo = ({ fileInfo }: { fileInfo: File | null }) => {
+	return (
+		<Group>
+			<Text size='sm'>{fileInfo?.name}</Text>
+			<Text size='sm' color='dimmed'>
+				({fileInfo?.size / 1000} Kb)
+			</Text>
+		</Group>
+	);
+};
 
 const Step1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);
-	const [files, setFile] = useState<File>(null);
+	const [file, setFile] = useState<File>(null);
 	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [companyForm, setCompanyForm] = useLocalStorage<OnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
@@ -35,10 +47,13 @@ const Step1 = ({ nextStep }) => {
 	});
 
 	const handleSubmit = useCallback(
-		async values => {
+		async (values: OnboardingBusinessInfo) => {
 			setLoading(true);
-			console.log(values);
 			try {
+				if (!file) {
+					throw new Error("Please upload a picture of your driver's license before submitting")
+				}
+				await uploadFile(file, values.business_crn, "DRIVING_LICENCE")
 				const result = (
 					await apiClient.post('/api/auth/onboarding', values, {
 						params: {
@@ -56,10 +71,10 @@ const Step1 = ({ nextStep }) => {
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				notifyError('onboarding-step1-failure', err.error.message, <IconX size={20} />);
+				notifyError('onboarding-step1-failure', err.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account?.email, nextStep]
+		[account, file, nextStep, setAccount]
 	);
 
 	useEffect(() => {
@@ -157,6 +172,7 @@ const Step1 = ({ nextStep }) => {
 							</Button>
 						)}
 					</FileButton>
+					{file && <DocumentInfo fileInfo={file}/>}
 				</div>
 				<Group position='right'>
 					<Button

@@ -1,5 +1,5 @@
 import { EmailParams, Recipient } from 'mailer-send-ts';
-import { mailerSend, sentFrom } from '../../utils/clients';
+import { mailerSend, sentFrom, storage } from '../../utils/clients';
 
 export async function sendMagicLink(email: string, full_name: string, token: string) {
 	const personalization = [
@@ -29,3 +29,20 @@ export async function sendMagicLink(email: string, full_name: string, token: str
 		throw err;
 	}
 }
+
+export const generateDownloadUrl = async (filepath: string) => {
+	try {
+		// Get a v4 signed URL for reading the file
+		const file = storage.bucket(String(process.env.GCS_BUCKET_NAME)).file(filepath);
+		// make the file publicly accessible
+		const data = await file.makePublic();
+		console.log(data[0]);
+		const publicUrl = file.publicUrl();
+		console.log('Download URL', publicUrl);
+		console.log('You can use this URL with any user agent, for example:');
+		return publicUrl;
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
+};

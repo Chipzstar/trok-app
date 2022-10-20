@@ -1,18 +1,36 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Group, Loader, NumberInput, Stack, Text } from '@mantine/core';
-import { Dropzone, PDF_MIME_TYPE } from '@mantine/dropzone';
-import { IconCurrencyPound, IconFolders, IconUpload, IconX } from '@tabler/icons';
+import { Dropzone, FileWithPath, PDF_MIME_TYPE } from '@mantine/dropzone';
+import { IconCurrencyPound, IconFiles, IconUpload, IconX } from '@tabler/icons';
 import { STORAGE_KEYS } from '../../utils/constants';
-import { useLocalStorage } from '@mantine/hooks';
-import { notifyError } from '@trok-app/shared-utils';
+import { useListState, useLocalStorage } from '@mantine/hooks';
+import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
+import { uploadFile } from '../../utils/functions';
 
 const ONE_GB = 1073741824; // in bytes units
 
+const DocumentInfo = ({ files }: { files: FileWithPath[] }) => {
+	return (
+		<Stack spacing="xs">
+			{files.map((file, index) => (
+				<Group key={index}>
+					<Text size='sm'>{file?.name}</Text>
+					<Text size='sm' color='dimmed'>
+						({file?.size / 1000} Kb)
+					</Text>
+				</Group>
+			))}
+		</Stack>
+	);
+};
+
 const Step2 = ({ prevStep, nextStep }) => {
+	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const [business, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
 	const [financialForm, setFinancialForm] = useLocalStorage({
 		key: STORAGE_KEYS.FINANCIAL_FORM,
 		defaultValue: {
@@ -28,6 +46,10 @@ const Step2 = ({ prevStep, nextStep }) => {
 		async values => {
 			setLoading(true);
 			try {
+				if (files.length < 3) {
+					throw new Error("Please upload 3 bank statements from the last 3 months")
+				}
+				await Promise.all(files.map(file => uploadFile(file, business.business_crn, "BANK_STATEMENTS")))
 				const result = (
 					await apiClient.post('/api/auth/onboarding', values, {
 						params: {
@@ -39,16 +61,17 @@ const Step2 = ({ prevStep, nextStep }) => {
 				console.log('-----------------------------------------------');
 				console.log(result);
 				console.log('-----------------------------------------------');
-				setAccount({ ...account, business: { ...account.business, ...values  } });
+				setAccount({ ...account, business: { ...account.business, ...values } });
 				setLoading(false);
 				nextStep();
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				notifyError('onboarding-step1-failure', err.error.message, <IconX size={20} />);
+				const message = err.error?.message ?? err.message
+				notifyError('onboarding-step1-failure', message, <IconX size={20} />);
 			}
 		},
-		[account, nextStep, setAccount]
+		[account, business, files, nextStep, setAccount]
 	);
 
 	useEffect(() => {
@@ -83,7 +106,10 @@ const Step2 = ({ prevStep, nextStep }) => {
 					Can’t link your bank? Upload bank statements from the last three months.
 				</span>
 				<Dropzone
-					onDrop={files => console.log('accepted files', files)}
+					onDrop={newFiles => {
+						console.log('accepted files', newFiles);
+						handlers.append(...newFiles);
+					}}
 					onReject={files => console.log('rejected files', files)}
 					maxSize={ONE_GB} // 1GB
 					multiple
@@ -97,26 +123,30 @@ const Step2 = ({ prevStep, nextStep }) => {
 							<IconX size={50} stroke={1.5} />
 						</Dropzone.Reject>
 						<Dropzone.Idle>
-							<IconFolders size={40} stroke={1.5} />
+							{files.length ? (
+								<DocumentInfo files={files} />
+							) : (
+								<Group>
+									<IconFiles size={40} stroke={1.5} />
+									<div>
+										<Text size='xl' inline>
+											Upload bank statements
+										</Text>
+										<Text size='xs' color='dimmed' mt={7} className='md:w-80'>
+											PDF format required. Uploading bank statements may increase processing time
+											for your application
+										</Text>
+									</div>
+								</Group>
+							)}
 						</Dropzone.Idle>
-						<div>
-							<Text size='xl' inline>
-								Upload bank statements
-							</Text>
-							<Text size='xs' color='dimmed' mt={7} className='md:w-80'>
-								PDF format required. Uploading bank statements may increase processing time for your
-								application
-							</Text>
-						</div>
 					</Group>
 				</Dropzone>
+				<Group position="center">
+					<Button size="xs" color="red" variant="outline" onClick={() => handlers.setState([])}>Remove All</Button>
+				</Group>
 				<Group mt='md' position='apart'>
-					<Button
-						type="button"
-						variant="white"
-						size="md"
-						onClick={prevStep}
-					>
+					<Button type='button' variant='white' size='md' onClick={prevStep}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
 					<Button
@@ -127,7 +157,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 							width: 200
 						}}
 					>
-						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color="white" />
+						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 						<Text weight='normal'>Continue</Text>
 					</Button>
 				</Group>

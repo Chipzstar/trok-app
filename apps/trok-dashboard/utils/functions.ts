@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js'
+import { apiClient } from './clients';
 
 interface selectInput {
 	value: string;
@@ -24,4 +25,36 @@ export function decryptPassword(password: string) {
 		decryptedPassword = JSON.parse(bytes.toString());
 	}
 	return decryptedPassword
+}
+
+export async function uploadFile(file, crn, documentType) {
+	try {
+		console.table({file, crn, documentType})
+		const filename = encodeURIComponent(file.name);
+		const res = (await apiClient.get(`/api/gcp/upload?crn=${crn}&filename=${filename}&type=${documentType}`)).data;
+		const { url, fields } = res;
+		const formData = new FormData();
+
+		Object.entries({ ...fields, file }).forEach(([key, value]: [string, string]) => {
+			formData.append(key, value);
+		});
+		console.log(formData);
+
+		const upload = await fetch(url, {
+			method: 'POST',
+			body: formData
+		});
+
+		if (upload.ok) {
+			console.log('Uploaded successfully!');
+			console.log(upload);
+			return upload;
+		} else {
+			console.error('Upload failed.', upload.status);
+			return upload;
+		}
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 }
