@@ -390,3 +390,12 @@ export const SAMPLE_BANK_ACCOUNTS = [
 		isDefault: false,
 	}
 ];
+
+export const INDUSTRY_TYPES = [
+	{
+		label: 'Transportation - Other',
+		value: '4789'
+	},
+	{ label: 'Transportation - Motor Freight, Carriers & Trucking', value: '4214' },
+	{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
+]

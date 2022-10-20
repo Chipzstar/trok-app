@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from '../../../prisma';
-import { apiClient } from '../../../utils/clients';
 import { v4 as uuidv4} from 'uuid';
 
 const providers = [
@@ -29,7 +28,6 @@ const providers = [
 			});
 			if (user) {
 				// Any object returned will be saved in `user` property of the JWT
-				console.log(user);
 				return user;
 			} else {
 				// If you return null then an error will be displayed advising the user to check their details.
@@ -41,9 +39,7 @@ const providers = [
 
 const callbacks = {
 	signIn: async ({user, account, email, credentials}) => {
-		console.log("Email:", email)
 		if (account.provider === 'credentials') {
-			console.log("USER:", user);
 			user.accessToken = uuidv4();
 			return true;
 		}
@@ -52,6 +48,7 @@ const callbacks = {
 	jwt: async ({token, user}) => {
 		if (user) {
 			token.id = user.id;
+			token.user = { ...user, stripe: undefined };
 		}
 		return token;
 	},

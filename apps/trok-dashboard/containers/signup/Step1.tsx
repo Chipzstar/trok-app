@@ -3,7 +3,7 @@ import { useForm } from '@mantine/form';
 import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Loader } from '@mantine/core';
 import { IconCurrencyPound, IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../../utils/constants';
+import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
 import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
 import { uploadFile } from '../../utils/functions';
@@ -128,14 +128,7 @@ const Step1 = ({ nextStep }) => {
 					<Select
 						required
 						label='Type of industry'
-						data={[
-							{
-								label: 'Transportation - Other',
-								value: '4789'
-							},
-							{ label: 'Transportation - Motor Freight, Carriers & Trucking', value: '4214' },
-							{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
-						]}
+						data={INDUSTRY_TYPES}
 						{...form.getInputProps('merchant_category_code')}
 					/>
 				</Group>

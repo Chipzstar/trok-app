@@ -1,7 +1,5 @@
 import { Button, Card, Group, Text, Stack, TextInput, PasswordInput } from '@mantine/core';
 import React, { useState } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../../utils/constants';
 
 const DynamicInputField = ({ editMode, value, isPassword = false }) => {
 	return editMode && isPassword ? (
@@ -13,10 +11,8 @@ const DynamicInputField = ({ editMode, value, isPassword = false }) => {
 	);
 };
 
-const Personal = () => {
-	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+const Personal = ({account}) => {
 	const [editMode, setEditMode] = useState(false);
-
 	const toggleEditMode = () => setEditMode(!editMode);
 
 	return (

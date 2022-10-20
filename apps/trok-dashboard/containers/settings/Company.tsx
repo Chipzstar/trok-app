@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Group, Stack, Text, TextInput } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../../utils/constants';
+import { INDUSTRY_TYPES } from '../../utils/constants';
+import { capitalize, sanitize } from '../../utils/functions';
 
 const DynamicInputField = ({ editMode, value }) => {
 	return editMode ? (
@@ -11,10 +11,8 @@ const DynamicInputField = ({ editMode, value }) => {
 	);
 };
 
-const Company = () => {
-	const [business, setBusiness] = useLocalStorage({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null })
+const Company = ({business}) => {
 	const [editMode, setEditMode] = useState(false);
-
 	const toggleEditMode = () => setEditMode(!editMode);
 	return (
 		<div className='container py-5'>
@@ -26,15 +24,15 @@ const Company = () => {
 					</div>
 					<div className='flex flex-col'>
 						<span>Type of business</span>
-						<DynamicInputField value={business?.business_type} editMode={editMode} />
+						<DynamicInputField value={capitalize(sanitize(business?.business_type))} editMode={editMode} />
 					</div>
 					<div className='flex flex-col'>
 						<span>Type of industry</span>
-						<DynamicInputField value={business?.industry_type} editMode={editMode} />
+						<DynamicInputField value={INDUSTRY_TYPES.find(item => item.value === business?.merchant_category_code).label} editMode={editMode} />
 					</div>
 					<div className='flex flex-col'>
 						<span>Company Reg No.</span>
-						<DynamicInputField value={business?.crn} editMode={editMode} />
+						<DynamicInputField value={business?.business_crn} editMode={editMode} />
 					</div>
 					<div className='flex flex-col'>
 						<span>Number of Vehicles</span>
