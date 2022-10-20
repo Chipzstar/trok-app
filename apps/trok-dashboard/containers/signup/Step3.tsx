@@ -20,6 +20,7 @@ import { apiClient } from '../../utils/clients';
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const Step3 = ({ prevStep, finish }) => {
+	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<SignupInfo & Record<"business", OnboardingBusinessInfo>>({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
 	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
@@ -47,7 +48,6 @@ const Step3 = ({ prevStep, finish }) => {
 			}
 		}
 	});
-	const [loading, setLoading] = useState(false);
 	const form = useForm<OnboardingLocationInfo>({
 		initialValues: {
 			...locationForm

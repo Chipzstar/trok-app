@@ -62,8 +62,8 @@ router.post('/complete-registration', async (req, res, next) => {
 			business_profile,
 			capabilities: {
 				card_payments: { requested: true },
-				transfers: { requested: true }
-				// card_issuing: {requested: true}
+				transfers: { requested: true },
+				card_issuing: {requested: true}
 			},
 			account_token: accountToken.id
 		});
