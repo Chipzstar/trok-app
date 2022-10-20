@@ -3,18 +3,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { withNx } = require('@nrwl/next/plugins/with-nx');
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-const rewritesConfigLocal = [
+const rewritesConfig = [
 	{
-		source: '/server/:path*',
-		destination: 'http://localhost:3333/server/:path*' // Proxy to Backend
-	}
-];
-
-const rewritesConfigProd = [
-	{
-		source: '/server/:path*',
-		destination: 'https://trok-api-dev.onrender.com/server/:path*'
+		source: '/api/:path*',
+		destination: `${process.env.API_BASE_URL}/api/:path*`
 	}
 ];
 
@@ -35,7 +27,7 @@ const nextConfig = {
 		return config;
 	},
 	rewrites: async () => {
-		return isDevelopment ? rewritesConfigLocal : rewritesConfigProd;
+		return rewritesConfig;
 	}
 };
 
