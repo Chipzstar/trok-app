@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Group, Loader, NumberInput, Stack, Text } from '@mantine/core';
 import { Dropzone, FileWithPath, PDF_MIME_TYPE } from '@mantine/dropzone';
@@ -27,6 +27,7 @@ const DocumentInfo = ({ files }: { files: FileWithPath[] }) => {
 };
 
 const Step2 = ({ prevStep, nextStep }) => {
+	const openRef = useRef<() => void>(null);
 	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
@@ -106,11 +107,16 @@ const Step2 = ({ prevStep, nextStep }) => {
 					Can’t link your bank? Upload bank statements from the last three months.
 				</span>
 				<Dropzone
+					openRef={openRef}
 					onDrop={newFiles => {
 						console.log('accepted files', newFiles);
 						handlers.append(...newFiles);
 					}}
-					onReject={files => console.log('rejected files', files)}
+					maxFiles={3}
+					onReject={files => {
+						console.log('rejected files', files)
+						notifyError('rejected-files', files[0].errors[0].message, <IconX size={20}/>)
+					}}
 					maxSize={ONE_GB} // 1GB
 					multiple
 					accept={PDF_MIME_TYPE}
@@ -144,6 +150,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 				</Dropzone>
 				<Group position="center">
 					<Button size="xs" color="red" variant="outline" onClick={() => handlers.setState([])}>Remove All</Button>
+					<Button disabled={files.length >= 3} size="xs" variant="outline" onClick={() => openRef.current()}>{files.length ? "Add more" : "Select files"}</Button>
 				</Group>
 				<Group mt='md' position='apart'>
 					<Button type='button' variant='white' size='md' onClick={prevStep}>
