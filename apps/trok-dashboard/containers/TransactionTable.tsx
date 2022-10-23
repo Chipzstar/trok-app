@@ -3,7 +3,7 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { MantineNumberSize } from '@mantine/core';
 
-const TransactionTable = ({rows, spacingY="md"}) => {
+const TransactionTable = ({rows, spacingY="md", withPagination=true}) => {
 	const [activePage, setPage] = useState(1);
 	return (
 		<DataGrid
@@ -26,6 +26,7 @@ const TransactionTable = ({rows, spacingY="md"}) => {
 				{ label: 'Litres', key: null },
 				{ label: 'Price Per Litre', key: null }
 			]}
+			withPagination={withPagination}
 			emptyContent={
 				<Empty
 					message={

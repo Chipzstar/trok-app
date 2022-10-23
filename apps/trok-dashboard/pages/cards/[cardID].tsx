@@ -8,51 +8,52 @@ import TransactionTable from '../../containers/TransactionTable';
 import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
 
-const rows = SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
-	return (
-		<tr
-			key={index}
-			style={{
-				border: 'none'
-			}}
-		>
-			<td colSpan={1}>
-				<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.merchant}</span>
-			</td>
-			<td colSpan={1}>
-				<div className='flex flex-shrink flex-col'>
-					<span>{element.location}</span>
-				</div>
-			</td>
-			<td colSpan={1}>
-				<span>{element.last4}</span>
-			</td>
-			<td colSpan={1}>
-				<Text weight={500}>{element.driver}</Text>
-			</td>
-			<td colSpan={1}>
-				<span className='text-base font-normal'>£{element.amount / 100}</span>
-			</td>
-			<td colSpan={1}>
-				<span>£{element.net_discount / 100}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.type}</span>
-			</td>
-			<td colSpan={1}>
-				<span>{element.litres}</span>
-			</td>
-			<td colSpan={1}>
-				<span>£{element.price_per_litre / 100}p</span>
-			</td>
-		</tr>
-	);
-});
-
-const CardDetails = () => {
+const CardDetails = ({ testMode }) => {
+	const rows = testMode
+		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
+				return (
+					<tr
+						key={index}
+						style={{
+							border: 'none'
+						}}
+					>
+						<td colSpan={1}>
+							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.merchant}</span>
+						</td>
+						<td colSpan={1}>
+							<div className='flex flex-shrink flex-col'>
+								<span>{element.location}</span>
+							</div>
+						</td>
+						<td colSpan={1}>
+							<span>{element.last4}</span>
+						</td>
+						<td colSpan={1}>
+							<Text weight={500}>{element.driver}</Text>
+						</td>
+						<td colSpan={1}>
+							<span className='text-base font-normal'>£{element.amount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{element.net_discount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.type}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.litres}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{element.price_per_litre / 100}p</span>
+						</td>
+					</tr>
+				);
+		  })
+		: [];
 	const [opened, setOpened] = useState(false);
 	const router = useRouter();
 	const { cardID } = router.query;
@@ -71,8 +72,8 @@ const CardDetails = () => {
 	});
 
 	const handleSubmit = useCallback(values => {
-		alert(JSON.stringify(values))
-		console.log(values)
+		alert(JSON.stringify(values));
+		console.log(values);
 	}, []);
 
 	return (
@@ -197,9 +198,7 @@ const CardDetails = () => {
 				<Title order={1} weight={500} py='xl'>
 					Recent Transactions
 				</Title>
-				<div>
-					<TransactionTable rows={rows} spacingY='sm' />
-				</div>
+				<TransactionTable rows={rows} spacingY='sm' withPagination={false} />
 			</Page.Body>
 		</Page.Container>
 	);

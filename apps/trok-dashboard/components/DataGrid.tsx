@@ -35,6 +35,7 @@ interface ThProps {
 	children: React.ReactNode;
 	reversed: boolean;
 	sorted: boolean;
+
 	onSort(): void;
 }
 
@@ -69,6 +70,7 @@ export interface DataGridProps {
 	spacingY?: MantineNumberSize;
 	offset?: number;
 	rowHeight?: number;
+	withPagination?: boolean;
 }
 
 const DataGrid = ({
@@ -82,7 +84,8 @@ const DataGrid = ({
 	emptyContent,
 	spacingY = 'sm',
 	offset = 0,
-	rowHeight = 130
+	rowHeight = 130,
+	withPagination = true
 }: DataGridProps) => {
 	const { height: windowHeight } = useWindowSize();
 	const { startIndex, endIndex, slice, range } = useTable(rows, activePage, windowHeight - offset, rowHeight);
@@ -95,7 +98,7 @@ const DataGrid = ({
 				fontSize='md'
 				style={{
 					borderSpacing: '0 1.25em',
-					borderCollapse: 'inherit',
+					borderCollapse: 'inherit'
 				}}
 			>
 				<thead>
@@ -113,14 +116,14 @@ const DataGrid = ({
 				</thead>
 				<tbody>{slice}</tbody>
 			</Table>
-			<CustomPagination
+			{withPagination && <CustomPagination
 				start={startIndex}
 				end={endIndex}
 				page={activePage}
 				onChange={setPage}
 				numPages={range.length}
 				total={rows.length}
-			/>
+			/>}
 		</div>
 	) : (
 		<EmptyTable content={emptyContent} />
