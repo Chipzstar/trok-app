@@ -24,9 +24,9 @@ const CardsTable = ({ rows }) => {
 				<Empty
 					message={
 						<span className='text-center text-2xl'>
-							You have no transactions
+							You have no cards
 							<br />
-							Your transaction will appear once your drivers start using their fuel cards
+							Click the "Add new card" button to add a new card
 						</span>
 					}
 				/>
