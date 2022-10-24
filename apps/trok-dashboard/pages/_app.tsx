@@ -15,6 +15,7 @@ import { httpBatchLink } from '@trpc/client';
 import { trpc } from '../utils/clients';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
+console.log(process.env.NEXT_PUBLIC_API_BASE_URL, process.env.API_BASE_URL)
 
 function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
