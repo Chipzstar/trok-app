@@ -44,7 +44,7 @@ const driverRouter = t.router({
 						z.literal('yearly'),
 						z.literal('all_time')
 					])
-				}),
+				}).optional(),
 				address: z.object({
 					line1: z.string(),
 					line2: z.string().optional(),
@@ -112,10 +112,12 @@ const driverRouter = t.router({
 						lastname: input.lastname,
 						email: input.email,
 						phone: input.phone,
-						spending_limit: {
-							amount: input.spending_limit.amount,
-							interval: input.spending_limit.interval
-						},
+						...(input?.spending_limit && {
+							spending_limit: {
+								amount: input.spending_limit.amount,
+								interval: input.spending_limit.interval
+							}
+						}),
 						address: {
 							line1: input.address.line1,
 							line2: input.address.line2,

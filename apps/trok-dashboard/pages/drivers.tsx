@@ -26,11 +26,15 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 
 const Drivers = ({ testMode, sessionID }) => {
-	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
+	const utils = trpc.useContext();
 	const query = trpc.getDrivers.useQuery({ userId: sessionID });
-	const mutation = trpc.createDriver.useMutation();
+	const mutation = trpc.createDriver.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Drivers refetched'));
+		}
+	});
 	const rows = testMode
 		? SAMPLE_DRIVERS.map((element, index) => {
 				return (
@@ -77,7 +81,9 @@ const Drivers = ({ testMode, sessionID }) => {
 							<span>{GBP(element.current_spend).format()}</span>
 						</td>
 						<td colSpan={1}>
-							<span>{GBP(element.spending_limit.amount).format()}</span>
+							<span>
+								{element?.spending_limit?.amount ? GBP(element.spending_limit.amount).format() : '-'}
+							</span>
 						</td>
 						<td colSpan={1}>
 							<span>{element.phone}</span>
@@ -130,7 +136,12 @@ const Drivers = ({ testMode, sessionID }) => {
 					firstname: values.firstname,
 					lastname: values.lastname,
 					phone: getE164Number(values.phone),
-					spending_limit: values.spending_limit
+					...(values.has_spending_limit && {
+						spending_limit: {
+							amount: values.spending_limit.amount * 100,
+							interval: values.spending_limit.interval
+						}
+					})
 				});
 				setLoading(false);
 				setOpened(false);
@@ -178,7 +189,7 @@ const Drivers = ({ testMode, sessionID }) => {
 							<TextInput required label='Postal Code' {...form.getInputProps('address.postcode')} />
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput label='Region' {...form.getInputProps('address.region')} />
+							<TextInput required label='Region' {...form.getInputProps('address.region')} />
 							<TextInput required label='Country' readOnly {...form.getInputProps('address.country')} />
 						</Group>
 						<Checkbox
@@ -189,6 +200,7 @@ const Drivers = ({ testMode, sessionID }) => {
 						{form.values.has_spending_limit && (
 							<Group grow spacing='xl'>
 								<NumberInput
+									required={form.values.has_spending_limit}
 									type='text'
 									label='Spend Limit'
 									min={100}
@@ -203,6 +215,7 @@ const Drivers = ({ testMode, sessionID }) => {
 									{...form.getInputProps('spending_limit.amount')}
 								/>
 								<Select
+									required={form.values.has_spending_limit}
 									label='Frequency'
 									data={intervals.slice(0, -1).map(item => ({
 										label: capitalize(sanitize(item)),
