@@ -2,6 +2,11 @@ import { TokenCreateParams } from '@stripe/stripe-js';
 
 export type ShippingSpeed = "standard" | "express" | "signature"
 
+export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
+export type SpendingLimitInterval = typeof intervals[number];
+
+// export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
+
 export interface SignupInfo {
 	full_name: string;
 	firstname: string;

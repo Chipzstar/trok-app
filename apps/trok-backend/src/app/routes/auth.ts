@@ -55,6 +55,7 @@ router.post('/onboarding', async (req, res, next) => {
 
 router.post('/complete-registration', async (req, res, next) => {
 	try {
+		console.log(req.get('User-Agent'))
 		const { accountToken, personToken, business_profile, data } = req.body;
 		const account = await stripe.accounts.create({
 			country: 'GB',
@@ -64,6 +65,15 @@ router.post('/complete-registration', async (req, res, next) => {
 				card_payments: { requested: true },
 				transfers: { requested: true },
 				card_issuing: {requested: true}
+			},
+			settings: {
+				card_issuing: {
+					tos_acceptance: {
+						ip: req.ip,
+						date: Date.now(),
+						user_agent: req.get('User-Agent')
+					}
+				}
 			},
 			account_token: accountToken.id
 		});

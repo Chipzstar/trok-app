@@ -39,8 +39,7 @@ type CardInfo {
     shipping_speed ShippingSpeed
 }
 
-type SpendingLimits {
+type SpendingLimit {
     amount Int
-    categories String[]
     interval SpendingLimitInterval
 }

@@ -19,16 +19,14 @@ const userRouter = t.router({
 				password: z.string(),
 				referral_code: z.string().optional(),
 				terms: z.boolean().optional(),
-				location: z
-					.object({
-						line1: z.string(),
-						line2: z.string().optional(),
-						city: z.string(),
-						postcode: z.string(),
-						region: z.string(),
-						country: z.string()
-					})
-					.optional(),
+				location: z.object({
+					line1: z.string(),
+					line2: z.string().optional(),
+					city: z.string(),
+					postcode: z.string(),
+					region: z.string(),
+					country: z.string()
+				}),
 				shipping_address: z
 					.object({
 						line1: z.string(),
@@ -39,46 +37,39 @@ const userRouter = t.router({
 						country: z.string()
 					})
 					.optional(),
-				card_configuration: z
-					.object({
-						card_business_name: z.string(),
-						num_cards: z.number(),
-						shipping_speed: z.enum(["express", "standard", "signature"])
-					})
-					.optional(),
-				stripe: z
-					.object({
-						accountId: z.string(),
-						bankAccount: z
-							.object({
-								id: z.string(),
-								fingerprint: z.string(),
-								account_holder_name: z.string(),
-								account_number: z.string(),
-								sort_code: z.string(),
-								currency: z.string(),
-								status: z.string()
-							})
-							.optional()
-					})
-					.optional(),
-				business: z
-					.object({
-						legal_name: z.string(),
-						average_monthly_revenue: z.number(),
-						num_vehicles: z.number(),
-						weekly_fuel_spend: z.number(),
-						business_type: z.string(),
-						merchant_category_code: z.string(),
-						business_url: z.string(),
-						business_crn: z.string()
-					})
-					.optional()
+				card_configuration: z.object({
+					card_business_name: z.string(),
+					num_cards: z.number(),
+					shipping_speed: z.enum(['express', 'standard', 'signature'])
+				}),
+				stripe: z.object({
+					accountId: z.string(),
+					bankAccount: z
+						.object({
+							id: z.string(),
+							fingerprint: z.string(),
+							account_holder_name: z.string(),
+							account_number: z.string(),
+							sort_code: z.string(),
+							currency: z.string(),
+							status: z.string()
+						})
+						.optional()
+				}),
+				business: z.object({
+					legal_name: z.string(),
+					average_monthly_revenue: z.number(),
+					num_vehicles: z.number(),
+					weekly_fuel_spend: z.number(),
+					business_type: z.string(),
+					merchant_category_code: z.string(),
+					business_url: z.string(),
+					business_crn: z.string()
+				})
 			})
 		)
 		.mutation(async req => {
 			// use your ORM of choice
-			console.log(req.input);
 			return await req.ctx.prisma.user.create({
 				data: req.input
 			});

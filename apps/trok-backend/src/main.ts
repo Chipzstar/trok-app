@@ -93,6 +93,16 @@ const runApp = async () => {
 	/**
 	 * TEST ROUTES
 	 */
+	app.get('/test/user-agent', async (req, res, next) => {
+		try {
+			console.log(req.ip)
+			console.log(req.get('User-Agent'))
+			res.status(200).send(Date.now())
+		} catch (err) {
+			console.error(err);
+			next(err);
+		}
+	})
 	app.post('/test/email', async (req, res, next) => {
 		try {
 			const { email, name } = req.body;

@@ -3,6 +3,8 @@ model Card {
     card_id String @unique
     createdAt  DateTime   @default(now())
     updatedAt DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
     driver Driver @relation(fields: [driverId], references: [id])
     driverId String
     cardholder_id String
@@ -14,5 +16,5 @@ model Card {
     exp_month Int
     exp_year Int
     cvc String?
-    spending_limits SpendingLimits[]
+    spending_limits SpendingLimit[]
 }

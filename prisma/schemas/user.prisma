@@ -12,9 +12,11 @@ model User {
   referral_code String?
   terms Boolean?
   password String
-  location Address?
+  location Address
   shipping_address Address?
-  card_configuration CardInfo?
-  business BusinessInfo?
-  stripe StripeInfo?
+  card_configuration CardInfo
+  business BusinessInfo
+  stripe StripeInfo
+  drivers Driver[]
+  cards Card[]
 }

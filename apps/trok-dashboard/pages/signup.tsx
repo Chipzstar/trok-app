@@ -5,10 +5,10 @@ import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
 import { SignupSchema } from '../schemas';
-import { PATHS, phoneUtil, STORAGE_KEYS } from '../utils/constants';
+import { PATHS, STORAGE_KEYS } from '../utils/constants';
 import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
-import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import { apiClient } from '../utils/clients';
+import { getE164Number } from '@trok-app/shared-utils';
 
 export function Signup({ secret }) {
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
@@ -29,12 +29,7 @@ export function Signup({ secret }) {
 
 	const handleSubmit = useCallback(async values => {
 		values.full_name = values.firstname + ' ' + values.lastname;
-		const phone = phoneUtil.parseAndKeepRawInput(values.phone, 'GB');
-		if (phoneUtil.getRegionCodeForNumber(phone) === 'GB') {
-			const E164Number = phoneUtil.format(phone, PNF.E164);
-			console.log('E164Number:', E164Number);
-			values.phone = E164Number;
-		}
+		values.phone = getE164Number(values.phone)
 		setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
 		const result = (await apiClient.post('/server/auth/signup', values)).data;
 		console.log('-----------------------------------------------');

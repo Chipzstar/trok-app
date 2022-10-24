@@ -1,4 +1,7 @@
 import { showNotification } from '@mantine/notifications';
+import {PhoneNumberUtil, PhoneNumberFormat as PNF } from 'google-libphonenumber';
+
+export const phoneUtil = PhoneNumberUtil.getInstance();
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -38,4 +41,14 @@ export function isValidUrl(urlString: string) {
 		return false;
 	}
 
+}
+
+export function getE164Number(phoneNumber: string) {
+	const phone = phoneUtil.parseAndKeepRawInput(phoneNumber, 'GB');
+	if (phoneUtil.getRegionCodeForNumber(phone) === 'GB') {
+		const E164Number = phoneUtil.format(phone, PNF.E164);
+		console.log('E164Number:', E164Number);
+		return E164Number;
+	}
+	return phoneNumber
 }
