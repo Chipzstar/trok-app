@@ -111,12 +111,10 @@ const Drivers = ({ testMode, sessionID }) => {
 				country: 'GB'
 			},
 			has_spending_limit: false,
-			spending_limit: [
-				{
-					amount: 100,
-					interval: ''
-				}
-			]
+			spending_limit: {
+				amount: 100,
+				interval: ''
+			}
 		}
 	});
 
@@ -172,16 +170,16 @@ const Drivers = ({ testMode, sessionID }) => {
 							<TextInput required type='email' label='Email' {...form.getInputProps('email')} />
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput label='Address 1' {...form.getInputProps('address.line1')} />
+							<TextInput required label='Address 1' {...form.getInputProps('address.line1')} />
 							<TextInput label='Address 2' {...form.getInputProps('address.line2')} />
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput label='City' {...form.getInputProps('address.city')} />
-							<TextInput label='Postal Code' {...form.getInputProps('address.postcode')} />
+							<TextInput required label='City' {...form.getInputProps('address.city')} />
+							<TextInput required label='Postal Code' {...form.getInputProps('address.postcode')} />
 						</Group>
 						<Group grow spacing='xl'>
 							<TextInput label='Region' {...form.getInputProps('address.region')} />
-							<TextInput label='Country' readOnly {...form.getInputProps('address.country')} />
+							<TextInput required label='Country' readOnly {...form.getInputProps('address.country')} />
 						</Group>
 						<Checkbox
 							label='Add spending limit'
@@ -202,7 +200,7 @@ const Drivers = ({ testMode, sessionID }) => {
 											? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 											: '£ '
 									}
-									{...form.getInputProps('spending_limit.0.amount')}
+									{...form.getInputProps('spending_limit.amount')}
 								/>
 								<Select
 									label='Frequency'
@@ -210,7 +208,7 @@ const Drivers = ({ testMode, sessionID }) => {
 										label: capitalize(sanitize(item)),
 										value: item
 									}))}
-									{...form.getInputProps('spending_limit.0.interval')}
+									{...form.getInputProps('spending_limit.interval')}
 								/>
 							</Group>
 						)}
@@ -223,7 +221,9 @@ const Drivers = ({ testMode, sessionID }) => {
 					</form>
 				</Stack>
 			</Drawer>
-			<Page.Body><DriversTable rows={rows} /></Page.Body>
+			<Page.Body>
+				<DriversTable rows={rows} />
+			</Page.Body>
 		</Page.Container>
 	);
 };

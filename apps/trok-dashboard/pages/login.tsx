@@ -111,7 +111,6 @@ const Login = ({ csrfToken, setAuth, users, session }) => {
 export async function getServerSideProps({ req, res }) {
 	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
-	console.log("SESSION", session)
 	if (session) {
 		return {
 			redirect: {
