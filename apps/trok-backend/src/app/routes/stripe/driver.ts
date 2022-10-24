@@ -13,11 +13,13 @@ const driverRouter = t.router({
 		.query(async ({ input, ctx }) => {
 			try {
 				console.log(input)
-				return await ctx.prisma.driver.findMany({
+				const drivers = await ctx.prisma.driver.findMany({
 					where: {
 						userId: input.userId
 					}
 				});
+				console.log(drivers)
+				return drivers
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
