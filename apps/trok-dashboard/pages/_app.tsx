@@ -24,7 +24,8 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 		trpc.createClient({
 			links: [
 				httpBatchLink({
-					url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/server/trpc`
+					url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/server/trpc`,
+
 					// optional
 				})
 			]

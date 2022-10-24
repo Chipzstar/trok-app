@@ -12,6 +12,7 @@ const driverRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
+				console.log(input)
 				return await ctx.prisma.driver.findMany({
 					where: {
 						userId: input.userId
