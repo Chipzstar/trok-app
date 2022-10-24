@@ -3,3 +3,23 @@ enum ShippingSpeed {
     standard
     signature
 }
+
+enum SpendingLimitInterval {
+    per_authorization
+    daily
+    weekly
+    monthly
+    yearly
+    all_time
+}
+
+enum CardStatus {
+    active
+    inactive
+    canceled
+}
+
+enum CardType {
+    physical
+    virtual
+}

@@ -1,13 +1,13 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
-import { v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const providers = [
 	CredentialsProvider({
 		id: 'credentials',
-		type: "credentials",
+		type: 'credentials',
 		name: 'Credentials',
 		credentials: {
 			email: { label: 'Email', type: 'email' },
@@ -16,7 +16,7 @@ const providers = [
 		async authorize(credentials, req) {
 			// Add logic here to look up the user from the credentials supplied
 			if (credentials == null) return null;
-			const { createdAt, updatedAt, ...user } = await prisma.user.findFirst({
+			const { created_at, updated_at, ...user } = await prisma.user.findFirst({
 				where: {
 					email: {
 						equals: credentials.email
@@ -38,22 +38,27 @@ const providers = [
 ];
 
 const callbacks = {
-	signIn: async ({user, account, email, credentials}) => {
+	signIn: async ({ user, account, email, credentials }) => {
 		if (account.provider === 'credentials') {
 			user.accessToken = uuidv4();
 			return true;
 		}
 		return false;
 	},
-	jwt: async ({token, user}) => {
+	jwt: async ({ token, user }) => {
 		if (user) {
 			token.id = user.id;
-			token.user = { ...user, stripe: undefined };
+			token.user = {
+				...user,
+				accountId: user.stripe.accountId,
+				password: undefined,
+				stripe: undefined
+			};
 		}
 		return token;
 	},
-	session: async ({session, token}) => {
-		session.id = token.id
+	session: async ({ session, token }) => {
+		session.id = token.id;
 		return session;
 	}
 };

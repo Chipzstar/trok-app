@@ -49,10 +49,63 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Card {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  card_id         String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  driver          Driver           @relation(fields: [driverId], references: [id])
+  driverId        String
+  cardholder_id   String
+  currency        String
+  type            CardType
+  status          CardStatus
+  brand           String
+  last4           String
+  exp_month       Int
+  exp_year        Int
+  cvc             String?
+  spending_limits SpendingLimits[]
+}
+model Driver {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  cardholder_id   String           @unique
+  customer_id     String           @unique
+  firstname       String
+  lastname        String
+  email           String
+  phone           String
+  status          String
+  spending_limits SpendingLimits[]
+  address         Address
+  cards           Card[]
+}
 enum ShippingSpeed {
   express
   standard
   signature
+}
+
+enum SpendingLimitInterval {
+  per_authorization
+  daily
+  weekly
+  monthly
+  yearly
+  all_time
+}
+
+enum CardStatus {
+  active
+  inactive
+  canceled
+}
+
+enum CardType {
+  physical
+  virtual
 }
 type StripeInfo {
   accountId   String
@@ -94,10 +147,16 @@ type CardInfo {
   num_cards          Int
   shipping_speed     ShippingSpeed
 }
+
+type SpendingLimits {
+  amount     Int
+  categories String[]
+  interval   SpendingLimitInterval
+}
 model User {
   id                 String        @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
   email              String        @unique
   full_name          String
   firstname          String

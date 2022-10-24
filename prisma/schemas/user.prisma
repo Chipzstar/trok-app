@@ -1,7 +1,7 @@
 model User {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt  DateTime   @default(now())
-  updatedAt DateTime @updatedAt
+  created_at  DateTime   @default(now())
+  updated_at DateTime @updatedAt
   email String @unique
   full_name String
   firstname  String

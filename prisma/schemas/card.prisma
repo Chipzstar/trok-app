@@ -1,0 +1,18 @@
+model Card {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    card_id String @unique
+    createdAt  DateTime   @default(now())
+    updatedAt DateTime @updatedAt
+    driver Driver @relation(fields: [driverId], references: [id])
+    driverId String
+    cardholder_id String
+    currency  String
+    type CardType
+    status CardStatus
+    brand String
+    last4  String
+    exp_month Int
+    exp_year Int
+    cvc String?
+    spending_limits SpendingLimits[]
+}

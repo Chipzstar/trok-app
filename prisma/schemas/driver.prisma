@@ -1,0 +1,15 @@
+model Driver {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime @default(now())
+    updated_at DateTime @updatedAt
+    cardholder_id String @unique
+    customer_id String @unique
+    firstname String
+    lastname String
+    email String
+    phone String
+    status String
+    spending_limits SpendingLimits[]
+    address Address
+    cards Card[]
+}
