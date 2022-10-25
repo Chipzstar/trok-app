@@ -41,7 +41,7 @@ export const PATHS = {
 
 export const SAMPLE_DRIVERS = [
 	{
-		id: '',
+		id: '1',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0001`,
 		status: "OFFLINE",
@@ -62,7 +62,7 @@ export const SAMPLE_DRIVERS = [
 		spending_limit: 350000
 	},
 	{
-		id: '',
+		id: '2',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0002`,
 		status: "OFFLINE",
@@ -83,7 +83,7 @@ export const SAMPLE_DRIVERS = [
 		spending_limit: 350000
 	},
 	{
-		id: '',
+		id: '3',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID$#0003`,
 		status: "OFFLINE",
@@ -104,7 +104,7 @@ export const SAMPLE_DRIVERS = [
 		spending_limit: 350000
 	},
 	{
-		id: '',
+		id: '4',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0004`,
 		status: "OFFLINE",
@@ -122,7 +122,7 @@ export const SAMPLE_DRIVERS = [
 		last4: '8202',
 		vin: 'JH4KA2640GC004861',
 		current_spend: 21780200,
-		spending_limit: 350000
+		spending_limits: 350000
 	}
 ];
 
@@ -133,7 +133,7 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
-		spending_limit: {
+		spending_limits: {
 			weekly: 468000
 		},
 		balance: 4679995
@@ -144,7 +144,7 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '2681',
 		cardholder_name: 'Ola Oladapo',
-		spending_limit: {
+		spending_limits: {
 			weekly: 468000
 		},
 		balance: 4679995
@@ -155,7 +155,7 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '5410',
 		cardholder_name: 'Daniel Oguibe',
-		spending_limit: {
+		spending_limits: {
 			weekly: 468000
 		},
 		balance: 4679995
@@ -166,7 +166,7 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '7341',
 		cardholder_name: 'King Dave',
-		spending_limit: {
+		spending_limits: {
 			weekly: 468000
 		},
 		balance: 4679995
@@ -177,7 +177,7 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.INACTIVE,
 		last4: '9127',
 		cardholder_name: 'Rayan Bannai',
-		spending_limit: {
+		spending_limits: {
 			weekly: 468000
 		},
 		balance: 4679995

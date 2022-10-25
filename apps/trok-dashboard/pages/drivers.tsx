@@ -12,7 +12,6 @@ import {
 	TextInput,
 	Title
 } from '@mantine/core';
-import { useRouter } from 'next/router';
 import React, { useCallback, useState } from 'react';
 import { IconCheck, IconPencil, IconX } from '@tabler/icons';
 import { GBP, SAMPLE_DRIVERS } from '../utils/constants';
@@ -244,7 +243,6 @@ const Drivers = ({ testMode, sessionID }) => {
 export const getServerSideProps = async ({ req, res }) => {
 	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
-	console.log(session);
 	return {
 		props: {
 			sessionID: session.id

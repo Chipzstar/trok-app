@@ -27,20 +27,18 @@ const userRouter = t.router({
 					region: z.string(),
 					country: z.string()
 				}),
-				shipping_address: z
-					.object({
-						line1: z.string(),
-						line2: z.string().optional(),
-						city: z.string(),
-						postcode: z.string(),
-						region: z.string(),
-						country: z.string()
-					})
-					.optional(),
+				shipping_address: z.object({
+					line1: z.string(),
+					line2: z.string().optional(),
+					city: z.string(),
+					postcode: z.string(),
+					region: z.string(),
+					country: z.string()
+				}),
 				card_configuration: z.object({
 					card_business_name: z.string(),
 					num_cards: z.number(),
-					shipping_speed: z.enum(['express', 'standard', 'signature'])
+					shipping_speed: z.enum(['express', 'standard', 'priority'])
 				}),
 				stripe: z.object({
 					accountId: z.string(),

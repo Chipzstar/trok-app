@@ -113,18 +113,19 @@ const Step3 = ({ prevStep, finish }) => {
 					throw new Error(accountResult.error.message);
 				}
 				const isUrlValid = isValidUrl(businessObj.business_url);
+				const location = {
+					line1: values.line1,
+					line2: values?.line2,
+					city: values.city,
+					postcode: values.postcode,
+					region: values.region,
+					country: values.country
+				}
 				const payload: CreateUser = {
 					...personalObj,
-					...(values.diff_shipping_address && { shipping_address: values.shipping_address}),
+					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
 					business: { ...businessObj, ...financialObj },
-					location: {
-						line1: values.line1,
-						line2: values?.line2,
-						city: values.city,
-						postcode: values.postcode,
-						region: values.region,
-						country: values.country
-					},
+					location,
 					card_configuration: {
 						card_business_name: values.card_business_name,
 						num_cards: values.num_cards,
@@ -248,7 +249,7 @@ const Step3 = ({ prevStep, finish }) => {
 					>
 						<Radio value="standard" label='3-8 days. Cards left at address' />
 						<Radio value="express" label='2-3 days. Cards left at address' />
-						<Radio value="signature" label='2-3 days. Signature required at delivery' />
+						<Radio value="priority" label='2-3 days. Signature required at delivery' />
 					</Radio.Group>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>

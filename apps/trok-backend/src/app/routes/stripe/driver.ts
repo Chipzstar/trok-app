@@ -12,14 +12,12 @@ const driverRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				console.log(input)
-				const drivers = await ctx.prisma.driver.findMany({
+				console.log(input);
+				return await ctx.prisma.driver.findMany({
 					where: {
 						userId: input.userId
 					}
 				});
-				console.log(drivers)
-				return drivers
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
@@ -34,17 +32,19 @@ const driverRouter = t.router({
 				lastname: z.string(),
 				email: z.string(),
 				phone: z.string(),
-				spending_limit: z.object({
-					amount: z.number(),
-					interval: z.union([
-						z.literal('per_authorization'),
-						z.literal('daily'),
-						z.literal('weekly'),
-						z.literal('monthly'),
-						z.literal('yearly'),
-						z.literal('all_time')
-					])
-				}).optional(),
+				spending_limit: z
+					.object({
+						amount: z.number(),
+						interval: z.union([
+							z.literal('per_authorization'),
+							z.literal('daily'),
+							z.literal('weekly'),
+							z.literal('monthly'),
+							z.literal('yearly'),
+							z.literal('all_time')
+						])
+					})
+					.optional(),
 				address: z.object({
 					line1: z.string(),
 					line2: z.string().optional(),
@@ -108,6 +108,7 @@ const driverRouter = t.router({
 				return await ctx.prisma.driver.create({
 					data: {
 						userId: input.userId,
+						full_name: input.firstname + ' ' + input.lastname,
 						firstname: input.firstname,
 						lastname: input.lastname,
 						email: input.email,
@@ -124,7 +125,7 @@ const driverRouter = t.router({
 							city: input.address.city,
 							postcode: input.address.postcode,
 							region: input.address.region,
-							country: input.address.country,
+							country: input.address.country
 						},
 						cardholder_id: cardholder.id,
 						customer_id: customer.id,

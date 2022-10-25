@@ -6,6 +6,7 @@ model Driver {
     userId String
     cardholder_id String @unique
     customer_id String @unique
+    full_name String
     firstname String
     lastname String
     email String

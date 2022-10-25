@@ -64,7 +64,7 @@ router.post('/complete-registration', async (req, res, next) => {
 			capabilities: {
 				card_payments: { requested: true },
 				transfers: { requested: true },
-				card_issuing: {requested: true}
+				card_issuing: { requested: true }
 			},
 			settings: {
 				card_issuing: {

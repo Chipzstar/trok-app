@@ -1,6 +1,11 @@
 import { TokenCreateParams } from '@stripe/stripe-js';
 
-export type ShippingSpeed = "standard" | "express" | "signature"
+export type ShippingSpeed = "standard" | "express" | "priority"
+
+export enum CARD_TYPES {
+	PHYSICAL="physical",
+	VIRTUAL="virtual"
+}
 
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
 export type SpendingLimitInterval = typeof intervals[number];

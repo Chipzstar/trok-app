@@ -3,12 +3,17 @@ import Page from '../../layout/Page';
 import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Text, Title } from '@mantine/core';
 import { IconChevronLeft, IconEdit } from '@tabler/icons';
 import { useRouter } from 'next/router';
-import { SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
+import { GBP, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
 import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
+import { trpc } from '../../utils/clients';
+import { CARD_STATUS } from '../../utils/types';
 
-const CardDetails = ({ testMode }) => {
+const CardDetails = ({ testMode, sessionID }) => {
+	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
 				return (
@@ -59,8 +64,8 @@ const CardDetails = ({ testMode }) => {
 	const { cardID } = router.query;
 
 	const card = useMemo(() => {
-		return SAMPLE_CARDS.find(c => c.id === cardID);
-	}, [cardID]);
+		return testMode ? SAMPLE_CARDS.find(c => c.id === cardID) : cardsQuery?.data?.find(c => c.id === cardID);
+	}, [cardID, testMode, cardsQuery]);
 
 	const form = useForm({
 		initialValues: {
@@ -157,7 +162,7 @@ const CardDetails = ({ testMode }) => {
 					<Title order={1} weight={500}>
 						Card **** {card?.last4}
 					</Title>
-					<span className='font-medium uppercase text-success'>{card?.status}</span>
+					<span className={`font-medium uppercase ${card?.status ===CARD_STATUS.ACTIVE ? "text-success" : "text-danger"}`}>{card?.status}</span>
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
@@ -178,8 +183,8 @@ const CardDetails = ({ testMode }) => {
 									</ActionIcon>
 								</div>
 								<span>-</span>
-								<span>£2000</span>
-								<span>£6000</span>
+								<span>{card?.spending_limits[0].interval === "daily" ? GBP(card?.spending_limits[0].amount).format() : "-"}</span>
+								<span>{card?.spending_limits[0].interval === "weekly" ? GBP(card?.spending_limits[0].amount).format() : "-"}</span>
 							</Stack>
 						</Group>
 					</Card>
@@ -202,6 +207,16 @@ const CardDetails = ({ testMode }) => {
 			</Page.Body>
 		</Page.Container>
 	);
+};
+
+export const getServerSideProps = async ({ req, res }) => {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	return {
+		props: {
+			sessionID: session.id
+		}
+	};
 };
 
 export default CardDetails;

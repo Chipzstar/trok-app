@@ -13,7 +13,7 @@ model User {
   terms Boolean?
   password String
   location Address
-  shipping_address Address?
+  shipping_address Address
   card_configuration CardInfo
   business BusinessInfo
   stripe StripeInfo
