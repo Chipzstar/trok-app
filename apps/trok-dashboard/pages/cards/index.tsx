@@ -27,7 +27,7 @@ const Cards = ({ testMode, sessionID }) => {
 	const data = testMode
 		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
 		: !cardsQuery.isLoading
-		? cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab)
+		? cardsQuery?.data.filter(c => activeTab === 'all' || c.status === activeTab)
 		: [];
 
 	const form = useForm({

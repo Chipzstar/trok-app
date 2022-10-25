@@ -2,7 +2,6 @@ import { t } from '../../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
-import { CARD_TYPES } from '@trok-app/shared-utils';
 
 const cardRouter = t.router({
 	getCards: t.procedure

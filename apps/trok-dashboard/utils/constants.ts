@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import currency from 'currency.js';
 import { PAYMENT_STATUS } from './types';
 import { PhoneNumberUtil } from 'google-libphonenumber';
-import { CARD_STATUS, SpendingLimitInterval } from '@trok-app/shared-utils';
+import { CARD_STATUS } from '@trok-app/shared-utils';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
