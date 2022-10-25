@@ -12,13 +12,10 @@ export enum CARD_TYPES {
 	VIRTUAL="virtual"
 }
 
-
-
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
 
 export type SpendingLimitInterval = typeof intervals[number];
 // export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
-
 
 export interface SignupInfo {
 	full_name: string;
@@ -78,6 +75,7 @@ export interface StripeInfo {
 	accountId: string;
 	bankAccount?: null;
 }
+
 export interface CreateUser extends SignupInfo {
 	business?: OnboardingBusinessInfo & OnboardingFinancialInfo;
 	location?: AddressInfo;

@@ -54,7 +54,7 @@ const cardRouter = t.router({
 				if (user) {
 					let card = await stripe.issuing.cards.create(
 						{
-							['type']: CARD_TYPES.PHYSICAL,
+							['type']: "physical",
 							cardholder: input.cardholder_id,
 							status: 'inactive',
 							currency: input.currency,
@@ -120,7 +120,7 @@ const cardRouter = t.router({
 								driverId: input.driver_id,
 								cardholder_name: `${driver.firstname} ${driver.lastname}`,
 								currency: input.currency,
-								card_type: CARD_TYPES.PHYSICAL,
+								card_type: "physical",
 								brand: 'visa',
 								last4: card.last4,
 								exp_month: card.exp_month,

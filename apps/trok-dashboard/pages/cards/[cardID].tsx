@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
 import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Text, Title } from '@mantine/core';
 import { IconChevronLeft, IconEdit } from '@tabler/icons';
@@ -13,9 +13,17 @@ import { trpc } from '../../utils/clients';
 import { CARD_STATUS } from '@trok-app/shared-utils';
 
 const CardDetails = ({ testMode, sessionID }) => {
+	const [opened, setOpened] = useState(false);
 	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
-	const rows = testMode
-		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
+	const router = useRouter();
+	const { cardID } = router.query;
+
+	const card = useMemo(
+		() => (testMode ? SAMPLE_CARDS.find(c => c.id === cardID) : cardsQuery?.data?.find(c => c.id === cardID)),
+		[cardID, cardsQuery.data]
+	);
+
+	const rows = testMode ? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
 				return (
 					<tr
 						key={index}
@@ -57,22 +65,14 @@ const CardDetails = ({ testMode, sessionID }) => {
 						</td>
 					</tr>
 				);
-		  })
-		: [];
-	const [opened, setOpened] = useState(false);
-	const router = useRouter();
-	const { cardID } = router.query;
-
-	const card = useMemo(() => {
-		return testMode ? SAMPLE_CARDS.find(c => c.id === cardID) : cardsQuery?.data?.find(c => c.id === cardID);
-	}, [cardID, testMode, cardsQuery]);
+		  })	: [];
 
 	const form = useForm({
 		initialValues: {
-			per_transaction: null,
-			daily: null,
-			weekly: null,
-			monthly: null
+			per_transaction: card?.spending_limits.find(l => l.interval === "per_authorization")?.amount / 100,
+			daily: card?.spending_limits.find(l => l.interval === "daily")?.amount / 100,
+			weekly: card?.spending_limits.find(l => l.interval === "weekly")?.amount / 100,
+			monthly: card?.spending_limits.find(l => l.interval === "monthly")?.amount / 100,
 		}
 	});
 
@@ -81,11 +81,13 @@ const CardDetails = ({ testMode, sessionID }) => {
 		console.log(values);
 	}, []);
 
+	useEffect(() => form.reset(), [card]);
+
 	return (
 		<Page.Container
 			header={
 				<Page.Header>
-					<Button leftIcon={<IconChevronLeft />} variant='white' color='dark' onClick={() => router.back()}>
+					<Button leftIcon={<IconChevronLeft />} variant='white' color='dark' onClick={router.back}>
 						<span className='text-xl font-medium'>Back</span>
 					</Button>
 				</Page.Header>

@@ -77,7 +77,7 @@ const CardsTable = ({ data }) => {
 				{ label: 'Status', key: null },
 				{ label: 'Assigned ', key: null },
 				{ label: 'Balance', key: null },
-				{ label: 'Weekly Spend Limit', key: null },
+				{ label: 'Spending Limit', key: null },
 				{ label: '', key: null }
 			]}
 			emptyContent={
