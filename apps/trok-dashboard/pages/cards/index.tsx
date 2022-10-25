@@ -9,7 +9,7 @@ import { IconCheck, IconX } from '@tabler/icons';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import { CARD_TYPES, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 
 const Cards = ({ testMode, sessionID }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
@@ -34,7 +34,6 @@ const Cards = ({ testMode, sessionID }) => {
 		initialValues: { // physical or virtual
 			driver: '', // driver id
 			card_name: '', // useful name to identify the cardholder
-			frequency: null,
 			spending_limit: {
 				amount: 0,
 				interval: null

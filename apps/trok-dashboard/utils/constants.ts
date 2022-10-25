@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import currency from 'currency.js';
-import { CARD_STATUS, PAYMENT_STATUS } from './types';
+import { PAYMENT_STATUS } from './types';
 import { PhoneNumberUtil } from 'google-libphonenumber';
+import { CARD_STATUS, SpendingLimitInterval } from '@trok-app/shared-utils';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -134,7 +135,8 @@ export const SAMPLE_CARDS = [
 		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
 		spending_limits: [{
-			amount: 468000
+			amount: 468000,
+			interval: "weekly"
 		}],
 		current_balance: 4679995
 	},
@@ -145,7 +147,8 @@ export const SAMPLE_CARDS = [
 		last4: '2681',
 		cardholder_name: 'Ola Oladapo',
 		spending_limits: [{
-			amount: 468000
+			amount: 468000,
+			interval: "weekly"
 		}],
 		current_balance: 4679995
 	},
@@ -156,7 +159,8 @@ export const SAMPLE_CARDS = [
 		last4: '5410',
 		cardholder_name: 'Daniel Oguibe',
 		spending_limits: [{
-			amount: 468000
+			amount: 468000,
+			interval: "weekly"
 		}],
 		current_balance: 4679995
 	},
@@ -167,7 +171,8 @@ export const SAMPLE_CARDS = [
 		last4: '7341',
 		cardholder_name: 'King Dave',
 		spending_limits: [{
-			amount: 468000
+			amount: 468000,
+			interval: "weekly"
 		}],
 		current_balance: 4679995
 	},
@@ -178,7 +183,8 @@ export const SAMPLE_CARDS = [
 		last4: '9127',
 		cardholder_name: 'Rayan Bannai',
 		spending_limits: [{
-			amount: 468000
+			amount: 468000,
+			interval: "weekly"
 		}],
 		current_balance: 4679995
 	}

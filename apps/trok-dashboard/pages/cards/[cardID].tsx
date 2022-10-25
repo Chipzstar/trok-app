@@ -10,7 +10,7 @@ import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { trpc } from '../../utils/clients';
-import { CARD_STATUS } from '../../utils/types';
+import { CARD_STATUS } from '@trok-app/shared-utils';
 
 const CardDetails = ({ testMode, sessionID }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });

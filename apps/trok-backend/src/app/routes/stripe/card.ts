@@ -108,11 +108,9 @@ const cardRouter = t.router({
 							},
 							{ stripeAccount: user.stripe.accountId }
 						);
-						paymentMethod = await stripe.paymentMethods.attach(paymentMethod.id, {
+						await stripe.paymentMethods.attach(paymentMethod.id, {
 							customer: driver.customer_id
 						}, { stripeAccount: user.stripe.accountId });
-						console.log(paymentMethod);
-						console.log('-----------------------------------------------');
 						return await ctx.prisma.card.create({
 							data: {
 								userId: input.user_id,

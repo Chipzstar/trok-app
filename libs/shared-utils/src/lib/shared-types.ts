@@ -1,16 +1,24 @@
 import { TokenCreateParams } from '@stripe/stripe-js';
 
-export type ShippingSpeed = "standard" | "express" | "priority"
+export type ShippingSpeed = 'standard' | 'express' | 'priority';
+
+export enum CARD_STATUS {
+	ACTIVE = 'active',
+	INACTIVE = 'inactive'
+}
 
 export enum CARD_TYPES {
 	PHYSICAL="physical",
 	VIRTUAL="virtual"
 }
 
-export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
-export type SpendingLimitInterval = typeof intervals[number];
 
+
+export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
+
+export type SpendingLimitInterval = typeof intervals[number];
 // export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
+
 
 export interface SignupInfo {
 	full_name: string;
@@ -70,7 +78,6 @@ export interface StripeInfo {
 	accountId: string;
 	bankAccount?: null;
 }
-
 export interface CreateUser extends SignupInfo {
 	business?: OnboardingBusinessInfo & OnboardingFinancialInfo;
 	location?: AddressInfo;

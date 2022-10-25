@@ -3,11 +3,6 @@ export type TableHeadings = {
 	key: string | null
 }
 
-export enum CARD_STATUS {
-	ACTIVE="active",
-	INACTIVE="inactive"
-}
-
 export enum PAYMENT_STATUS {
 	IN_PROGRESS="in_progress",
 	COMPLETE="complete",
