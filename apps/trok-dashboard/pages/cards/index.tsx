@@ -170,10 +170,10 @@ const Cards = ({ testMode, sessionID }) => {
 					driver_id: values.driver,
 					cardholder_id: driver?.cardholder_id,
 					currency: values.currency,
-					spending_limits: [{
+					spending_limits: {
 						amount: values.spending_limit.amount * 100,
 						interval: values.spending_limit.interval
-					}]
+					}
 				});
 				setLoading(false);
 				setOpened(false);

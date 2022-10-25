@@ -3,18 +3,6 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
 
-const spending_limits = z.object({
-	amount: z.number(),
-	interval: z.union([
-		z.literal('per_authorization'),
-		z.literal('daily'),
-		z.literal('weekly'),
-		z.literal('monthly'),
-		z.literal('yearly'),
-		z.literal('all_time')
-	])
-});
-
 const cardRouter = t.router({
 	getCards: t.procedure
 		.input(
@@ -47,7 +35,10 @@ const cardRouter = t.router({
 				card_name: z.string().optional(),
 				currency: z.string().default('gbp'),
 				card_type: z.union([z.literal('physical'), z.literal('virtual')]),
-				spending_limits: z.array(spending_limits)
+				spending_limits: z.object({
+					amount: z.number(),
+					interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
+				})
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -68,7 +59,12 @@ const cardRouter = t.router({
 							status: 'inactive',
 							currency: input.currency,
 							spending_controls: {
-								spending_limits: input.spending_limits
+								spending_limits: [
+									{
+										amount: input.spending_limits.amount,
+										interval: input.spending_limits.interval
+									}
+								]
 							},
 							shipping: {
 								name: user.business.legal_name,
@@ -132,7 +128,10 @@ const cardRouter = t.router({
 								exp_month: card.exp_month,
 								exp_year: card.exp_year,
 								cvc: card.cvc,
-								spending_limits: input.spending_limits,
+								spending_limits: input?.spending_limits ? [{
+									amount: input.spending_limits.amount,
+									interval: input.spending_limits.interval
+								}] : [],
 								status: 'inactive'
 							}
 						});
