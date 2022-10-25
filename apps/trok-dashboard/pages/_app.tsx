@@ -11,7 +11,7 @@ import { SessionProvider } from 'next-auth/react';
 import { Session } from 'next-auth';
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { httpBatchLink } from '@trpc/client';
+import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { trpc } from '../utils/clients';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
