@@ -1,35 +1,20 @@
 import React, { useCallback, useState } from 'react';
 import Page from '../../layout/Page';
-import {
-	ActionIcon,
-	Button,
-	Text,
-	Drawer,
-	Group,
-	NumberInput,
-	Select,
-	Stack,
-	Tabs,
-	TextInput,
-	Title, Loader
-} from '@mantine/core';
+import { Button, Drawer, Group, Loader, NumberInput, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
 import CardsTable from '../../containers/CardsTable';
-import { GBP, PATHS, SAMPLE_CARDS } from '../../utils/constants';
+import { SAMPLE_CARDS } from '../../utils/constants';
 import { capitalize, sanitize } from '../../utils/functions';
-import classNames from 'classnames';
 import { trpc } from '../../utils/clients';
-import { CARD_STATUS } from '../../utils/types';
-import { IconCheck, IconChevronRight, IconX } from '@tabler/icons';
-import { useRouter } from 'next/router';
+import { IconCheck, IconX } from '@tabler/icons';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { CARD_TYPES, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 
 const Cards = ({ testMode, sessionID }) => {
+	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
-	const router = useRouter();
 	const utils = trpc.useContext();
 	const driversQuery = trpc.getDrivers.useQuery({ userId: sessionID });
 	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
@@ -38,115 +23,15 @@ const Cards = ({ testMode, sessionID }) => {
 			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const rows = testMode
-		? SAMPLE_CARDS.map((element, index) => {
-				const statusClass = classNames({
-					'py-1': true,
-					'w-28': true,
-					rounded: true,
-					'text-center': true,
-					uppercase: true,
-					'text-xs': true,
-					'tracking-wide': true,
-					'font-semibold': true,
-					'text-success': element.status === CARD_STATUS.ACTIVE,
-					'text-danger': element.status === CARD_STATUS.INACTIVE,
-					'bg-success/25': element.status === CARD_STATUS.ACTIVE,
-					'bg-danger/25': element.status === CARD_STATUS.INACTIVE
-				});
-				return (
-					<tr
-						key={index}
-						style={{
-							border: 'none'
-						}}
-					>
-						<td colSpan={1}>
-							<span>{element.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<div className={statusClass}>
-								<span>{sanitize(element.status)}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>{element.cardholder_name}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.balance).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.spending_limits.weekly).format()}</span>
-						</td>
-						<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
-							<Group grow position='left'>
-								<ActionIcon size='sm'>
-									<IconChevronRight />
-								</ActionIcon>
-							</Group>
-						</td>
-					</tr>
-				);
-		  })
+
+	const data = testMode
+		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
 		: !cardsQuery.isLoading
-		? cardsQuery.data.map((element, index) => {
-				const statusClass = classNames({
-					'py-1': true,
-					'w-28': true,
-					rounded: true,
-					'text-center': true,
-					uppercase: true,
-					'text-xs': true,
-					'tracking-wide': true,
-					'font-semibold': true,
-					'text-success': element.status === CARD_STATUS.ACTIVE,
-					'text-danger': element.status === CARD_STATUS.INACTIVE,
-					'bg-success/25': element.status === CARD_STATUS.ACTIVE,
-					'bg-danger/25': element.status === CARD_STATUS.INACTIVE
-				});
-				return (
-					<tr
-						key={index}
-						style={{
-							border: 'none'
-						}}
-					>
-						<td colSpan={1}>
-							<span>{element.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<div className={statusClass}>
-								<span>{sanitize(element.status)}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>{element.cardholder_name}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.current_balance).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.spending_limits[0].amount).format()}</span>
-						</td>
-						<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
-							<Group grow position='left'>
-								<ActionIcon size='sm'>
-									<IconChevronRight />
-								</ActionIcon>
-							</Group>
-						</td>
-					</tr>
-				);
-		  })
+		? cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab)
 		: [];
 
 	const form = useForm({
-		initialValues: {
-			type: '', // physical or virtual
+		initialValues: { // physical or virtual
 			driver: '', // driver id
 			card_name: '', // useful name to identify the cardholder
 			frequency: null,
@@ -157,36 +42,42 @@ const Cards = ({ testMode, sessionID }) => {
 		}
 	});
 
-	const handleSubmit = useCallback(async values => {
-		setLoading(true);
-		console.log(values);
-		try {
-			const driver = driversQuery?.data.find(driver => values.driver === driver.id)
-			if (driver) {
-				const card = await mutation.mutateAsync({
-					user_id: sessionID,
-					card_type: values.type,
-					card_name: values.card_name,
-					driver_id: values.driver,
-					cardholder_id: driver?.cardholder_id,
-					currency: values.currency,
-					spending_limits: {
-						amount: values.spending_limit.amount * 100,
-						interval: values.spending_limit.interval
-					}
-				});
+	const handleSubmit = useCallback(
+		async values => {
+			setLoading(true);
+			console.log(values);
+			try {
+				const driver = driversQuery?.data.find(driver => values.driver === driver.id);
+				if (driver) {
+					const card = await mutation.mutateAsync({
+						user_id: sessionID,
+						card_name: values.card_name,
+						driver_id: values.driver,
+						cardholder_id: driver?.cardholder_id,
+						currency: values.currency,
+						spending_limits: {
+							amount: values.spending_limit.amount * 100,
+							interval: values.spending_limit.interval
+						}
+					});
+					setLoading(false);
+					setOpened(false);
+					notifySuccess(
+						'add-driver-success',
+						`New Card added for ${card.cardholder_name}`,
+						<IconCheck size={20} />
+					);
+				} else {
+					throw new Error('Could not find a driver with ID ' + values.driver);
+				}
+			} catch (err) {
+				console.error(err);
 				setLoading(false);
-				setOpened(false);
-				notifySuccess('add-driver-success', `New Card added for ${card.cardholder_name}`, <IconCheck size={20} />);
-			} else {
-				throw new Error("Could not find a driver with ID " + values.driver)
+				notifyError('add-card-failed', err.message, <IconX size={20} />);
 			}
-		} catch (err) {
-			console.error(err);
-			setLoading(false);
-			notifyError('add-card-failed', err.message, <IconX size={20} />);
-		}
-	}, [sessionID, driversQuery]);
+		},
+		[sessionID, driversQuery]
+	);
 
 	return (
 		<Page.Container
@@ -214,14 +105,10 @@ const Cards = ({ testMode, sessionID }) => {
 						<span>Create new card</span>
 					</Title>
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<Select
-							required
-							label='Card Type'
-							data={Object.values(CARD_TYPES).map(item => ({
-								label: capitalize(item),
-								value: item
-							}))}
-							{...form.getInputProps('type')}
+						<TextInput
+							description='You can give this card a nickname for easy identification'
+							label='Card Name'
+							{...form.getInputProps('card_name')}
 						/>
 						<Select
 							required
@@ -231,11 +118,6 @@ const Cards = ({ testMode, sessionID }) => {
 								value: value.id
 							}))}
 							{...form.getInputProps('driver')}
-						/>
-						<TextInput
-							description='You can give this card a nickname for easy identification'
-							label='Card Name'
-							{...form.getInputProps('card_name')}
 						/>
 						<Group grow spacing='xl'>
 							<NumberInput
@@ -273,6 +155,8 @@ const Cards = ({ testMode, sessionID }) => {
 			</Drawer>
 			<Page.Body>
 				<Tabs
+					value={activeTab}
+					onTabChange={setActiveTab}
 					defaultValue='all'
 					classNames={{
 						root: 'flex flex-col grow',
@@ -287,15 +171,15 @@ const Cards = ({ testMode, sessionID }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-						<CardsTable rows={rows} />
+						<CardsTable data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='active' className='h-full'>
-						<CardsTable rows={rows} />
+						<CardsTable data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='inactive' className='h-full'>
-						<CardsTable rows={rows} />
+						<CardsTable data={data} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

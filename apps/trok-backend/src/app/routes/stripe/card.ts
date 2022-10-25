@@ -2,6 +2,7 @@ import { t } from '../../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
+import { CARD_TYPES } from '@trok-app/shared-utils';
 
 const cardRouter = t.router({
 	getCards: t.procedure
@@ -34,7 +35,6 @@ const cardRouter = t.router({
 				cardholder_id: z.string(),
 				card_name: z.string().optional(),
 				currency: z.string().default('gbp'),
-				card_type: z.union([z.literal('physical'), z.literal('virtual')]),
 				spending_limits: z.object({
 					amount: z.number(),
 					interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
@@ -54,7 +54,7 @@ const cardRouter = t.router({
 				if (user) {
 					let card = await stripe.issuing.cards.create(
 						{
-							['type']: input.card_type,
+							['type']: CARD_TYPES.PHYSICAL,
 							cardholder: input.cardholder_id,
 							status: 'inactive',
 							currency: input.currency,
@@ -122,7 +122,7 @@ const cardRouter = t.router({
 								driverId: input.driver_id,
 								cardholder_name: `${driver.firstname} ${driver.lastname}`,
 								currency: input.currency,
-								card_type: input.card_type,
+								card_type: CARD_TYPES.PHYSICAL,
 								brand: 'visa',
 								last4: card.last4,
 								exp_month: card.exp_month,
