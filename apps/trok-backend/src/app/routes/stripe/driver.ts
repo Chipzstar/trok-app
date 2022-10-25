@@ -108,7 +108,7 @@ const driverRouter = t.router({
 				return await ctx.prisma.driver.create({
 					data: {
 						userId: input.userId,
-						full_name: input.firstname + ' ' + input.lastname,
+						full_name: `${input.firstname} ${input.lastname}`,
 						firstname: input.firstname,
 						lastname: input.lastname,
 						email: input.email,

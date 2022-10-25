@@ -21,7 +21,10 @@ const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const Step3 = ({ prevStep, finish }) => {
 	const [loading, setLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<SignupInfo & Record<"business", OnboardingBusinessInfo>>({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
+	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo>>({
+		key: STORAGE_KEYS.ACCOUNT,
+		defaultValue: null
+	});
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
 	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
 	const [financialObj, setFinancial] = useLocalStorage<OnboardingFinancialInfo>({ key: STORAGE_KEYS.FINANCIAL_FORM });
@@ -36,7 +39,7 @@ const Step3 = ({ prevStep, finish }) => {
 			country: 'GB',
 			card_business_name: '',
 			num_cards: null,
-			shipping_speed: "standard",
+			shipping_speed: 'standard',
 			diff_shipping_address: false,
 			shipping_address: {
 				line1: '',
@@ -65,17 +68,25 @@ const Step3 = ({ prevStep, finish }) => {
 					personalObj.phone = phoneUtil.format(phone, PNF.E164);
 				}
 				const personResult = await Stripe.createToken('person', {
-					...(values.diff_shipping_address && {
-						address: {
-							line1: values.shipping_address.line1,
-							line2: values.shipping_address.line2,
-							city: values.shipping_address.city,
-							state: values.shipping_address.region,
-							postal_code: values.shipping_address.postcode,
-							country: values.shipping_address.country
-						}
-					}),
+					address: values.diff_shipping_address
+						? {
+								line1: values.shipping_address.line1,
+								line2: values.shipping_address.line2,
+								city: values.shipping_address.city,
+								state: values.shipping_address.region,
+								postal_code: values.shipping_address.postcode,
+								country: values.shipping_address.country
+						  }
+						: {
+								line1: values.line1,
+								line2: values.line2,
+								city: values.city,
+								state: values.region,
+								postal_code: values.postcode,
+								country: values.country
+						  },
 					relationship: {
+						owner: true,
 						director: true,
 						executive: true,
 						representative: true
@@ -120,7 +131,7 @@ const Step3 = ({ prevStep, finish }) => {
 					postcode: values.postcode,
 					region: values.region,
 					country: values.country
-				}
+				};
 				const payload: CreateUser = {
 					...personalObj,
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
@@ -132,7 +143,7 @@ const Step3 = ({ prevStep, finish }) => {
 						shipping_speed: values.shipping_speed
 					},
 					full_name: `${personalObj.firstname} ${personalObj.lastname}`
-				}
+				};
 				const user = (
 					await apiClient.post('/server/auth/complete-registration', {
 						accountToken: accountResult.token,
@@ -147,7 +158,7 @@ const Step3 = ({ prevStep, finish }) => {
 					})
 				).data;
 				console.log('************************************************');
-				console.log("USER:", user);
+				console.log('USER:', user);
 				console.log('************************************************');
 				setLoading(false);
 				finish(true);
@@ -247,9 +258,9 @@ const Step3 = ({ prevStep, finish }) => {
 						withAsterisk
 						{...form.getInputProps('shipping_speed')}
 					>
-						<Radio value="standard" label='3-8 days. Cards left at address' />
-						<Radio value="express" label='2-3 days. Cards left at address' />
-						<Radio value="priority" label='2-3 days. Signature required at delivery' />
+						<Radio value='standard' label='3-8 days. Cards left at address' />
+						<Radio value='express' label='2-3 days. Cards left at address' />
+						<Radio value='priority' label='2-3 days. Signature required at delivery' />
 					</Radio.Group>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
