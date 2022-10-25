@@ -11,7 +11,7 @@
 		"test": "nx test",
 		"nx:dashboard:lint": "nx lint trok-dashboard",
 		"nx:dashboard:serve": "doppler run -p admin-dashboard -c loc -- nx serve trok-dashboard",
-		"nx:dashboard:build": "nx build trok-dashboard",
+		"nx:dashboard:build": "nx build trok-dashboard --no-cloud",
 		"nx:dashboard:serve:local": "doppler run -p admin-dashboard -c loc -- nx serve trok-dashboard --prod --port 4201",
 		"nx:dashboard:serve:prod": "nx serve trok-dashboard --prod --hostname 0.0.0.0",
 		"nx:dashboard:test:local": "doppler run -p admin-dashboard -c loc -- nx build trok-dashboard && doppler run -p admin-dashboard -c loc -- nx serve trok-dashboard --prod --port 4201",
