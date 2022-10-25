@@ -16,7 +16,7 @@ import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 
 const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
-	const [status, toggle] = useToggle(['inactive', 'active'])
+	const [status, toggle] = useToggle(['active', 'inactive'])
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();

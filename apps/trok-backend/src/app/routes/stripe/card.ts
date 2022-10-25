@@ -2,7 +2,7 @@ import { t } from '../../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
-import { CARD_SHIPPING_STATUS, CARD_STATUS } from '@trok-app/shared-utils';
+import { CARD_SHIPPING_STATUS } from '@trok-app/shared-utils';
 
 const cardRouter = t.router({
 	getCards: t.procedure
