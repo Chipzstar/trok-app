@@ -2,6 +2,7 @@ import { t } from '../../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
+import { CARD_SHIPPING_STATUS, CARD_STATUS } from '@trok-app/shared-utils';
 
 const cardRouter = t.router({
 	getCards: t.procedure
@@ -53,7 +54,7 @@ const cardRouter = t.router({
 				if (user) {
 					let card = await stripe.issuing.cards.create(
 						{
-							['type']: "physical",
+							['type']: 'physical',
 							cardholder: input.cardholder_id,
 							status: 'inactive',
 							currency: input.currency,
@@ -86,7 +87,7 @@ const cardRouter = t.router({
 						{ expand: ['number', 'cvc'] },
 						{ stripeAccount: user.stripe.accountId }
 					);
-					console.log("CARD", card)
+					console.log('CARD', card);
 					console.log('-----------------------------------------------');
 					const driver = await ctx.prisma.driver.findUnique({
 						where: {
@@ -107,9 +108,13 @@ const cardRouter = t.router({
 							},
 							{ stripeAccount: user.stripe.accountId }
 						);
-						await stripe.paymentMethods.attach(paymentMethod.id, {
-							customer: driver.customer_id
-						}, { stripeAccount: user.stripe.accountId });
+						await stripe.paymentMethods.attach(
+							paymentMethod.id,
+							{
+								customer: driver.customer_id
+							},
+							{ stripeAccount: user.stripe.accountId }
+						);
 						return await ctx.prisma.card.create({
 							data: {
 								userId: input.user_id,
@@ -119,26 +124,142 @@ const cardRouter = t.router({
 								driverId: input.driver_id,
 								cardholder_name: `${driver.firstname} ${driver.lastname}`,
 								currency: input.currency,
-								card_type: "physical",
+								card_type: 'physical',
 								brand: 'visa',
 								last4: card.last4,
 								exp_month: card.exp_month,
 								exp_year: card.exp_year,
 								cvc: card.cvc,
-								spending_limits: input?.spending_limits ? [{
-									amount: input.spending_limits.amount,
-									interval: input.spending_limits.interval
-								}] : [],
-								status: 'inactive'
+								spending_limits: input?.spending_limits
+									? [
+											{
+												amount: input.spending_limits.amount,
+												interval: input.spending_limits.interval
+											}
+									  ]
+									: [],
+								status: 'inactive',
+								shipping_status: card?.shipping?.status ?? ''
 							}
 						});
 					} else {
-						throw new TRPCError({ code: 'BAD_REQUEST', message: `No Driver found with ID ${input.driver_id}` });
+						throw new TRPCError({
+							code: 'BAD_REQUEST',
+							message: `No Driver found with ID ${input.driver_id}`
+						});
 					}
 				} else {
 					// @ts-ignore
 					throw new TRPCError({ code: 'BAD_REQUEST', message: 'User could not be found!' });
 				}
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	shipCard: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				stripeId: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const card = await ctx.prisma.card.findUnique({
+					where: {
+						id: input.id
+					}
+				});
+				if (card) {
+					const stripe_card = await stripe.testHelpers.issuing.cards.shipCard(card.card_id, {
+						stripeAccount: input.stripeId
+					});
+					console.log(stripe_card);
+					return await ctx.prisma.card.update({
+						where: {
+							id: input.id
+						},
+						data: {
+							shipping_status: CARD_SHIPPING_STATUS.SHIPPED
+						}
+					});
+				} else {
+					throw new TRPCError({ code: 'BAD_REQUEST', message: 'Card could not be found!' });
+				}
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	deliverCard: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				stripeId: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const card = await ctx.prisma.card.findFirstOrThrow({
+					where: {
+						id: input.id
+					}
+				});
+				console.log('-----------------------------------------------');
+				console.log(card);
+				console.log('-----------------------------------------------');
+				const stripe_card = await stripe.testHelpers.issuing.cards.deliverCard(card.card_id, {
+					stripeAccount: input.stripeId
+				});
+				console.log(stripe_card);
+				return await ctx.prisma.card.update({
+					where: {
+						id: input.id
+					},
+					data: {
+						shipping_status: CARD_SHIPPING_STATUS.DELIVERED
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	toggleCardStatus: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				stripeId: z.string(),
+				status: z.enum(['active', 'inactive'])
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const card = await ctx.prisma.card.findFirstOrThrow({
+					where: {
+						id: input.id
+					}
+				});
+				const stripe_card = await stripe.issuing.cards.update(
+					card.card_id,
+					{
+						status: input.status
+					},
+					{ stripeAccount: input.stripeId }
+				);
+				console.log(stripe_card);
+				return await ctx.prisma.card.update({
+					where: {
+						id: input.id
+					},
+					data: {
+						status: input.status
+					}
+				});
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore

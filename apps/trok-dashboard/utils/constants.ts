@@ -138,7 +138,8 @@ export const SAMPLE_CARDS = [
 			amount: 468000,
 			interval: "weekly"
 		}],
-		current_balance: 4679995
+		current_balance: 4679995,
+		shipping_status: "pending"
 	},
 	{
 		id: 'card_0002',
@@ -150,7 +151,8 @@ export const SAMPLE_CARDS = [
 			amount: 468000,
 			interval: "weekly"
 		}],
-		current_balance: 4679995
+		current_balance: 4679995,
+		shipping_status: "pending"
 	},
 	{
 		id: 'card_0003',
@@ -162,7 +164,8 @@ export const SAMPLE_CARDS = [
 			amount: 468000,
 			interval: "weekly"
 		}],
-		current_balance: 4679995
+		current_balance: 4679995,
+		shipping_status: "pending"
 	},
 	{
 		id: 'card_0004',
@@ -174,7 +177,8 @@ export const SAMPLE_CARDS = [
 			amount: 468000,
 			interval: "weekly"
 		}],
-		current_balance: 4679995
+		current_balance: 4679995,
+		shipping_status: "pending"
 	},
 	{
 		id: 'card_0005',
@@ -186,7 +190,8 @@ export const SAMPLE_CARDS = [
 			amount: 468000,
 			interval: "weekly"
 		}],
-		current_balance: 4679995
+		current_balance: 4679995,
+		shipping_status: "pending"
 	}
 ]
 

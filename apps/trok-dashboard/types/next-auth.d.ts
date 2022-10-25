@@ -6,6 +6,7 @@ declare module "next-auth" {
 	 */
 	interface Session {
 		id: string;
+		stripeId: string;
 		user: {
 			/** The user's postal address. */
 			name: string;

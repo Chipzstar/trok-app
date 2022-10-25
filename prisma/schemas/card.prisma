@@ -20,4 +20,5 @@ model Card {
     exp_year Int
     cvc String?
     spending_limits SpendingLimit[]
+    shipping_status String
 }

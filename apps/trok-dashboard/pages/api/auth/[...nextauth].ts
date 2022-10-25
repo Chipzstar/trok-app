@@ -59,6 +59,7 @@ const callbacks = {
 	},
 	session: async ({ session, token }) => {
 		session.id = token.id;
+		session.stripeId = token.user.accountId;
 		session.user.name = token.user.firstname + ' ' + token.user.lastname;
 		return session;
 	}

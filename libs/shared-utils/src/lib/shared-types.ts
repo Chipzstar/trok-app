@@ -12,6 +12,14 @@ export enum CARD_TYPES {
 	VIRTUAL="virtual"
 }
 
+export enum CARD_SHIPPING_STATUS {
+	PENDING = 'pending',
+	SHIPPED= 'shipped',
+	DELIVERED= 'delivered',
+	RETURNED= 'returned',
+	FAILURE= 'failure',
+}
+
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
 
 export type SpendingLimitInterval = typeof intervals[number];
