@@ -51,15 +51,6 @@ const Transactions = ({ testMode, sessionID }) => {
 						<td colSpan={1}>
 							<span>£{element.net_discount / 100}</span>
 						</td>
-						<td colSpan={1}>
-							<span>{element.type}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.litres}</span>
-						</td>
-						<td colSpan={1}>
-							<span>£{element.price_per_litre / 100}p</span>
-						</td>
 					</tr>
 				);
 		  })
@@ -91,15 +82,6 @@ const Transactions = ({ testMode, sessionID }) => {
 						</td>
 						<td colSpan={1}>
 							<span>£{t.transaction_amount / 100}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{'Unleaded'}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{10000}</span>
-						</td>
-						<td colSpan={1}>
-							<span>£{173 / 100}p</span>
 						</td>
 					</tr>
 				);

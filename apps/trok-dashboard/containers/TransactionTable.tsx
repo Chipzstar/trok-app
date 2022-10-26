@@ -21,10 +21,7 @@ const TransactionTable = ({rows, spacingY="md", withPagination=true}) => {
 					key: null
 				},
 				{ label: 'Amount', key: null },
-				{ label: 'Net of Discount', key: null },
-				{ label: 'Type', key: null },
-				{ label: 'Litres', key: null },
-				{ label: 'Price Per Litre', key: null }
+				{ label: 'Net of Discount', key: null }
 			]}
 			withPagination={withPagination}
 			emptyContent={

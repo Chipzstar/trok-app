@@ -23,6 +23,25 @@ const transactionsRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
+	getCardTransactions: t.procedure
+		.input(
+			z.object({
+				cardId: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.transaction.findMany({
+					where: {
+						cardId: input.cardId
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
 	createTestPayment: t.procedure
 		.input(
 			z.object({

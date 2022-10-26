@@ -16,19 +16,20 @@ import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 
 const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
+	const router = useRouter();
+	const { cardID } = router.query;
 	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
 	const cardsMutation = trpc.toggleCardStatus.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const topupMutation = trpc.topUp.useMutation();
-	const router = useRouter();
-	const { cardID } = router.query;
+	const transactionsQuery = trpc.getCardTransactions.useQuery({ cardId: String(cardID) });
 
 	const card = useMemo(
 		() => (testMode ? SAMPLE_CARDS.find(c => c.id === cardID) : cardsQuery?.data?.find(c => c.id === cardID)),
@@ -45,49 +46,67 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
-				return (
-					<tr
-						key={index}
-						style={{
-							border: 'none'
-						}}
-					>
-						<td colSpan={1}>
-							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.merchant}</span>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>{element.location}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{element.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<Text weight={500}>{element.driver}</Text>
-						</td>
-						<td colSpan={1}>
-							<span className='text-base font-normal'>£{element.amount / 100}</span>
-						</td>
-						<td colSpan={1}>
-							<span>£{element.net_discount / 100}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.type}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.litres}</span>
-						</td>
-						<td colSpan={1}>
-							<span>£{element.price_per_litre / 100}p</span>
-						</td>
-					</tr>
-				);
-		  })
-		: [];
+			return (
+				<tr
+					key={index}
+					style={{
+						border: 'none'
+					}}
+				>
+					<td colSpan={1}>
+						<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+					</td>
+					<td colSpan={1}>
+						<span>{element.merchant}</span>
+					</td>
+					<td colSpan={1}>
+						<div className='flex flex-shrink flex-col'>
+							<span>{element.location}</span>
+						</div>
+					</td>
+					<td colSpan={1}>
+						<span>{element.last4}</span>
+					</td>
+					<td colSpan={1}>
+						<Text weight={500}>{element.driver}</Text>
+					</td>
+					<td colSpan={1}>
+						<span className='text-base font-normal'>£{element.amount / 100}</span>
+					</td>
+				</tr>
+			);
+		})
+		: !transactionsQuery.isLoading ? transactionsQuery?.data.slice(0, 3).map((t, index) => {
+			return (
+				<tr key={index}>
+					<td colSpan={1}>
+						<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+					</td>
+					<td colSpan={1}>
+						<span>{t.merchant_data.name}</span>
+					</td>
+					<td colSpan={1}>
+						<div className='flex flex-shrink flex-col'>
+								<span>
+									{t.merchant_data.city} {t.merchant_data.postcode}
+								</span>
+						</div>
+					</td>
+					<td colSpan={1}>
+						<span>{t.last4}</span>
+					</td>
+					<td colSpan={1}>
+						<Text weight={500}>{t.cardholder_name}</Text>
+					</td>
+					<td colSpan={1}>
+						<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
+					</td>
+					<td colSpan={1}>
+						<span>£{t.transaction_amount / 100}</span>
+					</td>
+				</tr>
+			);
+		}) : [];
 
 	const form = useForm({
 		initialValues: {
@@ -226,7 +245,8 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 										amount: 100,
 										stripeId: stripeAccountId
 									});
-									notifySuccess('topup-success', 'Successfully topped Up £100', <IconCheck size={20} />);
+									notifySuccess('topup-success', 'Successfully topped Up £100', <IconCheck
+										size={20} />);
 								} catch (err) {
 									console.error(err);
 									notifyError('topup-error', err.message, <IconX size={20} />);
