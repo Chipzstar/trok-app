@@ -47,10 +47,10 @@ type SpendingLimit {
 type MerchantData {
     category String
     category_code String
-    city String
-    country String
-    name String
-    postcode String
+    name String?
     network_id String
-    region String
+    city String?
+    postcode String?
+    region String?
+    country String?
 }

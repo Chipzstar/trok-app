@@ -8,55 +8,104 @@ import { useForm } from '@mantine/form';
 import { uniqueArray } from '../utils/functions';
 import { IconCalendar, IconFilter } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
+import { trpc } from '../utils/clients';
 
 interface ExportForm {
-	file_type: 'CSV' | 'PDF',
-	transaction_range: DateRangePickerValue,
-	locations: string[],
-	cards: string[],
-	drivers: string[]
+	file_type: 'CSV' | 'PDF';
+	transaction_range: DateRangePickerValue;
+	locations: string[];
+	cards: string[];
+	drivers: string[];
 }
 
-const Transactions = ({testMode}) => {
+const Transactions = ({ testMode, sessionID }) => {
 	const [opened, setOpened] = useState(false);
-	const rows = testMode ? SAMPLE_TRANSACTIONS.map((element, index) => {
-		return (
-			<tr key={index}>
-				<td colSpan={1}>
-					<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.merchant}</span>
-				</td>
-				<td colSpan={1}>
-					<div className='flex flex-shrink flex-col'>
-						<span>{element.location}</span>
-					</div>
-				</td>
-				<td colSpan={1}>
-					<span>{element.last4}</span>
-				</td>
-				<td colSpan={1}>
-					<Text weight={500}>{element.driver}</Text>
-				</td>
-				<td colSpan={1}>
-					<span className='text-base font-normal'>£{element.amount / 100}</span>
-				</td>
-				<td colSpan={1}>
-					<span>£{element.net_discount / 100}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.type}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.litres}</span>
-				</td>
-				<td colSpan={1}>
-					<span>£{element.price_per_litre / 100}p</span>
-				</td>
-			</tr>
-		);
-	}) : [];
+	const query = trpc.getTransactions.useQuery({ userId: sessionID });
+
+	const rows = testMode
+		? SAMPLE_TRANSACTIONS.map((element, index) => {
+				return (
+					<tr key={index}>
+						<td colSpan={1}>
+							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.merchant}</span>
+						</td>
+						<td colSpan={1}>
+							<div className='flex flex-shrink flex-col'>
+								<span>{element.location}</span>
+							</div>
+						</td>
+						<td colSpan={1}>
+							<span>{element.last4}</span>
+						</td>
+						<td colSpan={1}>
+							<Text weight={500}>{element.driver}</Text>
+						</td>
+						<td colSpan={1}>
+							<span className='text-base font-normal'>£{element.amount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{element.net_discount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.type}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.litres}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{element.price_per_litre / 100}p</span>
+						</td>
+					</tr>
+				);
+		  })
+		: !query.isLoading
+		? query?.data.map((t, index) => {
+				return (
+					<tr key={index}>
+						<td colSpan={1}>
+							<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{t.merchant_data.name}</span>
+						</td>
+						<td colSpan={1}>
+							<div className='flex flex-shrink flex-col'>
+								<span>
+									{t.merchant_data.city} {t.merchant_data.postcode}
+								</span>
+							</div>
+						</td>
+						<td colSpan={1}>
+							<span>{t.last4}</span>
+						</td>
+						<td colSpan={1}>
+							<Text weight={500}>{t.cardholder_name}</Text>
+						</td>
+						<td colSpan={1}>
+							<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{t.transaction_amount / 100}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{'Unleaded'}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{10000}</span>
+						</td>
+						<td colSpan={1}>
+							<span>£{173 / 100}p</span>
+						</td>
+					</tr>
+				);
+		  })
+		: [];
+
 	const form = useForm<ExportForm>({
 		initialValues: {
 			file_type: 'CSV',
@@ -65,12 +114,12 @@ const Transactions = ({testMode}) => {
 			cards: [],
 			drivers: []
 		}
-	})
+	});
 
 	const handleSubmit = useCallback(values => {
-		alert(JSON.stringify(values))
-		console.log(values)
-	}, [])
+		alert(JSON.stringify(values));
+		console.log(values);
+	}, []);
 
 	return (
 		<Page.Container
@@ -100,8 +149,8 @@ const Transactions = ({testMode}) => {
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
 						<Select required label='File Type' data={['PDF', 'CSV']} {...form.getInputProps('type')} />
 						<Group spacing={5}>
-							<IconFilter stroke={1.5}/>
-							<span className="font-medium">Filter</span>
+							<IconFilter stroke={1.5} />
+							<span className='font-medium'>Filter</span>
 						</Group>
 						<DateRangePicker
 							icon={<IconCalendar size={18} />}
@@ -113,14 +162,17 @@ const Transactions = ({testMode}) => {
 							inputFormat='DD/MM/YYYY'
 							labelSeparator=' → '
 							labelFormat='MMM YYYY'
-							onChange={(value) => form.setFieldValue("transaction_range", value)}
+							onChange={value => form.setFieldValue('transaction_range', value)}
 						/>
 						<MultiSelect
 							label='Locations'
-							data={uniqueArray(SAMPLE_TRANSACTIONS.map(value => ({
-								label: value.location,
-								value: value.id
-							})), "location")}
+							data={uniqueArray(
+								SAMPLE_TRANSACTIONS.map(value => ({
+									label: value.location,
+									value: value.id
+								})),
+								'location'
+							)}
 							{...form.getInputProps('locations')}
 						/>
 						<MultiSelect
@@ -139,8 +191,8 @@ const Transactions = ({testMode}) => {
 							}))}
 							{...form.getInputProps('drivers')}
 						/>
-						<Group py="xl" position="right">
-							<Button type="submit">
+						<Group py='xl' position='right'>
+							<Button type='submit'>
 								<Text weight={500}>Export</Text>
 							</Button>
 						</Group>
@@ -148,32 +200,46 @@ const Transactions = ({testMode}) => {
 				</Stack>
 			</Drawer>
 			<Page.Body>
-				<Tabs defaultValue="all" classNames={{
-					root: 'flex flex-col grow',
-					tabsList: '',
-					tab: 'mx-4'
-				}}>
+				<Tabs
+					defaultValue='all'
+					classNames={{
+						root: 'flex flex-col grow',
+						tabsList: '',
+						tab: 'mx-4'
+					}}
+				>
 					<Tabs.List>
-						<Tabs.Tab value="all">All</Tabs.Tab>
-						<Tabs.Tab value="approved" >Approved</Tabs.Tab>
-						<Tabs.Tab value="declined">Declined</Tabs.Tab>
+						<Tabs.Tab value='all'>All</Tabs.Tab>
+						<Tabs.Tab value='approved'>Approved</Tabs.Tab>
+						<Tabs.Tab value='declined'>Declined</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value="all" className="h-full">
-						<TransactionTable rows={rows}/>
+					<Tabs.Panel value='all' className='h-full'>
+						<TransactionTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value="approved" className="h-full">
-						<TransactionTable rows={rows}/>
+					<Tabs.Panel value='approved' className='h-full'>
+						<TransactionTable rows={rows} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value="declined" className="h-full">
-						<TransactionTable rows={rows}/>
+					<Tabs.Panel value='declined' className='h-full'>
+						<TransactionTable rows={rows} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>
 		</Page.Container>
 	);
+};
+
+export const getServerSideProps = async ({ req, res }) => {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	return {
+		props: {
+			sessionID: session.id,
+			stripeAccountId: session?.stripeId
+		}
+	};
 };
 
 export default Transactions;

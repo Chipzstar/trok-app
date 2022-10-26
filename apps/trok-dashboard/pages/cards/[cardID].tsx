@@ -16,7 +16,7 @@ import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 
 const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
-	const [status, toggle] = useToggle(['active', 'inactive'])
+	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
@@ -26,6 +26,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
+	const topupMutation = trpc.topUp.useMutation();
 	const router = useRouter();
 	const { cardID } = router.query;
 
@@ -39,8 +40,8 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 		uppercase: true,
 		'text-danger': card?.shipping_status === CARD_SHIPPING_STATUS.PENDING || card?.status === CARD_STATUS.INACTIVE,
 		'text-warning': card?.shipping_status === CARD_SHIPPING_STATUS.SHIPPED,
-		'text-success': card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED || card?.status === CARD_STATUS.ACTIVE,
-	})
+		'text-success': card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED || card?.status === CARD_STATUS.ACTIVE
+	});
 
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
@@ -103,30 +104,27 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 	}, []);
 
 	const toggleCardStatus = useCallback(
-		async (status) => {
-			setLoading(true)
+		async status => {
+			setLoading(true);
 			try {
-			    await cardsMutation.mutateAsync({
+				await cardsMutation.mutateAsync({
 					id: String(cardID),
 					stripeId: stripeAccountId,
 					status
-				})
-				setLoading(false)
-				toggle()
+				});
+				setLoading(false);
+				toggle();
 				notifySuccess('activate-card-success', `Card ${card?.last4} is now ${status}`, <IconCheck size={20} />);
 			} catch (err) {
-				setLoading(false)
-			    console.error(err)
-				notifyError('activate-card-failed', err.message, <IconX size={20} />)
+				setLoading(false);
+				console.error(err);
+				notifyError('activate-card-failed', err.message, <IconX size={20} />);
 			}
 		},
 		[card, stripeAccountId]
 	);
 
-	useEffect(() => {
-		console.log(card)
-		form.reset()
-	}, [card]);
+	useEffect(() => form.reset(), [card]);
 
 	return (
 		<Page.Container
@@ -205,23 +203,45 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 				</Stack>
 			</Drawer>
 			<Page.Body extraClassNames='px-10'>
-				<Group className='pb-6' position="apart">
+				<Group className='pb-6' position='apart'>
 					<Group>
 						<Title order={1} weight={500}>
 							Card **** {card?.last4}
 						</Title>
-						<span
-							className={shipping_status_class}
-						>
-							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED ? card?.status : card?.shipping_status}
+						<span className={shipping_status_class}>
+							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED
+								? card?.status
+								: card?.shipping_status}
 						</span>
 					</Group>
-					<CardTestButton
-						stripeId={stripeAccountId}
-						id={cardID}
-						cardShippingStatus={card?.shipping_status}
-						cardStatus={card?.status}
-					/>
+					<Group>
+						<Button
+							size='md'
+							variant='light'
+							color='green'
+							onClick={async () => {
+								try {
+									await topupMutation.mutateAsync({
+										id: String(cardID),
+										amount: 100,
+										stripeId: stripeAccountId
+									});
+									notifySuccess('topup-success', 'Successfully topped Up £100', <IconCheck size={20} />);
+								} catch (err) {
+									console.error(err);
+									notifyError('topup-error', err.message, <IconX size={20} />);
+								}
+							}}
+						>
+							Top Up
+						</Button>
+						<CardTestButton
+							stripeId={stripeAccountId}
+							id={cardID}
+							cardShippingStatus={card?.shipping_status}
+							cardStatus={card?.status}
+						/>
+					</Group>
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
@@ -261,10 +281,14 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 								<Text weight={600}>Driver</Text>
 								<span>{card?.cardholder_name}</span>
 							</div>
-							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && <div className='flex-end block'>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
-								<Button size='md' onClick={() => toggleCardStatus(status)}>{card?.status === CARD_STATUS.INACTIVE ? "Activate" : "Disable"} Card</Button>
-							</div>}
+							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
+								<div className='flex-end block'>
+									<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+									<Button size='md' onClick={() => toggleCardStatus(status)}>
+										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
+									</Button>
+								</div>
+							)}
 						</Stack>
 					</Card>
 				</div>

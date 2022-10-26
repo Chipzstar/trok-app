@@ -46,7 +46,7 @@ const transactionsRouter = t.router({
 						}
 					}
 				});
-				console.log(card)
+				console.log(card);
 				console.log('-----------------------------------------------');
 				// retrieve customer's payment Method
 				const paymentMethods = await stripe.customers.listPaymentMethods(
@@ -58,20 +58,25 @@ const transactionsRouter = t.router({
 				console.log(paymentMethods);
 				// create uncaptured payment intent
 				if (paymentMethods.data) {
-					let paymentIntent = await stripe.paymentIntents.create({
-						amount: 1000,
-						currency: 'gbp',
-						capture_method: 'manual',
-						confirm: true,
-						customer: card.driver.customer_id,
-						description: '',
-						// on_behalf_of:"",
-						payment_method: paymentMethods.data[0].id,
-						setup_future_usage: 'off_session'
-					}, { stripeAccount: input.stripeId });
+					let paymentIntent = await stripe.paymentIntents.create(
+						{
+							amount: 1000,
+							currency: 'gbp',
+							capture_method: 'manual',
+							confirm: true,
+							customer: card.driver.customer_id,
+							description: '',
+							// on_behalf_of:"",
+							payment_method: paymentMethods.data[0].id,
+							setup_future_usage: 'off_session'
+						},
+						{ stripeAccount: input.stripeId }
+					);
 					console.log(paymentIntent);
 					// capture the payment intent
-					paymentIntent = await stripe.paymentIntents.capture(paymentIntent.id, { stripeAccount: input.stripeId });
+					paymentIntent = await stripe.paymentIntents.capture(paymentIntent.id, {
+						stripeAccount: input.stripeId
+					});
 					console.log(paymentIntent);
 					return paymentIntent;
 				}

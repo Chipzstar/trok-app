@@ -5,6 +5,7 @@ import { handleAuthorizationRequest } from '../../helpers/stripe';
 import Stripe from 'stripe';
 import 'express-async-errors';
 import { NextFunction } from 'express';
+import prisma from '../../db';
 
 const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET);
 const router = express.Router();
@@ -36,6 +37,63 @@ router.post(
 				const auth = event.data.object;
 				await handleAuthorizationRequest(auth);
 				break;
+			case 'issuing_transaction.created':
+				const obj = event.data.object;
+				const t = obj as Stripe.Issuing.Transaction;
+				// find the user the transaction belongs to
+				// find the driver the transaction belongs to
+				// find the card the transaction belongs to
+				const card = await prisma.card.findUniqueOrThrow({
+					where: {
+						card_id: <string>t.card
+					},
+					select: {
+						id: true,
+						last4: true,
+						cardholder_id: true,
+						driver: {
+							select: {
+								id: true,
+								full_name: true
+							}
+						},
+						user: {
+							select: {
+								id: true
+							}
+						}
+					}
+				});
+				const transaction = await prisma.transaction.create({
+					data: {
+						cardId: card.id,
+						cardholder_id: card.cardholder_id,
+						cardholder_name: card.driver.full_name,
+						last4: card.last4,
+						userId: card.user.id,
+						driverId: card.driver.id,
+						transaction_type: t.type,
+						transaction_amount: t.amount,
+						merchant_data: {
+							name: t.merchant_data.name ?? '',
+							category: t.merchant_data.category,
+							category_code: t.merchant_data.category_code,
+							network_id: t.merchant_data.network_id,
+							city: t.merchant_data.city ?? '',
+							region: t.merchant_data.state ?? '',
+							postcode: t.merchant_data.postal_code ?? '',
+							country: t.merchant_data.country ?? ''
+						},
+						merchant_amount: t.merchant_amount,
+						authorization_id: <string>t.authorization,
+						transaction_id: t.id,
+						currency: t.currency
+					}
+				});
+				console.log('************************************************');
+				console.log(transaction)
+				console.log('************************************************');
+				break;
 			default:
 				break;
 		}
@@ -43,3 +101,5 @@ router.post(
 		res.json({ received: true });
 	}
 );
+
+export default router;

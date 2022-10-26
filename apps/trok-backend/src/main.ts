@@ -7,6 +7,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
 import authRoutes from './app/routes/auth';
+import stripeRoutes from './app/routes/stripe';
 import { appRouter } from './app/routes';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMagicLink } from './app/helpers/email';
@@ -61,7 +62,6 @@ const runApp = async () => {
 	app.get('/server', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
 	});
-
 	// Health check route for hosting platform
 	app.use('/ping', jsonParser, (req, res) => {
 		const message = `Pinged at ${new Date().toUTCString()}`;
@@ -96,9 +96,13 @@ const runApp = async () => {
 		}
 	});
 	/**
+	 *  STRIPE ROUTES
+	 */
+	app.use('/server/stripe', stripeRoutes)
+	/**
 	 * TEST ROUTES
 	 */
-	app.get('/test/user-agent', async (req, res, next) => {
+	app.get('/test/user-agent', jsonParser, async (req, res, next) => {
 		try {
 			console.log(req.ip)
 			console.log(req.get('User-Agent'))
@@ -108,7 +112,7 @@ const runApp = async () => {
 			next(err);
 		}
 	})
-	app.post('/test/email', async (req, res, next) => {
+	app.post('/test/email', jsonParser,async (req, res, next) => {
 		try {
 			const { email, name } = req.body;
 			const response = await sendMagicLink(email, name, uuidv4());

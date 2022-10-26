@@ -18,11 +18,12 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
+
 	const paymentMutation = trpc.createTestPayment.useMutation({
 		onSuccess: function (input) {
 			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
-	})
+	});
 
 	const handleOnClick = useCallback(async () => {
 		if (cardShippingStatus === CARD_SHIPPING_STATUS.PENDING) {
