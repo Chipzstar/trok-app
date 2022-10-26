@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CryptoJS from 'crypto-js';
 import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
@@ -6,11 +6,13 @@ import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
 import { SignupSchema } from '../schemas';
 import { PATHS, STORAGE_KEYS } from '../utils/constants';
-import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Checkbox, Group, Loader, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { apiClient } from '../utils/clients';
-import { getE164Number } from '@trok-app/shared-utils';
+import { getE164Number, notifyError } from '@trok-app/shared-utils';
+import { IconX } from '@tabler/icons';
 
 export function Signup({ secret }) {
+	const [loading, setLoading] = useState(false);
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [userForm, setUserForm] = useLocalStorage({
 		key: STORAGE_KEYS.SIGNUP_FORM,
@@ -27,16 +29,26 @@ export function Signup({ secret }) {
 		validate: zodResolver(SignupSchema)
 	});
 
-	const handleSubmit = useCallback(async values => {
-		values.full_name = values.firstname + ' ' + values.lastname;
-		values.phone = getE164Number(values.phone)
-		setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
-		const result = (await apiClient.post('/server/auth/signup', values)).data;
-		console.log('-----------------------------------------------');
-		console.log(result);
-		console.log('-----------------------------------------------');
-		router.push(PATHS.ONBOARDING);
-	}, [router, secret, setNewAccount]);
+	const handleSubmit = useCallback(
+		async values => {
+			setLoading(true);
+			values.full_name = values.firstname + ' ' + values.lastname;
+			values.phone = getE164Number(values.phone);
+			setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
+			try {
+				const result = (await apiClient.post('/server/auth/signup', values)).data;
+				console.log('-----------------------------------------------');
+				console.log(result);
+				console.log('-----------------------------------------------');
+				router.push(PATHS.ONBOARDING);
+				setLoading(false)
+			} catch (err) {
+				setLoading(false)
+				notifyError('signup-failure', err.message, <IconX size={20} />)
+			}
+		},
+		[router, secret, setNewAccount]
+	);
 
 	useEffect(() => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.SIGNUP_FORM);
@@ -123,6 +135,7 @@ export function Signup({ secret }) {
 								width: 200
 							}}
 						>
+							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 							<Text weight={500}>Sign up</Text>
 						</Button>
 					</Group>

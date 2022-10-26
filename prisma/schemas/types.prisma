@@ -43,3 +43,14 @@ type SpendingLimit {
     amount Int
     interval SpendingLimitInterval
 }
+
+type MerchantData {
+    category String
+    category_code String
+    city String
+    country String
+    name String
+    postcode String
+    network_id String
+    region String
+}

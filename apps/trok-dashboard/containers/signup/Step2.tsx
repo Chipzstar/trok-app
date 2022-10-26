@@ -68,8 +68,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				const message = err.error?.message ?? err.message
-				notifyError('onboarding-step1-failure', message, <IconX size={20} />);
+				notifyError('onboarding-step1-failure', err.message, <IconX size={20} />);
 			}
 		},
 		[account, business, files, nextStep, setAccount]

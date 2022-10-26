@@ -13,14 +13,11 @@ const cardRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				console.log(input);
-				const cards = await ctx.prisma.card.findMany({
+				return await ctx.prisma.card.findMany({
 					where: {
 						userId: input.userId
 					}
 				});
-				console.log(cards);
-				return cards;
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
@@ -96,7 +93,7 @@ const cardRouter = t.router({
 					});
 					// attach card payment method to customer
 					if (driver) {
-						let paymentMethod = await stripe.paymentMethods.create(
+						const paymentMethod = await stripe.paymentMethods.create(
 							{
 								['type']: 'card',
 								card: {
@@ -234,7 +231,7 @@ const cardRouter = t.router({
 			z.object({
 				id: z.string(),
 				stripeId: z.string(),
-				status: z.enum(['active', 'inactive'])
+				status: z.enum(['active', 'inactive', 'canceled'])
 			})
 		)
 		.mutation(async ({ input, ctx }) => {

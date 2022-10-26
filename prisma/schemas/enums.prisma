@@ -4,6 +4,11 @@ enum ShippingSpeed {
     priority
 }
 
+enum TransactionType {
+    capture
+    refund
+}
+
 enum SpendingLimitInterval {
     per_authorization
     daily

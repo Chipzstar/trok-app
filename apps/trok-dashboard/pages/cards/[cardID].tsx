@@ -37,9 +37,9 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 	const shipping_status_class = classNames({
 		'font-medium': true,
 		uppercase: true,
-		'text-danger': card?.shipping_status === CARD_SHIPPING_STATUS.PENDING,
+		'text-danger': card?.shipping_status === CARD_SHIPPING_STATUS.PENDING || card?.status === CARD_STATUS.INACTIVE,
 		'text-warning': card?.shipping_status === CARD_SHIPPING_STATUS.SHIPPED,
-		'text-success': card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED,
+		'text-success': card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED || card?.status === CARD_STATUS.ACTIVE,
 	})
 
 	const rows = testMode
@@ -107,7 +107,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 			setLoading(true)
 			try {
 			    await cardsMutation.mutateAsync({
-					id: cardID as string,
+					id: String(cardID),
 					stripeId: stripeAccountId,
 					status
 				})
@@ -120,7 +120,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 				notifyError('activate-card-failed', err.message, <IconX size={20} />)
 			}
 		},
-		[card, status, stripeAccountId]
+		[card, stripeAccountId]
 	);
 
 	useEffect(() => {
@@ -213,10 +213,15 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 						<span
 							className={shipping_status_class}
 						>
-							{card?.shipping_status}
+							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED ? card?.status : card?.shipping_status}
 						</span>
 					</Group>
-					<CardTestButton stripeId={stripeAccountId} id={cardID} cardShippingStatus={card?.shipping_status} />
+					<CardTestButton
+						stripeId={stripeAccountId}
+						id={cardID}
+						cardShippingStatus={card?.shipping_status}
+						cardStatus={card?.status}
+					/>
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>

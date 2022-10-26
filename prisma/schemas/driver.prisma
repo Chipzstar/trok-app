@@ -16,4 +16,5 @@ model Driver {
     current_spend Int @default(0)
     address Address
     cards Card[]
+    transactions Transaction[]
 }

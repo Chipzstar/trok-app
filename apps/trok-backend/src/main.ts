@@ -11,6 +11,9 @@ import { appRouter } from './app/routes';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMagicLink } from './app/helpers/email';
 import { storage } from './app/utils/clients';
+import 'express-async-errors';
+import './app/process';
+import { Response, Request, NextFunction } from 'express';
 
 const runApp = async () => {
 	const app = express();
@@ -19,7 +22,7 @@ const runApp = async () => {
 	// using protecting against HTTP Parameter Pollution attacks
 	app.use(hpp());
 	// using bodyParser to parse JSON bodies into JS objects
-	app.use(bodyParser.json());
+	const jsonParser = bodyParser.json()
 	app.use(bodyParser.urlencoded({ extended: true }));
 	// adding morgan to log HTTP requests
 	app.use(logger('dev'));
@@ -31,6 +34,7 @@ const runApp = async () => {
 	// TRPC ROUTES
 	app.use(
 		trpcApiEndpoint,
+		jsonParser,
 		trpcExpress.createExpressMiddleware({
 			router: appRouter,
 			createContext
@@ -42,6 +46,7 @@ const runApp = async () => {
 		await expressHandler({
 			trpcApiEndpoint,
 			playgroundEndpoint,
+			jsonParser,
 			router: appRouter,
 			// request: {
 			// 	superjson: true
@@ -58,7 +63,7 @@ const runApp = async () => {
 	});
 
 	// Health check route for hosting platform
-	app.use('/ping', (req, res) => {
+	app.use('/ping', jsonParser, (req, res) => {
 		const message = `Pinged at ${new Date().toUTCString()}`;
 		console.log(`${req.ip} - ${message}`);
 		res.status(200).json({
@@ -68,7 +73,7 @@ const runApp = async () => {
 	/**
 	 *	AUTH ROUTES
 	 */
-	app.use('/server/auth', authRoutes);
+	app.use('/server/auth', jsonParser, authRoutes);
 	app.get('/server/gcp/upload', async (req, res, next) => {
 		try {
 			const { filename, crn, type } = req.query;
@@ -117,7 +122,9 @@ const runApp = async () => {
 	/**
 	 * ERROR HANDLERS
 	 */
-	app.use(errorHandler);
+	app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+		errorHandler.handleError(err, res);
+	});
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
