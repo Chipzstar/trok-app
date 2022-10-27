@@ -102,7 +102,7 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 			<Button
 				variant='light'
 				size='md'
-				onClick={() => cardStatus == CARD_STATUS.ACTIVE ? setOpened(true) : handleOnClick()}
+				onClick={() => cardStatus === CARD_STATUS.ACTIVE ? setOpened(true) : handleOnClick()}
 			>
 				{buttonText}
 			</Button>
