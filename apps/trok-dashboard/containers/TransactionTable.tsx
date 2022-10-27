@@ -20,8 +20,7 @@ const TransactionTable = ({rows, spacingY="md", withPagination=true}) => {
 					label: 'Driver',
 					key: null
 				},
-				{ label: 'Amount', key: null },
-				{ label: 'Net of Discount', key: null }
+				{ label: 'Amount', key: null }
 			]}
 			withPagination={withPagination}
 			emptyContent={

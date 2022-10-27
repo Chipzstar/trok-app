@@ -48,9 +48,6 @@ const Transactions = ({ testMode, sessionID }) => {
 						<td colSpan={1}>
 							<span className='text-base font-normal'>£{element.amount / 100}</span>
 						</td>
-						<td colSpan={1}>
-							<span>£{element.net_discount / 100}</span>
-						</td>
 					</tr>
 				);
 		  })
@@ -79,9 +76,6 @@ const Transactions = ({ testMode, sessionID }) => {
 						</td>
 						<td colSpan={1}>
 							<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
-						</td>
-						<td colSpan={1}>
-							<span>£{t.transaction_amount / 100}</span>
 						</td>
 					</tr>
 				);

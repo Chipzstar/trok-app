@@ -101,9 +101,6 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 					<td colSpan={1}>
 						<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
 					</td>
-					<td colSpan={1}>
-						<span>£{t.transaction_amount / 100}</span>
-					</td>
 				</tr>
 			);
 		}) : [];
