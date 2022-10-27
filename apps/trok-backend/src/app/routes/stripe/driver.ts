@@ -16,6 +16,9 @@ const driverRouter = t.router({
 				return await ctx.prisma.driver.findMany({
 					where: {
 						userId: input.userId
+					},
+					orderBy: {
+						created_at: 'desc'
 					}
 				});
 			} catch (err) {

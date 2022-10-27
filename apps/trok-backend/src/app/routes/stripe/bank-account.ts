@@ -18,6 +18,9 @@ const bankAccountRouter = t.router({
 				return await ctx.prisma.bankAccount.findMany({
 					where: {
 						userId: input.userId
+					},
+					orderBy: {
+						created_at: 'desc'
 					}
 				});
 			} catch (err) {
