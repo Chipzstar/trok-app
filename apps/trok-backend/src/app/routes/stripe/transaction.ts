@@ -46,7 +46,8 @@ const transactionsRouter = t.router({
 		.input(
 			z.object({
 				card_id: z.string(),
-				stripeId: z.string()
+				stripeId: z.string(),
+				amount: z.number()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -79,7 +80,7 @@ const transactionsRouter = t.router({
 				if (paymentMethods.data) {
 					let paymentIntent = await stripe.paymentIntents.create(
 						{
-							amount: 1000,
+							amount: input.amount * 100, // convert to smallest currency unit
 							currency: 'gbp',
 							capture_method: 'manual',
 							confirm: true,

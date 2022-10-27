@@ -30,7 +30,7 @@ const Payments = ({testMode}) => {
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
-	const [section, setSection] = useState<'card' | 'account'>('account');
+	const [section, setSection] = useState<'topup' | 'account'>('account');
 
 	const rows = testMode ? SAMPLE_PAYMENTS.map((element, index) => {
 		const statusClass = classNames({
@@ -144,15 +144,15 @@ const Payments = ({testMode}) => {
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
 						<SegmentedControl
 							value={section}
-							onChange={(value: 'card' | 'account') => setSection(value)}
+							onChange={(value: 'topup' | 'account') => setSection(value)}
 							transitionTimingFunction='ease'
 							fullWidth
 							data={[
 								{ label: 'Account', value: 'account' },
-								{ label: 'Card', value: 'card' }
+								{ label: 'Top Up', value: 'topup' }
 							]}
 						/>
-						{section === 'account' ? (
+						{section === 'account' && (
 							<>
 								<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
 								<Group grow spacing='xl'>
@@ -167,8 +167,6 @@ const Payments = ({testMode}) => {
 									/>
 								</Group>
 							</>
-						) : (
-							<Select required label='Select Card' data={SAMPLE_CARDS.map(c => c.last4)} {...form.getInputProps('card')} />
 						)}
 						<NumberInput
 							label='Amount'

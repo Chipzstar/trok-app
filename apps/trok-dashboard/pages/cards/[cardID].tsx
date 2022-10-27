@@ -24,7 +24,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
 	const cardsMutation = trpc.toggleCardStatus.useMutation({
-		onSuccess: function(input) {
+		onSuccess: function (input) {
 			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
@@ -46,64 +46,66 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
-			return (
-				<tr
-					key={index}
-					style={{
-						border: 'none'
-					}}
-				>
-					<td colSpan={1}>
-						<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-					</td>
-					<td colSpan={1}>
-						<span>{element.merchant}</span>
-					</td>
-					<td colSpan={1}>
-						<div className='flex flex-shrink flex-col'>
-							<span>{element.location}</span>
-						</div>
-					</td>
-					<td colSpan={1}>
-						<span>{element.last4}</span>
-					</td>
-					<td colSpan={1}>
-						<Text weight={500}>{element.driver}</Text>
-					</td>
-					<td colSpan={1}>
-						<span className='text-base font-normal'>£{element.amount / 100}</span>
-					</td>
-				</tr>
-			);
-		})
-		: !transactionsQuery.isLoading ? transactionsQuery?.data.slice(0, 3).map((t, index) => {
-			return (
-				<tr key={index}>
-					<td colSpan={1}>
-						<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
-					</td>
-					<td colSpan={1}>
-						<span>{t.merchant_data.name}</span>
-					</td>
-					<td colSpan={1}>
-						<div className='flex flex-shrink flex-col'>
+				return (
+					<tr
+						key={index}
+						style={{
+							border: 'none'
+						}}
+					>
+						<td colSpan={1}>
+							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.merchant}</span>
+						</td>
+						<td colSpan={1}>
+							<div className='flex flex-shrink flex-col'>
+								<span>{element.location}</span>
+							</div>
+						</td>
+						<td colSpan={1}>
+							<span>{element.last4}</span>
+						</td>
+						<td colSpan={1}>
+							<Text weight={500}>{element.driver}</Text>
+						</td>
+						<td colSpan={1}>
+							<span className='text-base font-normal'>£{element.amount / 100}</span>
+						</td>
+					</tr>
+				);
+		  })
+		: !transactionsQuery.isLoading
+		? transactionsQuery?.data.slice(0, 3).map((t, index) => {
+				return (
+					<tr key={index}>
+						<td colSpan={1}>
+							<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{t.merchant_data.name}</span>
+						</td>
+						<td colSpan={1}>
+							<div className='flex flex-shrink flex-col'>
 								<span>
 									{t.merchant_data.city} {t.merchant_data.postcode}
 								</span>
-						</div>
-					</td>
-					<td colSpan={1}>
-						<span>{t.last4}</span>
-					</td>
-					<td colSpan={1}>
-						<Text weight={500}>{t.cardholder_name}</Text>
-					</td>
-					<td colSpan={1}>
-						<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
-					</td>
-				</tr>
-			);
-		}) : [];
+							</div>
+						</td>
+						<td colSpan={1}>
+							<span>{t.last4}</span>
+						</td>
+						<td colSpan={1}>
+							<Text weight={500}>{t.cardholder_name}</Text>
+						</td>
+						<td colSpan={1}>
+							<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
+						</td>
+					</tr>
+				);
+		  })
+		: [];
 
 	const form = useForm({
 		initialValues: {
@@ -230,35 +232,12 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 								: card?.shipping_status}
 						</span>
 					</Group>
-					<Group>
-						<Button
-							size='md'
-							variant='light'
-							color='green'
-							onClick={async () => {
-								try {
-									await topupMutation.mutateAsync({
-										id: String(cardID),
-										amount: 100,
-										stripeId: stripeAccountId
-									});
-									notifySuccess('topup-success', 'Successfully topped Up £100', <IconCheck
-										size={20} />);
-								} catch (err) {
-									console.error(err);
-									notifyError('topup-error', err.message, <IconX size={20} />);
-								}
-							}}
-						>
-							Top Up
-						</Button>
-						<CardTestButton
-							stripeId={stripeAccountId}
-							id={cardID}
-							cardShippingStatus={card?.shipping_status}
-							cardStatus={card?.status}
-						/>
-					</Group>
+					<CardTestButton
+						stripeId={stripeAccountId}
+						id={cardID}
+						cardShippingStatus={card?.shipping_status}
+						cardStatus={card?.status}
+					/>
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
