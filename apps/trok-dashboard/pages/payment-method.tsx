@@ -251,7 +251,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 							]}
 							{...form.getInputProps('account_type')}
 						/>
-						{query?.data.length && (
+						{query?.data?.length && (
 							<Group py='xs'>
 								<Checkbox
 									size='sm'
