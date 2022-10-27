@@ -91,7 +91,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 				);
 		  })
 		: !query.isLoading
-		? query?.data.map((element, index) => {
+		? query?.data?.map((element, index) => {
 				return (
 					<tr key={index}>
 						<td colSpan={1}>
@@ -162,7 +162,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 			account_number: '',
 			sort_code: '',
 			account_type: '',
-			is_default: !query?.data.length
+			is_default: !query?.data?.length
 		}
 	});
 
