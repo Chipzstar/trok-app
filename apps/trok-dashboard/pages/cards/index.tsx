@@ -44,7 +44,6 @@ const Cards = ({ testMode, sessionID }) => {
 	const handleSubmit = useCallback(
 		async values => {
 			setLoading(true);
-			console.log(values);
 			try {
 				const driver = driversQuery?.data.find(driver => values.driver === driver.id);
 				if (driver) {

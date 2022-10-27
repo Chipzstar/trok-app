@@ -7,7 +7,6 @@ import {
 	Group,
 	NumberInput,
 	SegmentedControl,
-	Select,
 	Stack,
 	Text,
 	TextInput,
@@ -15,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconCalendar, IconChevronRight, IconSearch } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
-import { GBP, SAMPLE_CARDS, SAMPLE_PAYMENTS } from '../utils/constants';
+import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';

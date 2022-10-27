@@ -15,17 +15,17 @@ import CardTestButton from '../../components/CardTestButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 
-const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
+const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
 	const { cardID } = router.query;
 	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const cardsMutation = trpc.toggleCardStatus.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const topupMutation = trpc.topUp.useMutation();
@@ -127,7 +127,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 			try {
 				await cardsMutation.mutateAsync({
 					id: String(cardID),
-					stripeId: stripeAccountId,
+					stripeId: stripe_account_id,
 					status
 				});
 				setLoading(false);
@@ -139,7 +139,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 				notifyError('activate-card-failed', err.message, <IconX size={20} />);
 			}
 		},
-		[card, stripeAccountId]
+		[card, stripe_account_id]
 	);
 
 	useEffect(() => form.reset(), [card]);
@@ -233,7 +233,7 @@ const CardDetails = ({ testMode, sessionID, stripeAccountId }) => {
 						</span>
 					</Group>
 					<CardTestButton
-						stripeId={stripeAccountId}
+						stripeId={stripe_account_id}
 						id={cardID}
 						cardShippingStatus={card?.shipping_status}
 						cardStatus={card?.status}
@@ -302,8 +302,8 @@ export const getServerSideProps = async ({ req, res }) => {
 	const session = await unstable_getServerSession(req, res, authOptions);
 	return {
 		props: {
-			sessionID: session.id,
-			stripeAccountId: session?.stripeId
+			session_id: session.id,
+			stripe_account_id: session?.stripeId
 		}
 	};
 };

@@ -20,4 +20,5 @@ model User {
   drivers Driver[]
   cards Card[]
   transactions Transaction[]
+  bank_accounts BankAccount[]
 }

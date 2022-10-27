@@ -1,16 +1,16 @@
 type StripeInfo {
     accountId String
-    bankAccount BankAccount?
+    issuing_account IssuingBankAccount?
 }
 
-type BankAccount {
-    id String
-    fingerprint String
+type IssuingBankAccount {
+    plaid_recipient_id String
+    plaid_request_id String?
     account_holder_name String
     account_number String
     sort_code String
-    currency String
-    status String
+    currency String @default("gbp")
+    country String @default("GB")
 }
 
 type Address {
