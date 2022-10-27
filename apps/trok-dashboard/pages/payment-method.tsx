@@ -162,7 +162,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 			account_number: '',
 			sort_code: '',
 			account_type: '',
-			is_default: !query?.data?.length
+			is_default: Boolean(!query?.data?.length)
 		}
 	});
 
@@ -251,7 +251,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 							]}
 							{...form.getInputProps('account_type')}
 						/>
-						{query?.data?.length && (
+						{Boolean(query?.data?.length) && (
 							<Group py='xs'>
 								<Checkbox
 									size='sm'
