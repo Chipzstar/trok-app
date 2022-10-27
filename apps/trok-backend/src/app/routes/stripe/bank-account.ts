@@ -4,7 +4,6 @@ import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
 import Stripe from 'stripe';
 import { Simulate } from 'react-dom/test-utils';
-import input = Simulate.input;
 
 const bankAccountRouter = t.router({
 	getBankAccounts: t.procedure

@@ -62,7 +62,7 @@ model BankAccount {
   account_number      String
   sort_code           String
   currency            String
-  country             String
+  country             String   @default("GB")
   status              String
   is_default          Boolean  @default(true)
 }
