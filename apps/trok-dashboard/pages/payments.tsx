@@ -30,7 +30,7 @@ const Payments = ({testMode}) => {
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
-	const [section, setSection] = useState<'topup' | 'account'>('account');
+	const [section, setSection] = useState<'topup' | 'account'>('topup');
 
 	const rows = testMode ? SAMPLE_PAYMENTS.map((element, index) => {
 		const statusClass = classNames({
@@ -148,8 +148,8 @@ const Payments = ({testMode}) => {
 							transitionTimingFunction='ease'
 							fullWidth
 							data={[
-								{ label: 'Account', value: 'account' },
-								{ label: 'Top Up', value: 'topup' }
+								{ label: 'Top Up', value: 'topup' },
+								{ label: 'Account', value: 'account' }
 							]}
 						/>
 						{section === 'account' && (
