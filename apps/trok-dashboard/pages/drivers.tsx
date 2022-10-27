@@ -13,7 +13,7 @@ import {
 	Title
 } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
-import { IconCheck, IconPencil, IconX } from '@tabler/icons';
+import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons';
 import { GBP, SAMPLE_DRIVERS } from '../utils/constants';
 import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
@@ -23,15 +23,22 @@ import { getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/
 import { capitalize, sanitize } from '../utils/functions';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
+import EditDriverForm from '../modals/EditDriverForm';
 
-const Drivers = ({ testMode, sessionID }) => {
+const Drivers = ({ testMode, session_id, stripe_account_id }) => {
+	const [driver, setEditDriver] = useState(null)
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const query = trpc.getDrivers.useQuery({ userId: sessionID });
-	const mutation = trpc.createDriver.useMutation({
+	const query = trpc.getDrivers.useQuery({ userId: session_id });
+	const createMutation = trpc.createDriver.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Drivers refetched'));
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+		}
+	});
+	const updateMutation = trpc.updateDriver.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
 	const rows = testMode
@@ -92,8 +99,11 @@ const Drivers = ({ testMode, sessionID }) => {
 						</td>
 						<td>
 							<Group spacing='md' position='left'>
-								<ActionIcon size='sm' onClick={() => null}>
+								<ActionIcon size='sm' onClick={() => setEditDriver(element)}>
 									<IconPencil />
+								</ActionIcon>
+								<ActionIcon size='sm' onClick={() => null} color="red">
+									<IconTrash />
 								</ActionIcon>
 							</Group>
 						</td>
@@ -126,10 +136,10 @@ const Drivers = ({ testMode, sessionID }) => {
 	const handleSubmit = useCallback(
 		async values => {
 			setLoading(true);
-			console.log(values);
 			try {
-				await mutation.mutateAsync({
-					userId: sessionID,
+				await createMutation.mutateAsync({
+					userId: session_id,
+					stripeId: stripe_account_id,
 					address: values.address,
 					email: values.email,
 					firstname: values.firstname,
@@ -151,7 +161,39 @@ const Drivers = ({ testMode, sessionID }) => {
 				notifyError('add-driver-failed', err.message, <IconX size={20} />);
 			}
 		},
-		[sessionID]
+		[session_id, stripe_account_id]
+	);
+
+	const handleUpdate = useCallback(
+		async values => {
+			setLoading(true);
+			console.log(values);
+			try {
+				await updateMutation.mutateAsync({
+					userId: session_id,
+					stripeId: stripe_account_id,
+					address: values.address,
+					email: values.email,
+					firstname: values.firstname,
+					lastname: values.lastname,
+					phone: getE164Number(values.phone),
+					...(values.has_spending_limit && {
+						spending_limit: {
+							amount: values.spending_limit.amount * 100,
+							interval: values.spending_limit.interval
+						}
+					})
+				});
+				setLoading(false);
+				setEditDriver(null);
+				notifySuccess('update-driver-success', 'Driver updated successfully', <IconCheck size={20} />);
+			} catch (err) {
+				console.error(err);
+				setLoading(false);
+				notifyError('update-driver-failed', err.message, <IconX size={20} />);
+			}
+		},
+		[session_id, stripe_account_id]
 	);
 
 	return (
@@ -165,6 +207,7 @@ const Drivers = ({ testMode, sessionID }) => {
 				</Page.Header>
 			}
 		>
+			<EditDriverForm driver={driver} onClose={() => setEditDriver(null)} onSubmit={handleUpdate} />
 			<Drawer opened={opened} onClose={() => setOpened(false)} padding='xl' size='xl' position='right'>
 				<Stack justify='center'>
 					<Title order={2} weight={500}>
@@ -245,7 +288,8 @@ export const getServerSideProps = async ({ req, res }) => {
 	const session = await unstable_getServerSession(req, res, authOptions);
 	return {
 		props: {
-			sessionID: session.id
+			session_id: session.id,
+			stripe_account_id: session?.stripeId
 		}
 	};
 };
