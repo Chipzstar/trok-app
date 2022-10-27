@@ -99,7 +99,11 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 	return (
 		<>
 			<PaymentModal opened={opened} onClose={() => setOpened(false)} onSubmit={handleOnClick} />
-			<Button variant='light' size='md' onClick={() => setOpened(true)}>
+			<Button
+				variant='light'
+				size='md'
+				onClick={() => cardStatus == CARD_STATUS.ACTIVE ? setOpened(true) : handleOnClick()}
+			>
 				{buttonText}
 			</Button>
 		</>
