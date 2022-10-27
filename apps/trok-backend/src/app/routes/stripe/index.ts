@@ -73,7 +73,7 @@ router.post(
 						userId: card.user.id,
 						driverId: card.driver.id,
 						transaction_type: t.type,
-						transaction_amount: t.amount,
+						transaction_amount: Math.abs(t.amount),
 						merchant_data: {
 							name: t.merchant_data.name ?? '',
 							category: t.merchant_data.category,
@@ -84,7 +84,7 @@ router.post(
 							postcode: t.merchant_data.postal_code ?? '',
 							country: t.merchant_data.country ?? ''
 						},
-						merchant_amount: t.merchant_amount,
+						merchant_amount: Math.abs(t.merchant_amount),
 						authorization_id: <string>t.authorization,
 						transaction_id: t.id,
 						currency: t.currency
