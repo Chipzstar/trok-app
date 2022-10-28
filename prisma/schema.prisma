@@ -164,6 +164,7 @@ model Transaction {
 }
 type StripeInfo {
   accountId       String
+  personId        String?
   issuing_account IssuingBankAccount?
 }
 
