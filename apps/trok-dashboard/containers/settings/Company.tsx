@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Button, Card, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
 import { INDUSTRY_TYPES } from '../../utils/constants';
-import { capitalize, sanitize } from '../../utils/functions';
 import { useForm } from '@mantine/form';
 import { trpc } from '../../utils/clients';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';

@@ -88,7 +88,7 @@ const accountRouter = t.router({
 				merchant_category_code: z.string(),
 				business_crn: z.string(),
 				num_vehicles: z.number(),
-				business_url: z.string().url(),
+				business_url: z.string().url()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -110,7 +110,7 @@ const accountRouter = t.router({
 					account_token: token.id,
 					business_profile: {
 						mcc: input.merchant_category_code,
-						...(input.business_url && {url: input.business_url})
+						...(input.business_url && { url: input.business_url })
 					}
 				});
 				console.log('-----------------------------------------------');
@@ -133,6 +133,39 @@ const accountRouter = t.router({
 						}
 					}
 				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ message: err.message, code: 'BAD_REQUEST' });
+			}
+		}),
+	changePassword: t.procedure
+		.input(
+			z
+				.object({
+					id: z.string(),
+					password: z.string(),
+					confirm_password: z.string()
+				})
+				.superRefine(({ confirm_password, password }, ctx) => {
+					if (confirm_password !== password) {
+						ctx.addIssue({
+							code: 'custom',
+							message: 'The passwords did not match'
+						});
+					}
+				})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.user.update({
+					where: {
+						id: input.id
+					},
+					data: {
+						password: input.password
+					}
+				})
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
