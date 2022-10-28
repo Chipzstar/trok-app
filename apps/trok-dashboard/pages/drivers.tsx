@@ -19,14 +19,15 @@ import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 import { trpc } from '../utils/clients';
-import { getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import {  getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { capitalize, sanitize } from '../utils/functions';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import EditDriverForm from '../modals/EditDriverForm';
+import { openConfirmModal } from '@mantine/modals';
 
 const Drivers = ({ testMode, session_id, stripe_account_id }) => {
-	const [driver, setEditDriver] = useState(null)
+	const [driver, setEditDriver] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
@@ -36,12 +37,43 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
-
 	const updateMutation = trpc.updateDriver.useMutation({
 		onSuccess: function (input) {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
+	const deleteMutation = trpc.deleteDriver.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+		}
+	});
+
+	const openModal = driver =>
+		openConfirmModal({
+			title: `Deleting ${driver.full_name}\n`,
+			children: (
+				<Text size='sm'>
+					Please confirm that you'd like to delete this driver and disable their card?{' '}
+					<strong>This action cannot be reversed!</strong>
+				</Text>
+			),
+			labels: { confirm: 'Confirm', cancel: 'Cancel' },
+			onCancel: () => console.log('Cancel'),
+			onConfirm: async () => {
+				try {
+					await deleteMutation.mutateAsync({
+						id: driver.id,
+						cardholder_id: driver.cardholder_id,
+						customer_id: driver.customer_id,
+						stripeId: stripe_account_id
+					});
+					notifySuccess('delete-driver-success', 'Driver deleted successfully!', <IconCheck size={20} />)
+				} catch (err) {
+					console.log(err)
+					notifySuccess('delete-driver-failed', err.message, <IconX size={20} />)
+				}
+			}
+		});
 
 	const rows = testMode
 		? SAMPLE_DRIVERS.map((element, index) => {
@@ -76,7 +108,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				);
 		  })
 		: !query.isLoading
-		? query.data.map((element, index) => {
+		? query.data.filter(d => d.status === "active").map((element, index) => {
 				return (
 					<tr key={index}>
 						<td colSpan={1}>
@@ -104,7 +136,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 								<ActionIcon size='sm' onClick={() => setEditDriver(element)}>
 									<IconPencil />
 								</ActionIcon>
-								<ActionIcon size='sm' onClick={() => null} color="red">
+								<ActionIcon size='sm' onClick={() => openModal(element)} color='red'>
 									<IconTrash />
 								</ActionIcon>
 							</Group>
@@ -212,7 +244,12 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
-			<EditDriverForm loading={loading} driver={driver} onClose={() => setEditDriver(null)} onSubmit={handleUpdate} />
+			<EditDriverForm
+				loading={loading}
+				driver={driver}
+				onClose={() => setEditDriver(null)}
+				onSubmit={handleUpdate}
+			/>
 			<Drawer opened={opened} onClose={() => setOpened(false)} padding='xl' size='xl' position='right'>
 				<Stack justify='center'>
 					<Title order={2} weight={500}>

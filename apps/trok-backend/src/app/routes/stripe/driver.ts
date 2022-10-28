@@ -39,7 +39,7 @@ const updateDriverInput = createDriverInput.merge(
 		cardholder_id: z.string(),
 		customer_id: z.string()
 	})
-)
+);
 
 const driverRouter = t.router({
 	getDrivers: t.procedure
@@ -141,85 +141,127 @@ const driverRouter = t.router({
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
-	updateDriver: t.procedure
-		.input(updateDriverInput)
-		.mutation(async ({ input, ctx }) => {
-			try {
-				const cardholder = await stripe.issuing.cardholders.update(
-					input.cardholder_id,
-					{
-						email: input.email,
-						individual: {
-							first_name: input.firstname,
-							last_name: input.lastname
-						},
-						phone_number: input.phone,
-						status: 'active',
-						billing: {
-							address: {
-								line1: input.address.line1,
-								line2: input.address?.line2 ?? undefined,
-								city: input.address.city,
-								state: input.address.region,
-								postal_code: input.address.postcode,
-								country: input.address.country
-							}
-						},
-						spending_controls: {
-							// @ts-ignore
-							spending_limits: [input.spending_limit]
-						}
+	updateDriver: t.procedure.input(updateDriverInput).mutation(async ({ input, ctx }) => {
+		try {
+			const cardholder = await stripe.issuing.cardholders.update(
+				input.cardholder_id,
+				{
+					email: input.email,
+					individual: {
+						first_name: input.firstname,
+						last_name: input.lastname
 					},
-					{ stripeAccount: input.stripeId }
-				);
-				console.log('-----------------------------------------------');
-				console.log(cardholder);
-				console.log('-----------------------------------------------');
-				const customer = await stripe.customers.update(
-					input.customer_id,
-					{
-						email: input.email,
-						name: `${input.firstname} ${input.lastname}`,
-						phone: input.phone,
+					phone_number: input.phone,
+					status: 'active',
+					billing: {
 						address: {
 							line1: input.address.line1,
-							...(input.address.line2 && { line2: input.address.line2 }),
+							line2: input.address?.line2 ?? undefined,
 							city: input.address.city,
 							state: input.address.region,
 							postal_code: input.address.postcode,
 							country: input.address.country
 						}
 					},
+					spending_controls: {
+						// @ts-ignore
+						spending_limits: [input.spending_limit]
+					}
+				},
+				{ stripeAccount: input.stripeId }
+			);
+			console.log('-----------------------------------------------');
+			console.log(cardholder);
+			console.log('-----------------------------------------------');
+			const customer = await stripe.customers.update(
+				input.customer_id,
+				{
+					email: input.email,
+					name: `${input.firstname} ${input.lastname}`,
+					phone: input.phone,
+					address: {
+						line1: input.address.line1,
+						...(input.address.line2 && { line2: input.address.line2 }),
+						city: input.address.city,
+						state: input.address.region,
+						postal_code: input.address.postcode,
+						country: input.address.country
+					}
+				},
+				{ stripeAccount: input.stripeId }
+			);
+			console.log('-----------------------------------------------');
+			console.log(customer);
+			console.log('-----------------------------------------------');
+			return await ctx.prisma.driver.update({
+				where: {
+					id: input.id
+				},
+				data: {
+					full_name: `${input.firstname} ${input.lastname}`,
+					firstname: input.firstname,
+					lastname: input.lastname,
+					email: input.email,
+					phone: input.phone,
+					...(input?.spending_limit && {
+						spending_limit: {
+							amount: input.spending_limit.amount,
+							interval: input.spending_limit.interval
+						}
+					}),
+					address: {
+						line1: input.address.line1,
+						line2: input.address?.line2,
+						city: input.address.city,
+						postcode: input.address.postcode,
+						region: input.address.region,
+						country: input.address.country
+					},
+					status: 'active'
+				}
+			});
+		} catch (err) {
+			console.error(err);
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+		}
+	}),
+	deleteDriver: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				cardholder_id: z.string(),
+				customer_id: z.string(),
+				userId: z.string().optional(),
+				stripeId: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const card = await ctx.prisma.card.findFirstOrThrow({
+					where: {
+						driverId: input.id
+					}
+				})
+				// disable the cardholder
+				await stripe.issuing.cardholders.update(
+					input.cardholder_id,
+					{
+						status: 'inactive'
+					},
 					{ stripeAccount: input.stripeId }
 				);
-				console.log('-----------------------------------------------');
-				console.log(customer);
-				console.log('-----------------------------------------------');
+				// cancel any card owned by the cardholder
+				await stripe.issuing.cards.update(card.card_id, {
+					status: 'canceled'
+				}, { stripeAccount: input.stripeId })
+
 				return await ctx.prisma.driver.update({
 					where: {
 						id: input.id
 					},
 					data: {
-						full_name: `${input.firstname} ${input.lastname}`,
-						firstname: input.firstname,
-						lastname: input.lastname,
-						email: input.email,
-						phone: input.phone,
-						...(input?.spending_limit && {
-							spending_limit: {
-								amount: input.spending_limit.amount,
-								interval: input.spending_limit.interval
-							}
-						}),
-						address: {
-							line1: input.address.line1,
-							line2: input.address?.line2,
-							city: input.address.city,
-							postcode: input.address.postcode,
-							region: input.address.region,
-							country: input.address.country
-						},
-						status: 'active'
+						status: 'inactive'
 					}
 				});
 			} catch (err) {
