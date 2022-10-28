@@ -88,7 +88,7 @@ const accountRouter = t.router({
 				merchant_category_code: z.string(),
 				business_crn: z.string(),
 				num_vehicles: z.number(),
-				business_url: z.string()
+				business_url: z.string().url(),
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -98,6 +98,7 @@ const accountRouter = t.router({
 					{
 						account: {
 							company: {
+								name: input.legal_name,
 								registration_number: input.business_crn,
 								tax_id: input.business_crn
 							}
@@ -106,7 +107,11 @@ const accountRouter = t.router({
 					{ stripeAccount: input.stripe.account_id }
 				);
 				const account = await stripe.accounts.update(input.stripe.account_id, {
-					account_token: token.id
+					account_token: token.id,
+					business_profile: {
+						mcc: input.merchant_category_code,
+						...(input.business_url && {url: input.business_url})
+					}
 				});
 				console.log('-----------------------------------------------');
 				console.log(account);
