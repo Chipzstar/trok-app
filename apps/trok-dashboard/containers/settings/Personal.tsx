@@ -1,6 +1,6 @@
 import { Button, Card, Group, Text, Stack, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import DynamicInputField from '../../components/DynamicInputField';
 import { trpc } from '../../utils/clients';
 import { getE164Number, notifyError, notifySuccess } from '@trok-app/shared-utils';

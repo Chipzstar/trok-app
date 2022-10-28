@@ -8,7 +8,7 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import ChangePassword from '../containers/settings/ChangePassword';
 
-const settings = ({user, stripe }) => {
+const settings = ({user, session_id, stripe }) => {
 	return (
 		<Page.Container
 			header={
@@ -35,7 +35,7 @@ const settings = ({user, stripe }) => {
 						<Personal stripe={stripe} account={user}/>
 					</Tabs.Panel>
 					<Tabs.Panel value='company' pt='xs' className='h-full'>
-						<Company stripe={stripe} business={user?.business}/>
+						<Company user_id={session_id}  stripe={stripe} business={user?.business}/>
 					</Tabs.Panel>
 					<Tabs.Panel value='password' pt='xs' className='h-full'>
 						<ChangePassword account={user}/>
@@ -52,6 +52,7 @@ export async function getServerSideProps({ req, res }) {
 	const token = await getToken({ req })
 	return {
 		props: {
+			session_id: session.id,
 			user: token.user,
 			stripe: session?.stripe
 		}
