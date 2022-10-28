@@ -28,7 +28,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const topupMutation = trpc.topUp.useMutation();
 	const transactionsQuery = trpc.getCardTransactions.useQuery({ cardId: String(cardID) });
 
 	const card = useMemo(
@@ -45,66 +44,9 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	});
 
 	const rows = testMode
-		? SAMPLE_TRANSACTIONS.slice(0, 3).map((element, index) => {
-				return (
-					<tr
-						key={index}
-						style={{
-							border: 'none'
-						}}
-					>
-						<td colSpan={1}>
-							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.merchant}</span>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>{element.location}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{element.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<Text weight={500}>{element.driver}</Text>
-						</td>
-						<td colSpan={1}>
-							<span className='text-base font-normal'>£{element.amount / 100}</span>
-						</td>
-					</tr>
-				);
-		  })
+		? SAMPLE_TRANSACTIONS.slice(0, 3)
 		: !transactionsQuery.isLoading
-		? transactionsQuery?.data.slice(0, 3).map((t, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{t.merchant_data.name}</span>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>
-									{t.merchant_data.city} {t.merchant_data.postcode}
-								</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{t.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<Text weight={500}>{t.cardholder_name}</Text>
-						</td>
-						<td colSpan={1}>
-							<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
-						</td>
-					</tr>
-				);
-		  })
+		? transactionsQuery?.data.slice(0, 3)
 		: [];
 
 	const form = useForm({
@@ -291,7 +233,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				<Title order={1} weight={500} py='xl'>
 					Recent Transactions
 				</Title>
-				<TransactionTable rows={rows} spacingY='sm' withPagination={false} />
+				<TransactionTable data={rows} spacingY='sm' withPagination={false} />
 			</Page.Body>
 		</Page.Container>
 	);

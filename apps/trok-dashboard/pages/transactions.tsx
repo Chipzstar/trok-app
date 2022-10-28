@@ -24,62 +24,10 @@ const Transactions = ({ testMode, sessionID }) => {
 	const [opened, setOpened] = useState(false);
 	const query = trpc.getTransactions.useQuery({ userId: sessionID });
 
-	const rows = testMode
-		? SAMPLE_TRANSACTIONS.map((element, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{dayjs.unix(element.date_of_transaction).format('MMM DD HH:mma')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.merchant}</span>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>{element.location}</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{element.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<Text weight={500}>{element.driver}</Text>
-						</td>
-						<td colSpan={1}>
-							<span className='text-base font-normal'>£{element.amount / 100}</span>
-						</td>
-					</tr>
-				);
-		  })
+	const data = testMode
+		? SAMPLE_TRANSACTIONS
 		: !query.isLoading
-		? query?.data.map((t, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{t.merchant_data.name}</span>
-						</td>
-						<td colSpan={1}>
-							<div className='flex flex-shrink flex-col'>
-								<span>
-									{t.merchant_data.city} {t.merchant_data.postcode}
-								</span>
-							</div>
-						</td>
-						<td colSpan={1}>
-							<span>{t.last4}</span>
-						</td>
-						<td colSpan={1}>
-							<Text weight={500}>{t.cardholder_name}</Text>
-						</td>
-						<td colSpan={1}>
-							<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
-						</td>
-					</tr>
-				);
-		  })
+		? query?.data
 		: [];
 
 	const form = useForm<ExportForm>({
@@ -191,15 +139,15 @@ const Transactions = ({ testMode, sessionID }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-						<TransactionTable rows={rows} />
+						<TransactionTable data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='approved' className='h-full'>
-						<TransactionTable rows={rows} />
+						<TransactionTable data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='declined' className='h-full'>
-						<TransactionTable rows={rows} />
+						<TransactionTable data={[]} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

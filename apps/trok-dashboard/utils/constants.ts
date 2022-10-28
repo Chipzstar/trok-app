@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import currency from 'currency.js';
 import { PAYMENT_STATUS } from './types';
 import { PhoneNumberUtil } from 'google-libphonenumber';
@@ -10,7 +10,7 @@ export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
-export const DEFAULT_HEADER_HEIGHT = 75
+export const DEFAULT_HEADER_HEIGHT = 75;
 
 export const STORAGE_KEYS = {
 	AUTH: 'auth',
@@ -22,7 +22,7 @@ export const STORAGE_KEYS = {
 	LOCATION_FORM: 'location-form',
 	ONBOARDING_STEP: 'onboarding-step',
 	TEST_MODE: 'test-mode'
-}
+};
 
 export const PATHS = {
 	HOME: '/',
@@ -38,14 +38,14 @@ export const PATHS = {
 	STATEMENTS: '/statements',
 	SETTINGS: '/settings',
 	REFERRAL: '/referral'
-}
+};
 
 export const SAMPLE_DRIVERS = [
 	{
 		id: '1',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0001`,
-		status: "OFFLINE",
+		status: 'OFFLINE',
 		isActive: false,
 		full_name: 'Chisom Oguibe',
 		firstname: 'Chisom',
@@ -66,9 +66,9 @@ export const SAMPLE_DRIVERS = [
 		id: '2',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0002`,
-		status: "OFFLINE",
+		status: 'OFFLINE',
 		isActive: false,
-		full_name: "Ola Oladapo",
+		full_name: 'Ola Oladapo',
 		firstname: 'Ola',
 		lastname: 'Oladapo',
 		email: 'ola.oladapo7@gmail.com',
@@ -87,9 +87,9 @@ export const SAMPLE_DRIVERS = [
 		id: '3',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID$#0003`,
-		status: "OFFLINE",
+		status: 'OFFLINE',
 		isActive: false,
-		full_name: "Ryan Bannai",
+		full_name: 'Ryan Bannai',
 		firstname: 'Rayan',
 		lastname: 'Bannai',
 		email: 'rayan.bannai@googlemail.com',
@@ -108,9 +108,9 @@ export const SAMPLE_DRIVERS = [
 		id: '4',
 		createdAt: dayjs().unix(),
 		driverId: `DRIVER-ID#0004`,
-		status: "OFFLINE",
+		status: 'OFFLINE',
 		isActive: false,
-		full_name: "Oscar Sanz",
+		full_name: 'Oscar Sanz',
 		firstname: 'Oscar',
 		lastname: 'Sanz',
 		email: 'oscar_sanz@hotmail.com',
@@ -134,12 +134,14 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
-		spending_limits: [{
-			amount: 468000,
-			interval: "weekly"
-		}],
+		spending_limits: [
+			{
+				amount: 468000,
+				interval: 'weekly'
+			}
+		],
 		current_balance: 4679995,
-		shipping_status: "pending"
+		shipping_status: 'pending'
 	},
 	{
 		id: 'card_0002',
@@ -147,12 +149,14 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '2681',
 		cardholder_name: 'Ola Oladapo',
-		spending_limits: [{
-			amount: 468000,
-			interval: "weekly"
-		}],
+		spending_limits: [
+			{
+				amount: 468000,
+				interval: 'weekly'
+			}
+		],
 		current_balance: 4679995,
-		shipping_status: "pending"
+		shipping_status: 'pending'
 	},
 	{
 		id: 'card_0003',
@@ -160,12 +164,14 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '5410',
 		cardholder_name: 'Daniel Oguibe',
-		spending_limits: [{
-			amount: 468000,
-			interval: "weekly"
-		}],
+		spending_limits: [
+			{
+				amount: 468000,
+				interval: 'weekly'
+			}
+		],
 		current_balance: 4679995,
-		shipping_status: "pending"
+		shipping_status: 'pending'
 	},
 	{
 		id: 'card_0004',
@@ -173,12 +179,14 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.ACTIVE,
 		last4: '7341',
 		cardholder_name: 'King Dave',
-		spending_limits: [{
-			amount: 468000,
-			interval: "weekly"
-		}],
+		spending_limits: [
+			{
+				amount: 468000,
+				interval: 'weekly'
+			}
+		],
 		current_balance: 4679995,
-		shipping_status: "pending"
+		shipping_status: 'pending'
 	},
 	{
 		id: 'card_0005',
@@ -186,14 +194,16 @@ export const SAMPLE_CARDS = [
 		status: CARD_STATUS.INACTIVE,
 		last4: '9127',
 		cardholder_name: 'Rayan Bannai',
-		spending_limits: [{
-			amount: 468000,
-			interval: "weekly"
-		}],
+		spending_limits: [
+			{
+				amount: 468000,
+				interval: 'weekly'
+			}
+		],
 		current_balance: 4679995,
-		shipping_status: "pending"
+		shipping_status: 'pending'
 	}
-]
+];
 
 export const SAMPLE_PAYMENTS = [
 	{
@@ -267,19 +277,23 @@ export const SAMPLE_PAYMENTS = [
 			id: '',
 			name: 'Michael Phelps'
 		}
-	},
-]
+	}
+];
 
 export const SAMPLE_TRANSACTIONS = [
 	{
 		id: '',
-		date_of_transaction: 1665414165,
+		created_at: 1665414165,
 		posted_date: 1665421245,
-		merchant: 'BP Fuel',
+		merchant_data: {
+			name: 'BP Fuel',
+			city: 'London',
+			postcode: 'E2 9LH'
+		},
 		location: 'London, E2 9LH',
 		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
+		cardholder_name: 'Joel Cambridge',
+		transaction_amount: 468000,
 		net_discount: 4679995,
 		type: 'fuel',
 		litres: 120,
@@ -287,13 +301,16 @@ export const SAMPLE_TRANSACTIONS = [
 	},
 	{
 		id: '',
-		date_of_transaction: 1665414165,
+		created_at: 1665414165,
 		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: 'London, E2 9LH',
+		merchant_data: {
+			name: 'BP Fuel',
+			city: 'London',
+			postcode: 'E2 9LH'
+		},
 		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
+		cardholder_name: 'Joel Cambridge',
+		transaction_amount: 468000,
 		net_discount: 4679995,
 		type: 'fuel',
 		litres: 120,
@@ -301,13 +318,16 @@ export const SAMPLE_TRANSACTIONS = [
 	},
 	{
 		id: '',
-		date_of_transaction: 1665414165,
+		created_at: 1665414165,
 		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: 'London, E2 9LH',
+		merchant_data: {
+			name: 'BP Fuel',
+			city: 'London',
+			postcode: 'E2 9LH'
+		},
 		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
+		cardholder_name: 'Joel Cambridge',
+		transaction_amount: 468000,
 		net_discount: 4679995,
 		type: 'fuel',
 		litres: 120,
@@ -315,13 +335,16 @@ export const SAMPLE_TRANSACTIONS = [
 	},
 	{
 		id: '',
-		date_of_transaction: 1665414165,
+		created_at: 1665414165,
 		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: 'London, E2 9LH',
+		merchant_data: {
+			name: 'BP Fuel',
+			city: 'London',
+			postcode: 'E2 9LH'
+		},
 		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
+		cardholder_name: 'Joel Cambridge',
+		transaction_amount: 468000,
 		net_discount: 4679995,
 		type: 'fuel',
 		litres: 120,
@@ -329,13 +352,16 @@ export const SAMPLE_TRANSACTIONS = [
 	},
 	{
 		id: '',
-		date_of_transaction: 1665414165,
+		created_at: 1665414165,
 		posted_date: 1665421245,
-		merchant: 'BP Fuel',
-		location: 'London, E2 9LH',
+		merchant_data: {
+			name: 'BP Fuel',
+			city: 'London',
+			postcode: 'E2 9LH'
+		},
 		last4: '2681',
-		driver: 'Joel Cambridge',
-		amount: 468000,
+		cardholder_name: 'Joel Cambridge',
+		transaction_amount: 468000,
 		net_discount: 4679995,
 		type: 'fuel',
 		litres: 120,
@@ -350,7 +376,7 @@ export const SAMPLE_STATEMENTS = [
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
-		total_balance: 468000,
+		total_balance: 468000
 	},
 	{
 		period_label: 'November 22',
@@ -358,7 +384,7 @@ export const SAMPLE_STATEMENTS = [
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
-		total_balance: 468000,
+		total_balance: 468000
 	},
 	{
 		period_label: 'December 22',
@@ -366,7 +392,7 @@ export const SAMPLE_STATEMENTS = [
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
-		total_balance: 468000,
+		total_balance: 468000
 	},
 	{
 		period_label: 'January 23',
@@ -374,7 +400,7 @@ export const SAMPLE_STATEMENTS = [
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
-		total_balance: 468000,
+		total_balance: 468000
 	},
 	{
 		period_label: 'February 23',
@@ -382,7 +408,7 @@ export const SAMPLE_STATEMENTS = [
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
-		total_balance: 468000,
+		total_balance: 468000
 	}
 ];
 
@@ -391,15 +417,15 @@ export const SAMPLE_BANK_ACCOUNTS = [
 		account_holder_name: 'Ola Oladapo',
 		type: 'business_account',
 		account_number: 12345678,
-		sort_code: "09-12-90",
-		isDefault: true,
+		sort_code: '09-12-90',
+		isDefault: true
 	},
 	{
 		account_holder_name: 'Chisom Oguibe',
 		type: 'business_account',
 		account_number: 87654321,
-		sort_code: "89-21-21",
-		isDefault: false,
+		sort_code: '89-21-21',
+		isDefault: false
 	}
 ];
 
@@ -410,4 +436,4 @@ export const INDUSTRY_TYPES = [
 	},
 	{ label: 'Transportation - Motor Freight, Carriers & Trucking', value: '4214' },
 	{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
-]
+];

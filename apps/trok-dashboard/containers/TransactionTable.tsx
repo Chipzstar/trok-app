@@ -1,10 +1,41 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { MantineNumberSize } from '@mantine/core';
+import { MantineNumberSize, Text } from '@mantine/core';
+import dayjs from 'dayjs';
 
-const TransactionTable = ({rows, spacingY="md", withPagination=true}) => {
+const TransactionTable = ({data, spacingY="md", withPagination=true}) => {
 	const [activePage, setPage] = useState(1);
+
+	const rows = data.map((t, index) => {
+		return (
+			<tr key={index}>
+				<td colSpan={1}>
+					<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{t.merchant_data.name}</span>
+				</td>
+				<td colSpan={1}>
+					<div className='flex flex-shrink flex-col'>
+								<span>
+									{t.merchant_data.city} {t.merchant_data.postcode}
+								</span>
+					</div>
+				</td>
+				<td colSpan={1}>
+					<span>{t.last4}</span>
+				</td>
+				<td colSpan={1}>
+					<Text weight={500}>{t.cardholder_name}</Text>
+				</td>
+				<td colSpan={1}>
+					<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
+				</td>
+			</tr>
+		);
+	})
+
 	return (
 		<DataGrid
 			rows={rows}

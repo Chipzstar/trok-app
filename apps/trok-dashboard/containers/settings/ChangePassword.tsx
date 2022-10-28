@@ -44,11 +44,11 @@ const ChangePassword = ({ user_id }) => {
 			<Card shadow='sm' p='xl' radius='xs' className='w-1/2'>
 				<Stack>
 					<div className='flex flex-col'>
-						<span>Password</span>
+						<span>New password</span>
 						<PasswordInput {...form.getInputProps('password')} isPassword />
 					</div>
 					<div className='flex flex-col'>
-						<span>New Password</span>
+						<span>Confirm new password</span>
 						<PasswordInput {...form.getInputProps('confirm_password')} isPassword />
 					</div>
 					<Group py='xl'>
