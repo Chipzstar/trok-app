@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { stripe } from '../../utils/clients';
 import { TRPCError } from '@trpc/server';
 
-const driverInput = z.object({
+const createDriverInput = z.object({
 	userId: z.string(),
 	stripeId: z.string(),
 	firstname: z.string(),
@@ -33,6 +33,14 @@ const driverInput = z.object({
 	})
 });
 
+const updateDriverInput = createDriverInput.merge(
+	z.object({
+		id: z.string(),
+		cardholder_id: z.string(),
+		customer_id: z.string()
+	})
+)
+
 const driverRouter = t.router({
 	getDrivers: t.procedure
 		.input(
@@ -57,7 +65,7 @@ const driverRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	createDriver: t.procedure.input(driverInput).mutation(async ({ ctx, input }) => {
+	createDriver: t.procedure.input(createDriverInput).mutation(async ({ ctx, input }) => {
 		console.log(input);
 		try {
 			const cardholder = await stripe.issuing.cardholders.create(
@@ -134,29 +142,23 @@ const driverRouter = t.router({
 		}
 	}),
 	updateDriver: t.procedure
-		.input(
-			driverInput.merge(
-				z.object({
-					id: z.string(),
-					cardholder_id: z.string(),
-					customer_id: z.string()
-				})
-			)
-		)
+		.input(updateDriverInput)
 		.mutation(async ({ input, ctx }) => {
 			try {
 				const cardholder = await stripe.issuing.cardholders.update(
 					input.cardholder_id,
 					{
 						email: input.email,
-						name: `${input.firstname} ${input.lastname}`,
+						individual: {
+							first_name: input.firstname,
+							last_name: input.lastname
+						},
 						phone_number: input.phone,
-						type: 'individual',
 						status: 'active',
 						billing: {
 							address: {
 								line1: input.address.line1,
-								line2: input.address.line2 ?? undefined,
+								line2: input.address?.line2 ?? undefined,
 								city: input.address.city,
 								state: input.address.region,
 								postal_code: input.address.postcode,
@@ -211,7 +213,7 @@ const driverRouter = t.router({
 						}),
 						address: {
 							line1: input.address.line1,
-							line2: input.address.line2,
+							line2: input.address?.line2,
 							city: input.address.city,
 							postcode: input.address.postcode,
 							region: input.address.region,

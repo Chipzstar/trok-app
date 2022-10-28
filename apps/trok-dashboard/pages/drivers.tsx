@@ -36,11 +36,13 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
+
 	const updateMutation = trpc.updateDriver.useMutation({
 		onSuccess: function (input) {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
+
 	const rows = testMode
 		? SAMPLE_DRIVERS.map((element, index) => {
 				return (
@@ -170,7 +172,10 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			console.log(values);
 			try {
 				await updateMutation.mutateAsync({
+					id: values.id,
 					userId: session_id,
+					cardholder_id: values.cardholder_id,
+					customer_id: values.customer_id,
 					stripeId: stripe_account_id,
 					address: values.address,
 					email: values.email,
@@ -207,7 +212,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
-			<EditDriverForm driver={driver} onClose={() => setEditDriver(null)} onSubmit={handleUpdate} />
+			<EditDriverForm loading={loading} driver={driver} onClose={() => setEditDriver(null)} onSubmit={handleUpdate} />
 			<Drawer opened={opened} onClose={() => setOpened(false)} padding='xl' size='xl' position='right'>
 				<Stack justify='center'>
 					<Title order={2} weight={500}>

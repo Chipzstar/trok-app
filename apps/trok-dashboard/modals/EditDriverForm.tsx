@@ -1,11 +1,10 @@
 import { Button, Checkbox, Group, Loader, Modal, NumberInput, Select, Text, TextInput } from '@mantine/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from '@mantine/form';
 import { intervals } from '@trok-app/shared-utils';
 import { capitalize, sanitize } from '../utils/functions';
 
-const EditDriverForm = ({ driver, onClose, onSubmit }) => {
-	const [loading, setLoading] = useState(false);
+const EditDriverForm = ({ loading, driver, onClose, onSubmit }) => {
 	const form = useForm({
 		initialValues: {
 			firstname: driver?.firstname,
