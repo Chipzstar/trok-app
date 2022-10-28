@@ -213,7 +213,7 @@ export const getServerSideProps = async ({ req, res }) => {
 	return {
 		props: {
 			sessionID: session.id,
-			stripeAccountId: session?.stripeId
+			stripeAccountId: session?.stripe.account_id
 		}
 	};
 };

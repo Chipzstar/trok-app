@@ -51,6 +51,7 @@ const callbacks = {
 			token.user = {
 				...user,
 				accountId: user.stripe.accountId,
+				personId: user.stripe.personId,
 				password: undefined,
 				stripe: undefined
 			};
@@ -59,7 +60,10 @@ const callbacks = {
 	},
 	session: async ({ session, token }) => {
 		session.id = token.id;
-		session.stripeId = token.user.accountId;
+		session.stripe = {
+			account_id: token.user.accountId,
+			person_id: token.user.personId
+		};
 		session.user.name = token.user.firstname + ' ' + token.user.lastname;
 		return session;
 	}

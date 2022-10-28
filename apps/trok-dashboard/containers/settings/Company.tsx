@@ -11,7 +11,7 @@ const DynamicInputField = ({ editMode, value }) => {
 	);
 };
 
-const Company = ({business}) => {
+const Company = ({ stripe, business }) => {
 	const [editMode, setEditMode] = useState(false);
 	const toggleEditMode = () => setEditMode(!editMode);
 	return (

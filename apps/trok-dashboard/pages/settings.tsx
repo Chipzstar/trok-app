@@ -4,8 +4,11 @@ import { Tabs } from '@mantine/core';
 import Personal from '../containers/settings/Personal';
 import Company from '../containers/settings/Company';
 import { getToken } from 'next-auth/jwt';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
+import ChangePassword from '../containers/settings/ChangePassword';
 
-const settings = ({user}) => {
+const settings = ({user, stripe }) => {
 	return (
 		<Page.Container
 			header={
@@ -26,12 +29,16 @@ const settings = ({user}) => {
 					<Tabs.List>
 						<Tabs.Tab value='personal'>Personal</Tabs.Tab>
 						<Tabs.Tab value='company'>Company</Tabs.Tab>
+						<Tabs.Tab value='password'>Change Password</Tabs.Tab>
 					</Tabs.List>
 					<Tabs.Panel value='personal' pt='xs' className='h-full'>
-						<Personal account={user}/>
+						<Personal stripe={stripe} account={user}/>
 					</Tabs.Panel>
 					<Tabs.Panel value='company' pt='xs' className='h-full'>
-						<Company business={user?.business}/>
+						<Company stripe={stripe} business={user?.business}/>
+					</Tabs.Panel>
+					<Tabs.Panel value='password' pt='xs' className='h-full'>
+						<ChangePassword account={user}/>
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>
@@ -40,11 +47,13 @@ const settings = ({user}) => {
 };
 
 export async function getServerSideProps({ req, res }) {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
 	const token = await getToken({ req })
-	console.log("TOKEN", token)
 	return {
 		props: {
-			user: token.user
+			user: token.user,
+			stripe: session?.stripe
 		}
 	}
 }
