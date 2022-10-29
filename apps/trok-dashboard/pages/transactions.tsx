@@ -1,6 +1,5 @@
 import { Button, Drawer, Group, MultiSelect, Select, Stack, Tabs, Text, Title } from '@mantine/core';
-import React, { useCallback, useState } from 'react';
-import dayjs from 'dayjs';
+import React, { useCallback, useRef, useState } from 'react';
 import Page from '../layout/Page';
 import TransactionTable from '../containers/TransactionTable';
 import { SAMPLE_CARDS, SAMPLE_DRIVERS, SAMPLE_TRANSACTIONS } from '../utils/constants';
@@ -11,6 +10,8 @@ import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { trpc } from '../utils/clients';
+import { usePapaParse } from 'react-papaparse';
+import dayjs from 'dayjs';
 
 interface ExportForm {
 	file_type: 'CSV' | 'PDF';
@@ -21,14 +22,15 @@ interface ExportForm {
 }
 
 const Transactions = ({ testMode, sessionID }) => {
+	const exportRef = useRef(null);
+	const { jsonToCSV } = usePapaParse();
+	const [csv, setCSV] = useState('');
 	const [opened, setOpened] = useState(false);
-	const query = trpc.getTransactions.useQuery({ userId: sessionID });
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionID });
+	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: sessionID });
 
-	const data = testMode
-		? SAMPLE_TRANSACTIONS
-		: !query.isLoading
-		? query?.data
-		: [];
+	const data = testMode ? SAMPLE_TRANSACTIONS : !transactionsQuery.isLoading ? transactionsQuery?.data : [];
 
 	const form = useForm<ExportForm>({
 		initialValues: {
@@ -37,13 +39,52 @@ const Transactions = ({ testMode, sessionID }) => {
 			locations: [],
 			cards: [],
 			drivers: []
+		},
+		validate: {
+			transaction_range: value => value.some(d => d === null) ? 'Please enter a complete time range' : null
 		}
 	});
 
-	const handleSubmit = useCallback(values => {
-		alert(JSON.stringify(values));
-		console.log(values);
-	}, []);
+	const filterTransactions = (filters: ExportForm) => {
+		const result = transactionsQuery?.data
+			?.filter(t => {
+				// if transaction date lies outside the date range, skip transaction
+				let isValid = !(
+					dayjs(t.created_at).isBefore(filters.transaction_range[0]) ||
+					dayjs(t.created_at).isAfter(filters.transaction_range[1]) ||
+					(filters.cards.length && !filters.cards.includes(t.cardId)) ||
+					(filters.drivers.length && !filters.drivers.includes(t.driverId)) ||
+					(filters.locations.length && !filters.locations.includes(t.merchant_data.city))
+				);
+				console.table({ isValid });
+				return isValid;
+			})
+			.map(t => ({
+				['Transaction Id']: t.transaction_id,
+				['Created At']: dayjs(t.created_at).format("MMM DD HH:mma"),
+				Cardholder: t.cardholder_name,
+				['Card Last4']: t.last4,
+				Amount: t.transaction_amount,
+				Merchant: t.merchant_data.name,
+				['Merchant Category']: t.merchant_data.category,
+				Type: t.transaction_type,
+				City: t.merchant_data.city,
+			}));
+		console.log(result)
+		return result;
+	};
+
+	const handleSubmit = useCallback(
+		values => {
+			const transactions = filterTransactions(values);
+			const results = jsonToCSV(transactions);
+			console.log('---------------------------');
+			exportRef.current.href = `data:text/csv;charset=utf-8,${results}`;
+			exportRef.current.click();
+			console.log('---------------------------');
+		},
+		[exportRef, csv]
+	);
 
 	return (
 		<Page.Container
@@ -71,18 +112,19 @@ const Transactions = ({ testMode, sessionID }) => {
 						<span>Export</span>
 					</Title>
 					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<Select required label='File Type' data={['PDF', 'CSV']} {...form.getInputProps('type')} />
 						<Group spacing={5}>
 							<IconFilter stroke={1.5} />
 							<span className='font-medium'>Filter</span>
 						</Group>
 						<DateRangePicker
+							required
 							icon={<IconCalendar size={18} />}
 							fullWidth
 							size='sm'
 							label='Transaction Range'
 							placeholder='Pick dates range'
 							value={form.values.transaction_range}
+							error={form.errors.transaction_range}
 							inputFormat='DD/MM/YYYY'
 							labelSeparator=' → '
 							labelFormat='MMM YYYY'
@@ -91,34 +133,56 @@ const Transactions = ({ testMode, sessionID }) => {
 						<MultiSelect
 							label='Locations'
 							data={uniqueArray(
-								SAMPLE_TRANSACTIONS.map(value => ({
-									label: value.location,
-									value: value.id
+								data.map(value => ({
+									label: value.merchant_data.city,
+									value: value.merchant_data.city
 								})),
-								'location'
+								'merchant_data.city'
 							)}
 							{...form.getInputProps('locations')}
 						/>
 						<MultiSelect
 							label='Cards'
-							data={SAMPLE_CARDS.map(value => ({
-								label: value.last4,
-								value: value.id
-							}))}
+							data={
+								testMode
+									? SAMPLE_CARDS.map(value => ({
+											label: value.last4,
+											value: value.id
+									  }))
+									: cardsQuery?.data?.map(value => ({
+											label: value.last4,
+											value: value.id
+									  }))
+							}
 							{...form.getInputProps('cards')}
 						/>
 						<MultiSelect
 							label='Drivers'
-							data={SAMPLE_DRIVERS.map(value => ({
-								label: value.full_name,
-								value: value.full_name
-							}))}
+							data={
+								testMode
+									? SAMPLE_DRIVERS.map(value => ({
+											label: value.full_name,
+											value: value.full_name
+									  }))
+									: driversQuery?.data?.map(value => ({
+											label: value.full_name,
+											value: value.id
+									  }))
+							}
 							{...form.getInputProps('drivers')}
 						/>
 						<Group py='xl' position='right'>
 							<Button type='submit'>
 								<Text weight={500}>Export</Text>
 							</Button>
+							<a
+								ref={exportRef}
+								href={`data:text/csv;charset=utf-8,${csv}`}
+								download={`Transactions - ${dayjs(form.values.transaction_range[0]).format("MMM DD")} - ${dayjs(form.values.transaction_range[1]).format("MMM DD")}.csv`}
+								className='hidden'
+							>
+								<button>DOWNLOAD</button>
+							</a>
 						</Group>
 					</form>
 				</Stack>

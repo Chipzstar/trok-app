@@ -283,8 +283,15 @@ export const SAMPLE_PAYMENTS = [
 export const SAMPLE_TRANSACTIONS = [
 	{
 		id: '',
-		created_at: 1665414165,
-		posted_date: 1665421245,
+		created_at: dayjs().format(),
+		updated_at: dayjs().format(),
+		userId: '',
+		driverId: '',
+		cardId: '',
+		cardholder_id: '',
+		currency: '',
+		merchant_amount: 468000,
+		authorization_id: '',
 		merchant_data: {
 			name: 'BP Fuel',
 			city: 'London',
@@ -293,16 +300,19 @@ export const SAMPLE_TRANSACTIONS = [
 		location: 'London, E2 9LH',
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
+		transaction_amount: 468000
 	},
 	{
 		id: '',
-		created_at: 1665414165,
-		posted_date: 1665421245,
+		created_at: dayjs().format(),
+		updated_at: dayjs().format(),
+		userId: '',
+		driverId: '',
+		cardId: '',
+		cardholder_id: '',
+		currency: '',
+		merchant_amount: 468000,
+		authorization_id: '',
 		merchant_data: {
 			name: 'BP Fuel',
 			city: 'London',
@@ -310,16 +320,19 @@ export const SAMPLE_TRANSACTIONS = [
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
+		transaction_amount: 468000
 	},
 	{
 		id: '',
-		created_at: 1665414165,
-		posted_date: 1665421245,
+		created_at: dayjs().format(),
+		updated_at: dayjs().format(),
+		userId: '',
+		driverId: '',
+		cardId: '',
+		cardholder_id: '',
+		currency: '',
+		merchant_amount: 468000,
+		authorization_id: '',
 		merchant_data: {
 			name: 'BP Fuel',
 			city: 'London',
@@ -327,16 +340,19 @@ export const SAMPLE_TRANSACTIONS = [
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
+		transaction_amount: 468000
 	},
 	{
 		id: '',
-		created_at: 1665414165,
-		posted_date: 1665421245,
+		created_at: dayjs().format(),
+		updated_at: dayjs().format(),
+		userId: '',
+		driverId: '',
+		cardId: '',
+		cardholder_id: '',
+		currency: '',
+		merchant_amount: 468000,
+		authorization_id: '',
 		merchant_data: {
 			name: 'BP Fuel',
 			city: 'London',
@@ -344,16 +360,19 @@ export const SAMPLE_TRANSACTIONS = [
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
+		transaction_amount: 468000
 	},
 	{
 		id: '',
-		created_at: 1665414165,
-		posted_date: 1665421245,
+		created_at: dayjs().format(),
+		updated_at: dayjs().format(),
+		userId: '',
+		driverId: '',
+		cardId: '',
+		cardholder_id: '',
+		currency: '',
+		merchant_amount: 468000,
+		authorization_id: '',
 		merchant_data: {
 			name: 'BP Fuel',
 			city: 'London',
@@ -361,11 +380,7 @@ export const SAMPLE_TRANSACTIONS = [
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000,
-		net_discount: 4679995,
-		type: 'fuel',
-		litres: 120,
-		price_per_litre: 17080
+		transaction_amount: 468000
 	}
 ];
 

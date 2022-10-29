@@ -4,7 +4,7 @@ import DataGrid from '../components/DataGrid';
 import { MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 
-const TransactionTable = ({data, spacingY="md", withPagination=true}) => {
+const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 	const [activePage, setPage] = useState(1);
 
 	const rows = data.map((t, index) => {
@@ -18,9 +18,9 @@ const TransactionTable = ({data, spacingY="md", withPagination=true}) => {
 				</td>
 				<td colSpan={1}>
 					<div className='flex flex-shrink flex-col'>
-								<span>
-									{t.merchant_data.city} {t.merchant_data.postcode}
-								</span>
+						<span>
+							{t.merchant_data.city} {t.merchant_data.postcode}
+						</span>
 					</div>
 				</td>
 				<td colSpan={1}>
@@ -34,7 +34,7 @@ const TransactionTable = ({data, spacingY="md", withPagination=true}) => {
 				</td>
 			</tr>
 		);
-	})
+	});
 
 	return (
 		<DataGrid
@@ -58,10 +58,10 @@ const TransactionTable = ({data, spacingY="md", withPagination=true}) => {
 				<Empty
 					message={
 						<span className='text-center text-2xl'>
-									You have no transactions
-									<br />
-									Your transaction will appear once your drivers start using their fuel cards
-								</span>
+							You have no transactions
+							<br />
+							Your transaction will appear once your drivers start using their fuel cards
+						</span>
 					}
 				/>
 			}

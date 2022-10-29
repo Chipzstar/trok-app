@@ -95,7 +95,6 @@ const transactionsRouter = t.router({
 						},
 						{ stripeAccount: input.stripeId }
 					);
-					console.log(paymentIntent);
 					// capture the payment intent
 					paymentIntent = await stripe.paymentIntents.capture(paymentIntent.id, {
 						stripeAccount: input.stripeId
