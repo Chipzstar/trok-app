@@ -1,4 +1,4 @@
-import { Button, Drawer, Group, MultiSelect, Select, Stack, Tabs, Text, Title } from '@mantine/core';
+import { Button, Drawer, Group, MultiSelect, Stack, Tabs, Text, Title } from '@mantine/core';
 import React, { useCallback, useRef, useState } from 'react';
 import Page from '../layout/Page';
 import TransactionTable from '../containers/TransactionTable';
@@ -46,7 +46,7 @@ const Transactions = ({ testMode, sessionID }) => {
 	});
 
 	const filterTransactions = (filters: ExportForm) => {
-		const result = transactionsQuery?.data
+		return transactionsQuery?.data
 			?.filter(t => {
 				// if transaction date lies outside the date range, skip transaction
 				let isValid = !(
@@ -61,27 +61,23 @@ const Transactions = ({ testMode, sessionID }) => {
 			})
 			.map(t => ({
 				['Transaction Id']: t.transaction_id,
-				['Created At']: dayjs(t.created_at).format("MMM DD HH:mma"),
+				['Created At']: dayjs(t.created_at).format('MMM DD HH:mma'),
 				Cardholder: t.cardholder_name,
 				['Card Last4']: t.last4,
 				Amount: t.transaction_amount,
 				Merchant: t.merchant_data.name,
 				['Merchant Category']: t.merchant_data.category,
 				Type: t.transaction_type,
-				City: t.merchant_data.city,
+				City: t.merchant_data.city
 			}));
-		console.log(result)
-		return result;
 	};
 
 	const handleSubmit = useCallback(
 		values => {
 			const transactions = filterTransactions(values);
 			const results = jsonToCSV(transactions);
-			console.log('---------------------------');
 			exportRef.current.href = `data:text/csv;charset=utf-8,${results}`;
 			exportRef.current.click();
-			console.log('---------------------------');
 		},
 		[exportRef, csv]
 	);

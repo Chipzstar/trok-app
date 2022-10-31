@@ -8,6 +8,7 @@ import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
 import authRoutes from './app/routes/auth';
 import stripeRoutes from './app/routes/stripe';
+import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMagicLink } from './app/helpers/email';
@@ -23,7 +24,7 @@ const runApp = async () => {
 	// using protecting against HTTP Parameter Pollution attacks
 	app.use(hpp());
 	// using bodyParser to parse JSON bodies into JS objects
-	const jsonParser = bodyParser.json()
+	const jsonParser = bodyParser.json();
 	app.use(bodyParser.urlencoded({ extended: true }));
 	// adding morgan to log HTTP requests
 	app.use(logger('dev'));
@@ -77,12 +78,12 @@ const runApp = async () => {
 	app.get('/server/gcp/upload', async (req, res, next) => {
 		try {
 			const { filename, crn, type } = req.query;
-			console.table({filename, crn, type});
+			console.table({ filename, crn, type });
 			const bucket = storage.bucket(String(process.env.GCS_BUCKET_NAME));
-			console.log(bucket)
+			console.log(bucket);
 			const filepath = `${crn}/${type}/${filename}`;
 			const file = bucket.file(filepath);
-			console.log(file)
+			console.log(file);
 			console.log(`${filename} uploaded to ${process.env.GCS_BUCKET_NAME}`);
 			const options = {
 				expires: Date.now() + 1 * 60 * 1000, //  1 minute,
@@ -98,21 +99,25 @@ const runApp = async () => {
 	/**
 	 *  STRIPE ROUTES
 	 */
-	app.use('/server/stripe', stripeRoutes)
+	app.use('/server/stripe', stripeRoutes);
+	/**
+	 *  PLAID ROUTES
+	 */
+	app.use('/server/plaid', jsonParser, plaidRoutes);
 	/**
 	 * TEST ROUTES
 	 */
 	app.get('/test/user-agent', jsonParser, async (req, res, next) => {
 		try {
-			console.log(req.ip)
-			console.log(req.get('User-Agent'))
-			res.status(200).send(Date.now())
+			console.log(req.ip);
+			console.log(req.get('User-Agent'));
+			res.status(200).send(Date.now());
 		} catch (err) {
 			console.error(err);
 			next(err);
 		}
-	})
-	app.post('/test/email', jsonParser,async (req, res, next) => {
+	});
+	app.post('/test/email', jsonParser, async (req, res, next) => {
 		try {
 			const { email, name } = req.body;
 			const response = await sendMagicLink(email, name, uuidv4());

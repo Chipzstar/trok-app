@@ -1,10 +1,23 @@
 import Stripe from 'stripe';
 import { MailerSend, Sender } from 'mailer-send-ts';
 import { Storage } from '@google-cloud/storage';
+import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 	apiVersion: '2022-08-01'
 });
+
+const plaidConfig = new Configuration({
+	basePath: PlaidEnvironments.sandbox,
+	baseOptions: {
+		headers: {
+			'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+			'PLAID-SECRET': process.env.PLAID_SECRET,
+		},
+	},
+});
+
+export const plaid = new PlaidApi(plaidConfig);
 
 export const mailerSend = new MailerSend({ apiKey: String(process.env.MAILERSEND_API_KEY) });
 

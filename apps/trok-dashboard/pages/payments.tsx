@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
 	Button,
 	Drawer,
-	Group,
+	Group, Loader,
 	NumberInput,
 	SegmentedControl,
 	Stack,
@@ -12,7 +12,7 @@ import {
 	TextInput,
 	Title
 } from '@mantine/core';
-import { IconCalendar, IconChevronRight, IconSearch } from '@tabler/icons';
+import { IconCalendar, IconCheck, IconChevronRight, IconSearch, IconX } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
 import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
@@ -23,96 +23,131 @@ import { PAYMENT_STATUS } from '../utils/types';
 import PaymentDetails from '../modals/PaymentDetails';
 import SortCodeInput from '../components/SortCodeInput';
 import { useForm } from '@mantine/form';
+import { usePlaidLink } from 'react-plaid-link';
+import { apiClient } from '../utils/clients';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
+import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 
-const Payments = ({testMode}) => {
+const Payments = ({ testMode, session_id }) => {
 	const [opened, setOpened] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [linkToken, setLinkToken] = useState(null);
+	const config: Parameters<typeof usePlaidLink>[0] = {
+		env: 'sandbox',
+		clientName: process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME,
+		token: linkToken,
+		onSuccess: () => console.log('Success!!!!!!')
+	};
+	const { open, ready } = usePlaidLink(config);
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'topup' | 'account'>('topup');
 
-	const rows = testMode ? SAMPLE_PAYMENTS.map((element, index) => {
-		const statusClass = classNames({
-			'py-1': true,
-			'w-28': true,
-			'rounded-full': true,
-			'text-center': true,
-			capitalize: true,
-			'text-xs': true,
-			'tracking-wide': true,
-			'font-semibold': true,
-			'text-success': element.status === PAYMENT_STATUS.COMPLETE,
-			'text-warning': element.status === PAYMENT_STATUS.IN_PROGRESS,
-			'text-danger': element.status === PAYMENT_STATUS.FAILED,
-			'bg-success/25': element.status === PAYMENT_STATUS.COMPLETE,
-			'bg-warning/25': element.status === PAYMENT_STATUS.IN_PROGRESS,
-			'bg-danger/25': element.status === PAYMENT_STATUS.FAILED
-		});
-		return (
-			<tr
-				key={index}
-				style={{
-					border: 'none'
-				}}
-			>
-				<td colSpan={1}>
-					<span>{dayjs.unix(element.finish_date).format('MMM DD')}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.recipient.name}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{element.type}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{GBP(element.amount).format()}</span>
-				</td>
-				<td colSpan={1}>
-					<div className={statusClass}>
-						<span>
-							<span
-								style={{
-									fontSize: 9
-								}}
-							>
-								●
-							</span>
-							&nbsp;
-							{capitalize(sanitize(element?.status))}
-						</span>
-					</div>
-				</td>
-				<td
-					role='button'
-					onClick={() => {
-						setSelectedPayment(element);
-						setOpened(true);
-					}}
-				>
-					<Group grow position='left'>
-						<ActionIcon size='sm'>
-							<IconChevronRight />
-						</ActionIcon>
-					</Group>
-				</td>
-			</tr>
-		);
-	}) : [];
+	const rows = testMode
+		? SAMPLE_PAYMENTS.map((element, index) => {
+				const statusClass = classNames({
+					'py-1': true,
+					'w-28': true,
+					'rounded-full': true,
+					'text-center': true,
+					capitalize: true,
+					'text-xs': true,
+					'tracking-wide': true,
+					'font-semibold': true,
+					'text-success': element.status === PAYMENT_STATUS.COMPLETE,
+					'text-warning': element.status === PAYMENT_STATUS.IN_PROGRESS,
+					'text-danger': element.status === PAYMENT_STATUS.FAILED,
+					'bg-success/25': element.status === PAYMENT_STATUS.COMPLETE,
+					'bg-warning/25': element.status === PAYMENT_STATUS.IN_PROGRESS,
+					'bg-danger/25': element.status === PAYMENT_STATUS.FAILED
+				});
+				return (
+					<tr
+						key={index}
+						style={{
+							border: 'none'
+						}}
+					>
+						<td colSpan={1}>
+							<span>{dayjs.unix(element.finish_date).format('MMM DD')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.recipient.name}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{element.type}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{GBP(element.amount).format()}</span>
+						</td>
+						<td colSpan={1}>
+							<div className={statusClass}>
+								<span>
+									<span
+										style={{
+											fontSize: 9
+										}}
+									>
+										●
+									</span>
+									&nbsp;
+									{capitalize(sanitize(element?.status))}
+								</span>
+							</div>
+						</td>
+						<td
+							role='button'
+							onClick={() => {
+								setSelectedPayment(element);
+								setOpened(true);
+							}}
+						>
+							<Group grow position='left'>
+								<ActionIcon size='sm'>
+									<IconChevronRight />
+								</ActionIcon>
+							</Group>
+						</td>
+					</tr>
+				);
+		  })
+		: [];
 
 	const form = useForm({
 		initialValues: {
 			account_holder_name: '',
 			account_number: '',
 			sort_code: '',
-			driver: '',
-			card: '',
+			amount: 0
 		}
 	});
 
-	const handleSubmit = useCallback(values => {
-		alert(JSON.stringify(values));
-		console.log(values);
-	}, []);
+	const handleSubmit = useCallback(
+		async values => {
+			setLoading(true)
+			try {
+				const token = (
+					await apiClient.post('/server/plaid/create_link_token_for_payment', {
+						user_id: String(session_id),
+						amount: values.amount,
+						reference: values.reference
+					})
+				).data;
+				setLinkToken(token.link_token);
+				setLoading(false)
+				notifySuccess('plaid-payment-success', 'Plaid Link Token Success!', <IconCheck size={20} />);
+			} catch (err) {
+				console.error(err);
+				setLoading(false)
+				notifyError('plaid-payment-failed', err.message, <IconX size={20} />);
+			}
+		},
+		[linkToken]
+	);
+
+	useEffect(() => console.log(linkToken), [linkToken]);
 
 	return (
 		<Page.Container
@@ -151,11 +186,15 @@ const Payments = ({testMode}) => {
 								{ label: 'Account', value: 'account' }
 							]}
 						/>
-						{section === 'account' && (
+						{section === 'account' ? (
 							<>
 								<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
 								<Group grow spacing='xl'>
-									<TextInput required label='Account Number' {...form.getInputProps('account_number')} />
+									<TextInput
+										required
+										label='Account Number'
+										{...form.getInputProps('account_number')}
+									/>
 									<SortCodeInput
 										onChange={event => {
 											console.log(event.currentTarget.value);
@@ -165,19 +204,37 @@ const Payments = ({testMode}) => {
 										required
 									/>
 								</Group>
+								<NumberInput
+									label='Amount'
+									min={100}
+									max={1000000}
+									step={100}
+									parser={(value: string) => value.replace(/\£\s?|(,*)/g, '')}
+									formatter={value =>
+										!Number.isNaN(parseFloat(value))
+											? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+											: '£ '
+									}
+									{...form.getInputProps('amount')}
+								/>
+							</>
+						) : (
+							<>
+								<NumberInput
+									label='Amount'
+									min={100}
+									max={1000000}
+									parser={(value: string) => value.replace(/\£\s?|(,*)/g, '')}
+									formatter={value =>
+										!Number.isNaN(parseFloat(value))
+											? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+											: '£ '
+									}
+									{...form.getInputProps('amount')}
+								/>
+								<TextInput required minLength={1} maxLength={18} label='Reference' {...form.getInputProps('reference')} />
 							</>
 						)}
-						<NumberInput
-							label='Amount'
-							min={100}
-							max={1000000}
-							formatter={value =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('spending_limit')}
-						/>
 						<Group py='xl' position='right'>
 							<Button
 								type='submit'
@@ -187,6 +244,7 @@ const Payments = ({testMode}) => {
 									}
 								}}
 							>
+								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 								<Text weight={500}>Send</Text>
 							</Button>
 						</Group>
@@ -219,9 +277,23 @@ const Payments = ({testMode}) => {
 					/>
 				</div>
 				<PaymentsTable rows={rows} />
+				{linkToken && <Button type='button' size='md' onClick={() => open()} disabled={!ready} mb='lg'>
+					<Text>Launch Link</Text>
+				</Button>}
 			</Page.Body>
 		</Page.Container>
 	);
+};
+
+export const getServerSideProps = async ({ req, res }) => {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	return {
+		props: {
+			session_id: session.id,
+			stripe_account_id: session?.stripe.account_id
+		}
+	};
 };
 
 export default Payments;
