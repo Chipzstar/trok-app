@@ -1,5 +1,5 @@
 import { showNotification } from '@mantine/notifications';
-import {PhoneNumberUtil, PhoneNumberFormat as PNF } from 'google-libphonenumber';
+import { PhoneNumberFormat as PNF, PhoneNumberUtil } from 'google-libphonenumber';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 

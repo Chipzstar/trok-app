@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Checkbox, Group, Loader, NumberInput, Radio, Stack, Text, TextInput } from '@mantine/core';
-import { phoneUtil, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
+import { STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
-	CreateUser,
+	CreateUser, getE164Number,
 	isValidUrl,
 	notifyError,
 	OnboardingBusinessInfo,
@@ -14,12 +14,12 @@ import {
 	SignupInfo
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
-import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import { apiClient } from '../../utils/clients';
+import { signIn } from 'next-auth/react';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
-const Step3 = ({ prevStep, finish }) => {
+const Step3 = ({ prevStep }) => {
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo>>({
 		key: STORAGE_KEYS.ACCOUNT,
@@ -60,13 +60,9 @@ const Step3 = ({ prevStep, finish }) => {
 	const handleSubmit = useCallback(
 		async (values: OnboardingLocationInfo) => {
 			setLoading(true);
-			console.log(values);
 			try {
 				// convert phone number to E164 format
-				const phone = phoneUtil.parseAndKeepRawInput(personalObj.phone, 'GB');
-				if (phoneUtil.getRegionCodeForNumber(phone) === 'GB') {
-					personalObj.phone = phoneUtil.format(phone, PNF.E164);
-				}
+				personalObj.phone = getE164Number(personalObj.phone);
 				const personResult = await Stripe.createToken('person', {
 					address: values.diff_shipping_address
 						? {
@@ -96,7 +92,6 @@ const Step3 = ({ prevStep, finish }) => {
 					email: personalObj.email,
 					phone: personalObj.phone
 				});
-				console.log('Person', personResult);
 				// generate secure tokens to create account + person in stripe
 				const accountResult = await Stripe.createToken('account', {
 					business_type: 'company',
@@ -119,7 +114,6 @@ const Step3 = ({ prevStep, finish }) => {
 					},
 					tos_shown_and_accepted: true
 				});
-				console.log('Account', accountResult);
 				if (accountResult.error) {
 					throw new Error(accountResult.error.message);
 				}
@@ -144,6 +138,7 @@ const Step3 = ({ prevStep, finish }) => {
 					},
 					full_name: `${personalObj.firstname} ${personalObj.lastname}`
 				};
+				console.log("Payload", payload)
 				const user = (
 					await apiClient.post('/server/auth/complete-registration', {
 						accountToken: accountResult.token,
@@ -161,14 +156,14 @@ const Step3 = ({ prevStep, finish }) => {
 				console.log('USER:', user);
 				console.log('************************************************');
 				setLoading(false);
-				finish(true);
+				await signIn('email', { email: user.email, callbackUrl: window.location.origin })
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
 				notifyError('onboarding-step1-failure', err.message, <IconX size={20} />);
 			}
 		},
-		[personalObj, businessObj, financialObj, finish]
+		[personalObj, businessObj, financialObj]
 	);
 
 	useEffect(() => {

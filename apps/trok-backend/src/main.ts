@@ -10,8 +10,6 @@ import authRoutes from './app/routes/auth';
 import stripeRoutes from './app/routes/stripe';
 import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
-import { v4 as uuidv4 } from 'uuid';
-import { sendMagicLink } from './app/helpers/email';
 import { storage } from './app/utils/clients';
 import 'express-async-errors';
 import './app/process';
@@ -112,17 +110,6 @@ const runApp = async () => {
 			console.log(req.ip);
 			console.log(req.get('User-Agent'));
 			res.status(200).send(Date.now());
-		} catch (err) {
-			console.error(err);
-			next(err);
-		}
-	});
-	app.post('/test/email', jsonParser, async (req, res, next) => {
-		try {
-			const { email, name } = req.body;
-			const response = await sendMagicLink(email, name, uuidv4());
-			console.log(response);
-			res.status(200).json(response);
 		} catch (err) {
 			console.error(err);
 			next(err);

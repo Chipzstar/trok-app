@@ -1,19 +1,23 @@
 import { EmailParams, Recipient } from 'mailer-send-ts';
+import prisma from '../../db';
 import { mailerSend, sentFrom, storage } from '../../utils/clients';
 
-export async function sendMagicLink(email: string, full_name: string, token: string) {
-	const personalization = [
-		{
-			email: email,
-			data: {
-				name: full_name,
-				account_name: 'Trok',
-				support_email: 'hello@trok.co',
-				verification_link: `https://trok-app-dev.onrender.com/?email=${email}&token=${token}`
-			}
-		}
-	];
+/*export async function sendMagicLink(email: string, url: string, provider: ) {
 	try {
+		const user = await prisma.user.findFirstOrThrow({
+
+		})
+		const personalization = [
+			{
+				email: email,
+				data: {
+					name: full_name,
+					account_name: 'Trok',
+					support_email: 'hello@trok.co',
+					verification_link: `${process.env.CLIENT_HOST_URL}/?email=${email}&token=${token}`
+				}
+			}
+		];
 		// send email verification link
 		const emailParams = new EmailParams()
 			.setFrom(sentFrom)
@@ -28,7 +32,7 @@ export async function sendMagicLink(email: string, full_name: string, token: str
 		console.error(err);
 		throw err;
 	}
-}
+}*/
 
 export const generateDownloadUrl = async (filepath: string) => {
 	try {

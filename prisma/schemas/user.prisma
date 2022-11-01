@@ -7,7 +7,7 @@ model User {
   firstname  String
   lastname  String
   phone String
-  email_verified Boolean @default(false)
+  emailVerified DateTime? @map("email_verified")
   verify_token String @default("")
   referral_code String?
   terms Boolean?
@@ -21,4 +21,6 @@ model User {
   cards Card[]
   transactions Transaction[]
   bank_accounts BankAccount[]
+  accounts      Account[]
+  sessions      Session[]
 }

@@ -19,7 +19,6 @@ const plaidConfig = new Configuration({
 
 export const plaid = new PlaidApi(plaidConfig);
 
-export const mailerSend = new MailerSend({ apiKey: String(process.env.MAILERSEND_API_KEY) });
 
 export const storage = new Storage({
 	projectId: process.env.GCS_PROJECT_ID,
@@ -29,5 +28,7 @@ export const storage = new Storage({
 		private_key: process.env.GCS_PRIVATE_KEY
 	}
 });
+
+export const mailerSend = new MailerSend({ apiKey: String(process.env.MAILERSEND_API_KEY) });
 
 export const sentFrom = new Sender("hello@trok.co", "Ola Oladapo");

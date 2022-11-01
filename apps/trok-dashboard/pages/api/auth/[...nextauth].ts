@@ -1,10 +1,50 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import EmailProvider, { SendVerificationRequestParams } from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
 import { v4 as uuidv4 } from 'uuid';
+import * as nodemailer from 'nodemailer';
+import { text } from '../../../utils/functions';
+
+export async function sendMagicLink({identifier, url, provider, token, expires}: SendVerificationRequestParams) {
+	try {
+		const user = await prisma.user.findFirstOrThrow({
+			where: {
+				email: identifier
+			}
+		})
+		const transport = nodemailer.createTransport(provider.server)
+		const result = await transport.sendMail({
+			to: identifier,
+			from: provider.from,
+			subject: `Trok - Verify your email`,
+			text: text({ url, full_name: user.full_name }),
+		})
+		const failed = result.rejected.concat(result.pending).filter(Boolean)
+		if (failed.length) {
+			throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`)
+		}
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
+}
 
 const providers = [
+	EmailProvider({
+		id: 'email',
+		server: {
+			host: process.env.MAILERSEND_SMTP_HOST,
+			port: process.env.MAILERSEND_SMTP_PORT,
+			auth: {
+				user: process.env.MAILERSEND_SMTP_USERNAME,
+				pass: process.env.MAILERSEND_SMTP_PASSWORD
+			}
+		},
+		from: 'hello@trok.co',
+		sendVerificationRequest: sendMagicLink
+	}),
 	CredentialsProvider({
 		id: 'credentials',
 		type: 'credentials',
@@ -42,6 +82,11 @@ const callbacks = {
 		if (account.provider === 'credentials') {
 			user.accessToken = uuidv4();
 			return true;
+		} else if (account.provider === 'email') {
+			console.log(user)
+			console.log('-----------------------------------------------');
+			console.log(account)
+			return true;
 		}
 		return false;
 	},
@@ -71,7 +116,8 @@ const callbacks = {
 
 const pages = {
 	error: '/login',
-	signIn: '/login'
+	signIn: '/login',
+	verifyRequest: '/verify-email',
 };
 
 export const authOptions = {

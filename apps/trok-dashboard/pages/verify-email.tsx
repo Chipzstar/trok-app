@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, createStyles, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../../utils/constants';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const useStyles = createStyles((theme) => ({
 	wrapper: {
@@ -66,7 +66,7 @@ const useStyles = createStyles((theme) => ({
 	}
 }));
 
-const SignUpComplete = ({ auth, setAuth }) => {
+const SignUpComplete = () => {
 	const [account, setAccount] = useLocalStorage({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
 	const router = useRouter();
 	const { classes } = useStyles();
@@ -83,14 +83,13 @@ const SignUpComplete = ({ auth, setAuth }) => {
 				<Text size='sm' color='dimmed'>
 					Please check your inbox at <span className="font-medium">{account?.email}</span> for an email confirmation link. <br/>You have 24 hours to confirm your email.
 				</Text>
-				{/*<div className={classes.controls}>
+				{process.env.NODE_ENV !== "production" && <div className={classes.controls}>
 					<Button px="xl" size="md" onClick={() => {
-						setAuth(true)
 						router.push('/')
 					}}>
 						<Text weight={500}>Go to Dashboard</Text>
 					</Button>
-				</div>*/}
+				</div>}
 			</div>
 		</div>
 	);

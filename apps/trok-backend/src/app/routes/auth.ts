@@ -5,7 +5,9 @@ import { SignupInfo } from '@trok-app/shared-utils';
 import { TWENTY_FOUR_HOURS } from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
-import { sendMagicLink } from '../helpers/email';
+import { fetchIssuingAccount } from '../helpers/stripe';
+import { AppError } from '../utils/exceptions';
+import * as dayjs from 'dayjs';
 
 const router = express.Router();
 let reminderTimeout;
@@ -39,7 +41,7 @@ router.post('/onboarding', async (req, res, next) => {
 		console.log('EMAIL: ' + email);
 		const payload = req.body;
 		console.log(payload);
-		await redisClient.hset(<string>email, Object.entries(payload).flat());
+		await redisClient.hmset(<string>email, payload);
 		await redisClient.hset(<string>email, 'onboarding_step', <string>step);
 		// reset expiry time for 24hours
 		await redisClient.expire(<string>email, 60 * 60 * 24 * 2);
@@ -55,8 +57,9 @@ router.post('/onboarding', async (req, res, next) => {
 
 router.post('/complete-registration', async (req, res, next) => {
 	try {
-		console.log(req.get('User-Agent'))
+		console.log(req.get('User-Agent'));
 		const { accountToken, personToken, business_profile, data } = req.body;
+		console.log(data);
 		const account = await stripe.accounts.create({
 			country: 'GB',
 			type: 'custom',
@@ -70,14 +73,13 @@ router.post('/complete-registration', async (req, res, next) => {
 				card_issuing: {
 					tos_acceptance: {
 						ip: req.ip,
-						date: Date.now(),
+						date: dayjs().subtract(2, "m").unix(),
 						user_agent: req.get('User-Agent')
 					}
 				}
 			},
 			account_token: accountToken.id
 		});
-		console.log(account);
 		const person = await stripe.accounts.createPerson(<string>account.id, {
 			person_token: personToken.id
 		});
@@ -90,16 +92,39 @@ router.post('/complete-registration', async (req, res, next) => {
 				...data,
 				verify_token,
 				stripe: {
-					accountId: account.id
+					accountId: account.id,
+					personId: person.id
 				}
 			}
 		});
-		await sendMagicLink(data.email, data.full_name, verify_token)
 		console.log('USER', user);
+		fetchIssuingAccount(user.id, account)
+			.then(async res => {
+				console.log(res);
+				await prisma.user.update({
+					where: {
+						id: user.id
+					},
+					data: {
+						stripe: {
+							...user.stripe,
+							issuing_account: res
+						}
+					}
+				})
+			})
+			.catch(error => console.error(error));
 		res.status(200).json(user);
 	} catch (err) {
 		console.error(err);
-		next(err);
+		next(new AppError({
+			//@ts-ignore
+			name: err.name,
+			//@ts-ignore
+			httpCode: err.statusCode,
+			//@ts-ignore
+			message: err.message,
+		}));
 	}
 });
 

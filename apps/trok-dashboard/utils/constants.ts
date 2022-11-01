@@ -37,7 +37,8 @@ export const PATHS = {
 	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
 	SETTINGS: '/settings',
-	REFERRAL: '/referral'
+	REFERRAL: '/referral',
+	VERIFY_EMAIL: '/verify-email'
 };
 
 export const SAMPLE_DRIVERS = [

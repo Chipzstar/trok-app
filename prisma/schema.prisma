@@ -141,6 +141,19 @@ enum CardType {
   physical
   virtual
 }
+model Payment {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  plaid_payment_id   String   @unique
+  plaid_recipient_id String
+  plaid_link_token   String
+  reference          String
+  amount             Int
+  status             String
+}
 model Transaction {
   id                 String          @id @default(auto()) @map("_id") @db.ObjectId
   created_at         DateTime        @default(now())
@@ -228,7 +241,7 @@ model User {
   firstname          String
   lastname           String
   phone              String
-  email_verified     Boolean       @default(false)
+  emailVerified      DateTime?     @map("email_verified")
   verify_token       String        @default("")
   referral_code      String?
   terms              Boolean?
@@ -242,6 +255,7 @@ model User {
   cards              Card[]
   transactions       Transaction[]
   bank_accounts      BankAccount[]
-  Account            Account[]
-  Session            Session[]
+  accounts           Account[]
+  sessions           Session[]
+  Payment            Payment[]
 }
