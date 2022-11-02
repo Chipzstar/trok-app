@@ -2,16 +2,16 @@ import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { AppError } from '../utils/exceptions';
 import { HttpCode } from '../utils/constants';
 
-/*export const errorHandler: ErrorRequestHandler = (error, req , res, next) => {
+export const errorHandler: ErrorRequestHandler = (error, req , res, next) => {
 	console.log(error)
 	return res.status(error.status || 500).json({
 		error: {
 			message: error.message || "Something went wrong."
 		}
 	})
-}*/
+}
 
-class ErrorHandler {
+/*class ErrorHandler {
 	private isTrustedError(error: Error): boolean {
 		if (error instanceof AppError) {
 			return error.isNormal;
@@ -39,6 +39,6 @@ class ErrorHandler {
 			this.handleCriticalError(error, response);
 		}
 	}
-}
+}*/
 
-export const errorHandler = new ErrorHandler();
+/*export const errorHandler = new ErrorHandler();*/

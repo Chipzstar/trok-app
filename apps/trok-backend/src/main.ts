@@ -118,9 +118,11 @@ const runApp = async () => {
 	/**
 	 * ERROR HANDLERS
 	 */
-	app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+	/*app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 		errorHandler.handleError(err, res);
-	});
+	});*/
+
+	app.use(errorHandler)
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
