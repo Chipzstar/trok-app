@@ -95,6 +95,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
 			<Stack>
 				<NumberInput
+					required
 					label='What is your average monthly revenue?'
 					min={100}
 					max={1000000}
