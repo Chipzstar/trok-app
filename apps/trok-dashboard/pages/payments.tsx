@@ -32,7 +32,7 @@ import { notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-uti
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [opened, setOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [linkToken, setLinkToken] = useState("link-sandbox-c06ba7dd-d22b-4dd1-9eeb-3a95899d2de9");
+	const [linkToken, setLinkToken] = useState(null);
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
