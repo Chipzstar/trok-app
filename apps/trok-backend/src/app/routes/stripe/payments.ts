@@ -17,7 +17,7 @@ const paymentsRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				let payments = await ctx.prisma.payment.findMany({
+				return await ctx.prisma.payment.findMany({
 					where: {
 						userId: input.userId
 					},
@@ -25,9 +25,6 @@ const paymentsRouter = t.router({
 						created_at: 'desc'
 					}
 				});
-				console.log('************************************************');
-				console.log(payments)
-				return payments
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
