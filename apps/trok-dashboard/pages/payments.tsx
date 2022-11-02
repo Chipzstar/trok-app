@@ -21,7 +21,6 @@ import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
 import classNames from 'classnames';
 import PaymentDetails from '../modals/PaymentDetails';
-import SortCodeInput from '../components/SortCodeInput';
 import { useForm } from '@mantine/form';
 import { PlaidLinkOnSuccess, PlaidLinkOnSuccessMetadata, usePlaidLink } from 'react-plaid-link';
 import { apiClient, trpc } from '../utils/clients';
@@ -29,15 +28,19 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import PaymentForm from '../components/forms/PaymentForm';
+import { useDebouncedState } from '@mantine/hooks';
+import isBetween from 'dayjs/plugin/isBetween'
+dayjs.extend(isBetween)
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [opened, setOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [linkToken, setLinkToken] = useState(null);
 	const [paymentOpened, setPaymentOpened] = useState(false);
-	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
+	const [range, setRange] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'topup' | 'account'>('topup');
+	const [search, setSearch] = useDebouncedState('', 250);
 	const query = trpc.getPayments.useQuery({
 		userId: session_id
 	});
@@ -65,7 +68,13 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 
 	const { open, ready } = usePlaidLink(config);
 	const rows = testMode
-		? SAMPLE_PAYMENTS.map((element, index) => {
+		? SAMPLE_PAYMENTS.filter(
+				p =>
+					dayjs.unix(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1], "day")) &&
+					(p.recipient_name.contains(search) ||
+					p.payment_type.contains(search) ||
+					GBP(p.amount).format().contains(search))
+		  ).map((p, index) => {
 				const statusClass = classNames({
 					'py-1': true,
 					'w-28': true,
@@ -75,84 +84,12 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					'text-xs': true,
 					'tracking-wide': true,
 					'font-semibold': true,
-					'text-success': element.status === PAYMENT_STATUS.COMPLETE,
-					'text-warning': element.status === PAYMENT_STATUS.IN_PROGRESS,
-					'text-danger': element.status === PAYMENT_STATUS.FAILED,
-					'bg-success/25': element.status === PAYMENT_STATUS.COMPLETE,
-					'bg-warning/25': element.status === PAYMENT_STATUS.IN_PROGRESS,
-					'bg-danger/25': element.status === PAYMENT_STATUS.FAILED
-				});
-				return (
-					<tr
-						key={index}
-						style={{
-							border: 'none'
-						}}
-					>
-						<td colSpan={1}>
-							<span>{dayjs.unix(element.created_at).format('MMM DD')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.recipient_name}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.payment_type}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.amount).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<div className={statusClass}>
-								<span>
-									<span
-										style={{
-											fontSize: 9
-										}}
-									>
-										●
-									</span>
-									&nbsp;
-									{capitalize(sanitize(element?.status))}
-								</span>
-							</div>
-						</td>
-						<td
-							role='button'
-							onClick={() => {
-								setSelectedPayment(element);
-								setOpened(true);
-							}}
-						>
-							<Group grow position='left'>
-								<ActionIcon size='sm'>
-									<IconChevronRight />
-								</ActionIcon>
-							</Group>
-						</td>
-					</tr>
-				);
-		  })
-		: !query?.isLoading
-		? query?.data?.map((p, index) => {
-				const statusClass = classNames({
-					'py-1': true,
-					'w-28': true,
-					'rounded-full': true,
-					'text-center': true,
-					capitalize: true,
-					'text-xs': true,
-					'tracking-wide': true,
-					'font-semibold': true,
-					'text-violet-500': p.status === PAYMENT_STATUS.PENDING,
 					'text-success': p.status === PAYMENT_STATUS.COMPLETE,
 					'text-warning': p.status === PAYMENT_STATUS.IN_PROGRESS,
 					'text-danger': p.status === PAYMENT_STATUS.FAILED,
-					'text-gray-500': p.status === PAYMENT_STATUS.CANCELLED,
-					'bg-violet-500/25': p.status === PAYMENT_STATUS.PENDING,
 					'bg-success/25': p.status === PAYMENT_STATUS.COMPLETE,
 					'bg-warning/25': p.status === PAYMENT_STATUS.IN_PROGRESS,
-					'bg-danger/25': p.status === PAYMENT_STATUS.FAILED,
-					'bg-gray-500/25': p.status === PAYMENT_STATUS.CANCELLED
+					'bg-danger/25': p.status === PAYMENT_STATUS.FAILED
 				});
 				return (
 					<tr
@@ -162,13 +99,13 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						}}
 					>
 						<td colSpan={1}>
-							<span>{dayjs(p.created_at).format('MMM DD')}</span>
+							<span>{dayjs.unix(p.created_at).format('MMM DD')}</span>
 						</td>
 						<td colSpan={1}>
 							<span>{p.recipient_name}</span>
 						</td>
 						<td colSpan={1}>
-							<span>{capitalize(sanitize(p.payment_type))}</span>
+							<span>{p.payment_type}</span>
 						</td>
 						<td colSpan={1}>
 							<span>{GBP(p.amount).format()}</span>
@@ -204,6 +141,87 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					</tr>
 				);
 		  })
+		: !query?.isLoading
+		? query?.data
+				?.filter(
+					p =>
+						dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1], "day")) &&
+						(p.recipient_name.contains(search) ||
+						p.payment_type.contains(search) ||
+						GBP(p.amount).format().contains(search))
+				)
+				.map((p, index) => {
+					console.log(dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1], "day")))
+					const statusClass = classNames({
+						'py-1': true,
+						'w-28': true,
+						'rounded-full': true,
+						'text-center': true,
+						capitalize: true,
+						'text-xs': true,
+						'tracking-wide': true,
+						'font-semibold': true,
+						'text-violet-500': p.status === PAYMENT_STATUS.PENDING,
+						'text-success': p.status === PAYMENT_STATUS.COMPLETE,
+						'text-warning': p.status === PAYMENT_STATUS.IN_PROGRESS,
+						'text-danger': p.status === PAYMENT_STATUS.FAILED,
+						'text-gray-500': p.status === PAYMENT_STATUS.CANCELLED,
+						'bg-violet-500/25': p.status === PAYMENT_STATUS.PENDING,
+						'bg-success/25': p.status === PAYMENT_STATUS.COMPLETE,
+						'bg-warning/25': p.status === PAYMENT_STATUS.IN_PROGRESS,
+						'bg-danger/25': p.status === PAYMENT_STATUS.FAILED,
+						'bg-gray-500/25': p.status === PAYMENT_STATUS.CANCELLED
+					});
+					return (
+						<tr
+							key={index}
+							style={{
+								border: 'none'
+							}}
+						>
+							<td colSpan={1}>
+								<span>{dayjs(p.created_at).format('MMM DD')}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{p.recipient_name}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{capitalize(sanitize(p.payment_type))}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{GBP(p.amount).format()}</span>
+							</td>
+							<td colSpan={1}>
+								<div className={statusClass}>
+									<span>
+										<span
+											style={{
+												fontSize: 9
+											}}
+										>
+											●
+										</span>
+										&nbsp;
+										{capitalize(sanitize(p?.status))}
+									</span>
+								</div>
+							</td>
+							<td
+								role='button'
+								onClick={() => {
+									setSelectedPayment(p);
+									setOpened(true);
+								}}
+							>
+								<Group grow position='left'>
+									<ActionIcon size='sm'>
+										<IconChevronRight />
+									</ActionIcon>
+								</Group>
+							</td>
+						</tr>
+					);
+				})
 		: [];
 
 	const form = useForm({
@@ -234,7 +252,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			setLinkToken(token.link_token);
 			setLoading(false);
 			setOpened(false);
-			notifySuccess('plaid-payment-success', 'Plaid Link Token Success!', <IconCheck size={20} />);
+			notifySuccess('plaid-payment-success', 'Starting Plaid session...', <IconCheck size={20} />);
 		} catch (err) {
 			console.error(err);
 			setLoading(false);
@@ -258,15 +276,24 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			}
 		>
 			<PaymentDetails opened={opened} setOpened={setOpened} payment={selectedPayment} />
-			<PaymentForm opened={paymentOpened} onClose={() => setPaymentOpened(false)} form={form} onSubmit={handleSubmit} loading={loading} section={section} setSection={setSection} />
+			<PaymentForm
+				opened={paymentOpened}
+				onClose={() => setPaymentOpened(false)}
+				form={form}
+				onSubmit={handleSubmit}
+				loading={loading}
+				section={section}
+				setSection={setSection}
+			/>
 			<Page.Body>
 				<div className='flex items-center justify-between'>
 					<TextInput
+						defaultValue={search}
 						className='w-96'
 						size='sm'
 						radius={0}
 						icon={<IconSearch size={18} />}
-						onChange={e => console.log(e.target.value)}
+						onChange={e => setSearch(e.currentTarget.value)}
 						placeholder='Search'
 					/>
 					<DateRangePicker
@@ -277,11 +304,11 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						className='w-80'
 						label='Viewing payments between:'
 						placeholder='Pick dates range'
-						value={value}
+						value={range}
 						inputFormat='DD/MM/YYYY'
 						labelSeparator=' → '
 						labelFormat='MMM YYYY'
-						onChange={setValue}
+						onChange={setRange}
 					/>
 				</div>
 				<PaymentsTable rows={rows} />

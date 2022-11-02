@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { trpc } from '../utils/clients';
 import { ModalsProvider } from '@mantine/modals';
+import '../utils/string.extensions';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
