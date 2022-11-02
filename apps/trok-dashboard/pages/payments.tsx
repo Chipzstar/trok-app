@@ -41,9 +41,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'topup' | 'account'>('topup');
 	const [search, setSearch] = useDebouncedState('', 250);
-	const query = trpc.getPayments.useQuery({
-		userId: session_id
-	});
+	const query = trpc.getPayments.useQuery({ userId: session_id });
 
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
 		// log and save metadata
@@ -251,7 +249,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			).data;
 			setLinkToken(token.link_token);
 			setLoading(false);
-			setOpened(false);
+			setPaymentOpened(false);
 			notifySuccess('plaid-payment-success', 'Starting Plaid session...', <IconCheck size={20} />);
 		} catch (err) {
 			console.error(err);
