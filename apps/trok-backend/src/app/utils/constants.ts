@@ -1,3 +1,4 @@
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 export const PLAID_SANDBOX = process.env.PLAID_ENV === 'sandbox'
 
 export enum HttpCode {

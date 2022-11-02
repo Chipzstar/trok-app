@@ -318,6 +318,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						) : (
 							<>
 								<NumberInput
+									precision={2}
 									label='Amount'
 									min={100}
 									max={1000000}

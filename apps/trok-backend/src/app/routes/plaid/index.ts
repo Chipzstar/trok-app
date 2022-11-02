@@ -6,7 +6,7 @@ import { prettyPrintResponse } from '../../utils/helpers';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../../db';
 import { AppError } from '../../utils/exceptions';
-import { PLAID_SANDBOX } from '../../utils/constants';
+import { IS_DEVELOPMENT, PLAID_SANDBOX } from '../../utils/constants';
 import { convertPlaidStatus, handlePaymentInitiation } from '../../helpers/plaid';
 import { fetchFundingDetails } from '../../helpers/stripe';
 
@@ -142,7 +142,7 @@ router.post('/create_link_token_for_payment', async (req, response, next) => {
 					client_user_id: user_id || uuidv4(),
 					phone_number: bankAccount.user.phone
 				},
-				webhook: PLAID_SANDBOX ? "https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook" : process.env.PLAID_WEBHOOK_URL,
+				webhook: IS_DEVELOPMENT ? "https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook" : process.env.PLAID_WEBHOOK_URL,
 				institution_data: {
 					routing_number: PLAID_SANDBOX ? '021000021' : routing_number
 				},
