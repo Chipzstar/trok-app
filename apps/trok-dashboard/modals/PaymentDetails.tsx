@@ -21,7 +21,7 @@ const PaymentDetails = ({opened, setOpened, payment}) => {
 				<div className='flex flex-col space-y-12'>
 					<Stack spacing='xs'>
 						<span className="font-semibold">Payment Type</span>
-						<span>{capitalize(sanitize(payment?.payment_type ?? ""))}</span>
+						<span>{capitalize(sanitize(String(payment?.payment_type)))}</span>
 					</Stack>
 					<Stack spacing='xs'>
 						<span className="font-semibold">Payment Date</span>

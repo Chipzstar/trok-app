@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import currency from 'currency.js';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
+import { v4 as uuidv4 } from 'uuid';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -207,7 +208,7 @@ export const SAMPLE_CARDS = [
 
 export const SAMPLE_PAYMENTS = [
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -218,7 +219,7 @@ export const SAMPLE_PAYMENTS = [
 		reference: "send to John Smith"
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -229,7 +230,7 @@ export const SAMPLE_PAYMENTS = [
 		reference: "send to George Smith"
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -240,7 +241,7 @@ export const SAMPLE_PAYMENTS = [
 		reference: "send to Rayan Bannai"
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -251,7 +252,7 @@ export const SAMPLE_PAYMENTS = [
 		reference: 'Send to King Dave'
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -262,7 +263,7 @@ export const SAMPLE_PAYMENTS = [
 		reference: 'Top-up balance'
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
@@ -276,7 +277,7 @@ export const SAMPLE_PAYMENTS = [
 
 export const SAMPLE_TRANSACTIONS = [
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
 		userId: '',
@@ -297,7 +298,7 @@ export const SAMPLE_TRANSACTIONS = [
 		transaction_amount: 468000
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
 		userId: '',
@@ -317,7 +318,7 @@ export const SAMPLE_TRANSACTIONS = [
 		transaction_amount: 468000
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
 		userId: '',
@@ -337,7 +338,7 @@ export const SAMPLE_TRANSACTIONS = [
 		transaction_amount: 468000
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
 		userId: '',
@@ -357,7 +358,7 @@ export const SAMPLE_TRANSACTIONS = [
 		transaction_amount: 468000
 	},
 	{
-		id: '',
+		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
 		userId: '',

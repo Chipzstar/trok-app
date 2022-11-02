@@ -3,6 +3,7 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
+import { GBP } from '../utils/constants';
 
 const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 	const [activePage, setPage] = useState(1);
@@ -30,7 +31,16 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 					<Text weight={500}>{t.cardholder_name}</Text>
 				</td>
 				<td colSpan={1}>
-					<span className='text-base font-normal'>£{t.transaction_amount / 100}</span>
+					<span className='text-base font-normal'>{GBP(t.transaction_amount).format()}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{t?.purchase_details?.fuel_type ?? "Unleaded"}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{t?.purchase_details?.volume ?? 120}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{GBP(t?.purchase_details?.unit_cost_decimal ?? 17200).format()}p</span>
 				</td>
 			</tr>
 		);
@@ -51,7 +61,10 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 					label: 'Driver',
 					key: null
 				},
-				{ label: 'Amount', key: null }
+				{ label: 'Amount', key: null },
+				{ label: 'Type', key: null },
+				{ label: 'Litres', key: null },
+				{ label: 'Price Per Litre', key: null }
 			]}
 			withPagination={withPagination}
 			emptyContent={

@@ -29,6 +29,19 @@ enum CardType {
     virtual
 }
 
+enum FuelType {
+    diesel
+    unleaded_plus
+    unleaded_regular
+    unleaded_super
+    other
+}
+
+enum UnitType {
+    us_gallon
+    liter
+}
+
 enum PaymentStatus {
     PAYMENT_STATUS_INPUT_NEEDED
     PAYMENT_STATUS_PROCESSING
