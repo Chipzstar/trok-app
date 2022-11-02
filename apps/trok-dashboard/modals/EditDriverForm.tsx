@@ -91,7 +91,7 @@ const EditDriverForm = ({ loading, driver, onClose, onSubmit }) => {
 							min={100}
 							max={1000000}
 							step={100}
-							parser={(value: string) => value.replace(/\£\s?|(,*)/g, '')}
+							parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
 							formatter={(value: string) =>
 								!Number.isNaN(parseFloat(value))
 									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')

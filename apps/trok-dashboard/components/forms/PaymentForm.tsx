@@ -65,8 +65,8 @@ const PaymentForm = ({opened, onClose, onSubmit, form, section, setSection, load
 								min={100}
 								max={1000000}
 								step={100}
-								parser={(value: string) => value.replace(/\£\s?|(,*)/g, '')}
-								formatter={value =>
+								parser={(value) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={(value) =>
 									!Number.isNaN(parseFloat(value))
 										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 										: '£ '
@@ -84,8 +84,8 @@ const PaymentForm = ({opened, onClose, onSubmit, form, section, setSection, load
 								min={100}
 								max={1000000}
 								step={100}
-								parser={(value: string) => value.replace(/\£\s?|(,*)/g, '')}
-								formatter={value =>
+								parser={(value) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={(value) =>
 									!Number.isNaN(parseFloat(value))
 										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 										: '£ '

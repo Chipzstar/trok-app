@@ -1,18 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Page from '../layout/Page';
-import {
-	ActionIcon,
-	Button,
-	Drawer,
-	Group,
-	Loader,
-	NumberInput,
-	SegmentedControl,
-	Stack,
-	Text,
-	TextInput,
-	Title
-} from '@mantine/core';
+import { ActionIcon, Button, Group, TextInput } from '@mantine/core';
 import { IconCalendar, IconCheck, IconChevronRight, IconSearch, IconX } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
 import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
@@ -29,8 +17,9 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
-import isBetween from 'dayjs/plugin/isBetween'
-dayjs.extend(isBetween)
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [opened, setOpened] = useState(false);
@@ -239,14 +228,26 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const handleSubmit = async values => {
 		setLoading(true);
 		try {
-			const token = (
-				await apiClient.post('/server/plaid/create_link_token_for_payment', {
-					user_id: String(session_id),
-					stripe_account_id: stripe_account_id,
-					amount: values.amount,
-					reference: values.reference
-				})
-			).data;
+			let token;
+			if (section === "topup") {
+				token = (
+					await apiClient.post('/server/plaid/top-up-issuing-balance', {
+						user_id: String(session_id),
+						stripe_account_id: stripe_account_id,
+						amount: values.amount,
+						reference: values.reference
+					})
+				).data;
+			} else {
+				token = (
+					await apiClient.post('/server/plaid/', {
+						user_id: String(session_id),
+						stripe_account_id: stripe_account_id,
+						amount: values.amount,
+						reference: values.reference
+					})
+				).data;
+			}
 			setLinkToken(token.link_token);
 			setLoading(false);
 			setPaymentOpened(false);

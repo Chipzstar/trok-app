@@ -1,5 +1,12 @@
+import { CountryCode, Products } from 'plaid';
+
+export const PLAID_CLIENT_NAME = 'Trok';
 export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 export const PLAID_SANDBOX = process.env.PLAID_ENV === 'sandbox'
+export const PLAID_REDIRECT_URI = String(process.env.PLAID_REDIRECT_URI);
+export const PLAID_COUNTRY_CODES = [CountryCode.Gb];
+export const PLAID_PRODUCTS = [Products.Auth, Products.Transactions, Products.PaymentInitiation];
+export const PLAID_WEBHOOK_URL = String(process.env.PLAID_WEBHOOK_URL)
 
 export enum HttpCode {
 	OK = 200,

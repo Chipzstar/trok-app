@@ -2,6 +2,7 @@ import { PaymentInitiationPaymentGetRequest, PaymentInitiationPaymentStatus, Pay
 import prisma from '../../db';
 import { plaid } from '../../utils/clients';
 import { PAYMENT_STATUS } from '@trok-app/shared-utils';
+import { PLAID_CLIENT_NAME, PLAID_COUNTRY_CODES, PLAID_PRODUCTS, PLAID_REDIRECT_URI } from '../../utils/constants';
 
 export function convertPlaidStatus(status: string) {
 	switch (status) {
@@ -51,11 +52,61 @@ export const handlePaymentInitiation = async (event: PaymentStatusUpdateWebhook)
 						plaid_payment_id: event.payment_id
 					},
 					data: {
-						plaid_payment_status: event.new_payment_status,
-						status: convertPlaidStatus(event.new_payment_status)
+						plaid_payment_status: plaid_payment.data.status,
+						status: convertPlaidStatus(plaid_payment.data.status)
 					}
 				});
+				console.log("updated payment!")
+				console.log('************************************************');
+				console.table(payment)
+				break;
+			default:
+				console.log("Unrecognized webhook code")
+				break;
 		}
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
+};
+
+export const generateLinkToken = async (
+	client_user_id: string,
+	phone_number: string,
+	webhook: string,
+	routing_number: string,
+	payment_id: string
+) => {
+	try {
+		const createTokenResponse = (
+			await plaid.linkTokenCreate({
+				client_name: PLAID_CLIENT_NAME,
+				user: {
+					// This should correspond to a unique id for the current user.
+					// Typically, this will be a user ID number from your application.
+					// Personally identifiable information, such as an email address or phone number, should not be used here.
+					client_user_id,
+					phone_number
+				},
+				webhook,
+				institution_data: {
+					routing_number
+				},
+				// Institutions from all listed countries will be shown.
+				country_codes: PLAID_COUNTRY_CODES,
+				language: 'en',
+				// The 'payment_initiation' product has to be the only element in the 'products' list.
+				products: PLAID_PRODUCTS,
+				payment_initiation: {
+					payment_id
+				},
+				redirect_uri: PLAID_REDIRECT_URI
+			})
+		).data;
+		console.log('************************************************');
+		console.log(createTokenResponse);
+		console.log('************************************************');
+		return createTokenResponse;
 	} catch (err) {
 		console.error(err);
 		throw err;
