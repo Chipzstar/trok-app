@@ -208,63 +208,69 @@ export const SAMPLE_CARDS = [
 export const SAMPLE_PAYMENTS = [
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_id: '2',
-		recipient_name: 'John Smith'
+		recipient_name: 'John Smith',
+		reference: "send to John Smith"
 	},
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_id: '6',
-		recipient_name: 'George Smith'
+		recipient_name: 'George Smith',
+		reference: "send to George Smith"
 	},
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
 		recipient_id: '9',
-		recipient_name: 'Rayan Bannai'
+		recipient_name: 'Rayan Bannai',
+		reference: "send to Rayan Bannai"
 	},
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
 		recipient_id: '5',
-		recipient_name: 'King Dave'
+		recipient_name: 'King Dave',
+		reference: 'Send to King Dave'
 	},
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_id: '8',
-		recipient_name: 'John Smith'
+		recipient_name: 'Stripe Payments UK Limited',
+		reference: 'Top-up balance'
 	},
 	{
 		id: '',
-		created_at: dayjs().unix(),
+		created_at: dayjs().format(),
 		finish_date: dayjs().unix(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.FAILED,
 		recipient_id: '1',
-		recipient_name: 'Michael Phelps'
+		recipient_name: 'Michael Phelps',
+		reference: 'Send to Michael'
 	}
 ];
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import { Divider, Drawer, Stack, Textarea } from '@mantine/core';
-import { sanitize } from '../utils/functions';
+import { capitalize, sanitize } from '../utils/functions';
 import { GBP } from '../utils/constants';
 import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat)
 
 const PaymentDetails = ({opened, setOpened, payment}) => {
 	return (
@@ -19,11 +21,11 @@ const PaymentDetails = ({opened, setOpened, payment}) => {
 				<div className='flex flex-col space-y-12'>
 					<Stack spacing='xs'>
 						<span className="font-semibold">Payment Type</span>
-						<span>{payment?.type}</span>
+						<span>{capitalize(sanitize(payment?.payment_type ?? ""))}</span>
 					</Stack>
 					<Stack spacing='xs'>
 						<span className="font-semibold">Payment Date</span>
-						<span>{dayjs.unix(payment?.created_at).format("MMM D")}</span>
+						<span>{dayjs(payment?.created_at).format("HH:mm - Do MMM")}</span>
 					</Stack>
 					<Stack spacing='xs'>
 						<span className="font-semibold">Payroll Period</span>

@@ -31,7 +31,7 @@ router.post('/webhook', async (req, res, next) => {
 	}
 });
 
-router.post('/top-up-issuing-balance', async (req, response, next) => {
+/*router.post('/top-up-issuing-balance', async (req, response, next) => {
 	try {
 		const { user_id, stripe_account_id, amount, reference } = req.body;
 		// fetch the default bank account
@@ -103,7 +103,7 @@ router.post('/top-up-issuing-balance', async (req, response, next) => {
 			payment_id,
 			)
 
-		/*const createTokenResponse = (
+		/!*const createTokenResponse = (
 			await plaid.linkTokenCreate({
 				client_name: PLAID_CLIENT_NAME,
 				user: {
@@ -127,7 +127,7 @@ router.post('/top-up-issuing-balance', async (req, response, next) => {
 				},
 				redirect_uri: PLAID_REDIRECT_URI
 			})
-		).data;*/
+		).data;*!/
 		// create payment in db
 		await prisma.payment.create({
 			data: {
@@ -149,7 +149,7 @@ router.post('/top-up-issuing-balance', async (req, response, next) => {
 		console.error(err?.response?.data ?? err);
 		next(err);
 	}
-});
+});*/
 
 router.post('/pay-external-account', async (req, response, next) => {
 	try {

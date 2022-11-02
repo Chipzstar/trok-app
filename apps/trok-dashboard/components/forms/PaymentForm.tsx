@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import SortCodeInput from '../SortCodeInput';
 
-const PaymentForm = ({opened, onClose, onSubmit, form, section, setSection, loading}) => {
+const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loading }) => {
 	return (
 		<Drawer
 			opened={opened}
@@ -40,15 +40,11 @@ const PaymentForm = ({opened, onClose, onSubmit, form, section, setSection, load
 							{ label: 'Account', value: 'account' }
 						]}
 					/>
-					{section === 'account' ? (
+					{section === 'account' && (
 						<>
 							<TextInput required label='Send To' {...form.getInputProps('account_holder_name')} />
 							<Group grow spacing='xl'>
-								<TextInput
-									required
-									label='Account Number'
-									{...form.getInputProps('account_number')}
-								/>
+								<TextInput required label='Account Number' {...form.getInputProps('account_number')} />
 								<SortCodeInput
 									onChange={event => {
 										console.log(event.currentTarget.value);
@@ -58,49 +54,30 @@ const PaymentForm = ({opened, onClose, onSubmit, form, section, setSection, load
 									required
 								/>
 							</Group>
-							<NumberInput
-								required
-								precision={2}
-								label='Amount'
-								min={100}
-								max={1000000}
-								step={100}
-								parser={(value) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={(value) =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('amount')}
-							/>
-						</>
-					) : (
-						<>
-							<NumberInput
-								required
-								precision={2}
-								type="text"
-								label='Amount'
-								min={100}
-								max={1000000}
-								step={100}
-								parser={(value) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={(value) =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('amount')}
-							/>
-							<TextInput
-								required
-								minLength={1}
-								maxLength={18}
-								label='Reference'
-								{...form.getInputProps('reference')}
-							/>
 						</>
 					)}
+
+					<NumberInput
+						required
+						precision={2}
+						type='text'
+						label='Amount'
+						min={100}
+						max={1000000}
+						step={100}
+						parser={value => value.replace(/£\s?|(,*)/g, '')}
+						formatter={value =>
+							!Number.isNaN(parseFloat(value)) ? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '£ '
+						}
+						{...form.getInputProps('amount')}
+					/>
+					<TextInput
+						required
+						minLength={1}
+						maxLength={18}
+						label='Reference'
+						{...form.getInputProps('reference')}
+					/>
 					<Group py='xl' position='right'>
 						<Button
 							type='submit'
