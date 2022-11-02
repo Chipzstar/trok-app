@@ -187,7 +187,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 		} catch (err) {
 			console.error(err);
 			setLoading(false);
-			notifyError('add-bank-account-failed', err.message, <IconX size={20} />);
+			notifyError('add-bank-account-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 		}
 	}, []);
 

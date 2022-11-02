@@ -96,7 +96,7 @@ const Company = ({ user_id, stripe, business }) => {
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('update-personal-failed', err.message, <IconX size={20} />);
+				notifyError('update-personal-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[form]

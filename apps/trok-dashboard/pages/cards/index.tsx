@@ -71,7 +71,7 @@ const Cards = ({ testMode, sessionID }) => {
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('add-card-failed', err.message, <IconX size={20} />);
+				notifyError('add-card-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[sessionID, driversQuery]

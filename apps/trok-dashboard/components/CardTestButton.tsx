@@ -80,7 +80,7 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 					<IconCheck size={20} />
 				);
 			} catch (err) {
-				notifyError('card-payment-failed', err.message, <IconX size={20} />);
+				notifyError('card-payment-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		} else {
 			alert('Card has already been shipped and delivered!');

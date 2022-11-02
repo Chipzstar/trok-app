@@ -44,7 +44,7 @@ export function Signup({ secret }) {
 				setLoading(false)
 			} catch (err) {
 				setLoading(false)
-				notifyError('signup-failure', err.message, <IconX size={20} />)
+				notifyError('signup-failure', err?.error?.message ?? err.message, <IconX size={20} />)
 			}
 		},
 		[router, secret, setNewAccount]

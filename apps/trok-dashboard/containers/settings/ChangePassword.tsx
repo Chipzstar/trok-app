@@ -33,7 +33,7 @@ const ChangePassword = ({ user_id }) => {
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('update-password-failed', err.message, <IconX size={20} />);
+				notifyError('update-password-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[]

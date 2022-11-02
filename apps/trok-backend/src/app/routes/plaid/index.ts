@@ -178,7 +178,7 @@ router.post('/create_link_token_for_payment', async (req, response, next) => {
 		response.json(createTokenResponse);
 	} catch (err) {
 		// @ts-ignore
-		console.error(err?.response.data ?? err);
+		console.error(err?.response?.data ?? err);
 		next(err);
 	}
 });

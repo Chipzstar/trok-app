@@ -70,7 +70,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					notifySuccess('delete-driver-success', 'Driver deleted successfully!', <IconCheck size={20} />)
 				} catch (err) {
 					console.log(err)
-					notifySuccess('delete-driver-failed', err.message, <IconX size={20} />)
+					notifySuccess('delete-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />)
 				}
 			}
 		});
@@ -192,7 +192,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('add-driver-failed', err.message, <IconX size={20} />);
+				notifyError('add-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[session_id, stripe_account_id]
@@ -227,7 +227,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('update-driver-failed', err.message, <IconX size={20} />);
+				notifyError('update-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[session_id, stripe_account_id]

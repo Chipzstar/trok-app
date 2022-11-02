@@ -78,7 +78,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				notifyError('activate-card-failed', err.message, <IconX size={20} />);
+				notifyError('activate-card-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[card, stripe_account_id]

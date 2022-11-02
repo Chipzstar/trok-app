@@ -160,7 +160,7 @@ const Step3 = ({ prevStep }) => {
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				notifyError('onboarding-step1-failure', err.message, <IconX size={20} />);
+				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[personalObj, businessObj, financialObj]
