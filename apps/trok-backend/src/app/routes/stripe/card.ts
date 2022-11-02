@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../../utils/clients';
 import { CARD_SHIPPING_STATUS } from '@trok-app/shared-utils';
-import axios from 'axios';
 
 const cardRouter = t.router({
 	getCards: t.procedure
@@ -277,7 +276,7 @@ const cardRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				let card = await ctx.prisma.card.findFirstOrThrow({
+				const card = await ctx.prisma.card.findFirstOrThrow({
 					where: {
 						id: input.id
 					}
