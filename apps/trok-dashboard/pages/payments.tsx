@@ -20,40 +20,46 @@ import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
 import classNames from 'classnames';
-import { PAYMENT_STATUS } from '../utils/types';
 import PaymentDetails from '../modals/PaymentDetails';
 import SortCodeInput from '../components/SortCodeInput';
 import { useForm } from '@mantine/form';
 import { PlaidLinkOnSuccess, PlaidLinkOnSuccessMetadata, usePlaidLink } from 'react-plaid-link';
-import { apiClient } from '../utils/clients';
+import { apiClient, trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [opened, setOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [linkToken, setLinkToken] = useState(null);
+	const [linkToken, setLinkToken] = useState("link-sandbox-c06ba7dd-d22b-4dd1-9eeb-3a95899d2de9");
 	const [paymentOpened, setPaymentOpened] = useState(false);
 	const [value, setValue] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'topup' | 'account'>('topup');
+	const query = trpc.getPayments.useQuery({
+		userId: session_id
+	});
 
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
 		// log and save metadata
 		// exchange public token
-		apiClient.post('/server/plaid/set_access_token', {
-			public_token
-		}).then(({data}) => {
-			console.log(data)
-		}).catch(err => console.error(err));
+		apiClient
+			.post('/server/plaid/set_access_token', {
+				public_token
+			})
+			.then(({ data }) => {
+				console.log(data);
+			})
+			.catch(err => console.error(err));
 	}, []);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: 'sandbox',
 		clientName: process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME,
 		token: linkToken,
-		onSuccess
+		onSuccess,
+		onLoad: () => console.log('loading...')
 	};
 
 	const { open, ready } = usePlaidLink(config);
@@ -83,13 +89,13 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						}}
 					>
 						<td colSpan={1}>
-							<span>{dayjs.unix(element.finish_date).format('MMM DD')}</span>
+							<span>{dayjs.unix(element.created_at).format('MMM DD')}</span>
 						</td>
 						<td colSpan={1}>
-							<span>{element.recipient.name}</span>
+							<span>{element.recipient_name}</span>
 						</td>
 						<td colSpan={1}>
-							<span>{element.type}</span>
+							<span>{element.payment_type}</span>
 						</td>
 						<td colSpan={1}>
 							<span>{GBP(element.amount).format()}</span>
@@ -125,6 +131,78 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					</tr>
 				);
 		  })
+		: !query?.isLoading
+		? query?.data?.map((p, index) => {
+				const statusClass = classNames({
+					'py-1': true,
+					'w-28': true,
+					'rounded-full': true,
+					'text-center': true,
+					capitalize: true,
+					'text-xs': true,
+					'tracking-wide': true,
+					'font-semibold': true,
+					'text-violet-500': p.status === PAYMENT_STATUS.PENDING,
+					'text-success': p.status === PAYMENT_STATUS.COMPLETE,
+					'text-warning': p.status === PAYMENT_STATUS.IN_PROGRESS,
+					'text-danger': p.status === PAYMENT_STATUS.FAILED,
+					'text-gray-500': p.status === PAYMENT_STATUS.CANCELLED,
+					'bg-violet-500/25': p.status === PAYMENT_STATUS.PENDING,
+					'bg-success/25': p.status === PAYMENT_STATUS.COMPLETE,
+					'bg-warning/25': p.status === PAYMENT_STATUS.IN_PROGRESS,
+					'bg-danger/25': p.status === PAYMENT_STATUS.FAILED,
+					'bg-gray-500/25': p.status === PAYMENT_STATUS.CANCELLED
+				});
+				return (
+					<tr
+						key={index}
+						style={{
+							border: 'none'
+						}}
+					>
+						<td colSpan={1}>
+							<span>{dayjs(p.created_at).format('MMM DD')}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{p.recipient_name}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{capitalize(sanitize(p.payment_type))}</span>
+						</td>
+						<td colSpan={1}>
+							<span>{GBP(p.amount).format()}</span>
+						</td>
+						<td colSpan={1}>
+							<div className={statusClass}>
+								<span>
+									<span
+										style={{
+											fontSize: 9
+										}}
+									>
+										●
+									</span>
+									&nbsp;
+									{capitalize(sanitize(p?.status))}
+								</span>
+							</div>
+						</td>
+						<td
+							role='button'
+							onClick={() => {
+								setSelectedPayment(p);
+								setOpened(true);
+							}}
+						>
+							<Group grow position='left'>
+								<ActionIcon size='sm'>
+									<IconChevronRight />
+								</ActionIcon>
+							</Group>
+						</td>
+					</tr>
+				);
+		  })
 		: [];
 
 	const form = useForm({
@@ -132,33 +210,40 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			account_holder_name: '',
 			account_number: '',
 			sort_code: '',
-			amount: 0
+			amount: 0,
+			reference: ''
+		},
+		validate: {
+			reference: val =>
+				val.search(/[^a-zA-Z0-9 ]/g) !== -1 ? 'Reference must not contain special characters' : null
 		}
 	});
 
-	const handleSubmit = useCallback(
-		async values => {
-			setLoading(true);
-			try {
-				const token = (
-					await apiClient.post('/server/plaid/create_link_token_for_payment', {
-						user_id: String(session_id),
-						stripe_account_id: stripe_account_id,
-						amount: values.amount,
-						reference: values.reference
-					})
-				).data;
-				setLinkToken(token.link_token);
-				setLoading(false);
-				notifySuccess('plaid-payment-success', 'Plaid Link Token Success!', <IconCheck size={20} />);
-			} catch (err) {
-				console.error(err);
-				setLoading(false);
-				notifyError('plaid-payment-failed', err.message, <IconX size={20} />);
-			}
-		},
-		[linkToken]
-	);
+	const handleSubmit = async values => {
+		setLoading(true);
+		try {
+			const token = (
+				await apiClient.post('/server/plaid/create_link_token_for_payment', {
+					user_id: String(session_id),
+					stripe_account_id: stripe_account_id,
+					amount: values.amount,
+					reference: values.reference
+				})
+			).data;
+			setLinkToken(token.link_token);
+			setLoading(false);
+			setOpened(false);
+			notifySuccess('plaid-payment-success', 'Plaid Link Token Success!', <IconCheck size={20} />);
+		} catch (err) {
+			console.error(err);
+			setLoading(false);
+			notifyError('plaid-payment-failed', err.message, <IconX size={20} />);
+		}
+	};
+
+	useEffect(() => {
+		ready && open();
+	}, [ready]);
 
 	return (
 		<Page.Container
@@ -295,11 +380,6 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					/>
 				</div>
 				<PaymentsTable rows={rows} />
-				{linkToken && (
-					<Button type='button' size='md' onClick={() => open()} disabled={!ready} mb='lg'>
-						<Text>Launch Link</Text>
-					</Button>
-				)}
 			</Page.Body>
 		</Page.Container>
 	);

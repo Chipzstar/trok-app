@@ -6,9 +6,12 @@ model Payment {
     userId String
     plaid_payment_id String @unique
     plaid_recipient_id String
-    plaid_link_token String
+    plaid_link_token String?
+    recipient_name String
     reference String
     amount Int
+    currency String @default("gbp")
+    payment_type String @default("bank_transfer")
+    plaid_payment_status PaymentStatus
     status String
-
 }

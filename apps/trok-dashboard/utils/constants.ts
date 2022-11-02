@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
 import currency from 'currency.js';
-import { PAYMENT_STATUS } from './types';
 import { PhoneNumberUtil } from 'google-libphonenumber';
-import { CARD_STATUS } from '@trok-app/shared-utils';
+import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -211,73 +210,61 @@ export const SAMPLE_PAYMENTS = [
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient: {
-			id: '',
-			name: 'John Smith'
-		}
+		recipient_id: '2',
+		recipient_name: 'John Smith'
 	},
 	{
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient: {
-			id: '',
-			name: 'George Smith'
-		}
+		recipient_id: '6',
+		recipient_name: 'George Smith'
 	},
 	{
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
-		recipient: {
-			id: '',
-			name: 'Rayan Bannai'
-		}
+		recipient_id: '9',
+		recipient_name: 'Rayan Bannai'
 	},
 	{
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
-		recipient: {
-			id: '',
-			name: 'King Dave'
-		}
+		recipient_id: '5',
+		recipient_name: 'King Dave'
 	},
 	{
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient: {
-			id: '',
-			name: 'John Smith'
-		}
+		recipient_id: '8',
+		recipient_name: 'John Smith'
 	},
 	{
 		id: '',
 		created_at: dayjs().unix(),
 		finish_date: dayjs().unix(),
-		type: 'Bank Transfer',
+		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.FAILED,
-		recipient: {
-			id: '',
-			name: 'Michael Phelps'
-		}
+		recipient_id: '1',
+		recipient_name: 'Michael Phelps'
 	}
 ];
 

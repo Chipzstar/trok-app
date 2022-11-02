@@ -91,3 +91,11 @@ export interface CreateUser extends SignupInfo {
 	shipping_address?: AddressInfo;
 	stripe?: StripeInfo;
 }
+
+export enum PAYMENT_STATUS {
+	PENDING = 'pending',
+	IN_PROGRESS = 'in_progress',
+	COMPLETE = 'complete',
+	FAILED = 'failed',
+	CANCELLED = 'cancelled'
+}

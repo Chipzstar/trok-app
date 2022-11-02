@@ -1,3 +1,5 @@
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
+
 export enum HttpCode {
 	OK = 200,
 	NO_CONTENT = 204,

@@ -1,12 +1,14 @@
 import * as express from 'express';
 import { plaid } from '../../utils/clients';
-import { CountryCode, DepositoryAccountSubtype, PaymentAmountCurrency, Products } from 'plaid';
+import { CountryCode, DepositoryAccountSubtype, PaymentAmountCurrency, Products, PaymentInitiationPaymentStatus } from 'plaid';
 import { getE164Number } from '@trok-app/shared-utils';
 import { prettyPrintResponse } from '../../utils/helpers';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../../db';
-import axios from 'axios';
-import * as  qs from 'qs';
+import { AppError } from '../../utils/exceptions';
+import { IS_DEVELOPMENT } from '../../utils/constants';
+import { convertPlaidStatus, handlePaymentInitiation } from '../../helpers/plaid';
+import { fetchFundingDetails } from '../../helpers/stripe';
 
 const PLAID_REDIRECT_URI = String(process.env.PLAID_REDIRECT_URI);
 const PLAID_COUNTRY_CODES = [CountryCode.Gb];
@@ -17,6 +19,24 @@ let ACCESS_TOKEN;
 let ITEM_ID;
 let PAYMENT_ID;
 const router = express.Router();
+
+router.post('/webhook', async (req, res, next) => {
+	try {
+		const event = req.body;
+		// switch case by webhook event type
+		switch(event.webhook_type) {
+			case 'PAYMENT_INITIATION':
+                await handlePaymentInitiation(event)
+				break;
+			default:
+				break;
+		}
+		res.status(200).json({ received: true, ...req.body });
+	} catch (err) {
+		console.error(err);
+		res.json({ received: true });
+	}
+});
 
 router.post('/create_link_token', async function (req, res, next) {
 	try {
@@ -62,32 +82,20 @@ router.post('/create_link_token_for_payment', async (req, response, next) => {
 				sort_code: true,
 				user: {
 					select: {
-						phone: true
+						phone: true,
+						email: true
 					}
 				}
 			}
 		});
 		console.log('-----------------------------------------------');
-		console.log("DEFAULT BANK ACCOUNT:", bankAccount)
+		console.log('DEFAULT BANK ACCOUNT:', bankAccount);
 		console.log('-----------------------------------------------');
 		// fetch the stripe funding account bank details
-		const stripeFundingAccount = (await axios.post(
-			'https://api.stripe.com/v1/issuing/funding_instructions',
-			qs.stringify({
-				bank_transfer: { type: 'gb_bank_transfer' },
-				currency: 'GBP',
-				funding_type: 'bank_transfer'
-			}),
-			{
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Authorization': 'Bearer ' + process.env.STRIPE_SECRET_KEY,
-					'Stripe-Account': stripe_account_id
-				}
-			}
-		)).data;
-		console.log(stripeFundingAccount.bank_transfer.financial_addresses)
+		const stripeFundingAccount = await fetchFundingDetails(stripe_account_id)
+		console.log(stripeFundingAccount.bank_transfer.financial_addresses);
 		console.log('-----------------------------------------------');
+		// Create PLAID Recipient
 		const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
 			name: 'Stripe Payments UK Limited',
 			bacs: {
@@ -101,16 +109,18 @@ router.post('/create_link_token_for_payment', async (req, response, next) => {
 				country: 'GB'
 			}
 		});
-		const recipientId = createRecipientResponse.data.recipient_id;
+		const recipient_id = createRecipientResponse.data.recipient_id;
 		prettyPrintResponse(createRecipientResponse);
-
+		const routing_number = bankAccount.sort_code.replace(/-/g, '');
+		console.log('-----------------------------------------------');
+		console.log(routing_number);
 		const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
-			recipient_id: recipientId,
+			recipient_id,
 			reference: reference,
 			options: {
 				bacs: {
 					account: bankAccount.account_number,
-					sort_code: bankAccount.sort_code.replace(/-/g, '')
+					sort_code: routing_number
 				}
 			},
 			amount: {
@@ -120,35 +130,51 @@ router.post('/create_link_token_for_payment', async (req, response, next) => {
 		});
 		prettyPrintResponse(createPaymentResponse);
 		const payment_id = createPaymentResponse.data.payment_id;
-
-		// We store the payment_id in memory for demo purposes - in production, store it in a secure
-		// persistent data store along with the Payment metadata, such as userId.
 		PAYMENT_ID = payment_id;
-		const createTokenResponse = (await plaid.linkTokenCreate({
-			client_name: CLIENT_NAME,
-			user: {
-				// This should correspond to a unique id for the current user.
-				// Typically, this will be a user ID number from your application.
-				// Personally identifiable information, such as an email address or phone number, should not be used here.
-				client_user_id: user_id || uuidv4(),
-				phone_number: bankAccount.user.phone
-			},
-			institution_data: {
-				routing_number: stripeFundingAccount['bank_transfer'].financial_addresses[0].sort_code.sort_code
-			},
-			// Institutions from all listed countries will be shown.
-			country_codes: PLAID_COUNTRY_CODES,
-			language: 'en',
-			// The 'payment_initiation' product has to be the only element in the 'products' list.
-			products: PLAID_PRODUCTS,
-			payment_initiation: {
-				payment_id: payment_id
-			},
-			redirect_uri: PLAID_REDIRECT_URI
-		})).data;
+
+		const createTokenResponse = (
+			await plaid.linkTokenCreate({
+				client_name: CLIENT_NAME,
+				user: {
+					// This should correspond to a unique id for the current user.
+					// Typically, this will be a user ID number from your application.
+					// Personally identifiable information, such as an email address or phone number, should not be used here.
+					client_user_id: user_id || uuidv4(),
+					phone_number: bankAccount.user.phone
+				},
+				webhook: IS_DEVELOPMENT ? "https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook" : process.env.PLAID_WEBHOOK_URL,
+				institution_data: {
+					routing_number: IS_DEVELOPMENT ? '021000021' : routing_number
+				},
+				// Institutions from all listed countries will be shown.
+				country_codes: PLAID_COUNTRY_CODES,
+				language: 'en',
+				// The 'payment_initiation' product has to be the only element in the 'products' list.
+				products: PLAID_PRODUCTS,
+				payment_initiation: {
+					payment_id: payment_id
+				},
+				redirect_uri: PLAID_REDIRECT_URI
+			})
+		).data;
 		console.log('************************************************');
 		console.log(createTokenResponse);
 		console.log('************************************************');
+		// create payment in db
+		await prisma.payment.create({
+			data: {
+				userId: user_id,
+				plaid_payment_id: payment_id,
+				plaid_link_token: createTokenResponse.link_token,
+				plaid_recipient_id: recipient_id,
+				recipient_name: "Stripe Payments UK Limited",
+				payment_type: "bank_transfer",
+				plaid_payment_status: PaymentInitiationPaymentStatus.InputNeeded,
+				amount: amount * 100,
+				status: convertPlaidStatus(createPaymentResponse.data.status),
+				reference
+			}
+		})
 		response.json(createTokenResponse);
 	} catch (err) {
 		// @ts-ignore
@@ -177,7 +203,19 @@ router.post('/set_access_token', async (req, res, next) => {
 		});
 	} catch (err) {
 		// @ts-ignore
-		console.error(err?.response.data ?? err);
+		if (err?.response.data) {
+			// @ts-ignore
+			console.error(err.response.data);
+			next(
+				new AppError({
+					// @ts-ignore
+					name: err?.response.data.display_message,
+					// @ts-ignore
+					message: err?.response.data.error_message,
+					httpCode: 400
+				})
+			);
+		}
 		next(err);
 	}
 });
