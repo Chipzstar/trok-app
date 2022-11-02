@@ -41,7 +41,7 @@ const Step1 = ({ nextStep }) => {
 			...companyForm
 		},
 		validate: {
-			business_crn: val => val.length !== 8 ? 'Company registration number must be 8 digits' : null,
+			business_crn: val => (val.length > 8 || val.length < 7) ? 'Company registration number must be 7-8 digits' : null,
 			weekly_fuel_spend: val => (Number(val) <= 0 ? 'Value must be at least £100' : null),
 			num_vehicles: val => (Number(val) <= 0 ? 'You must have at least 1 vehicle' : null)
 		}
@@ -135,7 +135,7 @@ const Step1 = ({ nextStep }) => {
 				<Group grow>
 					<TextInput
 						type='number'
-						minLength={8}
+						minLength={7}
 						maxLength={8}
 						required
 						label='Company Reg No.'
