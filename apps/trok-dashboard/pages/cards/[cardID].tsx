@@ -114,6 +114,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				userId: session_id,
 				card_id: String(cardID),
 				stripeId: stripe_account_id,
+				// @ts-ignore
 				spending_limits
 			});
 			setLoading(false);
