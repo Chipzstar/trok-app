@@ -58,7 +58,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	});
 	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+			utils.invalidate({ userId: session_id }).then(r => form.reset());
 		}
 	});
 	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
@@ -66,7 +66,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const card = useMemo(
 		() =>
 			testMode ? SAMPLE_CARDS.find(c => c.card_id === cardID) : cardsQuery?.data?.find(c => c.card_id === cardID),
-		[cardID, cardsQuery.data]
+		[cardID, cardsQuery]
 	);
 
 	const shipping_status_class = classNames({
