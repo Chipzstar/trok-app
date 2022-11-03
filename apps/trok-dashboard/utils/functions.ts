@@ -1,8 +1,6 @@
-import CryptoJS from 'crypto-js'
+import CryptoJS from 'crypto-js';
 import { apiClient } from './clients';
-import { SendVerificationRequestParams } from 'next-auth/providers/email';
-import prisma from '../../trok-backend/src/app/db';
-import { EmailParams, Recipient } from 'mailer-send-ts';
+import dayjs from 'dayjs';
 
 interface selectInput {
 	value: string;
@@ -62,50 +60,16 @@ export async function uploadFile(file, crn, documentType) {
 	}
 }
 
-/*export async function sendMagicLink(params: SendVerificationRequestParams) {
-	try {
-		const user = await prisma.user.findFirstOrThrow({
-			where: {
-				email: params.identifier
-			}
-		})
-		/!*const transport = createTransport(provider.server)
-		const result = await transport.sendMail({
-			to: identifier,
-			from: provider.from,
-			subject: `Trok - Verify your email`,
-			text: text({ url, full_name }),
-			html: html({ url, host, theme }),
-		})
-		const failed = result.rejected.concat(result.pending).filter(Boolean)
-		if (failed.length) {
-			throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`)
-		}*!/
-		const personalization = [
-			{
-				email: params.identifier,
-				data: {
-					name: user.full_name,
-					account_name: 'Trok',
-					support_email: 'hello@trok.co',
-					verification_link: params.url
-				}
-			}
-		];
-		// send email verification link
-		const emailParams = new EmailParams()
-			.setFrom(sentFrom)
-			.setTo([new Recipient(params.identifier, user.full_name)])
-			.setSubject('Trok - Verify your email')
-			.setTemplateId('v69oxl5e0zrl785k')
-			.setPersonalization(personalization);
-		const response = await mailerSend.email.send(emailParams);
-		console.log(response);
-	} catch (err) {
-		console.error(err);
-		throw err;
-	}
-}*/
+//@ts-ignore
+export function filterByTimeRange(data, range: [Date, Date]) {
+	const startDate = dayjs(range[0]).startOf('day');
+	const endDate = dayjs(range[1]).endOf('day');
+	// @ts-ignore
+	return data.filter(t => {
+		const curr = dayjs(t.created_at);
+		return curr.isBefore(endDate) && curr.isAfter(startDate);
+	});
+}
 
 export function text({url, full_name}) {
 	return `Hey, ${full_name}!\n` +

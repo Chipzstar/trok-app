@@ -1,6 +1,5 @@
 import { showNotification } from '@mantine/notifications';
 import { PhoneNumberFormat as PNF, PhoneNumberUtil } from 'google-libphonenumber';
-import * as dayjs from 'dayjs';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -56,15 +55,4 @@ export function getE164Number(phoneNumber: string) {
 
 export function includesCaseInsensitive(this: string, str: string): boolean {
 	return this.toLowerCase().includes(str.toLowerCase());
-}
-
-//@ts-ignore
-export function filterByTimeRange(data, range: [Date, Date]) {
-	const startDate = dayjs(range[0]).startOf('day');
-	const endDate = dayjs(range[1]).endOf('day');
-	// @ts-ignore
-	return data.filter(t => {
-		const curr = dayjs(t.created_at);
-		return curr.isBefore(endDate) && curr.isAfter(startDate);
-	});
 }

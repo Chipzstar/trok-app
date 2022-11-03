@@ -7,17 +7,14 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
 import { GBP, STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
-import { filterByTimeRange } from '@trok-app/shared-utils';
+import { filterByTimeRange } from '../../utils/functions';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);
-
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
-
-// const labels = [0, 1, 2, 3, 4, 5, 6].reverse().map(val => dayjs().subtract(val, 'd').format("MMM D"))
 
 const SpendAnalysis = ({sessionId, dateRange}) => {
 	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionId });
@@ -69,7 +66,8 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 						datalabels: {
 							formatter: (value, context) => GBP(value).format(),
 							anchor: 'end',
-							align: 'top'
+							align: 'top',
+							clip: true
 						},
 						legend: {
 							display: false

@@ -83,8 +83,13 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Group position='center' py='xs'>
 							{editMode ? (
 								<DateRangePicker
-									icon={<IconCalendar size={18} />}
 									fullWidth
+									allowSingleDateInRange={false}
+									styles={{
+										input: {
+											border: 0
+										}
+									}}
 									dropdownType='modal'
 									modalProps={{}}
 									placeholder='Pick dates range'
