@@ -67,7 +67,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 							formatter: (value, context) => GBP(value).format(),
 							anchor: 'end',
 							align: 'top',
-							clip: true
+							clamp: true
 						},
 						legend: {
 							display: false
@@ -99,7 +99,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 							},
 							ticks: {
 								callback: function(value, index, ticks) {
-									return '£' + value;
+									return '£' + Number(value) / 100;
 								}
 							}
 						}
