@@ -55,8 +55,6 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
             data
 		}
 	}, [transactionsQuery, dateRange, testMode]);
-
-	useEffect(() => console.log(data), [data]);
 	
 	return (
 		<div style={{

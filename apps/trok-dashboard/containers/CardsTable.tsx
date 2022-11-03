@@ -55,7 +55,7 @@ const CardsTable = ({ data }) => {
 				<td colSpan={1}>
 					<span>{GBP(element.spending_limits[0].amount).format()}</span>
 				</td>
-				<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.id}`)}>
+				<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.card_id}`)}>
 					<Group grow position='left'>
 						<ActionIcon size='sm'>
 							<IconChevronRight />

@@ -29,14 +29,19 @@ const transactionsRouter = t.router({
 	getCardTransactions: t.procedure
 		.input(
 			z.object({
-				cardId: z.string()
+				card_id: z.string()
 			})
 		)
 		.query(async ({ input, ctx }) => {
 			try {
+				const card = await ctx.prisma.card.findUniqueOrThrow({
+					where: {
+						card_id: input.card_id
+					}
+				})
 				return await ctx.prisma.transaction.findMany({
 					where: {
-						cardId: input.cardId
+						cardId: card.id
 					}
 				});
 			} catch (err) {

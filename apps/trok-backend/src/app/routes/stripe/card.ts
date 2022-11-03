@@ -306,6 +306,40 @@ const cardRouter = t.router({
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
+		}),
+	updateSpendingLimits: t.procedure
+		.input(
+			z.object({
+				userId: z.string(),
+				stripeId: z.string(),
+				card_id: z.string(),
+				spending_limits: z.array(z.object({
+					amount: z.number(),
+					interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
+				}))
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				let card = await stripe.issuing.cards.update(input.card_id, {
+					spending_controls: {
+						spending_limits: input.spending_limits
+					},
+				}, { stripeAccount: input.stripeId})
+				console.log(card);
+				return await ctx.prisma.card.update({
+					where: {
+						card_id: input.card_id
+					},
+					data: {
+						spending_limits: input.spending_limits
+					}
+				})
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
 		})
 });
 

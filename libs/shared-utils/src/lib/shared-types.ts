@@ -25,6 +25,11 @@ export const intervals = ["per_authorization", "daily", "weekly", "monthly", "ye
 export type SpendingLimitInterval = typeof intervals[number];
 // export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
 
+export type SpendingLimit = {
+    interval: SpendingLimitInterval;
+    amount: number;
+};
+
 export interface SignupInfo {
 	full_name: string;
 	firstname: string;

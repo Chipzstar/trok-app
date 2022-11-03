@@ -1,6 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import { ActionIcon, Button, Card, Drawer, Group, Loader, NumberInput, Stack, Text, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Card,
+	Drawer,
+	Group,
+	Loader,
+	NumberInput,
+	Stack,
+	Switch,
+	Text,
+	Title
+} from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { GBP, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
@@ -9,10 +21,27 @@ import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { trpc } from '../../utils/clients';
-import { CARD_SHIPPING_STATUS, CARD_STATUS, notifyError, notifySuccess } from '@trok-app/shared-utils';
-import CardTestButton from '../../components/CardTestButton';
+import {
+	CARD_SHIPPING_STATUS,
+	CARD_STATUS,
+	notifyError,
+	notifySuccess,
+	SpendingLimit,
+	SpendingLimitInterval
+} from '@trok-app/shared-utils';
+import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
+
+function formatSpendingLimits(
+	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
+): SpendingLimit[] {
+	const selectedLimits = Object.entries(limits).filter(([key, value]) => value.active);
+	return selectedLimits.map(([key, value]: [SpendingLimitInterval, { active: boolean; amount: number }]) => ({
+		amount: value.amount * 100,
+		interval: key
+	}));
+}
 
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
@@ -22,16 +51,22 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
-	const cardsMutation = trpc.toggleCardStatus.useMutation({
+	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
 		onSuccess: function (input) {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const transactionsQuery = trpc.getCardTransactions.useQuery({ cardId: String(cardID) });
+	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+		}
+	});
+	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
 
 	const card = useMemo(
-		() => (testMode ? SAMPLE_CARDS.find(c => c.id === cardID) : cardsQuery?.data?.find(c => c.id === cardID)),
-		[cardID, cardsQuery]
+		() =>
+			testMode ? SAMPLE_CARDS.find(c => c.card_id === cardID) : cardsQuery?.data?.find(c => c.card_id === cardID),
+		[cardID, cardsQuery.data]
 	);
 
 	const shipping_status_class = classNames({
@@ -48,22 +83,58 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		? transactionsQuery?.data.slice(0, 3)
 		: [];
 
+	useEffect(() => form.reset(), [card]);
+
 	const form = useForm({
 		initialValues: {
-			per_transaction: card?.spending_limits.find(l => l.interval === 'per_authorization')?.amount / 100,
-			daily: card?.spending_limits.find(l => l.interval === 'daily')?.amount / 100,
-			weekly: card?.spending_limits.find(l => l.interval === 'weekly')?.amount / 100,
-			monthly: card?.spending_limits.find(l => l.interval === 'monthly')?.amount / 100
+			per_authorization: {
+				active: Boolean(card?.spending_limits.find(l => l.interval === 'per_authorization')),
+				amount: GBP(card?.spending_limits.find(l => l.interval === 'per_authorization')?.amount).value
+			},
+			daily: {
+				active: Boolean(card?.spending_limits.find(l => l.interval === 'daily')),
+				amount: GBP(card?.spending_limits.find(l => l.interval === 'daily')?.amount).value
+			},
+			weekly: {
+				active: Boolean(card?.spending_limits.find(l => l.interval === 'weekly')),
+				amount: GBP(card?.spending_limits.find(l => l.interval === 'weekly')?.amount).value
+			},
+			monthly: {
+				active: Boolean(card?.spending_limits.find(l => l.interval === 'monthly')),
+				amount: GBP(card?.spending_limits.find(l => l.interval === 'monthly')?.amount).value
+			}
 		}
 	});
 
-	const handleSubmit = useCallback(values => console.log(values), []);
+	const updateSpendingLimit = useCallback(async values => {
+		setLoading(true);
+		try {
+			const spending_limits = formatSpendingLimits(values);
+			await spendingLimitMutation.mutateAsync({
+				userId: session_id,
+				card_id: String(cardID),
+				stripeId: stripe_account_id,
+				spending_limits
+			});
+			setLoading(false);
+			setOpened(false);
+			notifySuccess(
+				'update-spending-limit-success',
+				'Spending limits updated successfully',
+				<IconCheck size={20} />
+			);
+		} catch (err) {
+			setLoading(false);
+			console.error(err);
+			notifyError('update-spending-limit-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, []);
 
 	const toggleCardStatus = useCallback(
 		async status => {
 			setLoading(true);
 			try {
-				await cardsMutation.mutateAsync({
+				await cardStatusMutation.mutateAsync({
 					id: String(cardID),
 					stripeId: stripe_account_id,
 					status
@@ -79,8 +150,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		},
 		[card, stripe_account_id]
 	);
-
-	useEffect(() => form.reset(), [card]);
 
 	return (
 		<Page.Container
@@ -106,43 +175,87 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 					<Title order={2} weight={500}>
 						<span>Edit Spend Limits</span>
 					</Title>
-					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<NumberInput
-							label='Per Transaction Limit'
-							formatter={value =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('per_transaction')}
-						/>
-						<NumberInput
-							label='Daily Spend Limit'
-							formatter={value =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('daily')}
-						/>
-						<NumberInput
-							label='Weekly Spend Limit'
-							formatter={value =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('weekly')}
-						/>
-						<NumberInput
-							label='Monthly Spend Limit'
-							formatter={value =>
-								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-									: '£ '
-							}
-							{...form.getInputProps('monthly')}
-						/>
+					<form onSubmit={form.onSubmit(updateSpendingLimit)} className='flex flex-col space-y-4'>
+						<div className='flex items-center space-x-4'>
+							<Switch
+								onLabel='ON'
+								offLabel='OFF'
+								size='md'
+								{...form.getInputProps('per_authorization.active', { type: 'checkbox' })}
+							/>
+							<NumberInput
+								disabled={!form.values.per_authorization.active}
+								classNames={{ root: 'w-full' }}
+								label='Per Transaction Limit'
+								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={value =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('per_authorization.amount')}
+							/>
+						</div>
+						<div className='flex items-center space-x-4'>
+							<Switch
+								onLabel='ON'
+								offLabel='OFF'
+								size='md'
+								{...form.getInputProps('daily.active', { type: 'checkbox' })}
+							/>
+							<NumberInput
+								disabled={!form.values.daily.active}
+								classNames={{ root: 'w-full' }}
+								label='Daily Spend Limit'
+								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={value =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('daily.amount')}
+							/>
+						</div>
+						<div className='flex items-center space-x-4'>
+							<Switch
+								onLabel='ON'
+								offLabel='OFF'
+								size='md'
+								{...form.getInputProps('weekly.active', { type: 'checkbox' })}
+							/>
+							<NumberInput
+								disabled={!form.values.weekly.active}
+								classNames={{ root: 'w-full' }}
+								label='Weekly Spend Limit'
+								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={value =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('weekly.amount')}
+							/>
+						</div>
+						<div className='flex items-center space-x-4'>
+							<Switch
+								onLabel='ON'
+								offLabel='OFF'
+								size='md'
+								{...form.getInputProps('monthly.active', { type: 'checkbox' })}
+							/>
+							<NumberInput
+								disabled={!form.values.monthly.active}
+								classNames={{ root: 'w-full' }}
+								label='Monthly Spend Limit'
+								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
+								formatter={value =>
+									!Number.isNaN(parseFloat(value))
+										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+										: '£ '
+								}
+								{...form.getInputProps('monthly.amount')}
+							/>
+						</div>
 						<Group py='xl' position='right'>
 							<Button
 								type='submit'
@@ -152,6 +265,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 									}
 								}}
 							>
+								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 								<Text weight={500}>Save</Text>
 							</Button>
 						</Group>
@@ -170,7 +284,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								: card?.shipping_status}
 						</span>
 					</Group>
-					<CardTestButton
+					<CardPaymentButton
 						stripeId={stripe_account_id}
 						id={cardID}
 						cardShippingStatus={card?.shipping_status}
@@ -195,15 +309,26 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 										<IconEdit />
 									</ActionIcon>
 								</div>
-								<span>-</span>
 								<span>
-									{card?.spending_limits[0].interval === 'daily'
-										? GBP(card?.spending_limits[0].amount).format()
+									{card?.spending_limits.find(({ interval }) => interval === 'per_authorization')
+										? GBP(
+												card?.spending_limits.find(
+													({ interval }) => interval === 'per_authorization'
+												)?.amount
+										  ).format()
 										: '-'}
 								</span>
 								<span>
-									{card?.spending_limits[0].interval === 'weekly'
-										? GBP(card?.spending_limits[0].amount).format()
+									{card?.spending_limits.find(({ interval }) => interval === 'daily')
+										? GBP(
+												card?.spending_limits.find(({ interval }) => interval === 'daily')
+													?.amount
+										  ).format()
+										: '-'}
+								</span>
+								<span>
+									{card?.spending_limits.find(({interval}) => interval === 'weekly')
+										? GBP(card?.spending_limits.find(({interval}) => interval === 'weekly')?.amount).format()
 										: '-'}
 								</span>
 							</Stack>

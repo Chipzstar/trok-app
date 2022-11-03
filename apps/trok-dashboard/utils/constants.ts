@@ -130,7 +130,8 @@ export const SAMPLE_DRIVERS = [
 
 export const SAMPLE_CARDS = [
 	{
-		id: 'card_0001',
+		id: uuidv4(),
+		card_id: 'card_0001',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
 		last4: '2912',
@@ -145,7 +146,8 @@ export const SAMPLE_CARDS = [
 		shipping_status: 'pending'
 	},
 	{
-		id: 'card_0002',
+		id: uuidv4(),
+		card_id: 'card_0002',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
 		last4: '2681',
@@ -160,7 +162,8 @@ export const SAMPLE_CARDS = [
 		shipping_status: 'pending'
 	},
 	{
-		id: 'card_0003',
+		id: uuidv4(),
+		card_id: 'card_0003',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
 		last4: '5410',
@@ -175,7 +178,8 @@ export const SAMPLE_CARDS = [
 		shipping_status: 'pending'
 	},
 	{
-		id: 'card_0004',
+		id: uuidv4(),
+		card_id: 'card_0004',
 		created_at: 1665414165,
 		status: CARD_STATUS.ACTIVE,
 		last4: '7341',
@@ -190,7 +194,8 @@ export const SAMPLE_CARDS = [
 		shipping_status: 'pending'
 	},
 	{
-		id: 'card_0005',
+		id: uuidv4(),
+		card_id: 'card_0005',
 		created_at: 1665414165,
 		status: CARD_STATUS.INACTIVE,
 		last4: '9127',

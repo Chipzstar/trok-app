@@ -1,11 +1,11 @@
-import { Button, Group, Modal, NumberInput, Stack, Title } from '@mantine/core';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Group, Loader, Modal, NumberInput, Stack, Text } from '@mantine/core';
+import React, { useCallback, useState } from 'react';
 import { CARD_SHIPPING_STATUS, CARD_STATUS, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { useSession } from 'next-auth/react';
 import { IconCheck, IconX } from '@tabler/icons';
 
-const PaymentModal = ({ opened, onClose, onSubmit }) => {
+const PaymentModal = ({ opened, onClose, onSubmit, loading }) => {
 	const [amount, setAmount] = useState(0);
 	return (
 		<Modal
@@ -37,14 +37,18 @@ const PaymentModal = ({ opened, onClose, onSubmit }) => {
 					onChange={setAmount}
 				/>
 				<Group position="right">
-					<Button onClick={() => onSubmit(amount)}>Create Payment</Button>
+					<Button onClick={() => onSubmit(amount)}>
+						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+						<Text>Create Payment</Text>
+					</Button>
 				</Group>
 			</Stack>
 		</Modal>
 	);
 };
 
-const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
+const CardPaymentButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
+	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const { data: session } = useSession();
 	const utils = trpc.useContext();
@@ -71,23 +75,25 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 		} else if (cardShippingStatus === CARD_SHIPPING_STATUS.SHIPPED) {
 			await deliverMutation.mutateAsync({ id, stripeId });
 		} else if (cardStatus === CARD_STATUS.ACTIVE) {
+			setLoading(true)
 			try {
-				const result = await paymentMutation.mutateAsync({ card_id: id, stripeId, amount });
-				console.log(result);
+				await paymentMutation.mutateAsync({ card_id: id, stripeId, amount });
+				setOpened(false)
+				setLoading(false)
 				notifySuccess(
 					'card-payment-success',
 					`Payment of £${amount} was successful! 😊`,
 					<IconCheck size={20} />
 				);
 			} catch (err) {
+				console.error(err)
+				setLoading(false)
 				notifyError('card-payment-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		} else {
 			alert('Card has already been shipped and delivered!');
 		}
 	}, [id, cardShippingStatus, cardStatus, stripeId]);
-
-	useEffect(() => console.log(cardShippingStatus), [cardShippingStatus]);
 
 	let buttonText =
 		cardShippingStatus === CARD_SHIPPING_STATUS.SHIPPED
@@ -98,7 +104,7 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 
 	return (
 		<>
-			<PaymentModal opened={opened} onClose={() => setOpened(false)} onSubmit={handleOnClick} />
+			<PaymentModal loading={loading} opened={opened} onClose={() => setOpened(false)} onSubmit={handleOnClick} />
 			<Button
 				variant='light'
 				size='md'
@@ -110,4 +116,4 @@ const CardTestButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
 	);
 };
 
-export default CardTestButton;
+export default CardPaymentButton;
