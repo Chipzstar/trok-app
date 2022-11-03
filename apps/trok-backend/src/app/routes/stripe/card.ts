@@ -313,16 +313,17 @@ const cardRouter = t.router({
 				userId: z.string(),
 				stripeId: z.string(),
 				card_id: z.string(),
-				spending_limits: z.array(z.object({
+				spending_limits: z.object({
 					amount: z.number(),
 					interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
-				}))
+				}).array().nonempty()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
 				let card = await stripe.issuing.cards.update(input.card_id, {
 					spending_controls: {
+						// @ts-ignore
 						spending_limits: input.spending_limits
 					},
 				}, { stripeAccount: input.stripeId})
@@ -332,6 +333,7 @@ const cardRouter = t.router({
 						card_id: input.card_id
 					},
 					data: {
+						// @ts-ignore
 						spending_limits: input.spending_limits
 					}
 				})
