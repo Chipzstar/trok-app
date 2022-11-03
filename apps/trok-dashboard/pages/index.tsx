@@ -1,16 +1,54 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
-import { GBP, PATHS } from '../utils/constants';
-import { Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { GBP, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { Badge, Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title, Space, ActionIcon } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
 import { getToken } from 'next-auth/jwt';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
+import { trpc } from '../utils/clients';
+import { IconCalendar, IconEdit } from '@tabler/icons';
+import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
+import isBetween from 'dayjs/plugin/isBetween';
 
-export function Dashboard({ testMode, user }) {
-	const week_spend = GBP(testMode ? 21272900 : 0).format()
-	const week_savings = GBP(testMode ? 726436 : 0).format()
+dayjs.extend(isBetween);
+
+export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
+	const [editMode, setEditMode] = useState(false);
+	const [range, setRange] = useState<DateRangePickerValue>([
+		dayjs().startOf('week').toDate(),
+		dayjs().endOf('week').toDate()
+	]);
+	const [chartRange, setChartRange] = useState<DateRangePickerValue>([
+		dayjs().startOf('week').toDate(),
+		dayjs().endOf('week').toDate()
+	]);
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
+	const balanceQuery = trpc.getIssuingBalance.useQuery({ userId: session_id, stripeId: stripe_account_id });
+
+	const week_savings = GBP(testMode ? 726436 : 0).format();
+	const week_spend = useMemo(() => {
+		if (testMode) {
+			return GBP(21272900).format();
+		} else {
+			let value = transactionsQuery?.data
+				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h'))
+				.reduce((prev, curr) => prev + curr.transaction_amount, 0);
+			return GBP(value).format();
+		}
+	}, [testMode, transactionsQuery, range]);
+	const num_transactions = useMemo(
+		() => (testMode ? SAMPLE_TRANSACTIONS.length : transactionsQuery?.data?.length),
+		[testMode, transactionsQuery]
+	);
+	const num_cards = useMemo(
+		() => (testMode ? SAMPLE_CARDS.length : cardsQuery?.data?.length),
+		[testMode, cardsQuery]
+	);
+	const current_balance = useMemo(() => (testMode ? 0 : balanceQuery?.data?.amount), [testMode, balanceQuery]);
+
 	return (
 		<Page.Container
 			header={
@@ -43,61 +81,101 @@ export function Dashboard({ testMode, user }) {
 						</Stack>
 						<Divider px={0} />
 						<Group position='center' py='xs'>
-							<Text color='dimmed'>
-								{dayjs().subtract(7, 'd').format('MMM D')} - {dayjs().format('MMM D')}
-							</Text>
+							{editMode ? (
+								<DateRangePicker
+									icon={<IconCalendar size={18} />}
+									fullWidth
+									dropdownType='modal'
+									modalProps={{}}
+									placeholder='Pick dates range'
+									value={range}
+									inputFormat='DD/MM/YYYY'
+									labelSeparator=' → '
+									labelFormat='MMM YYYY'
+									onChange={setRange}
+									onDropdownClose={() => setEditMode(false)}
+								/>
+							) : (
+								<>
+									<Text color='dimmed'>
+										{dayjs(range[0]).format('MMM D')} - {dayjs(range[1]).format('MMM D')}
+									</Text>
+									<ActionIcon size='xs' onClick={() => setEditMode(!editMode)}>
+										<IconEdit />
+									</ActionIcon>
+								</>
+							)}
 						</Group>
 					</Card>
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' pt='lg' pb='sm'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Account Balance</span>
-								<span className='text-2xl font-medium text-danger'>{GBP(0).format()}</span>
+								<span className={`text-2xl font-medium ${current_balance < 100000 && 'text-danger'}`}>
+									{GBP(current_balance).format()}
+								</span>
 							</div>
 							<div className='flex flex-col space-y-1'>
-								<span className='text-base'>Weekly Available Credit</span>
+								<Group position='apart'>
+									<span className='text-base'>Weekly Available Credit</span>
+									<Badge color='green'>Coming Soon</Badge>
+								</Group>
 								<span className='heading-1'>£{GBP(testMode ? 100000 : 0).dollars()}</span>
 							</div>
 						</Stack>
 						<Group position='center' py='xs'>
-							<Button size='md' fullWidth>
-								Pay
+							<Button size='md' fullWidth disabled>
+								Pay Balance
 							</Button>
 						</Group>
 					</Card>
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
-								<span className='text-base'>Upcoming Balance</span>
-								<span className='heading-1'>-</span>
+								<span className='text-base'>Number of Cards</span>
+								<span className='heading-1'>{num_cards}</span>
 							</div>
 							<div className='flex flex-col space-y-1'>
-								<span className='text-base'>Due Date</span>
-								<span className='heading-1'>{testMode ? dayjs().add(7, 'd').startOf('w').format('MMM D') : "-"}</span>
+								<span className='text-base'>Transactions</span>
+								<span className='heading-1'>{num_transactions}</span>
 							</div>
 						</Stack>
 						<Divider px={0} />
 						<Group position='center' py='xs'>
-							<Text color='dimmed'>Auto debit is on</Text>
+							<Space />
 						</Group>
 					</Card>
 				</SimpleGrid>
-				<Title order={4} weight={500} my='lg'>
-					Spend Analysis
-				</Title>
+				<Group position='apart'>
+					<Title order={4} weight={500} my='lg'>
+						Spend Analysis
+					</Title>
+					<DateRangePicker
+						icon={<IconCalendar size={18} />}
+						fullWidth
+						size='sm'
+						radius={0}
+						placeholder='Range'
+						value={chartRange}
+						inputFormat='DD/MM/YYYY'
+						labelSeparator=' → '
+						labelFormat='MMM YYYY'
+						onChange={(value) => value[1] instanceof Date ? setChartRange(value) : null}
+					/>
+				</Group>
 				<Card shadow='sm' py='lg' radius='xs'>
-					<SpendAnalysis testMode={testMode} />
+					<SpendAnalysis sessionId={session_id} dateRange={chartRange}/>
 				</Card>
 			</Page.Body>
 		</Page.Container>
 	);
 }
 
-export async function getServerSideProps ({ req, res }) {
+export async function getServerSideProps({ req, res }) {
 	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
 	const token = await getToken({ req });
-	console.log(session)
+	console.log(session);
 	// check if the user is authenticated, it not, redirect back to login page
 	if (!session) {
 		return {
@@ -109,7 +187,9 @@ export async function getServerSideProps ({ req, res }) {
 	}
 	return {
 		props: {
-			user: token?.user
+			session_id: session.id,
+			user: token?.user,
+			stripe_account_id: session.stripe.account_id
 		}
 	};
 }

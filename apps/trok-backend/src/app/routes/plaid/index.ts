@@ -1,12 +1,8 @@
 import * as express from 'express';
 import { plaid } from '../../utils/clients';
-import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
 import { prettyPrintResponse } from '../../utils/helpers';
-import prisma from '../../db';
 import { AppError } from '../../utils/exceptions';
-import { IS_DEVELOPMENT, PLAID_SANDBOX, PLAID_WEBHOOK_URL } from '../../utils/constants';
-import { convertPlaidStatus, generateLinkToken, handlePaymentInitiation } from '../../helpers/plaid';
-import { fetchFundingDetails } from '../../helpers/stripe';
+import { handlePaymentInitiation } from '../../helpers/plaid';
 
 let PUBLIC_TOKEN;
 let ACCESS_TOKEN;
@@ -151,7 +147,7 @@ router.post('/webhook', async (req, res, next) => {
 	}
 });*/
 
-router.post('/pay-external-account', async (req, response, next) => {
+/*router.post('/pay-external-account', async (req, response, next) => {
 	try {
 		const { user_id, account_number, sort_code, account_holder_name, amount, reference } = req.body;
 		// fetch the default bank account
@@ -213,7 +209,7 @@ router.post('/pay-external-account', async (req, response, next) => {
 			PLAID_SANDBOX ? '021000021' : routing_number,
 			payment_id,
 		)
-		/*const createTokenResponse = (
+		/!*const createTokenResponse = (
 			await plaid.linkTokenCreate({
 				client_name: PLAID_CLIENT_NAME,
 				user: {
@@ -237,7 +233,7 @@ router.post('/pay-external-account', async (req, response, next) => {
 				},
 				redirect_uri: PLAID_REDIRECT_URI
 			})
-		).data;*/
+		).data;*!/
 		// create payment in db
 		await prisma.payment.create({
 			data: {
@@ -259,7 +255,7 @@ router.post('/pay-external-account', async (req, response, next) => {
 		console.error(err?.response?.data ?? err);
 		next(err);
 	}
-});
+});*/
 
 // Exchange token flow - exchange a Link public_token for
 // an API access_token

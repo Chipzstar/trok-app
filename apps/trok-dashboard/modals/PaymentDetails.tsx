@@ -2,9 +2,9 @@ import React from 'react';
 import { Divider, Drawer, Stack, Textarea } from '@mantine/core';
 import { capitalize, sanitize } from '../utils/functions';
 import { GBP } from '../utils/constants';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
 import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat)
 
 const PaymentDetails = ({opened, setOpened, payment}) => {

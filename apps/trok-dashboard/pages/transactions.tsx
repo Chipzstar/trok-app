@@ -21,14 +21,14 @@ interface ExportForm {
 	drivers: string[];
 }
 
-const Transactions = ({ testMode, sessionID }) => {
+const Transactions = ({ testMode, session_id }) => {
 	const exportRef = useRef(null);
 	const { jsonToCSV } = usePapaParse();
 	const [csv, setCSV] = useState('');
 	const [opened, setOpened] = useState(false);
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionID });
-	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
-	const driversQuery = trpc.getDrivers.useQuery({ userId: sessionID });
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_TRANSACTIONS : !transactionsQuery.isLoading ? transactionsQuery?.data : [];
 
@@ -220,7 +220,7 @@ export const getServerSideProps = async ({ req, res }) => {
 	const session = await unstable_getServerSession(req, res, authOptions);
 	return {
 		props: {
-			sessionID: session.id,
+			session_id: session.id,
 			stripeAccountId: session?.stripe.account_id
 		}
 	};

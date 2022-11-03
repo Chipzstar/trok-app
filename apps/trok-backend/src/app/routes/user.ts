@@ -42,17 +42,17 @@ const userRouter = t.router({
 				}),
 				stripe: z.object({
 					accountId: z.string(),
-					bankAccount: z
-						.object({
-							id: z.string(),
-							fingerprint: z.string(),
-							account_holder_name: z.string(),
-							account_number: z.string(),
-							sort_code: z.string(),
-							currency: z.string(),
-							status: z.string()
-						})
-						.optional()
+					personId: z.string(),
+					issuing_account: z.object({
+						plaid_recipient_id: z.string(),
+						plaid_request_id: z.string().optional(),
+						current_balance: z.number().default(0),
+						account_holder_name: z.string(),
+						account_number: z.string(),
+						sort_code: z.string(),
+						currency: z.string().default('gbp'),
+						country: z.string().default('GB')
+					})
 				}),
 				business: z.object({
 					legal_name: z.string(),

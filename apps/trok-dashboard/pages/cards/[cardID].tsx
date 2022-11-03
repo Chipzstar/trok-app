@@ -5,7 +5,6 @@ import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { GBP, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
-import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
@@ -58,10 +57,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		}
 	});
 
-	const handleSubmit = useCallback(values => {
-		alert(JSON.stringify(values));
-		console.log(values);
-	}, []);
+	const handleSubmit = useCallback(values => console.log(values), []);
 
 	const toggleCardStatus = useCallback(
 		async status => {

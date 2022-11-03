@@ -20,6 +20,7 @@ model User {
   drivers Driver[]
   cards Card[]
   transactions Transaction[]
+  payments Payment[]
   bank_accounts BankAccount[]
   accounts      Account[]
   sessions      Session[]

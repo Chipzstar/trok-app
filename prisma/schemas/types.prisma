@@ -1,12 +1,13 @@
 type StripeInfo {
     accountId String
-    personId String?
-    issuing_account IssuingBankAccount?
+    personId String
+    issuing_account IssuingBankAccount
 }
 
 type IssuingBankAccount {
     plaid_recipient_id String
     plaid_request_id String?
+    current_balance Int @default(0)
     account_holder_name String
     account_number String
     sort_code String

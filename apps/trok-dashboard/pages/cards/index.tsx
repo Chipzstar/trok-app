@@ -11,16 +11,16 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 
-const Cards = ({ testMode, sessionID }) => {
+const Cards = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const driversQuery = trpc.getDrivers.useQuery({ userId: sessionID });
-	const cardsQuery = trpc.getCards.useQuery({ userId: sessionID });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const mutation = trpc.createCard.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: sessionID }).then(r => console.log(input, 'Cards refetched'));
+			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 
@@ -48,7 +48,7 @@ const Cards = ({ testMode, sessionID }) => {
 				const driver = driversQuery?.data.find(driver => values.driver === driver.id);
 				if (driver) {
 					const card = await mutation.mutateAsync({
-						user_id: sessionID,
+						user_id: session_id,
 						card_name: values.card_name,
 						driver_id: values.driver,
 						cardholder_id: driver?.cardholder_id,
@@ -74,7 +74,7 @@ const Cards = ({ testMode, sessionID }) => {
 				notifyError('add-card-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[sessionID, driversQuery]
+		[session_id, driversQuery]
 	);
 
 	return (
@@ -190,7 +190,7 @@ export const getServerSideProps = async ({ req, res }) => {
 	const session = await unstable_getServerSession(req, res, authOptions);
 	return {
 		props: {
-			sessionID: session.id
+			session_id: session.id
 		}
 	};
 };

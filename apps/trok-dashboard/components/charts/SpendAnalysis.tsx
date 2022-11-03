@@ -1,16 +1,64 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarController, BarElement } from 'chart.js';
+import { BarController, BarElement, CategoryScale, Chart, LinearScale } from 'chart.js';
 import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { useLocalStorage } from '@mantine/hooks';
+import { GBP, STORAGE_KEYS } from '../../utils/constants';
+import { trpc } from '../../utils/clients';
+import { filterByTimeRange } from '@trok-app/shared-utils';
+import { DateRangePickerValue } from '@mantine/dates';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(advancedFormat);
+dayjs.extend(isBetween);
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
-const labels = [0, 1, 2, 3, 4, 5, 6].reverse().map(val => dayjs().subtract(val, 'd').format("MMM D"))
+// const labels = [0, 1, 2, 3, 4, 5, 6].reverse().map(val => dayjs().subtract(val, 'd').format("MMM D"))
 
-const SpendAnalysis = ({testMode}) => {
+const SpendAnalysis = ({sessionId, dateRange}) => {
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionId });
+	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { height } = useWindowSize()
+
+	const generateLabels = useCallback((range: DateRangePickerValue) => {
+		let startDate = dayjs(range[0])
+		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days")
+		const labels = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").format("Do MMM"))
+		const values = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").unix())
+		return { labels, values }
+	}, []);
+
+	const generateDataPoints = useCallback((timestamps) => {
+		const filteredTransactions = filterByTimeRange(transactionsQuery?.data ?? [], dateRange);
+		return timestamps.map(timestamp => {
+			const startOfDay = dayjs.unix(timestamp).startOf('day')
+			const endOfDay = dayjs.unix(timestamp).endOf('day')
+			return filteredTransactions
+				.filter(t => dayjs(t.created_at).isBetween(startOfDay, endOfDay, 'h'))
+				.reduce((prev, curr) => prev + curr.transaction_amount, 0);
+		})
+	}, [transactionsQuery.data, dateRange]);
+	
+	const { labels, data } = useMemo(() => {
+		let { values, labels } = generateLabels(dateRange);
+		let data;
+		if (testMode) {
+			data = Array(7)
+				.fill(0)
+				.map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5));
+		} else {
+			data = generateDataPoints(values);
+		}
+		return {
+			labels,
+            data
+		}
+	}, [transactionsQuery, dateRange, testMode]);
+	
 	return (
 		<div style={{
 			height: height - 485
@@ -19,7 +67,7 @@ const SpendAnalysis = ({testMode}) => {
 				options={{
 					plugins: {
 						datalabels: {
-							formatter: (value, context) => `£${value.toFixed(2)}`,
+							formatter: (value, context) => GBP(value).format(),
 							anchor: 'end',
 							align: 'top'
 						},
@@ -52,7 +100,6 @@ const SpendAnalysis = ({testMode}) => {
 								}
 							},
 							ticks: {
-								stepSize: 20,
 								callback: function(value, index, ticks) {
 									return '£' + value;
 								}
@@ -66,7 +113,7 @@ const SpendAnalysis = ({testMode}) => {
 				data={{
 					datasets: [
 						{
-							data: testMode ? Array(7).fill(0).map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5)) : Array(7).fill(0),
+							data,
 							backgroundColor: ['rgba(54, 70, 245, 0.2)'],
 							borderColor: '#3646F5',
 							borderWidth: 1
