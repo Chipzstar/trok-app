@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
-import { GBP, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { FIVE_HUNDRED_POUNDS, GBP, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
 import { Badge, Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title, Space, ActionIcon } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
@@ -116,7 +116,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' pt='lg' pb='sm'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Account Balance</span>
-								<span className={`text-2xl font-medium ${current_balance < 100000 && 'text-danger'}`}>
+								<span className={`text-2xl font-medium ${current_balance < FIVE_HUNDRED_POUNDS && 'text-danger'}`}>
 									{GBP(current_balance).format()}
 								</span>
 							</div>

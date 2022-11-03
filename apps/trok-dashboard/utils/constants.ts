@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
+export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 
 export const GBP = value => currency(value, { symbol: '£', separator: ',', fromCents: true });

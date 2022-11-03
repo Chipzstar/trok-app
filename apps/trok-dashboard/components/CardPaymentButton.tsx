@@ -65,7 +65,8 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 
 	const paymentMutation = trpc.createTestPayment.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.invalidate({ userId: session.id }, {queryKey: ['getCards']}).then(r => console.log(input, 'Cards refetched'));
+			utils.invalidate({ card_id: cardId }, {queryKey: ['getTransactions']}).then(r => console.log(input, 'Card Transactions refetched'));
 		}
 	});
 
