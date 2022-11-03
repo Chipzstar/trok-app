@@ -47,7 +47,7 @@ const PaymentModal = ({ opened, onClose, onSubmit, loading }) => {
 	);
 };
 
-const CardPaymentButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => {
+const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const { data: session } = useSession();
@@ -71,13 +71,13 @@ const CardPaymentButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => 
 
 	const handleOnClick = useCallback(async (amount=0) => {
 		if (cardShippingStatus === CARD_SHIPPING_STATUS.PENDING) {
-			await shipMutation.mutateAsync({ id, stripeId });
+			await shipMutation.mutateAsync({ card_id: cardId, stripeId });
 		} else if (cardShippingStatus === CARD_SHIPPING_STATUS.SHIPPED) {
-			await deliverMutation.mutateAsync({ id, stripeId });
+			await deliverMutation.mutateAsync({ card_id: cardId, stripeId });
 		} else if (cardStatus === CARD_STATUS.ACTIVE) {
 			setLoading(true)
 			try {
-				await paymentMutation.mutateAsync({ card_id: id, stripeId, amount });
+				await paymentMutation.mutateAsync({ card_id: cardId, stripeId, amount });
 				setOpened(false)
 				setLoading(false)
 				notifySuccess(
@@ -93,7 +93,7 @@ const CardPaymentButton = ({ id, cardShippingStatus, cardStatus, stripeId }) => 
 		} else {
 			alert('Card has already been shipped and delivered!');
 		}
-	}, [id, cardShippingStatus, cardStatus, stripeId]);
+	}, [cardId, cardShippingStatus, cardStatus, stripeId]);
 
 	let buttonText =
 		cardShippingStatus === CARD_SHIPPING_STATUS.SHIPPED

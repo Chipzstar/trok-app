@@ -136,7 +136,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			setLoading(true);
 			try {
 				await cardStatusMutation.mutateAsync({
-					id: String(cardID),
+					card_id: String(cardID),
 					stripeId: stripe_account_id,
 					status
 				});
@@ -287,7 +287,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 					</Group>
 					<CardPaymentButton
 						stripeId={stripe_account_id}
-						id={cardID}
+						cardId={cardID}
 						cardShippingStatus={card?.shipping_status}
 						cardStatus={card?.status}
 					/>

@@ -161,25 +161,20 @@ const cardRouter = t.router({
 	shipCard: t.procedure
 		.input(
 			z.object({
-				id: z.string(),
+				card_id: z.string(),
 				stripeId: z.string()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				const card = await ctx.prisma.card.findUnique({
-					where: {
-						id: input.id
-					}
+				const stripe_card = await stripe.testHelpers.issuing.cards.shipCard(input.card_id, {
+					stripeAccount: input.stripeId
 				});
-				if (card) {
-					const stripe_card = await stripe.testHelpers.issuing.cards.shipCard(card.card_id, {
-						stripeAccount: input.stripeId
-					});
+				if (stripe_card) {
 					console.log(stripe_card);
 					return await ctx.prisma.card.update({
 						where: {
-							id: input.id
+							card_id: input.card_id
 						},
 						data: {
 							shipping_status: CARD_SHIPPING_STATUS.SHIPPED
@@ -197,27 +192,19 @@ const cardRouter = t.router({
 	deliverCard: t.procedure
 		.input(
 			z.object({
-				id: z.string(),
+				card_id: z.string(),
 				stripeId: z.string()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				const card = await ctx.prisma.card.findFirstOrThrow({
-					where: {
-						id: input.id
-					}
-				});
-				console.log('-----------------------------------------------');
-				console.log(card);
-				console.log('-----------------------------------------------');
-				const stripe_card = await stripe.testHelpers.issuing.cards.deliverCard(card.card_id, {
+				const stripe_card = await stripe.testHelpers.issuing.cards.deliverCard(input.card_id, {
 					stripeAccount: input.stripeId
 				});
 				console.log(stripe_card);
 				return await ctx.prisma.card.update({
 					where: {
-						id: input.id
+						card_id: input.card_id
 					},
 					data: {
 						shipping_status: CARD_SHIPPING_STATUS.DELIVERED
@@ -232,20 +219,15 @@ const cardRouter = t.router({
 	toggleCardStatus: t.procedure
 		.input(
 			z.object({
-				id: z.string(),
+				card_id: z.string(),
 				stripeId: z.string(),
 				status: z.enum(['active', 'inactive', 'canceled'])
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				const card = await ctx.prisma.card.findFirstOrThrow({
-					where: {
-						id: input.id
-					}
-				});
 				const stripe_card = await stripe.issuing.cards.update(
-					card.card_id,
+					input.card_id,
 					{
 						status: input.status
 					},
@@ -254,7 +236,7 @@ const cardRouter = t.router({
 				console.log(stripe_card);
 				return await ctx.prisma.card.update({
 					where: {
-						id: input.id
+						card_id: input.card_id
 					},
 					data: {
 						status: input.status

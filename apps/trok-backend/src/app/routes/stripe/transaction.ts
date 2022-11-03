@@ -64,7 +64,7 @@ const transactionsRouter = t.router({
 				// find the driver's customer_id using the card_id
 				const card = await ctx.prisma.card.findFirstOrThrow({
 					where: {
-						id: input.card_id
+						card_id: input.card_id
 					},
 					select: {
 						driver: {
