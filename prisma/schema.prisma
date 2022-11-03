@@ -273,7 +273,7 @@ type PurchaseDetails {
   fuel_type         FuelType
   unit_type         UnitType
   unit_cost_decimal Float
-  volume            String
+  volume            Int
 }
 model User {
   id                 String        @id @default(auto()) @map("_id") @db.ObjectId
