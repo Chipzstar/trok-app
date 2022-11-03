@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { BarController, BarElement, CategoryScale, Chart, LinearScale } from 'chart.js';
 import dayjs from 'dayjs';
@@ -55,6 +55,8 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
             data
 		}
 	}, [transactionsQuery, dateRange, testMode]);
+
+	useEffect(() => console.log(data), [data]);
 	
 	return (
 		<div style={{
@@ -87,6 +89,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 							}
 						},
 						y: {
+							max: Math.max(1, (Math.max(...data) * 1.2)),
 							grid: {
 								display: false
 							},
@@ -99,7 +102,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 							},
 							ticks: {
 								callback: function(value, index, ticks) {
-									return '£' + Number(value) / 100;
+									return value > 100 ? `£${Number(value) / 100}` : `£${value}`;
 								}
 							}
 						}
