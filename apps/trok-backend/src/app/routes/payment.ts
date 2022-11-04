@@ -1,12 +1,12 @@
-import { t } from '../../trpc';
+import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { fetchFundingDetails } from '../../helpers/stripe';
-import { plaid } from '../../utils/clients';
-import { prettyPrintResponse } from '../../utils/helpers';
+import { fetchFundingDetails } from '../helpers/stripe';
+import { plaid } from '../utils/clients';
+import { prettyPrintResponse } from '../utils/helpers';
 import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
-import { convertPlaidStatus, generateLinkToken } from '../../helpers/plaid';
-import { IS_DEVELOPMENT, PLAID_SANDBOX, PLAID_WEBHOOK_URL } from '../../utils/constants';
+import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
+import { IS_DEVELOPMENT, PLAID_SANDBOX, PLAID_WEBHOOK_URL } from '../utils/constants';
 
 const paymentsRouter = t.router({
 	getPayments: t.procedure

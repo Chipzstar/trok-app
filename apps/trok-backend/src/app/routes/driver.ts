@@ -1,6 +1,6 @@
-import { t } from '../../trpc';
+import { t } from '../trpc';
 import { z } from 'zod';
-import { stripe } from '../../utils/clients';
+import { stripe } from '../utils/clients';
 import { TRPCError } from '@trpc/server';
 
 const createDriverInput = z.object({

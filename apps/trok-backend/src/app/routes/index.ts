@@ -1,11 +1,11 @@
 import { t } from '../trpc';
-import driverRouter from './stripe/driver';
-import cardRouter from './stripe/card';
-import transactionsRouter from './stripe/transaction';
-import bankAccountRouter from './stripe/bank-account';
-import accountRouter from './stripe/account';
-import paymentRouter from './stripe/payments';
-import balanceRouter from './stripe/balance';
+import driverRouter from './driver';
+import cardRouter from './card';
+import transactionsRouter from './transaction';
+import bankAccountRouter from './bank-account';
+import accountRouter from './account';
+import paymentRouter from './payment';
+import balanceRouter from './balance';
 
 export const appRouter = t.mergeRouters(accountRouter, driverRouter, cardRouter, transactionsRouter, bankAccountRouter, paymentRouter, balanceRouter);
 

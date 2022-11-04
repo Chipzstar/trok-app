@@ -1,7 +1,7 @@
-import { t } from '../../trpc';
+import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { stripe } from '../../utils/clients';
+import { stripe } from '../utils/clients';
 import Stripe from 'stripe';
 import { Simulate } from 'react-dom/test-utils';
 
