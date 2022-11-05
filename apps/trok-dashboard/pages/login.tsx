@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Group, Loader, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import Image from 'next/image';
 import { useForm } from '@mantine/form';
 import Link from 'next/link';
@@ -98,8 +98,7 @@ const Login = ({ csrfToken, setAuth, users, session }) => {
 						Forgot password?
 					</Text>
 					<Group py='lg'>
-						<Button type='submit' size='md' fullWidth>
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+						<Button type='submit' size='md' loading={loading} fullWidth>
 							<Text weight='normal'>Sign in</Text>
 						</Button>
 					</Group>

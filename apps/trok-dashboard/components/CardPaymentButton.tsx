@@ -37,8 +37,7 @@ const PaymentModal = ({ opened, onClose, onSubmit, loading }) => {
 					onChange={setAmount}
 				/>
 				<Group position="right">
-					<Button onClick={() => onSubmit(amount)}>
-						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+					<Button onClick={() => onSubmit(amount)} loading={loading}>
 						<Text>Create Payment</Text>
 					</Button>
 				</Group>
@@ -62,11 +61,10 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-
 	const paymentMutation = trpc.createTestPayment.useMutation({
 		onSuccess: function (input) {
 			utils.invalidate({ userId: session.id }, {queryKey: ['getCards']}).then(r => console.log(input, 'Cards refetched'));
-			utils.invalidate({ card_id: cardId }, {queryKey: ['getTransactions']}).then(r => console.log(input, 'Card Transactions refetched'));
+			utils.invalidate({ card_id: cardId }, {queryKey: ['getCardTransactions']}).then(r => console.log(input, 'Card Transactions refetched'));
 		}
 	});
 
@@ -92,7 +90,7 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 				notifyError('card-payment-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		} else {
-			alert('Card has already been shipped and delivered!');
+			notifyError('create-card-payment-failed', 'Please activate your card and try again', <IconX size={20} />);
 		}
 	}, [cardId, cardShippingStatus, cardStatus, stripeId]);
 

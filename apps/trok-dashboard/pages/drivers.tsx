@@ -4,7 +4,6 @@ import {
 	Checkbox,
 	Drawer,
 	Group,
-	Loader,
 	NumberInput,
 	Select,
 	Stack,
@@ -19,7 +18,7 @@ import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 import { trpc } from '../utils/clients';
-import {  getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { capitalize, sanitize } from '../utils/functions';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
@@ -67,10 +66,10 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 						customer_id: driver.customer_id,
 						stripeId: stripe_account_id
 					});
-					notifySuccess('delete-driver-success', 'Driver deleted successfully!', <IconCheck size={20} />)
+					notifySuccess('delete-driver-success', 'Driver deleted successfully!', <IconCheck size={20} />);
 				} catch (err) {
-					console.log(err)
-					notifySuccess('delete-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />)
+					console.log(err);
+					notifySuccess('delete-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 				}
 			}
 		});
@@ -108,42 +107,46 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				);
 		  })
 		: !query.isLoading
-		? query.data.filter(d => d.status === "active").map((element, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{element.firstname}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.lastname}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.current_spend).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<span>
-								{element?.spending_limit?.amount ? GBP(element.spending_limit.amount).format() : '-'}
-							</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.phone}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.email}</span>
-						</td>
-						<td>
-							<Group spacing='md' position='left'>
-								<ActionIcon size='sm' onClick={() => setEditDriver(element)}>
-									<IconPencil />
-								</ActionIcon>
-								<ActionIcon size='sm' onClick={() => openModal(element)} color='red'>
-									<IconTrash />
-								</ActionIcon>
-							</Group>
-						</td>
-					</tr>
-				);
-		  })
+		? query.data
+				.filter(d => d.status === 'active')
+				.map((element, index) => {
+					return (
+						<tr key={index}>
+							<td colSpan={1}>
+								<span>{element.firstname}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{element.lastname}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{GBP(element.current_spend).format()}</span>
+							</td>
+							<td colSpan={1}>
+								<span>
+									{element?.spending_limit?.amount
+										? GBP(element.spending_limit.amount).format()
+										: '-'}
+								</span>
+							</td>
+							<td colSpan={1}>
+								<span>{element.phone}</span>
+							</td>
+							<td colSpan={1}>
+								<span>{element.email}</span>
+							</td>
+							<td>
+								<Group spacing='md' position='left'>
+									<ActionIcon size='sm' onClick={() => setEditDriver(element)}>
+										<IconPencil />
+									</ActionIcon>
+									<ActionIcon size='sm' onClick={() => openModal(element)} color='red'>
+										<IconTrash />
+									</ActionIcon>
+								</Group>
+							</td>
+						</tr>
+					);
+				})
 		: [];
 
 	const form = useForm({
@@ -310,8 +313,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 							</Group>
 						)}
 						<Group py='xl' position='right'>
-							<Button type='submit'>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+							<Button type='submit' loading={loading}>
 								<Text weight={500}>Add Driver</Text>
 							</Button>
 						</Group>

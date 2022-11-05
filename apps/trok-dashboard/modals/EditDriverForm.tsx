@@ -111,8 +111,7 @@ const EditDriverForm = ({ loading, driver, onClose, onSubmit }) => {
 					</Group>
 				)}
 				<Group position='right'>
-					<Button disabled={!form.isDirty()} type='submit'>
-						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+					<Button disabled={!form.isDirty()} type='submit' loading={loading}>
 						<Text weight={500}>Update Driver</Text>
 					</Button>
 				</Group>

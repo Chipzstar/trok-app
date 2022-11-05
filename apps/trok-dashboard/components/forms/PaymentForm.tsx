@@ -1,16 +1,5 @@
 import React from 'react';
-import {
-	Button,
-	Drawer,
-	Group,
-	Loader,
-	NumberInput,
-	SegmentedControl,
-	Stack,
-	Text,
-	TextInput,
-	Title
-} from '@mantine/core';
+import { Button, Drawer, Group, NumberInput, SegmentedControl, Stack, Text, TextInput, Title } from '@mantine/core';
 import SortCodeInput from '../SortCodeInput';
 
 const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loading }) => {
@@ -86,8 +75,9 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 									width: 120
 								}
 							}}
+							loading={loading}
 						>
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+
 							<Text weight={500}>Send</Text>
 						</Button>
 					</Group>

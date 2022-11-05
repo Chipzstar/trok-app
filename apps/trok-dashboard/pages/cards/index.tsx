@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import Page from '../../layout/Page';
-import { Button, Drawer, Group, Loader, NumberInput, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
+import { Button, Drawer, Group, NumberInput, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
 import CardsTable from '../../containers/CardsTable';
 import { SAMPLE_CARDS } from '../../utils/constants';
 import { capitalize, sanitize } from '../../utils/functions';
@@ -31,7 +31,8 @@ const Cards = ({ testMode, session_id }) => {
 		: [];
 
 	const form = useForm({
-		initialValues: { // physical or virtual
+		initialValues: {
+			// physical or virtual
 			driver: '', // driver id
 			card_name: '', // useful name to identify the cardholder
 			spending_limit: {
@@ -143,8 +144,7 @@ const Cards = ({ testMode, session_id }) => {
 							/>
 						</Group>
 						<Group py='xl' position='right'>
-							<Button type='submit'>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+							<Button type='submit' loading={loading}>
 								<Text weight={500}>Create</Text>
 							</Button>
 						</Group>

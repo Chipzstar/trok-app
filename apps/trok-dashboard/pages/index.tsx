@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { FIVE_HUNDRED_POUNDS, GBP, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
-import { Badge, Button, Card, Divider, Group, SimpleGrid, Stack, Text, Title, Space, ActionIcon } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Divider, Group, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
 import { getToken } from 'next-auth/jwt';

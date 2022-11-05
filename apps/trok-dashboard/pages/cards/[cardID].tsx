@@ -1,18 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import {
-	ActionIcon,
-	Button,
-	Card,
-	Drawer,
-	Group,
-	Loader,
-	NumberInput,
-	Stack,
-	Switch,
-	Text,
-	Title
-} from '@mantine/core';
+import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { GBP, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
@@ -265,8 +253,8 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 										width: 120
 									}
 								}}
+								loading={loading}
 							>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 								<Text weight={500}>Save</Text>
 							</Button>
 						</Group>
@@ -343,8 +331,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 							</div>
 							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
 								<div className='flex-end block'>
-									<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
-									<Button size='md' onClick={() => toggleCardStatus(status)}>
+									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
 									</Button>
 								</div>

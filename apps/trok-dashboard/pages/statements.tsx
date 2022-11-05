@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Page from '../layout/Page';
 import StatementsTable from '../containers/StatementsTable';
 import { GBP, SAMPLE_STATEMENTS } from '../utils/constants';

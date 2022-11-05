@@ -52,8 +52,7 @@ const ChangePassword = ({ user_id }) => {
 						<PasswordInput {...form.getInputProps('confirm_password')} isPassword />
 					</div>
 					<Group py='xl'>
-						<Button type="submit">
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+						<Button type="submit" loading={loading}>
 							<Text weight='normal'>Save</Text>
 						</Button>
 					</Group>

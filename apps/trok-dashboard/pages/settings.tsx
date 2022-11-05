@@ -8,7 +8,7 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import ChangePassword from '../containers/settings/ChangePassword';
 
-const settings = ({user, session_id, stripe }) => {
+const settings = ({ user, session_id, stripe }) => {
 	return (
 		<Page.Container
 			header={
@@ -32,13 +32,13 @@ const settings = ({user, session_id, stripe }) => {
 						<Tabs.Tab value='password'>Change Password</Tabs.Tab>
 					</Tabs.List>
 					<Tabs.Panel value='personal' pt='xs' className='h-full'>
-						<Personal stripe={stripe} account={user}/>
+						<Personal stripe={stripe} account={user} />
 					</Tabs.Panel>
 					<Tabs.Panel value='company' pt='xs' className='h-full'>
-						<Company user_id={session_id}  stripe={stripe} business={user?.business}/>
+						<Company user_id={session_id} stripe={stripe} business={user?.business} />
 					</Tabs.Panel>
 					<Tabs.Panel value='password' pt='xs' className='h-full'>
-						<ChangePassword user_id={session_id}/>
+						<ChangePassword user_id={session_id} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

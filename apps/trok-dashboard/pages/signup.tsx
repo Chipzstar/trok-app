@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
 import { SignupSchema } from '../schemas';
 import { PATHS, STORAGE_KEYS } from '../utils/constants';
-import { Button, Checkbox, Group, Loader, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { apiClient } from '../utils/clients';
 import { getE164Number, notifyError } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
@@ -41,10 +41,10 @@ export function Signup({ secret }) {
 				console.log(result);
 				console.log('-----------------------------------------------');
 				router.push(PATHS.ONBOARDING);
-				setLoading(false)
+				setLoading(false);
 			} catch (err) {
-				setLoading(false)
-				notifyError('signup-failure', err?.error?.message ?? err.message, <IconX size={20} />)
+				setLoading(false);
+				notifyError('signup-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[router, secret, setNewAccount]
@@ -134,8 +134,8 @@ export function Signup({ secret }) {
 							style={{
 								width: 200
 							}}
+							loading={loading}
 						>
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 							<Text weight={500}>Sign up</Text>
 						</Button>
 					</Group>

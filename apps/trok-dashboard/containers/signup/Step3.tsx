@@ -261,8 +261,7 @@ const Step3 = ({ prevStep }) => {
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>
 						</Button>
-						<Button type='submit' variant='filled' size='md' px='xl'>
-							<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+						<Button type='submit' variant='filled' size='md' px='xl' loading={loading}>
 							<Text weight='normal'>Complete Application</Text>
 						</Button>
 					</Group>

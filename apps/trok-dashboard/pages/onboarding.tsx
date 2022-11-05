@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
-import { ScrollArea, Text, Stepper } from '@mantine/core';
+import { ScrollArea, Stepper, Text } from '@mantine/core';
 import Step1 from '../containers/signup/Step1';
 import Step2 from '../containers/signup/Step2';
 import Step3 from '../containers/signup/Step3';

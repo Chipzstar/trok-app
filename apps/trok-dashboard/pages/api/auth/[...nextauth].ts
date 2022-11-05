@@ -7,23 +7,23 @@ import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
 import { text } from '../../../utils/functions';
 
-export async function sendMagicLink({identifier, url, provider, token, expires}: SendVerificationRequestParams) {
+export async function sendMagicLink({ identifier, url, provider, token, expires }: SendVerificationRequestParams) {
 	try {
 		const user = await prisma.user.findFirstOrThrow({
 			where: {
 				email: identifier
 			}
-		})
-		const transport = nodemailer.createTransport(provider.server)
+		});
+		const transport = nodemailer.createTransport(provider.server);
 		const result = await transport.sendMail({
 			to: identifier,
 			from: provider.from,
 			subject: `Trok - Verify your email`,
-			text: text({ url, full_name: user.full_name }),
-		})
-		const failed = result.rejected.concat(result.pending).filter(Boolean)
+			text: text({ url, full_name: user.full_name })
+		});
+		const failed = result.rejected.concat(result.pending).filter(Boolean);
 		if (failed.length) {
-			throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`)
+			throw new Error(`Email(s) (${failed.join(', ')}) could not be sent`);
 		}
 	} catch (err) {
 		console.error(err);

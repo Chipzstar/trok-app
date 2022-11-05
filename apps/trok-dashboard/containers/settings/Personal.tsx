@@ -69,8 +69,7 @@ const Personal = ({ stripe, account }) => {
 					</div>
 					<Group py='xl'>
 						{editMode ? (
-							<Button type='submit' disabled={!form.isDirty()}>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+							<Button type='submit' disabled={!form.isDirty()} loading={loading}>
 								<Text weight='normal'>Save</Text>
 							</Button>
 						) : (

@@ -163,8 +163,8 @@ const Step2 = ({ prevStep, nextStep }) => {
 						style={{
 							width: 200
 						}}
+						loading={loading}
 					>
-						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 						<Text weight='normal'>Continue</Text>
 					</Button>
 				</Group>

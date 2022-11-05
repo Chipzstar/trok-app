@@ -4,16 +4,14 @@ import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(theme => ({
 	wrapper: {
 		display: 'flex',
 		alignItems: 'center',
 		padding: theme.spacing.xl * 2,
 		borderRadius: theme.radius.md,
 		backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
-		border: `1px solid ${
-			theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[3]
-		}`,
+		border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[3]}`,
 
 		[`@media (max-width: ${theme.breakpoints.sm}px)`]: {
 			flexDirection: 'column-reverse',

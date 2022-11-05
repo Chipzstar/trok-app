@@ -5,7 +5,6 @@ import {
 	Checkbox,
 	Drawer,
 	Group,
-	Loader,
 	Menu,
 	Select,
 	Stack,
@@ -261,8 +260,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 							</Group>
 						)}
 						<Group py='xl' position='right'>
-							<Button type='submit'>
-								<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
+							<Button type='submit' loading={loading}>
 								<Text weight={500}>Add bank account</Text>
 							</Button>
 						</Group>
