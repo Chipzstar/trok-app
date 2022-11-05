@@ -1,8 +1,8 @@
-import * as express from 'express';
-import * as cors from 'cors';
-import * as hpp from 'hpp';
-import * as logger from 'morgan';
-import * as bodyParser from 'body-parser';
+import express from 'express';
+import cors from 'cors';
+import hpp from 'hpp';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';

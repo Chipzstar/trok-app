@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import { NextFunction } from 'express';
 import { stripe } from '../../utils/clients';
 import * as bodyParser from 'body-parser';

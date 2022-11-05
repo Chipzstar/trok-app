@@ -3,6 +3,8 @@
 	"compilerOptions": {
 		"strict": true,
 		"outDir": "../../dist/out-tsc",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
 		"module": "esnext",
 		"target": "es2017",
 		"types": ["node", "express"]

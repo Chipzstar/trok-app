@@ -1,12 +1,12 @@
 import redisClient from '../../redis';
 import { BUCKET, STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import prisma from '../../db';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as easyinvoice from 'easyinvoice';
+import path from 'path';
+import fs from 'fs';
+import easyinvoice from 'easyinvoice';
 import { InvoiceData } from 'easyinvoice';
-import * as Prisma from '@prisma/client';
+import Prisma from '@prisma/client';
 import orderId from 'order-id';
 import { generateDownloadUrl } from '../gcp';
 

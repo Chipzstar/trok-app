@@ -1,7 +1,7 @@
-import * as qs from 'qs';
+import qs from 'qs';
 import Stripe from 'stripe';
 import { plaid, stripe } from '../../utils/clients';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import axios from 'axios';
 import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
@@ -39,7 +39,8 @@ export const fetchFundingDetails = async (account_id: string) => {
 			)
 		).data;
 	} catch (err) {
-		console.error(err);
+		// @ts-ignore
+		console.error(err.response.data);
 		throw err;
 	}
 };

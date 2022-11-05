@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
 import { SignupInfo } from '@trok-app/shared-utils';
@@ -7,7 +7,7 @@ import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchIssuingAccount } from '../helpers/stripe';
 import { AppError } from '../utils/exceptions';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 const router = express.Router();
 let reminderTimeout;
