@@ -52,7 +52,7 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 		} = await fetchFundingDetails(account.id);
 		console.log(financial_addresses)
 		// create the recipient under the user_id
-		/*const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
+		const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
 			name: 'Stripe Payments UK Limited',
 			bacs: {
 				account: financial_addresses[0].sort_code.account_number,
@@ -66,10 +66,10 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 			}
 		});
 		const { recipient_id, request_id } = createRecipientResponse.data;
-		prettyPrintResponse(createRecipientResponse);*/
+		prettyPrintResponse(createRecipientResponse);
 		return {
-			plaid_recipient_id: "",
-			plaid_request_id: "",
+			plaid_recipient_id: recipient_id,
+			plaid_request_id: request_id,
 			account_holder_name: 'Stripe Payments UK Limited',
 			account_number: financial_addresses[0].sort_code.account_number as string,
 			sort_code: financial_addresses[0].sort_code.sort_code as string

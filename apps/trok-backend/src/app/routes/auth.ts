@@ -86,7 +86,13 @@ router.post('/complete-registration', async (req, res, next) => {
 		console.log(person);
 		// store user in database
 		const verify_token = uuidv4();
-		const issuing_account = await fetchIssuingAccount(account)
+		const issuing_account = {
+			plaid_recipient_id: "",
+			plaid_request_id: "",
+			account_holder_name: 'Stripe Payments UK Limited',
+			account_number: "00000000",
+			sort_code: "00-00-00"
+		}
 		const user = await prisma.user.create({
 			data: {
 				...data,

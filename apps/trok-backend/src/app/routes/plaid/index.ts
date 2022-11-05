@@ -1,7 +1,6 @@
 import express from 'express';
 import { plaid } from '../../utils/clients';
 import { prettyPrintResponse } from '../../utils/helpers';
-import { AppError } from '../../utils/exceptions';
 import { handlePaymentInitiation } from '../../helpers/plaid';
 
 let PUBLIC_TOKEN;
@@ -280,15 +279,8 @@ router.post('/set_access_token', async (req, res, next) => {
 		if (err?.response.data) {
 			// @ts-ignore
 			console.error(err.response.data);
-			next(
-				new AppError({
-					// @ts-ignore
-					name: err?.response.data.display_message,
-					// @ts-ignore
-					message: err?.response.data.error_message,
-					httpCode: 400
-				})
-			);
+			// @ts-ignore
+			next(err.response.data);
 		}
 		next(err);
 	}
