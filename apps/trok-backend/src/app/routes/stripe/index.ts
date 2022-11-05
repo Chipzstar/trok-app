@@ -35,8 +35,9 @@ router.post(
 		// Handle the event
 		switch (event.type) {
 			case 'issuing_authorization.request':
-				const auth = event.data.object;
-				await handleAuthorizationRequest(auth);
+				obj = event.data.object;
+				data = obj as Stripe.Issuing.Authorization
+				await handleAuthorizationRequest(data);
 				break;
 			case 'issuing_transaction.created':
 				obj = event.data.object;

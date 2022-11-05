@@ -8,10 +8,12 @@ import redisClient from '../../redis';
 import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
 import * as dayjs from 'dayjs';
 
-export const handleAuthorizationRequest = async (auth: Stripe.Event.Data.Object) => {
+export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
-	const auth_obj = <Stripe.Issuing.Authorization>auth;
-	const res = await stripe.issuing.authorizations.approve(auth_obj.id);
+	console.log('-----------------------------------------------');
+	console.log(auth)
+	console.log('-----------------------------------------------');
+	const res = await stripe.issuing.authorizations.approve(auth.id);
 	console.log(res);
 	return res;
 };
@@ -42,7 +44,7 @@ export const fetchFundingDetails = async (account_id: string) => {
 	}
 };
 
-export const fetchIssuingAccount = async (user_id: string, account: Stripe.Account) => {
+export const fetchIssuingAccount = async (account: Stripe.Account) => {
 	try {
 		const {
 			bank_transfer: { financial_addresses }

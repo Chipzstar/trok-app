@@ -87,33 +87,19 @@ router.post('/complete-registration', async (req, res, next) => {
 		console.log(person);
 		// store user in database
 		const verify_token = uuidv4();
+		const issuing_account = await fetchIssuingAccount(account)
 		const user = await prisma.user.create({
 			data: {
 				...data,
 				verify_token,
 				stripe: {
 					accountId: account.id,
-					personId: person.id
+					personId: person.id,
+					issuing_account
 				}
 			}
 		});
 		console.log('USER', user);
-		fetchIssuingAccount(user.id, account)
-			.then(async res => {
-				console.log(res);
-				await prisma.user.update({
-					where: {
-						id: user.id
-					},
-					data: {
-						stripe: {
-							...user.stripe,
-							issuing_account: res
-						}
-					}
-				})
-			})
-			.catch(error => console.error(error));
 		res.status(200).json(user);
 	} catch (err) {
 		console.error(err);
