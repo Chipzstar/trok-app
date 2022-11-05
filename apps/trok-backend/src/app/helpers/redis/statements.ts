@@ -57,7 +57,7 @@ export async function checkPastDueStatements() {
 		// increment score of the sorted set entry for next month
 		await redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().add(7, 'd').unix(), id)
 		// adjust the start & end periods for the next statement
-		await redisClient.hmset(id, "period_start", dayjs().unix(), "period_end", dayjs().add(7, 'd').endOf('week').unix())
+		await redisClient.hmset(id, "period_start", dayjs().unix(), "period_end", dayjs().add(7, 'd').unix())
 		return statement;
 	});
 	return true;
