@@ -73,10 +73,10 @@ router.post(
 					// add member to sorted set for scheduling statement generation
 					redisClient.zadd(
 						STATEMENT_REDIS_SORTED_SET_ID,
-						dayjs().endOf('month').unix(),
+						dayjs().endOf('week').unix(),
 						card.user.id
 					);
-					redisClient.hmset(card.user.id, "period_start", dayjs().unix(), "period_end", dayjs().endOf('month').unix())
+					redisClient.hmset(card.user.id, "period_start", dayjs().unix(), "period_end", dayjs().endOf('week').unix())
 				}
 				const transaction = await prisma.transaction.create({
 					data: {
