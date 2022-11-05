@@ -12,7 +12,7 @@ import prisma from '../prisma';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 
-const Login = ({ csrfToken, setAuth, users, session }) => {
+const Login = ({ csrfToken, users }) => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const form = useForm({
@@ -42,7 +42,6 @@ const Login = ({ csrfToken, setAuth, users, session }) => {
 				if (ok) {
 					console.log('Login Success');
 					await router.replace('/');
-					setAuth(true);
 					return;
 				}
 				// Something went wrong
@@ -57,7 +56,7 @@ const Login = ({ csrfToken, setAuth, users, session }) => {
 				console.log(error);
 			}
 		},
-		[router, setAuth]
+		[router]
 	);
 
 	return (

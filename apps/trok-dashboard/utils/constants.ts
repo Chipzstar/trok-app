@@ -4,6 +4,7 @@ import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ENVIRONMENT = process.env.DOPPLER_ENVIRONMENT
+console.log(ENVIRONMENT, ENVIRONMENT === "prd")
 
 export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
