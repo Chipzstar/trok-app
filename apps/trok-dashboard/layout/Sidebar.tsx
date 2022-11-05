@@ -14,7 +14,7 @@ import {
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { DEFAULT_HEADER_HEIGHT, PATHS, STORAGE_KEYS } from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, ENVIRONMENT, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { signOut } from 'next-auth/react';
 
@@ -83,7 +83,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 const Sidebar = () => {
-	const [testMode, setTestMode] = useLocalStorage({key: STORAGE_KEYS.TEST_MODE, defaultValue: false})
+	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const router = useRouter();
 	const [complete, setComplete] = useLocalStorage({ key: STORAGE_KEYS.COMPLETE, defaultValue: false });
 	const tabs = {
@@ -158,25 +158,31 @@ const Sidebar = () => {
 				</Group>
 			</Navbar.Section>
 			<Navbar.Section grow>{links}</Navbar.Section>
-			<Navbar.Section py="md" mx="auto">
-				<Switch
-					color="orange"
-					label="Test mode"
-					size="md"
-					checked={!!testMode}
-					onChange={(event) => setTestMode(event.currentTarget.checked)}
-				/>
-			</Navbar.Section>
+			{ENVIRONMENT !== 'prd' && (
+				<Navbar.Section py='md' mx='auto'>
+					<Switch
+						color='orange'
+						label='Test mode'
+						size='md'
+						checked={!!testMode}
+						onChange={event => setTestMode(event.currentTarget.checked)}
+					/>
+				</Navbar.Section>
+			)}
 			<Navbar.Section className={classes.footer}>
-				<div role='button'
-					 className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
-					 onClick={() => router.push(PATHS.REFERRAL)}>
+				<div
+					role='button'
+					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
+					onClick={() => router.push(PATHS.REFERRAL)}
+				>
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
 				</div>
-				<div role='button'
-					 className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}
-					 onClick={() => router.push(PATHS.SETTINGS)}>
+				<div
+					role='button'
+					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}
+					onClick={() => router.push(PATHS.SETTINGS)}
+				>
 					<IconSettings className={classes.linkIcon} stroke={1.5} />
 					<span>Settings</span>
 				</div>
