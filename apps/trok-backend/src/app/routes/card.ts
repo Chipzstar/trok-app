@@ -80,11 +80,6 @@ const cardRouter = t.router({
 						},
 						{ stripeAccount: user.stripe.accountId }
 					);
-					card = await stripe.issuing.cards.retrieve(
-						card.id,
-						{ expand: ['number', 'cvc'] },
-						{ stripeAccount: user.stripe.accountId }
-					);
 					console.log('CARD', card);
 					console.log('-----------------------------------------------');
 					const driver = await ctx.prisma.driver.findUnique({
@@ -127,7 +122,6 @@ const cardRouter = t.router({
 								last4: card.last4,
 								exp_month: card.exp_month,
 								exp_year: card.exp_year,
-								cvc: card.cvc,
 								spending_limits: input?.spending_limits
 									? [
 											{
