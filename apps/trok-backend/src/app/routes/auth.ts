@@ -6,7 +6,6 @@ import { TWENTY_FOUR_HOURS } from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchIssuingAccount } from '../helpers/stripe';
-import { AppError } from '../utils/exceptions';
 import dayjs from 'dayjs';
 
 const router = express.Router();
@@ -103,14 +102,7 @@ router.post('/complete-registration', async (req, res, next) => {
 		res.status(200).json(user);
 	} catch (err) {
 		console.error(err);
-		next(new AppError({
-			//@ts-ignore
-			name: err.name,
-			//@ts-ignore
-			httpCode: err.statusCode,
-			//@ts-ignore
-			message: err.message,
-		}));
+		next(err);
 	}
 });
 

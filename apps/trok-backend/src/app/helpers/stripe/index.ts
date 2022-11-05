@@ -45,7 +45,7 @@ export const fetchFundingDetails = async (account_id: string) => {
 	}
 };
 
-export const 	fetchIssuingAccount = async (account: Stripe.Account) => {
+export const fetchIssuingAccount = async (account: Stripe.Account) => {
 	try {
 		const {
 			bank_transfer: { financial_addresses }

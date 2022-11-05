@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import { plaid } from '../../utils/clients';
 import { prettyPrintResponse } from '../../utils/helpers';
 import { AppError } from '../../utils/exceptions';
