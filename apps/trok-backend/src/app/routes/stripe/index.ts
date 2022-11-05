@@ -6,6 +6,9 @@ import Stripe from 'stripe';
 import 'express-async-errors';
 import { NextFunction } from 'express';
 import prisma from '../../db';
+import redisClient from '../../redis';
+import * as dayjs from 'dayjs';
+import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
 
 const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET);
 const router = express.Router();
@@ -64,6 +67,17 @@ router.post(
 						}
 					}
 				});
+				// check to see if user id is recorded in the redis statement scheduler
+				const zrank = await redisClient.zrank(STATEMENT_REDIS_SORTED_SET_ID, card.user.id)
+				if (zrank === null) {
+					// add member to sorted set for scheduling statement generation
+					redisClient.zadd(
+						STATEMENT_REDIS_SORTED_SET_ID,
+						dayjs().endOf('month').unix(),
+						card.user.id
+					);
+					redisClient.hmset(card.user.id, "period_start", dayjs().unix(), "period_end", dayjs().endOf('month').unix())
+				}
 				const transaction = await prisma.transaction.create({
 					data: {
 						cardId: card.id,
@@ -86,12 +100,22 @@ router.post(
 						},
 						merchant_amount: Math.abs(t.merchant_amount),
 						authorization_id: <string>t.authorization,
+						...(t?.purchase_details?.fuel && {
+							purchase_details: {
+								set: {
+									volume: Number(t.purchase_details.fuel.volume_decimal),
+									unit_cost_decimal: Number(t.purchase_details.fuel.unit_cost_decimal),
+									fuel_type: t.purchase_details.fuel?.type,
+									unit_type: t.purchase_details.fuel?.unit
+								}
+							}
+						}),
 						transaction_id: t.id,
 						currency: t.currency
 					}
 				});
 				console.log('************************************************');
-				console.log(transaction)
+				console.log(transaction);
 				console.log('************************************************');
 				break;
 			default:

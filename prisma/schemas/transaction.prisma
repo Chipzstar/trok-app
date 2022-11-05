@@ -8,6 +8,8 @@ model Transaction {
     driverId String
     card Card @relation(fields: [cardId], references: [id])
     cardId String
+    statement Statement? @relation(fields: [statementId], references: [id])
+    statementId String?
     cardholder_name String
     last4 String
     transaction_id String @unique

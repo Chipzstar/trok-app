@@ -387,40 +387,35 @@ export const SAMPLE_TRANSACTIONS = [
 
 export const SAMPLE_STATEMENTS = [
 	{
-		period_label: 'October 22',
-		created_at: 1665414165,
+		created_at: dayjs().format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		period_label: 'November 22',
-		created_at: 1665414165,
+		created_at: dayjs().add(1, "M").format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		period_label: 'December 22',
-		created_at: 1665414165,
+		created_at: dayjs().add(2, "M").format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		period_label: 'January 23',
-		created_at: 1665414165,
+		created_at: dayjs().add(3, "M").format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		period_label: 'February 23',
-		created_at: 1665414165,
+		created_at: dayjs().add(4, "M").format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,

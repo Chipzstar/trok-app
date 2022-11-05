@@ -30,7 +30,7 @@ const Transactions = ({ testMode, session_id }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
 
-	const data = testMode ? SAMPLE_TRANSACTIONS : !transactionsQuery.isLoading ? transactionsQuery?.data : [];
+	const data = testMode ? SAMPLE_TRANSACTIONS : transactionsQuery?.data ? transactionsQuery.data : [];
 
 	const form = useForm<ExportForm>({
 		initialValues: {

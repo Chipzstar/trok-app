@@ -50,9 +50,6 @@ const CardsTable = ({ data }) => {
 					</div>
 				</td>
 				<td colSpan={1}>
-					<span>{GBP(element.current_balance).format()}</span>
-				</td>
-				<td colSpan={1}>
 					<span>{GBP(element.spending_limits[0].amount).format()}</span>
 				</td>
 				<td role='button' onClick={() => router.push(`${PATHS.CARDS}/${element.card_id}`)}>
@@ -76,7 +73,6 @@ const CardsTable = ({ data }) => {
 				{ label: 'Card Number', key: null },
 				{ label: 'Status', key: null },
 				{ label: 'Assigned ', key: null },
-				{ label: 'Balance', key: null },
 				{ label: 'Spending Limit', key: null },
 				{ label: '', key: null }
 			]}

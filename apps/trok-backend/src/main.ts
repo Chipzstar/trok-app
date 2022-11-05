@@ -10,10 +10,10 @@ import authRoutes from './app/routes/auth';
 import stripeRoutes from './app/routes/stripe';
 import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
-import { storage } from './app/utils/clients';
 import 'express-async-errors';
 import './app/process';
-import { Response, Request, NextFunction } from 'express';
+import { checkPastDueStatements } from './app/helpers/redis/statements';
+import { BUCKET, ONE_HOUR, THIRTY_SECONDS } from './app/utils/constants';
 
 const runApp = async () => {
 	const app = express();
@@ -77,10 +77,8 @@ const runApp = async () => {
 		try {
 			const { filename, crn, type } = req.query;
 			console.table({ filename, crn, type });
-			const bucket = storage.bucket(String(process.env.GCS_BUCKET_NAME));
-			console.log(bucket);
 			const filepath = `${crn}/${type}/${filename}`;
-			const file = bucket.file(filepath);
+			const file = BUCKET.file(filepath);
 			console.log(file);
 			console.log(`${filename} uploaded to ${process.env.GCS_BUCKET_NAME}`);
 			const options = {
@@ -127,8 +125,10 @@ const runApp = async () => {
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
 		console.log(`Listening at http://localhost:${port}/server`);
+		// BUSINESS STATEMENT GENERATOR
+		setInterval(checkPastDueStatements , ONE_HOUR)
 	});
 	server.on('error', console.error);
 };
 
-runApp().then(r => 'Server is online!');
+runApp().then(() => null);

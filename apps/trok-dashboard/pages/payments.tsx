@@ -64,13 +64,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 
 	const { open, ready } = usePlaidLink(config);
 	const data = testMode
-		? SAMPLE_PAYMENTS.filter(
-				p =>
-					dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h') &&
-					(p.recipient_name.contains(search) ||
-						p.payment_type.contains(search) ||
-						GBP(p.amount).format().contains(search))
-		  )
+		? SAMPLE_PAYMENTS
 		: !query?.isLoading
 		? query?.data?.filter(
 				p =>

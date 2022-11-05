@@ -58,8 +58,8 @@ type MerchantData {
 }
 
 type PurchaseDetails {
-    fuel_type FuelType
-    unit_type UnitType
+    fuel_type String
+    unit_type String
     unit_cost_decimal Float
     volume Int
 }
