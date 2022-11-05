@@ -1,0 +1,1 @@
+// gsutil cors set <Json_File_Name> gs://<Bucket_Name>
