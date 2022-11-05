@@ -1,12 +1,12 @@
 import * as qs from 'qs';
 import Stripe from 'stripe';
 import { plaid, stripe } from '../../utils/clients';
+import * as dayjs from 'dayjs';
 import axios from 'axios';
 import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
-import * as dayjs from 'dayjs';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
@@ -44,13 +44,14 @@ export const fetchFundingDetails = async (account_id: string) => {
 	}
 };
 
-export const fetchIssuingAccount = async (account: Stripe.Account) => {
+export const 	fetchIssuingAccount = async (account: Stripe.Account) => {
 	try {
 		const {
 			bank_transfer: { financial_addresses }
 		} = await fetchFundingDetails(account.id);
+		console.log(financial_addresses)
 		// create the recipient under the user_id
-		const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
+		/*const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
 			name: 'Stripe Payments UK Limited',
 			bacs: {
 				account: financial_addresses[0].sort_code.account_number,
@@ -64,10 +65,10 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 			}
 		});
 		const { recipient_id, request_id } = createRecipientResponse.data;
-		prettyPrintResponse(createRecipientResponse);
+		prettyPrintResponse(createRecipientResponse);*/
 		return {
-			plaid_recipient_id: recipient_id,
-			plaid_request_id: request_id,
+			plaid_recipient_id: "",
+			plaid_request_id: "",
 			account_holder_name: 'Stripe Payments UK Limited',
 			account_number: financial_addresses[0].sort_code.account_number as string,
 			sort_code: financial_addresses[0].sort_code.sort_code as string
