@@ -49,8 +49,6 @@ const cardRouter = t.router({
 						id: input.user_id
 					}
 				});
-				console.log(user);
-				console.log('-----------------------------------------------');
 				if (user) {
 					let card = await stripe.issuing.cards.create(
 						{
