@@ -3,7 +3,7 @@ import { BUCKET, STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
 import * as dayjs from 'dayjs';
 import prisma from '../../db';
 import * as path from 'path';
-import * as fs from 'node:fs';
+import * as fs from 'fs';
 import * as easyinvoice from 'easyinvoice';
 import { InvoiceData } from 'easyinvoice';
 import * as Prisma from '@prisma/client';

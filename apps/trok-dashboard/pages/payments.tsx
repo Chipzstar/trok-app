@@ -71,7 +71,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h') &&
 					(p.recipient_name.contains(search) ||
 						p.payment_type.contains(search) ||
-						GBP(p.amount).format().contains(search))
+						GBP(p.amount).format().contains(search) ||
+						p.reference.contains(search))
 		  )
 		: [];
 
