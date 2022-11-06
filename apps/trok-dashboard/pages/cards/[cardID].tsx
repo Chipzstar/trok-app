@@ -3,7 +3,7 @@ import Page from '../../layout/Page';
 import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
-import { GBP, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
+import {GBP, isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS} from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
@@ -17,6 +17,7 @@ import {
 	SpendingLimit,
 	SpendingLimitInterval
 } from '@trok-app/shared-utils';
+import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 
@@ -272,6 +273,12 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								: card?.shipping_status}
 						</span>
 					</Group>
+					{!isProd && <CardPaymentButton
+						stripeId={stripe_account_id}
+						cardId={cardID}
+						cardShippingStatus={card?.shipping_status}
+						cardStatus={card?.status}
+					/>}
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>

@@ -6,6 +6,7 @@ import {
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
+	IconGift,
 	IconLogout,
 	IconSettings,
 	IconUsers,
@@ -168,14 +169,14 @@ const Sidebar = () => {
 				</Navbar.Section>
 			)}
 			<Navbar.Section className={classes.footer}>
-				{/*<div
+				{!isProd && <div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
 					onClick={() => router.push(PATHS.REFERRAL)}
 				>
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
-				</div>*/}
+				</div>}
 				<div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}
