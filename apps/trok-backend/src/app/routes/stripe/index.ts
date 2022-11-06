@@ -66,4 +66,14 @@ router.post(
 	}
 );
 
+router.post('/ephemeral-keys', async (request, response) => {
+	const { card_id } = request.body;
+	const ephemeralKey = await stripe.ephemeralKeys.create({
+		issuing_card: card_id
+	});
+	response.json({
+		ephemeralKeySecret: ephemeralKey.secret,
+	});
+})
+
 export default router;
