@@ -1,13 +1,14 @@
 import express from 'express';
 import { NextFunction } from 'express';
 import { stripe } from '../../utils/clients';
-import * as bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 import { createTransaction, handleAuthorizationRequest, updateCard } from '../../helpers/stripe';
 import Stripe from 'stripe';
 import 'express-async-errors';
 
 const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET);
 const router = express.Router();
+const jsonParser = bodyParser.json();
 
 router.post(
 	'/webhook',
@@ -66,13 +67,14 @@ router.post(
 	}
 );
 
-router.post('/ephemeral-keys', async (request, response) => {
-	const { card_id } = request.body;
+router.post('/ephemeral-keys', jsonParser, async (req, res) => {
+	const { card_id, nonce, stripe_account_id } = req.body;
 	const ephemeralKey = await stripe.ephemeralKeys.create({
 		issuing_card: card_id
-	});
-	response.json({
-		ephemeralKeySecret: ephemeralKey.secret,
+	}, { apiVersion: "2020-03-02", stripeAccount: stripe_account_id});
+	console.log(ephemeralKey);
+	res.json({
+		ephemeral_key_secret: ephemeralKey.secret,
 	});
 })
 

@@ -3,12 +3,12 @@ import Page from '../../layout/Page';
 import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
-import {GBP, isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS} from '../../utils/constants';
+import { GBP, isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import { trpc } from '../../utils/clients';
+import { apiClient, trpc } from '../../utils/clients';
 import {
 	CARD_SHIPPING_STATUS,
 	CARD_STATUS,
@@ -20,6 +20,11 @@ import {
 import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
+import { Elements, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import CardPINDisplay from '../../components/CardPINDisplay';
+
+const stripe = await loadStripe(String(process.env.NEXT_PUBLIC_STRIPE_API_KEY), { apiVersion: '2022-08-01' });
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -34,18 +39,20 @@ function formatSpendingLimits(
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
 	const { cardID } = router.query;
+	const [nonce, setNonce] = useState(null)
+	const [ephemeralKey, setEphemeralKey] = useState(null)
 	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invalidate({ userId: session_id }).then(r => form.reset());
 		}
 	});
@@ -68,8 +75,21 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3)
 		: !transactionsQuery.isLoading
-		? transactionsQuery?.data.slice(0, 3)
-		: [];
+			? transactionsQuery?.data.slice(0, 3)
+			: [];
+	useEffect(() => {
+		(async () => {
+			const nonceResult = await stripe.createEphemeralKeyNonce({
+				issuingCard: String(cardID)
+			});
+			setNonce(nonceResult.nonce)
+			const result = (await apiClient.post('/server/stripe/ephemeral-keys', {
+				card_id: String(cardID),
+				stripe_account_id
+			})).data;
+			setEphemeralKey(result.ephemeral_key_secret)
+		})();
+	}, [cardID, stripe_account_id]);
 
 	useEffect(() => form.reset(), [card]);
 
@@ -93,7 +113,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			}
 		}
 	});
-
 	const updateSpendingLimit = useCallback(async values => {
 		setLoading(true);
 		try {
@@ -301,23 +320,23 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'per_authorization')
 										? GBP(
-												card?.spending_limits.find(
-													({ interval }) => interval === 'per_authorization'
-												)?.amount
-										  ).format()
+											card?.spending_limits.find(
+												({ interval }) => interval === 'per_authorization'
+											)?.amount
+										).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'daily')
 										? GBP(
-												card?.spending_limits.find(({ interval }) => interval === 'daily')
-													?.amount
-										  ).format()
+											card?.spending_limits.find(({ interval }) => interval === 'daily')
+												?.amount
+										).format()
 										: '-'}
 								</span>
 								<span>
-									{card?.spending_limits.find(({interval}) => interval === 'weekly')
-										? GBP(card?.spending_limits.find(({interval}) => interval === 'weekly')?.amount).format()
+									{card?.spending_limits.find(({ interval }) => interval === 'weekly')
+										? GBP(card?.spending_limits.find(({ interval }) => interval === 'weekly')?.amount).format()
 										: '-'}
 								</span>
 							</Stack>
@@ -330,11 +349,18 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								<span>{card?.cardholder_name}</span>
 							</div>
 							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
-								<div className='flex-end block'>
+								<Group grow position="apart">
 									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
 									</Button>
-								</div>
+									<Elements stripe={stripe}>
+										<CardPINDisplay
+											card_id={cardID}
+											nonce={nonce}
+											ephemeral_key_secret={ephemeralKey}
+										/>
+									</Elements>
+								</Group>
 							)}
 						</Stack>
 					</Card>

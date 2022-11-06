@@ -14,6 +14,15 @@
     border: 4px solid pink;
 }
 
+#card-pin {
+    position: relative;
+}
+
+#card-number-copy {
+    height: 24px;
+    width: 24px;
+    position: relative;
+}
 /*
 * {
     border: red solid 1px !important
