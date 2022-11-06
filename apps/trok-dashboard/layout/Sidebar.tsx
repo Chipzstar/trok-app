@@ -6,7 +6,6 @@ import {
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
-	IconGift,
 	IconLogout,
 	IconSettings,
 	IconUsers,
@@ -14,7 +13,7 @@ import {
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { DEFAULT_HEADER_HEIGHT, ENVIRONMENT, PATHS, STORAGE_KEYS } from '../utils/constants';
+import {DEFAULT_HEADER_HEIGHT, isProd, PATHS, STORAGE_KEYS} from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { signOut } from 'next-auth/react';
 
@@ -85,7 +84,6 @@ const useStyles = createStyles((theme, _params, getRef) => {
 const Sidebar = () => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const router = useRouter();
-	const [complete, setComplete] = useLocalStorage({ key: STORAGE_KEYS.COMPLETE, defaultValue: false });
 	const tabs = {
 		general: [
 			{
@@ -158,7 +156,7 @@ const Sidebar = () => {
 				</Group>
 			</Navbar.Section>
 			<Navbar.Section grow>{links}</Navbar.Section>
-			{ENVIRONMENT !== 'prd' && (
+			{!isProd && (
 				<Navbar.Section py='md' mx='auto'>
 					<Switch
 						color='orange'
@@ -170,14 +168,14 @@ const Sidebar = () => {
 				</Navbar.Section>
 			)}
 			<Navbar.Section className={classes.footer}>
-				<div
+				{/*<div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
 					onClick={() => router.push(PATHS.REFERRAL)}
 				>
 					<IconGift className={classes.linkIcon} stroke={1.5} />
 					<span>Refer & Earn</span>
-				</div>
+				</div>*/}
 				<div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}
@@ -189,10 +187,7 @@ const Sidebar = () => {
 				<div
 					role='button'
 					className={classes.link}
-					onClick={() => {
-						setComplete(false);
-						signOut().then(r => console.log('Sign Out Success!'));
-					}}
+					onClick={() => signOut().then(r => console.log('Sign Out Success!'))}
 				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>
 				</div>
