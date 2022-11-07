@@ -1,10 +1,10 @@
 import React from 'react';
 import { Divider, Drawer, Stack, Textarea } from '@mantine/core';
 import { capitalize, sanitize } from '../utils/functions';
-import { GBP } from '../utils/constants';
 import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
+import { GBP } from '@trok-app/shared-utils';
 dayjs.extend(advancedFormat)
 
 const PaymentDetails = ({opened, setOpened, payment}) => {

@@ -3,7 +3,7 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
-import { GBP } from '../utils/constants';
+import { GBP } from '@trok-app/shared-utils';
 
 const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 	const [activePage, setPage] = useState(1);

@@ -3,7 +3,7 @@ import Page from '../layout/Page';
 import { Button, TextInput } from '@mantine/core';
 import { IconCalendar, IconCheck, IconSearch, IconX } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
-import { GBP, SAMPLE_PAYMENTS } from '../utils/constants';
+import { SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import dayjs from 'dayjs';
 import PaymentDetails from '../modals/PaymentDetails';
@@ -12,7 +12,7 @@ import { PlaidLinkOnSuccess, PlaidLinkOnSuccessMetadata, usePlaidLink } from 're
 import { apiClient, trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { GBP, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';

@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
 import classNames from 'classnames';
-import { PAYMENT_STATUS } from '@trok-app/shared-utils';
+import { GBP, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
-import { GBP } from '../utils/constants';
 import { ActionIcon, Group } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons';
 

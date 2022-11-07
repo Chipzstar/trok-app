@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
-import { FIVE_HUNDRED_POUNDS, GBP, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { FIVE_HUNDRED_POUNDS, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
 import { ActionIcon, Badge, Button, Card, Divider, Group, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
@@ -11,6 +11,7 @@ import { trpc } from '../utils/clients';
 import { IconCalendar, IconEdit } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import isBetween from 'dayjs/plugin/isBetween';
+import { GBP } from '@trok-app/shared-utils';
 
 dayjs.extend(isBetween);
 

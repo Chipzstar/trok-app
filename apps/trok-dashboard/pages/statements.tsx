@@ -1,13 +1,14 @@
 import React from 'react';
 import Page from '../layout/Page';
 import StatementsTable from '../containers/StatementsTable';
-import { GBP, SAMPLE_STATEMENTS } from '../utils/constants';
+import { SAMPLE_STATEMENTS } from '../utils/constants';
 import { Anchor, Button } from '@mantine/core';
 import { IconDownload } from '@tabler/icons';
 import dayjs from 'dayjs';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
+import { GBP } from '@trok-app/shared-utils';
 
 const Statements = ({ testMode, session_id }) => {
 	const query = trpc.getStatements.useQuery({ userId: session_id });

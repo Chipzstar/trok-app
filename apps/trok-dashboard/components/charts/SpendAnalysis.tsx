@@ -5,12 +5,13 @@ import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
-import { GBP, STORAGE_KEYS } from '../../utils/constants';
+import { STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
 import { filterByTimeRange } from '../../utils/functions';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
+import { GBP } from '@trok-app/shared-utils';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);

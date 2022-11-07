@@ -3,7 +3,7 @@ import Page from '../../layout/Page';
 import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
-import { GBP, isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
+import { isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
 import TransactionTable from '../../containers/TransactionTable';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
@@ -11,7 +11,7 @@ import { authOptions } from '../api/auth/[...nextauth]';
 import { apiClient, trpc } from '../../utils/clients';
 import {
 	CARD_SHIPPING_STATUS,
-	CARD_STATUS,
+	CARD_STATUS, GBP,
 	notifyError,
 	notifySuccess,
 	SpendingLimit,

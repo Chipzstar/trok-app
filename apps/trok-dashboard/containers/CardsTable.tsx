@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
-import { GBP, PATHS, SAMPLE_CARDS, STORAGE_KEYS } from '../utils/constants';
+import { PATHS, SAMPLE_CARDS, STORAGE_KEYS } from '../utils/constants';
 import classNames from 'classnames';
 import { sanitize } from '../utils/functions';
 import { ActionIcon, Group } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
-import { CARD_STATUS } from '@trok-app/shared-utils';
+import { CARD_STATUS, GBP } from '@trok-app/shared-utils';
 
 const CardsTable = ({ data }) => {
 	const router = useRouter();

@@ -1,5 +1,6 @@
 import { showNotification } from '@mantine/notifications';
 import { PhoneNumberFormat as PNF, PhoneNumberUtil } from 'google-libphonenumber';
+import currency from 'currency.js';
 
 export const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -56,3 +57,5 @@ export function getE164Number(phoneNumber: string) {
 export function includesCaseInsensitive(this: string, str: string): boolean {
 	return this.toLowerCase().includes(str.toLowerCase());
 }
+
+export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });

@@ -13,12 +13,12 @@ import {
 } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons';
-import { GBP, SAMPLE_DRIVERS } from '../utils/constants';
+import { SAMPLE_DRIVERS } from '../utils/constants';
 import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 import { trpc } from '../utils/clients';
-import { getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { GBP, getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { capitalize, sanitize } from '../utils/functions';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
