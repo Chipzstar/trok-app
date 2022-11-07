@@ -20,7 +20,7 @@ import {
 import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
-import { Elements, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
 
@@ -39,8 +39,8 @@ function formatSpendingLimits(
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
 	const { cardID } = router.query;
-	const [nonce, setNonce] = useState(null)
-	const [ephemeralKey, setEphemeralKey] = useState(null)
+	const [nonce, setNonce] = useState(null);
+	const [ephemeralKey, setEphemeralKey] = useState(null);
 	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -82,12 +82,12 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			const nonceResult = await stripe.createEphemeralKeyNonce({
 				issuingCard: String(cardID)
 			});
-			setNonce(nonceResult.nonce)
+			setNonce(nonceResult.nonce);
 			const result = (await apiClient.post('/server/stripe/ephemeral-keys', {
 				card_id: String(cardID),
 				stripe_account_id
 			})).data;
-			setEphemeralKey(result.ephemeral_key_secret)
+			setEphemeralKey(result.ephemeral_key_secret);
 		})();
 	}, [cardID, stripe_account_id]);
 
@@ -348,20 +348,20 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								<Text weight={600}>Driver</Text>
 								<span>{card?.cardholder_name}</span>
 							</div>
-							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
-								<Group grow position="apart">
+							<Group grow position='apart'>
+								{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
 									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
-									</Button>
-									<Elements stripe={stripe}>
-										<CardPINDisplay
-											card_id={cardID}
-											nonce={nonce}
-											ephemeral_key_secret={ephemeralKey}
-										/>
-									</Elements>
-								</Group>
-							)}
+									</Button>)}
+								<Elements stripe={stripe}>
+									<CardPINDisplay
+										card_id={cardID}
+										nonce={nonce}
+										ephemeral_key_secret={ephemeralKey}
+									/>
+								</Elements>
+							</Group>
+
 						</Stack>
 					</Card>
 				</div>
