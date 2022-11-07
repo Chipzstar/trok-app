@@ -131,7 +131,9 @@ const paymentsRouter = t.router({
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
-				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+				console.error(err?.response?.data)
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data ?? err?.message });
 			}
 		}),
 	payExternalAccount: t.procedure.input(
