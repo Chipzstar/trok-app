@@ -74,7 +74,6 @@ export const generateLinkToken = async (
 	client_user_id: string,
 	phone_number: string,
 	webhook: string,
-	routing_number: string,
 	payment_id: string
 ) => {
 	try {
@@ -89,9 +88,6 @@ export const generateLinkToken = async (
 					phone_number
 				},
 				webhook,
-				institution_data: {
-					routing_number
-				},
 				// Institutions from all listed countries will be shown.
 				country_codes: PLAID_COUNTRY_CODES,
 				language: 'en',

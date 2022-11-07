@@ -109,7 +109,6 @@ const paymentsRouter = t.router({
 					IS_DEVELOPMENT
 						? 'https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
 						: PLAID_WEBHOOK_URL,
-					PLAID_SANDBOX ? '021000021' : routing_number,
 					payment_id
 				);
 				// create payment in db
@@ -130,7 +129,7 @@ const paymentsRouter = t.router({
 				return result;
 			} catch (err) {
 				// @ts-ignore
-				console.error(err?.response?.data ?? err)
+				console.log(err.response)
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?.message ?? err?.message });
 			}
@@ -202,7 +201,6 @@ const paymentsRouter = t.router({
 				input.user_id,
 				bankAccount.user.phone,
 				IS_DEVELOPMENT ? "https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook" : PLAID_WEBHOOK_URL,
-				PLAID_SANDBOX ? '021000021' : routing_number,
 				payment_id,
 			)
 			// create payment in db
