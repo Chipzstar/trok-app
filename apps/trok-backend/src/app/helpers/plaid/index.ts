@@ -84,8 +84,7 @@ export const generateLinkToken = async (
 					// This should correspond to a unique id for the current user.
 					// Typically, this will be a user ID number from your application.
 					// Personally identifiable information, such as an email address or phone number, should not be used here.
-					client_user_id,
-					phone_number
+					client_user_id
 				},
 				webhook,
 				// Institutions from all listed countries will be shown.
