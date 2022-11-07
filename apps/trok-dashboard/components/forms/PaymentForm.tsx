@@ -51,9 +51,9 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 						precision={2}
 						type='text'
 						label='Amount'
-						min={100}
+						min={0}
 						max={1000000}
-						step={100}
+						step={5}
 						parser={value => value.replace(/£\s?|(,*)/g, '')}
 						formatter={value =>
 							!Number.isNaN(parseFloat(value)) ? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '£ '

@@ -19,7 +19,6 @@ const plaidConfig = new Configuration({
 
 export const plaid = new PlaidApi(plaidConfig);
 
-
 export const storage = new Storage({
 	projectId: process.env.GCS_PROJECT_ID,
 	credentials: {

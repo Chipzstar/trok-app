@@ -113,6 +113,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			}
 		}
 	});
+
 	const updateSpendingLimit = useCallback(async values => {
 		setLoading(true);
 		try {
