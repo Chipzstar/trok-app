@@ -130,7 +130,7 @@ const paymentsRouter = t.router({
 				return result;
 			} catch (err) {
 				// @ts-ignore
-				console.error(err?.response?.data)
+				console.error(err?.response?.data ?? err)
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?.message ?? err?.message });
 			}

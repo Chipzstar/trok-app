@@ -8,13 +8,13 @@ export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 });
 
 const plaidConfig = new Configuration({
-	basePath: process.env.DOPPLER_ENVIRONMENT === "prd" ? PlaidEnvironments.sandbox : PlaidEnvironments.development,
+	basePath: process.env.DOPPLER_ENVIRONMENT === 'prd' ? PlaidEnvironments.development : PlaidEnvironments.sandbox,
 	baseOptions: {
 		headers: {
 			'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-			'PLAID-SECRET': process.env.PLAID_SECRET,
-		},
-	},
+			'PLAID-SECRET': process.env.PLAID_SECRET
+		}
+	}
 });
 
 export const plaid = new PlaidApi(plaidConfig);
