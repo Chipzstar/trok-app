@@ -8,7 +8,7 @@ export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 });
 
 const plaidConfig = new Configuration({
-	basePath: PlaidEnvironments.sandbox,
+	basePath: process.env.DOPPLER_ENVIRONMENT === "prd" ? PlaidEnvironments.sandbox : PlaidEnvironments.development,
 	baseOptions: {
 		headers: {
 			'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
