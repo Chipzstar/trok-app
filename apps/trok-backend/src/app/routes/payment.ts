@@ -129,11 +129,10 @@ const paymentsRouter = t.router({
 				});
 				return result;
 			} catch (err) {
-				console.error(err);
 				// @ts-ignore
 				console.error(err?.response?.data)
 				// @ts-ignore
-				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data ?? err?.message });
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?.message ?? err?.message });
 			}
 		}),
 	payExternalAccount: t.procedure.input(
