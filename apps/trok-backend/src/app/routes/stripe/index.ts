@@ -70,6 +70,8 @@ router.post(
 router.post('/ephemeral-keys', jsonParser, async (req, res) => {
 	const { card_id, nonce, stripe_account_id } = req.body;
 	const ephemeralKey = await stripe.ephemeralKeys.create({
+		//@ts-ignore
+		nonce: nonce,
 		issuing_card: card_id
 	}, { apiVersion: "2020-03-02", stripeAccount: stripe_account_id});
 	console.log(ephemeralKey);
