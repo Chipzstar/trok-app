@@ -55,8 +55,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	}, []);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
-		env: 'sandbox',
-		clientName: process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME,
+		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
+		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
 		token: linkToken,
 		onSuccess,
 		onLoad: () => console.log('loading...')
