@@ -103,7 +103,8 @@ export const generateLinkToken = async (
 		console.log('************************************************');
 		return createTokenResponse;
 	} catch (err) {
-		console.error(err);
+		//@ts-ignore
+		console.error(err?.response?.data ?? err);
 		throw err;
 	}
 };
