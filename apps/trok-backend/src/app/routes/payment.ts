@@ -129,102 +129,107 @@ const paymentsRouter = t.router({
 				return result;
 			} catch (err) {
 				// @ts-ignore
-				console.log(err.response?.data ?? err.response)
+				console.log(err.response?.data ?? err.response);
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?.message ?? err?.message });
 			}
 		}),
-	payExternalAccount: t.procedure.input(
-		z.object({
-			user_id: z.string(),
-			reference: z.string(),
-            amount: z.number(),
-			account_holder_name: z.string(),
-			account_number: z.string(),
-			sort_code: z.string()
-		})
-	).mutation(async ({ input, ctx}) => {
-		try {
-			// fetch the default bank account
-			const bankAccount = await ctx.prisma.bankAccount.findFirstOrThrow({
-				where: {
-					userId: input.user_id,
-					is_default: true
-				},
-				select: {
-					stripe_bank_id: true,
-					account_number: true,
-					sort_code: true,
-					user: {
-						select: {
-							phone: true,
-							email: true
+	payExternalAccount: t.procedure
+		.input(
+			z.object({
+				user_id: z.string(),
+				reference: z.string(),
+				amount: z.number(),
+				account_holder_name: z.string(),
+				account_number: z.string(),
+				sort_code: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				// fetch the default bank account
+				const bankAccount = await ctx.prisma.bankAccount.findFirstOrThrow({
+					where: {
+						userId: input.user_id,
+						is_default: true
+					},
+					select: {
+						stripe_bank_id: true,
+						account_number: true,
+						sort_code: true,
+						user: {
+							select: {
+								phone: true,
+								email: true
+							}
 						}
 					}
-				}
-			});
-			console.log('-----------------------------------------------');
-			console.log('DEFAULT BANK ACCOUNT:', bankAccount);
-			console.log('-----------------------------------------------');
-			console.log('-----------------------------------------------');
-			// Create PLAID Recipient
-			const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
-				name: input.account_holder_name,
-				bacs: {
-					account: input.account_number,
-					sort_code: input.sort_code.replace(/-/g, '')
-				}
-			});
-			const recipient_id = createRecipientResponse.data.recipient_id;
-			prettyPrintResponse(createRecipientResponse);
-			const routing_number = bankAccount.sort_code.replace(/-/g, '');
-			console.log('-----------------------------------------------');
-			console.log(routing_number);
-			const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
-				recipient_id,
-				reference: input.reference,
-				options: {
+				});
+				console.log('-----------------------------------------------');
+				console.log('DEFAULT BANK ACCOUNT:', bankAccount);
+				console.log('-----------------------------------------------');
+				console.log('-----------------------------------------------');
+				// Create PLAID Recipient
+				const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
+					name: input.account_holder_name,
 					bacs: {
-						account: bankAccount.account_number,
-						sort_code: routing_number
+						account: input.account_number,
+						sort_code: input.sort_code.replace(/-/g, '')
 					}
-				},
-				amount: {
-					value: input.amount,
-					currency: PaymentAmountCurrency.Gbp
-				}
-			});
-			prettyPrintResponse(createPaymentResponse);
-			const payment_id = createPaymentResponse.data.payment_id;
+				});
+				const recipient_id = createRecipientResponse.data.recipient_id;
+				prettyPrintResponse(createRecipientResponse);
+				const routing_number = bankAccount.sort_code.replace(/-/g, '');
+				console.log('-----------------------------------------------');
+				console.log(routing_number);
+				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
+					recipient_id,
+					reference: input.reference,
+					options: {
+						bacs: {
+							account: bankAccount.account_number,
+							sort_code: routing_number
+						}
+					},
+					amount: {
+						value: input.amount,
+						currency: PaymentAmountCurrency.Gbp
+					}
+				});
+				prettyPrintResponse(createPaymentResponse);
+				const payment_id = createPaymentResponse.data.payment_id;
 
-			const result = await generateLinkToken(
-				input.user_id,
-				bankAccount.user.phone,
-				IS_DEVELOPMENT ? "https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook" : PLAID_WEBHOOK_URL,
-				payment_id,
-			)
-			// create payment in db
-			await ctx.prisma.payment.create({
-				data: {
-					userId: input.user_id,
-					plaid_payment_id: payment_id,
-					plaid_link_token: result.link_token,
-					plaid_recipient_id: recipient_id,
-					recipient_name: input.account_holder_name,
-					payment_type: "bank_transfer",
-					plaid_payment_status: PaymentInitiationPaymentStatus.InputNeeded,
-					amount: input.amount * 100,
-					status: convertPlaidStatus(createPaymentResponse.data.status),
-					reference: input.reference
-				}
-			})
-			return result;
-		} catch (err) {
-			console.error(err);
-			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message})
-		}
-	})
+				const result = await generateLinkToken(
+					input.user_id,
+					bankAccount.user.phone,
+					IS_DEVELOPMENT
+						? 'https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
+						: PLAID_WEBHOOK_URL,
+					payment_id
+				);
+				// create payment in db
+				await ctx.prisma.payment.create({
+					data: {
+						userId: input.user_id,
+						plaid_payment_id: payment_id,
+						plaid_link_token: result.link_token,
+						plaid_recipient_id: recipient_id,
+						recipient_name: input.account_holder_name,
+						payment_type: 'bank_transfer',
+						plaid_payment_status: PaymentInitiationPaymentStatus.InputNeeded,
+						amount: input.amount * 100,
+						status: convertPlaidStatus(createPaymentResponse.data.status),
+						reference: input.reference
+					}
+				});
+				return result;
+			} catch (err) {
+				// @ts-ignore
+				console.error(err?.response?.data ?? err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		})
 });
 
 export default paymentsRouter;
