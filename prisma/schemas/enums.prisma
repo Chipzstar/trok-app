@@ -42,6 +42,12 @@ enum UnitType {
     liter
 }
 
+enum TransactionStatus {
+    approved
+    declined
+    pending
+}
+
 enum PaymentStatus {
     PAYMENT_STATUS_INPUT_NEEDED
     PAYMENT_STATUS_PROCESSING

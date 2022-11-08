@@ -12,6 +12,7 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { trpc } from '../utils/clients';
 import { usePapaParse } from 'react-papaparse';
 import dayjs from 'dayjs';
+import { TransactionStatus } from '@trok-app/shared-utils';
 
 interface ExportForm {
 	file_type: 'CSV' | 'PDF';
@@ -22,6 +23,7 @@ interface ExportForm {
 }
 
 const Transactions = ({ testMode, session_id }) => {
+	const [activeTab, setActiveTab] = useState<TransactionStatus | null>('all');
 	const exportRef = useRef(null);
 	const { jsonToCSV } = usePapaParse();
 	const [csv, setCSV] = useState('');
@@ -30,7 +32,7 @@ const Transactions = ({ testMode, session_id }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
 
-	const data = testMode ? SAMPLE_TRANSACTIONS : transactionsQuery?.data ? transactionsQuery.data : [];
+	const data = testMode ? SAMPLE_TRANSACTIONS : transactionsQuery?.data ? transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab) : [];
 
 	const form = useForm<ExportForm>({
 		initialValues: {
@@ -186,6 +188,8 @@ const Transactions = ({ testMode, session_id }) => {
 			<Page.Body>
 				<Tabs
 					defaultValue='all'
+					value={activeTab}
+					onTabChange={(val : TransactionStatus) => setActiveTab(val)}
 					classNames={{
 						root: 'flex flex-col grow',
 						tabsList: '',
@@ -207,7 +211,7 @@ const Transactions = ({ testMode, session_id }) => {
 					</Tabs.Panel>
 
 					<Tabs.Panel value='declined' className='h-full'>
-						<TransactionTable data={[]} />
+						<TransactionTable data={data} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

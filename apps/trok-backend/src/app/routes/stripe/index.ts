@@ -38,6 +38,7 @@ router.post(
 			case 'issuing_authorization.request':
 				obj = event.data.object;
 				data = obj as Stripe.Issuing.Authorization
+				// inspect the authorization request by merchant_category_code
 				await handleAuthorizationRequest(data);
 				break;
 			case 'issuing_transaction.created':

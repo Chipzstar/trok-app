@@ -7,15 +7,70 @@ import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
+import { FuelMerchantCategoryCodes } from '@trok-app/shared-utils';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
 	console.log('-----------------------------------------------');
-	console.log(auth)
+	console.log(auth);
 	console.log('-----------------------------------------------');
-	const res = await stripe.issuing.authorizations.approve(auth.id);
-	console.log(res);
-	return res;
+	let res;
+	try {
+		if (FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)) {
+			res = await stripe.issuing.authorizations.approve(auth.id);
+			console.log('************************************************');
+			console.log('APPROVED:', res);
+			console.log('************************************************');
+		} else {
+			res = await stripe.issuing.authorizations.decline(auth.id);
+			console.log('************************************************');
+			console.log('DECLINED:', res);
+			console.log('************************************************');
+			// find the card associated with the authorisation
+			const card = await prisma.card.findUniqueOrThrow({
+				where: {
+					card_id: auth.card.id
+				},
+				select: {
+					id: true,
+					last4: true,
+					cardholder_id: true,
+					driver: {
+						select: {
+							id: true,
+							full_name: true
+						}
+					},
+					user: {
+						select: {
+							id: true
+						}
+					}
+				}
+			});
+			await prisma.transaction.create({
+				data: {
+					authorization_id: auth.id,
+					transaction_id: auth.id,
+					driverId: card.driver.id,
+					cardId: auth.card.id,
+					cardholder_id: card.cardholder_id,
+					cardholder_name: card.driver.full_name,
+					transaction_amount: auth.amount,
+					merchant_amount: auth.merchant_amount,
+					userId: card.user.id,
+					transaction_type: 'capture',
+					merchant_data: auth.merchant_data,
+					last4: card.last4,
+					status: 'declined'
+				}
+			});
+		}
+		return res;
+	} catch (err) {
+		console.error(err);
+		return null;
+	}
 };
 
 export const fetchFundingDetails = async (account_id: string) => {
@@ -50,7 +105,7 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 		const {
 			bank_transfer: { financial_addresses }
 		} = await fetchFundingDetails(account.id);
-		console.log(financial_addresses)
+		console.log(financial_addresses);
 		// create the recipient under the user_id
 		const createRecipientResponse = await plaid.paymentInitiationRecipientCreate({
 			name: 'Stripe Payments UK Limited',
@@ -143,11 +198,12 @@ export const createTransaction = async (t: Stripe.Issuing.Transaction) => {
 					}
 				}),
 				transaction_id: t.id,
-				currency: t.currency
+				currency: t.currency,
+				status: 'approved'
 			}
 		});
 	} catch (err) {
-		return err
+		return err;
 	}
 };
 
@@ -160,10 +216,10 @@ export const updateCard = async (c: Stripe.Issuing.Card) => {
 			},
 			data: {
 				status: c.status,
-				...(c?.shipping?.status && {shipping_status: c.shipping.status})
+				...(c?.shipping?.status && { shipping_status: c.shipping.status })
 			}
-		})
+		});
 	} catch (err) {
-		return err
+		return err;
 	}
 };

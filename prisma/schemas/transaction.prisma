@@ -21,4 +21,5 @@ model Transaction {
     merchant_data MerchantData
     purchase_details PurchaseDetails?
     authorization_id String
+    status TransactionStatus
 }

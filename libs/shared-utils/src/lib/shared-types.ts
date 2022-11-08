@@ -1,15 +1,15 @@
 import { TokenCreateParams } from '@stripe/stripe-js';
 
+export const FuelMerchantCategoryCodes = ["5983", "5542", "5172"] as const;
+export type FuelMCC = typeof FuelMerchantCategoryCodes[number];
+
 export type ShippingSpeed = 'standard' | 'express' | 'priority';
+
+export type TransactionStatus = 'all' | 'approved' | 'declined'
 
 export enum CARD_STATUS {
 	ACTIVE = 'active',
 	INACTIVE = 'inactive'
-}
-
-export enum CARD_TYPES {
-	PHYSICAL="physical",
-	VIRTUAL="virtual"
 }
 
 export enum CARD_SHIPPING_STATUS {

@@ -13,7 +13,7 @@ import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/redis/statements';
-import { BUCKET, ONE_HOUR, THIRTY_SECONDS } from './app/utils/constants';
+import { BUCKET, ONE_HOUR } from './app/utils/constants';
 
 const runApp = async () => {
 	const app = express();
