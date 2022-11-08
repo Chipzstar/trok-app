@@ -9,7 +9,7 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 	const stripe = useStripe();
 	const pinRef = useRef(null)
 
-	if (card_id && nonce && ephemeral_key_secret) {
+	if (isVisible && card_id && nonce && ephemeral_key_secret) {
 		//@ts-ignore
 		const pinElement = stripe.elements().create('issuingCardPinDisplay', {
 			issuingCard: card_id,
@@ -17,13 +17,12 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 			ephemeralKeySecret: ephemeral_key_secret,
 			style: {
 				base: {
-					border: '2px solid red',
 					color: 'black',
 					fontSize: '20px'
 				}
 			}
 		});
-		const numberCopy = elements.create('issuingCardCopyButton', {
+		/*const numberCopy = elements.create('issuingCardCopyButton', {
 			toCopy: 'pin',
 			style: {
 				base: {
@@ -32,7 +31,7 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 				}
 			}
 		});
-		numberCopy.mount('#card-pin-copy');
+		numberCopy.mount('#card-pin-copy');*/
 		pinElement.mount('#card-pin');
 	}
 	useEffect(() => console.log(pinRef.current), [pinRef])
@@ -47,9 +46,9 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 				<ActionIcon onClick={() => setVisibility(true)}>
 					<IconEye />
 				</ActionIcon>}
-			<label>
+			{/*<label>
 				<button id='card-pin-copy' color='gray'>Copy</button>
-			</label>
+			</label>*/}
 		</Group>
 	);
 };
