@@ -240,6 +240,7 @@ const Step3 = ({ prevStep }) => {
 					<h1 className='text-2xl font-medium'>Configure card details</h1>
 					<TextInput required label='Business name on card' {...form.getInputProps('card_business_name')} />
 					<Radio.Group
+						required
 						spacing='xs'
 						name='Shipping Speed'
 						orientation='vertical'
