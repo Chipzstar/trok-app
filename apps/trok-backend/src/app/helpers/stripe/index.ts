@@ -7,65 +7,86 @@ import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
-import { FuelMerchantCategoryCodes } from '@trok-app/shared-utils';
+import { FuelMerchantCategoryCodes, TransactionStatus } from '@trok-app/shared-utils';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
 	console.log('-----------------------------------------------');
 	console.log(auth);
 	console.log('-----------------------------------------------');
-	let res;
+	let res,
+		status: TransactionStatus = 'declined';
 	try {
+		// find the card associated with the authorisation
+		const card = await prisma.card.findUniqueOrThrow({
+			where: {
+				card_id: auth.card.id
+			},
+			select: {
+				id: true,
+				last4: true,
+				cardholder_id: true,
+				driver: {
+					select: {
+						id: true,
+						full_name: true
+					}
+				},
+				user: {
+					select: {
+						id: true,
+						stripe: true
+					}
+				}
+			}
+		});
 		if (FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)) {
-			res = await stripe.issuing.authorizations.approve(auth.id);
+			res = await stripe.issuing.authorizations.approve(
+				auth.id,
+				{},
+				{ stripeAccount: card.user.stripe.accountId }
+			);
+			status = 'approved';
 			console.log('************************************************');
 			console.log('APPROVED:', res);
 			console.log('************************************************');
 		} else {
-			res = await stripe.issuing.authorizations.decline(auth.id);
+			res = await stripe.issuing.authorizations.decline(
+				auth.id,
+				{},
+				{ stripeAccount: card.user.stripe.accountId }
+			);
+			status = 'declined';
 			console.log('************************************************');
 			console.log('DECLINED:', res);
 			console.log('************************************************');
-			// find the card associated with the authorisation
-			const card = await prisma.card.findUniqueOrThrow({
-				where: {
-					card_id: auth.card.id
-				},
-				select: {
-					id: true,
-					last4: true,
-					cardholder_id: true,
-					driver: {
-						select: {
-							id: true,
-							full_name: true
-						}
-					},
-					user: {
-						select: {
-							id: true
-						}
-					}
-				}
-			});
-			await prisma.transaction.create({
-				data: {
-					authorization_id: auth.id,
-					transaction_id: auth.id,
-					driverId: card.driver.id,
-					cardId: auth.card.id,
-					cardholder_id: card.cardholder_id,
-					cardholder_name: card.driver.full_name,
-					transaction_amount: auth.amount,
-					merchant_amount: auth.merchant_amount,
-					userId: card.user.id,
-					transaction_type: 'capture',
-					merchant_data: auth.merchant_data,
-					last4: card.last4,
-					status: 'declined'
-				}
-			});
 		}
+		await prisma.transaction.create({
+			data: {
+				authorization_id: auth.id,
+				transaction_id: auth.id,
+				driverId: card.driver.id,
+				userId: card.user.id,
+				cardId: auth.card.id,
+				cardholder_id: card.cardholder_id,
+				cardholder_name: card.driver.full_name,
+				transaction_amount: auth.amount,
+				merchant_amount: auth.merchant_amount,
+				transaction_type: 'capture',
+				merchant_data: {
+					name: auth.merchant_data.name ?? '',
+					category: auth.merchant_data.category,
+					category_code: auth.merchant_data.category_code,
+					network_id: auth.merchant_data.network_id,
+					city: auth.merchant_data.city ?? '',
+					region: auth.merchant_data.state ?? '',
+					postcode: auth.merchant_data.postal_code ?? '',
+					country: auth.merchant_data.country ?? ''
+				},
+				last4: card.last4,
+				status
+			}
+		});
 		return res;
 	} catch (err) {
 		console.error(err);
@@ -135,7 +156,7 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 	}
 };
 
-export const createTransaction = async (t: Stripe.Issuing.Transaction) => {
+export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 	try {
 		const card = await prisma.card.findUniqueOrThrow({
 			where: {
@@ -165,28 +186,15 @@ export const createTransaction = async (t: Stripe.Issuing.Transaction) => {
 			redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().endOf('week').unix(), card.user.id);
 			redisClient.hmset(card.user.id, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
 		}
-		return await prisma.transaction.create({
+		return await prisma.transaction.update({
+			where: {
+				authorization_id: String(t.authorization)
+			},
 			data: {
-				cardId: card.id,
-				cardholder_id: card.cardholder_id,
-				cardholder_name: card.driver.full_name,
-				last4: card.last4,
-				userId: card.user.id,
-				driverId: card.driver.id,
+				transaction_id: t.id,
 				transaction_type: t.type,
 				transaction_amount: Math.abs(t.amount),
-				merchant_data: {
-					name: t.merchant_data.name ?? '',
-					category: t.merchant_data.category,
-					category_code: t.merchant_data.category_code,
-					network_id: t.merchant_data.network_id,
-					city: t.merchant_data.city ?? '',
-					region: t.merchant_data.state ?? '',
-					postcode: t.merchant_data.postal_code ?? '',
-					country: t.merchant_data.country ?? ''
-				},
 				merchant_amount: Math.abs(t.merchant_amount),
-				authorization_id: <string>t.authorization,
 				...(t?.purchase_details?.fuel && {
 					purchase_details: {
 						set: {
@@ -197,13 +205,12 @@ export const createTransaction = async (t: Stripe.Issuing.Transaction) => {
 						}
 					}
 				}),
-				transaction_id: t.id,
-				currency: t.currency,
 				status: 'approved'
 			}
 		});
 	} catch (err) {
-		return err;
+		console.error(err);
+		return null;
 	}
 };
 

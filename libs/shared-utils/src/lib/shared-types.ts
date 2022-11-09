@@ -1,6 +1,6 @@
 import { TokenCreateParams } from '@stripe/stripe-js';
 
-export const FuelMerchantCategoryCodes = ["5983", "5542", "5172"] as const;
+export const FuelMerchantCategoryCodes = ["5983", "5542", "5172", "5441"] as const;
 export type FuelMCC = typeof FuelMerchantCategoryCodes[number];
 
 export type ShippingSpeed = 'standard' | 'express' | 'priority';

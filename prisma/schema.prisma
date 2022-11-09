@@ -229,7 +229,7 @@ model Transaction {
   merchant_amount    Int
   merchant_data      MerchantData
   purchase_details   PurchaseDetails?
-  authorization_id   String
+  authorization_id   String            @unique
   status             TransactionStatus
 }
 type StripeInfo {

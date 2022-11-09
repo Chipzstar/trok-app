@@ -12,6 +12,7 @@ model Transaction {
     statementId String?
     cardholder_name String
     last4 String
+    authorization_id String @unique
     transaction_id String @unique
     transaction_amount Int
     transaction_type TransactionType
@@ -20,6 +21,5 @@ model Transaction {
     merchant_amount Int
     merchant_data MerchantData
     purchase_details PurchaseDetails?
-    authorization_id String
     status TransactionStatus
 }

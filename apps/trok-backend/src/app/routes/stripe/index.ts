@@ -2,7 +2,7 @@ import express from 'express';
 import { NextFunction } from 'express';
 import { stripe } from '../../utils/clients';
 import bodyParser from 'body-parser';
-import { createTransaction, handleAuthorizationRequest, updateCard } from '../../helpers/stripe';
+import { updateTransaction, handleAuthorizationRequest, updateCard } from '../../helpers/stripe';
 import Stripe from 'stripe';
 import 'express-async-errors';
 
@@ -42,7 +42,7 @@ router.post(
 				// find the user the transaction belongs to
 				// find the driver the transaction belongs to
 				// find the card the transaction belongs to
-				const transaction = await createTransaction(data);
+				const transaction = await updateTransaction(data);
 				console.log('************************************************');
 				console.log('NEW TRANSACTION:', transaction);
 				console.log('************************************************');
