@@ -34,7 +34,7 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 		numberCopy.mount('#card-pin-copy');*/
 		pinElement.mount('#card-pin');
 	}
-	useEffect(() => console.log(pinRef.current), [pinRef])
+	useEffect(() => console.log(stripe), [stripe])
 	return (
 		<Group>
 			<label>View Card Pin

@@ -24,7 +24,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [linkToken, setLinkToken] = useState(null);
 	const [paymentOpened, setPaymentOpened] = useState(false);
-	const [range, setRange] = useState<DateRangePickerValue>([dayjs().subtract(1, 'day').toDate(), dayjs().toDate()]);
+	const [range, setRange] = useState<DateRangePickerValue>([dayjs().startOf("week").toDate(), dayjs().endOf("week").toDate()]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<'topup' | 'account'>('topup');
 	const [search, setSearch] = useDebouncedState('', 250);
