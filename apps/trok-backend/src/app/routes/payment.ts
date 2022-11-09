@@ -203,7 +203,7 @@ const paymentsRouter = t.router({
 					input.user_id,
 					bankAccount.user.phone,
 					IS_DEVELOPMENT
-						? 'https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
+						? 'https://ede3-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
 						: PLAID_WEBHOOK_URL,
 					payment_id
 				);
