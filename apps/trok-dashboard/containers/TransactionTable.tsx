@@ -34,13 +34,13 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 					<span className='text-base font-normal'>{GBP(t.transaction_amount).format()}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{t?.purchase_details?.fuel_type ?? "Unleaded"}</span>
+					<span>{t?.purchase_details?.fuel_type ?? "-"}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{t?.purchase_details?.volume ?? 120}</span>
+					<span>{t?.purchase_details?.volume ?? "-"}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{GBP(t?.purchase_details?.unit_cost_decimal ?? 17200).format()}p</span>
+					<span>{t?.purchase_details?.unit_cost_decimal ? t?.purchase_details?.unit_cost_decimal + "p" :  "-"}</span>
 				</td>
 			</tr>
 		);

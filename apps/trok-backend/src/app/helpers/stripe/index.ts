@@ -67,7 +67,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 				transaction_id: auth.id,
 				driverId: card.driver.id,
 				userId: card.user.id,
-				cardId: auth.card.id,
+				cardId: card.id,
 				cardholder_id: card.cardholder_id,
 				cardholder_name: card.driver.full_name,
 				transaction_amount: auth.amount,
