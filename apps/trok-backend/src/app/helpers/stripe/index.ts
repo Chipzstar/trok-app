@@ -40,7 +40,10 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 				}
 			}
 		});
-		if (FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)) {
+		if (FuelMerchantCategoryCodes.find(item => {
+			console.log(item)
+			return item === auth.merchant_data.category_code
+		})) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
 				{},
