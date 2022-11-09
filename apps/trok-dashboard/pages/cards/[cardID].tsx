@@ -87,6 +87,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			setNonce(nonceResult.nonce);
 			const result = (await apiClient.post('/server/stripe/ephemeral-keys', {
 				card_id: String(cardID),
+				nonce: nonceResult.nonce,
 				stripe_account_id
 			})).data;
 			setEphemeralKey(result.ephemeral_key_secret);
