@@ -24,8 +24,6 @@ import { Elements } from '@stripe/react-stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
 import getStripe from '../../utils/load-stripejs';
 
-//const stripe = await loadStripe(String(process.env.NEXT_PUBLIC_STRIPE_API_KEY), { apiVersion: '2022-08-01', stripeAccount: session.stripe.account_id });
-
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
 ): SpendingLimit[] {

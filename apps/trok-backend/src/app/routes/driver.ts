@@ -68,13 +68,25 @@ const driverRouter = t.router({
 	createDriver: t.procedure.input(createDriverInput).mutation(async ({ ctx, input }) => {
 		console.log(input);
 		try {
+			const user = await ctx.prisma.user.findUniqueOrThrow({
+				where: {
+					id: input.userId
+				},
+				select: {
+					card_configuration: true
+				}
+			});
 			const cardholder = await stripe.issuing.cardholders.create(
 				{
 					email: input.email,
-					name: `${input.firstname} ${input.lastname}`,
+					name: user.card_configuration.card_business_name,
 					phone_number: input.phone,
 					type: 'individual',
 					status: 'active',
+					individual: {
+						first_name: input.firstname,
+						last_name: input.lastname
+					},
 					billing: {
 						address: {
 							line1: input.address.line1,
@@ -242,7 +254,7 @@ const driverRouter = t.router({
 					where: {
 						driverId: input.id
 					}
-				})
+				});
 				// disable the cardholder
 				await stripe.issuing.cardholders.update(
 					input.cardholder_id,
@@ -254,7 +266,7 @@ const driverRouter = t.router({
 				// cancel any card owned by the cardholder
 				await stripe.issuing.cards.update(card.card_id, {
 					status: 'canceled'
-				}, { stripeAccount: input.stripeId })
+				}, { stripeAccount: input.stripeId });
 
 				return await ctx.prisma.driver.update({
 					where: {
