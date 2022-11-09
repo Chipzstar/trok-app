@@ -21,10 +21,10 @@ import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
 import { useToggle } from '@mantine/hooks';
 import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
+import getStripe from '../../utils/load-stripejs';
 
-const stripe = await loadStripe(String(process.env.NEXT_PUBLIC_STRIPE_API_KEY), { apiVersion: '2022-08-01' });
+//const stripe = await loadStripe(String(process.env.NEXT_PUBLIC_STRIPE_API_KEY), { apiVersion: '2022-08-01', stripeAccount: session.stripe.account_id });
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -35,6 +35,7 @@ function formatSpendingLimits(
 		interval: key
 	}));
 }
+let stripe;
 
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
@@ -79,6 +80,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			: [];
 	useEffect(() => {
 		(async () => {
+			stripe = await getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })
 			const nonceResult = await stripe.createEphemeralKeyNonce({
 				issuingCard: String(cardID)
 			});
@@ -354,7 +356,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
 									</Button>)}
-								<Elements stripe={stripe}>
+								<Elements stripe={getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })}>
 									<CardPINDisplay
 										card_id={cardID}
 										nonce={nonce}
