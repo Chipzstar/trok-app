@@ -271,7 +271,7 @@ type BusinessInfo {
 
 type CardInfo {
   card_business_name String
-  num_cards          Int
+  num_cards          Int?
   shipping_speed     ShippingSpeed
 }
 

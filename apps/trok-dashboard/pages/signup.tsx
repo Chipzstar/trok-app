@@ -4,14 +4,29 @@ import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
-import { SignupSchema } from '../schemas';
 import { PATHS, STORAGE_KEYS } from '../utils/constants';
-import { Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { apiClient } from '../utils/clients';
 import { getE164Number, notifyError } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
+import prisma from '../prisma';
+import { z } from 'zod';
 
-export function Signup({ secret }) {
+export function Signup({ secret, emails }: { secret: string; emails: string[] }) {
+	const SignupSchema = z.object({
+		email: z
+			.string()
+			.email({ message: 'Invalid email' })
+			.max(50)
+			.refine((value: string) => !emails.includes(value), 'Account with this email already exists'),
+		full_name: z.string().nullable(),
+		firstname: z.string({ required_error: 'Required' }).max(25),
+		lastname: z.string({ required_error: 'Required' }).max(25),
+		phone: z.string({ required_error: 'Required' }).max(25),
+		referral_code: z.string().max(10, 'Referral code must contain at most 10 characters').optional(),
+		password: z.string().max(50),
+		terms: z.boolean().refine(val => val, 'Please check this box')
+	});
 	const [loading, setLoading] = useState(false);
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [userForm, setUserForm] = useLocalStorage({
@@ -121,7 +136,20 @@ export function Signup({ secret }) {
 					/>
 					<TextInput label='Referral code' {...form.getInputProps('referral_code')} />
 					<Checkbox
-						label='By checking this box, I acknowledge and agree to the terms of the Trok Terms of Service on behalf of the Company identified above, that I am authorised to do so on behalf of the Company, and that I have reviewed the terms of the Trok Privacy Policy.'
+						label={
+							<>
+								By checking this box, I acknowledge and agree to the terms of the Trok Terms of Service
+								on behalf of the Company identified above, that I am authorised to do so on behalf of
+								the Company, and that I have reviewed the terms of the Trok Privacy Policy and the{' '}
+								<Anchor
+									size='xs'
+									href='/static/documents/Stripe Issuing_ Commercial Card Program Agreement — EU & UK - Beta.pdf'
+									target='_blank'
+								>
+									Stripe Issuing Commercial Card Program Agreement.
+								</Anchor>
+							</>
+						}
 						checked={form.values.terms}
 						size='xs'
 						{...form.getInputProps('terms', { type: 'checkbox', withError: true })}
@@ -145,12 +173,18 @@ export function Signup({ secret }) {
 	);
 }
 
-export const getServerSideProps = context => {
+export async function getServerSideProps({ req, res }) {
+	const emails = await prisma.user.findMany({
+		select: {
+			email: true
+		}
+	});
 	return {
 		props: {
-			secret: process.env.ENC_SECRET
+			secret: process.env.ENC_SECRET,
+			emails: emails.map(({ email }) => email)
 		}
 	};
-};
+}
 
 export default Signup;

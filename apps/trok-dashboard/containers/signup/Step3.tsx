@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Checkbox, Group, Loader, NumberInput, Radio, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, Radio, Stack, Text, TextInput } from '@mantine/core';
 import { STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
-	CreateUser, getE164Number,
+	CreateUser,
+	getE164Number,
 	isValidUrl,
 	notifyError,
 	OnboardingBusinessInfo,
@@ -38,7 +39,7 @@ const Step3 = ({ prevStep }) => {
 			region: '',
 			country: 'GB',
 			card_business_name: '',
-			num_cards: null,
+			num_cards: undefined,
 			shipping_speed: 'standard',
 			diff_shipping_address: false,
 			shipping_address: {
@@ -238,13 +239,6 @@ const Step3 = ({ prevStep }) => {
 					)}
 					<h1 className='text-2xl font-medium'>Configure card details</h1>
 					<TextInput required label='Business name on card' {...form.getInputProps('card_business_name')} />
-					<NumberInput
-						min={1}
-						max={50}
-						required
-						label='Number of cards'
-						{...form.getInputProps('num_cards')}
-					/>
 					<Radio.Group
 						spacing='xs'
 						name='Shipping Speed'

@@ -57,7 +57,7 @@ export interface OnboardingFinancialInfo {
 
 export interface CardConfiguration {
 	card_business_name: string;
-	num_cards: number;
+	num_cards?: number;
 	shipping_speed: ShippingSpeed;
 }
 
@@ -78,7 +78,7 @@ export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
 	region: string;
 	country: string;
 	card_business_name: string;
-	num_cards: number;
+	num_cards?: number;
 	shipping_speed: ShippingSpeed;
 	diff_shipping_address: boolean;
 	shipping_address?: AddressInfo;

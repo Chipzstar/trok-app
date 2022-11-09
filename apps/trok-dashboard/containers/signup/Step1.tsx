@@ -1,7 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Loader } from '@mantine/core';
-import { IconCurrencyPound, IconX } from '@tabler/icons';
+import {
+	Button,
+	FileButton,
+	Group,
+	NumberInput,
+	Select,
+	Stack,
+	Text,
+	TextInput,
+	Loader,
+	Tooltip,
+	Center
+} from '@mantine/core';
+import { IconCurrencyPound, IconX, IconInfoCircle } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
 import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
@@ -28,7 +40,7 @@ const Step1 = ({ nextStep }) => {
 		defaultValue: {
 			legal_name: '',
 			weekly_fuel_spend: null,
-			business_type: undefined,
+			business_type: null,
 			merchant_category_code: null,
 			business_crn: '',
 			business_url: '',
@@ -41,7 +53,10 @@ const Step1 = ({ nextStep }) => {
 			...companyForm
 		},
 		validate: {
-			business_crn: val => (val.length > 8 || val.length < 7) ? 'Company registration number must be 7-8 digits' : null,
+			business_crn: val =>
+				val.length > 8 || val.length < 7 ? 'Company registration number must be 7-8 digits' : null,
+			business_type: val => (!val ? 'Required' : null),
+			merchant_category_code: val => (!val ? 'Required' : null),
 			weekly_fuel_spend: val => (Number(val) <= 0 ? 'Value must be at least £100' : null),
 			num_vehicles: val => (Number(val) <= 0 ? 'You must have at least 1 vehicle' : null)
 		}
@@ -52,9 +67,9 @@ const Step1 = ({ nextStep }) => {
 			setLoading(true);
 			try {
 				if (!file) {
-					throw new Error("Please upload a picture of your driver's license before submitting")
+					throw new Error("Please upload a picture of your driver's license before submitting");
 				}
-				await uploadFile(file, values.business_crn, "DRIVING_LICENCE")
+				await uploadFile(file, values.business_crn, 'DRIVING_LICENCE');
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
@@ -66,7 +81,7 @@ const Step1 = ({ nextStep }) => {
 				console.log('-----------------------------------------------');
 				console.log(result);
 				console.log('-----------------------------------------------');
-				setAccount({...account, business: values})
+				setAccount({ ...account, business: values });
 				setLoading(false);
 				nextStep();
 			} catch (err) {
@@ -100,7 +115,7 @@ const Step1 = ({ nextStep }) => {
 			<Stack>
 				<TextInput required label='Company legal name' {...form.getInputProps('legal_name')} />
 				<NumberInput
-					type="number"
+					type='number'
 					min={100}
 					max={999999}
 					step={100}
@@ -142,7 +157,7 @@ const Step1 = ({ nextStep }) => {
 						{...form.getInputProps('business_crn')}
 					/>
 					<NumberInput
-						type="number"
+						type='number'
 						label='Number of Vehicles'
 						min={1}
 						max={100}
@@ -157,8 +172,28 @@ const Step1 = ({ nextStep }) => {
 					{...form.getInputProps('business_url')}
 					description='If you do not have a website, please enter a short description of your business'
 				/>
-				<div>
-					<Text size='md'>{"Upload front of Driver's License"}</Text>
+				<Stack spacing={5}>
+					<Group spacing="xs">
+						<Text size='md'>
+							Upload front of Driver's License
+							<span className='text-danger'>*</span>
+						</Text>
+						<Tooltip
+							color='black'
+							label='To confirm that your details match your companies house registration'
+							position='right-end'
+							transition='fade'
+							multiline
+							width={220}
+							openDelay={300}
+						>
+							<Text color='dimmed' sx={{ cursor: 'help' }}>
+								<Center>
+									<IconInfoCircle size={18} stroke={1.5} />
+								</Center>
+							</Text>
+						</Tooltip>
+					</Group>
 					<FileButton onChange={setFile} accept='image/png,image/jpeg'>
 						{props => (
 							<Button variant='outline' fullWidth {...props}>
@@ -166,8 +201,8 @@ const Step1 = ({ nextStep }) => {
 							</Button>
 						)}
 					</FileButton>
-					{file && <DocumentInfo fileInfo={file}/>}
-				</div>
+					{file && <DocumentInfo fileInfo={file} />}
+				</Stack>
 				<Group position='right'>
 					<Button
 						type='submit'
@@ -177,7 +212,7 @@ const Step1 = ({ nextStep }) => {
 							width: 200
 						}}
 					>
-						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color="white" />
+						<Loader size='sm' className={`mr-3 ${!loading && 'hidden'}`} color='white' />
 						Continue
 					</Button>
 				</Group>

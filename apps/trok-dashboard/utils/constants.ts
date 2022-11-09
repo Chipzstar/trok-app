@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
+export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 

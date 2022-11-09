@@ -37,7 +37,7 @@ const userRouter = t.router({
 				}),
 				card_configuration: z.object({
 					card_business_name: z.string(),
-					num_cards: z.number(),
+					num_cards: z.number().optional(),
 					shipping_speed: z.enum(['express', 'standard', 'priority'])
 				}),
 				stripe: z.object({

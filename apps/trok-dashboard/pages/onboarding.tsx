@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
-import { ScrollArea, Stepper, Text } from '@mantine/core';
+import { Anchor, Group, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
 import Step1 from '../containers/signup/Step1';
 import Step2 from '../containers/signup/Step2';
 import Step3 from '../containers/signup/Step3';
@@ -33,6 +33,13 @@ const Onboarding = () => {
 		});
 	};
 
+	const customerSupportNumber = (
+		<Stack align="center" spacing={0}>
+			<Text size="sm">If you have any questions, please call</Text>
+			<Anchor size="sm" href="tel:0333 050 9591">0333 050 9591</Anchor>
+		</Stack>
+	)
+
 	return (
 		<ScrollArea.Autosize maxHeight={height} mx='auto'>
 			<div className='flex min-h-screen flex-col justify-center bg-white p-5'>
@@ -52,13 +59,11 @@ const Onboarding = () => {
 							padding: 0
 						},
 						stepIcon: {
-							// border: '2px solid #D0D7DE',
 							borderWidth: 2
 						},
 						separator: {
 							marginLeft: -2,
 							marginRight: -2
-							// background:	'repeating-linear-gradient(to right,lightgray 0,lightgray 10px,transparent 10px,transparent 12px)'
 						}
 					}}
 					classNames={{
@@ -73,6 +78,7 @@ const Onboarding = () => {
 						description='Create an account'
 						allowStepSelect={active > 0}
 					>
+						{customerSupportNumber}
 						<Step1 nextStep={nextStep} />
 					</Stepper.Step>
 					<Stepper.Step
@@ -81,9 +87,11 @@ const Onboarding = () => {
 						description='Financial'
 						allowStepSelect={active > 1}
 					>
+						{customerSupportNumber}
 						<Step2 prevStep={prevStep} nextStep={nextStep} />
 					</Stepper.Step>
 					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 2}>
+						{customerSupportNumber}
 						<Step3 prevStep={prevStep} />
 					</Stepper.Step>
 				</Stepper>
