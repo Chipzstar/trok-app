@@ -139,7 +139,6 @@ const Step3 = ({ prevStep }) => {
 					},
 					full_name: `${personalObj.firstname} ${personalObj.lastname}`
 				};
-				console.log("Payload", payload)
 				const user = (
 					await apiClient.post('/server/auth/complete-registration', {
 						accountToken: accountResult.token,
@@ -153,9 +152,6 @@ const Step3 = ({ prevStep }) => {
 						data: payload
 					})
 				).data;
-				console.log('************************************************');
-				console.log('USER:', user);
-				console.log('************************************************');
 				setLoading(false);
 				await signIn('email', { email: user.email, callbackUrl: window.location.origin })
 			} catch (err) {

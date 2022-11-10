@@ -12,8 +12,8 @@ const Onboarding = () => {
 	const { height } = useWindowSize();
 
 	const active = useMemo(() => {
-		return isNaN(Number(router.query.page)) ? 0 : Number(router.query.page) - 1;
-	}, [router.query.page]);
+		return isNaN(Number(router.query?.page)) ? 0 : Number(router.query?.page) - 1;
+	}, [router.query?.page]);
 
 	const nextStep = useCallback(() => {
 		router.replace({

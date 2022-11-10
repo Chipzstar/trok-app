@@ -5,7 +5,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
 import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
-import { text } from '../../../utils/functions';
+import { html, text } from '../../../utils/functions';
 
 export async function sendMagicLink({ identifier, url, provider, token, expires }: SendVerificationRequestParams) {
 	try {
@@ -19,7 +19,8 @@ export async function sendMagicLink({ identifier, url, provider, token, expires 
 			to: identifier,
 			from: provider.from,
 			subject: `Trok - Verify your email`,
-			text: text({ url, full_name: user.full_name })
+			text: text({ url, full_name: user.full_name }),
+			html: html({url, full_name: user.full_name})
 		});
 		const failed = result.rejected.concat(result.pending).filter(Boolean);
 		if (failed.length) {

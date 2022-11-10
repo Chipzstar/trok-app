@@ -55,7 +55,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 				console.log('-----------------------------------------------');
 				console.log(result);
 				console.log('-----------------------------------------------');
-				router.push(PATHS.ONBOARDING);
+				router.push(`${PATHS.ONBOARDING}?page=1`);
 				setLoading(false);
 			} catch (err) {
 				setLoading(false);
