@@ -91,7 +91,7 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 											content='minimum-scale=1, initial-scale=1, width=device-width'
 										/>
 									</Head>
-									<Component testMode={testMode} setAuth={setTestMode} {...pageProps} />
+									<Component testMode={testMode} setTestMode={setTestMode} {...pageProps} />
 								</Layout>
 							</NotificationsProvider>
 						</ModalsProvider>

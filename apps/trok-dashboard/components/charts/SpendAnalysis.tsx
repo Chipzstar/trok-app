@@ -5,19 +5,29 @@ import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
-import { STORAGE_KEYS } from '../../utils/constants';
+import { BANNER_HEIGHT, DEFAULT_HEADER_HEIGHT, STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
 import { filterByTimeRange } from '../../utils/functions';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import { GBP } from '@trok-app/shared-utils';
+import { useSession } from 'next-auth/react';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
 const SpendAnalysis = ({sessionId, dateRange}) => {
+	const { data: user, isLoading, isError } = trpc.getAccount.useQuery(
+		{
+			id: sessionId
+		},
+		{
+			// The query will not execute until the userId exists
+			enabled: !!sessionId
+		}
+	);
 	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionId });
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { height } = useWindowSize()
@@ -59,7 +69,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 	
 	return (
 		<div style={{
-			height: height - 485
+			height: user?.approved ? height - 485 : height - 485 - BANNER_HEIGHT
 		}}>
 			<Bar
 				options={{

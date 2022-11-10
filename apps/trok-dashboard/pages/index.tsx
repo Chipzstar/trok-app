@@ -61,6 +61,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 
 	return (
 		<Page.Container
+			classNames="unapproved-container flex flex-col"
 			header={
 				<Page.Header extraClassNames='mb-3'>
 					<span className='heading-1 capitalize'>{user?.business?.legal_name}</span>

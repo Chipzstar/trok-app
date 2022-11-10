@@ -12,7 +12,6 @@ const accountRouter = t.router({
 			})
 		)
 		.query(async ({ input, ctx }) => {
-			console.table(input)
 			return await ctx.prisma.user.findUnique({
 				where: {
 					id: input.id

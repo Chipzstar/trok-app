@@ -25,10 +25,13 @@ const VerifyBanner = () => {
 								/>
 							</svg>
 						</span>
-						<p className='ml-3 truncate text-white'>
-							<span className="font-semibold">Email verified!</span>
-							<span className='hidden md:inline font-normal'>
-								&nbsp;{"We are reviewing your account!"}
+						<p className='ml-3 text-white w-2/3'>
+							<span className='font-semibold'>Email verified!</span>
+							<span className='hidden text-sm font-normal md:inline inline-flex'>
+								&nbsp;
+								{
+									'Thanks for creating your Trok account. Your application is currently being reviewed so you will not be able to use your portal yet. You will receive an approval email from us in less than 24 hours once your account has been verified.'
+								}
 							</span>
 						</p>
 					</div>
