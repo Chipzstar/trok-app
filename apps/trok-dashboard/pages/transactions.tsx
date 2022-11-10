@@ -63,15 +63,13 @@ const Transactions = ({ testMode, session_id }) => {
 		return transactionsQuery?.data
 			?.filter(t => {
 				// if transaction date lies outside the date range, skip transaction
-				let isValid = !(
+				return !(
 					dayjs(t.created_at).isBefore(filters.transaction_range[0]) ||
 					dayjs(t.created_at).isAfter(filters.transaction_range[1]) ||
 					(filters.cards.length && !filters.cards.includes(t.cardId)) ||
 					(filters.drivers.length && !filters.drivers.includes(t.driverId)) ||
 					(filters.locations.length && !filters.locations.includes(t.merchant_data.city))
 				);
-				console.table({ isValid });
-				return isValid;
 			})
 			.map(t => ({
 				['Transaction Id']: t.transaction_id,

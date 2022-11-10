@@ -8,6 +8,7 @@ model User {
   lastname  String
   phone String
   emailVerified DateTime? @map("email_verified")
+  approved Boolean @default(false)
   verify_token String @default("")
   referral_code String?
   terms Boolean?
