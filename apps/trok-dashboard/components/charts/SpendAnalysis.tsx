@@ -34,7 +34,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 
 	const generateLabels = useCallback((range: DateRangePickerValue) => {
 		let startDate = dayjs(range[0])
-		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days")
+		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
 		const labels = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").format("Do MMM"))
 		const values = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").unix())
 		return { labels, values }
