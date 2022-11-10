@@ -3,7 +3,6 @@ import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 
 const VerifyBanner = () => {
-	const router = useRouter();
 	return (
 		<div className='bg-primary-400'>
 			<div className='mx-auto py-3 px-3 sm:px-6 lg:px-8'>
@@ -29,14 +28,9 @@ const VerifyBanner = () => {
 						<p className='ml-3 truncate text-white'>
 							<span className="font-semibold">Email verified!</span>
 							<span className='hidden md:inline font-normal'>
-								&nbsp;{"Head over to the 'Payments Method' page to add your bank account!"}
+								&nbsp;{"We are reviewing your account!"}
 							</span>
 						</p>
-					</div>
-					<div className="order-3 mt-2 w-full flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto">
-						<button className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-indigo-600 shadow-sm hover:bg-indigo-50" onClick={() => router.push(PATHS.BANK_ACCOUNT)}>
-							Add Bank Account
-						</button>
 					</div>
 				</div>
 			</div>

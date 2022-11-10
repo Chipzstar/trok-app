@@ -74,7 +74,13 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			}
 		},
 		linkDisabled: {
-			color: theme.colors.gray[6]
+			color: theme.colors.gray[5],
+			'&, &:hover': {
+				color: theme.colors.gray[5],
+				[`& .${icon}`]: {
+					color: theme.colors.gray[5],
+				}
+			}
 		},
 		footer: {
 			borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
