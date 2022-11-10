@@ -28,7 +28,15 @@ const Transactions = ({ testMode, session_id }) => {
 	const { jsonToCSV } = usePapaParse();
 	const [csv, setCSV] = useState('');
 	const [opened, setOpened] = useState(false);
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
+	const transactionsQuery = trpc.getTransactions.useQuery(
+		{ userId: session_id },
+		{
+			refetchInterval: 3000,
+			trpc: {
+				ssr: true,
+			}
+		}
+	);
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
 
