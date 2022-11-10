@@ -30,6 +30,32 @@ const accountRouter = t.router({
 				}
 			});
 		}),
+	checkAccountApproved: t.procedure
+		.input(
+			z.object({
+				id: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			const user = await ctx.prisma.user.findUnique({
+				where: {
+					id: input.id
+				},
+				select: {
+					approved: true,
+					full_name: true,
+					firstname: true,
+					lastname: true,
+					email: true,
+					phone: true,
+					business: true,
+					location: true,
+					shipping_address: true,
+					card_configuration: true
+				}
+			});
+			return user ? user.approved : true;
+		}),
 	updatePersonalInfo: t.procedure
 		.input(
 			z.object({

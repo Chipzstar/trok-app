@@ -10,7 +10,7 @@ import { trpc } from '../utils/clients';
 const Layout = ({ children }) => {
 	const router = useRouter()
 	const { data: session } = useSession()
-	const { data, isLoading, isError } = trpc.getAccount.useQuery(
+	const { data, isLoading, isError } = trpc.checkAccountApproved.useQuery(
 		{
 			id: session?.id
 		},
@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
 		<div className='relative flex min-h-screen font-aeonik'>
 			<AppShell
 				padding={0}
-				header={isLoggedIn && !data?.approved && <Header height={DEFAULT_HEADER_HEIGHT} zIndex={50}><VerifyBanner/></Header>}
+				header={isLoggedIn && data === false && <Header height={DEFAULT_HEADER_HEIGHT} zIndex={50}><VerifyBanner/></Header>}
 				navbar={isLoggedIn && <Sidebar />}
 				styles={theme => ({
 					main: {
