@@ -42,6 +42,9 @@ const transactionsRouter = t.router({
 				return await ctx.prisma.transaction.findMany({
 					where: {
 						cardId: card.id
+					},
+					orderBy: {
+						created_at: 'desc'
 					}
 				});
 			} catch (err) {
