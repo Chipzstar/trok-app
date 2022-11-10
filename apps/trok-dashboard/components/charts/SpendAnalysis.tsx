@@ -88,7 +88,6 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 							}
 						},
 						y: {
-							max: Math.max(1, (Math.max(...data) * 1.2)),
 							grid: {
 								display: false
 							},
@@ -104,6 +103,11 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 									return value > 100 ? `£${Number(value) / 100}` : `£${value}`;
 								}
 							}
+						}
+					},
+					layout: {
+						padding: {
+							top: 25
 						}
 					},
 					maintainAspectRatio: false,
