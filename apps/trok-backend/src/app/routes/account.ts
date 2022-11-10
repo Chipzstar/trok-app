@@ -4,6 +4,33 @@ import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
 
 const accountRouter = t.router({
+	getAccount: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				stripe_account_id: z.string().optional()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			console.table(input)
+			return await ctx.prisma.user.findUnique({
+				where: {
+					id: input.id
+				},
+				select: {
+					approved: true,
+					full_name: true,
+					firstname: true,
+					lastname: true,
+					email: true,
+					phone: true,
+					business: true,
+					location: true,
+					shipping_address: true,
+					card_configuration: true
+				}
+			});
+		}),
 	updatePersonalInfo: t.procedure
 		.input(
 			z.object({
@@ -165,7 +192,7 @@ const accountRouter = t.router({
 					data: {
 						password: input.password
 					}
-				})
+				});
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore

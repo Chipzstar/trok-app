@@ -2,6 +2,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
+import { checkIfNullOrUndefined } from '@trok-app/shared-utils';
 
 const balanceRouter = t.router({
 	getIssuingBalance: t.procedure
@@ -26,8 +27,12 @@ const balanceRouter = t.router({
 					{ expand: ['issuing'] },
 					{ stripeAccount: input.stripeId }
 				);
-				console.log(balance.issuing);
-				if (balance?.issuing?.available[0]?.amount) {
+				if (!balance?.issuing?.available?.length || isNaN(balance?.issuing?.available[0]?.amount)) {
+					throw new TRPCError({
+						code: 'NOT_FOUND',
+						message: `No balance found for Stripe Account: ${input.stripeId}`
+					});
+				} else {
 					// update current balance for the user in DB
 					const user = await ctx.prisma.user.update({
 						where: {
@@ -44,14 +49,9 @@ const balanceRouter = t.router({
 								}
 							}
 						}
-					})
-					console.log('-----------------------------------------------');
-					return balance.issuing.available[0]
-				} else {
-					throw new TRPCError({
-						code: 'NOT_FOUND',
-						message: `No balance found for Stripe Account: ${input.stripeId}`
 					});
+					console.log('-----------------------------------------------');
+					return balance.issuing.available[0];
 				}
 			} catch (err) {
 				console.error(err);

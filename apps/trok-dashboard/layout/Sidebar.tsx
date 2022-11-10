@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStyles, Group, Navbar, Switch, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
@@ -14,9 +14,10 @@ import {
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import {DEFAULT_HEADER_HEIGHT, isProd, PATHS, STORAGE_KEYS} from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, isProd, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { trpc } from '../utils/clients';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -58,13 +59,11 @@ const useStyles = createStyles((theme, _params, getRef) => {
 				}
 			}
 		},
-
 		linkIcon: {
 			ref: icon,
 			color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[6],
 			marginRight: theme.spacing.sm
 		},
-
 		linkActive: {
 			'&, &:hover': {
 				backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
@@ -74,7 +73,9 @@ const useStyles = createStyles((theme, _params, getRef) => {
 				}
 			}
 		},
-
+		linkDisabled: {
+			color: theme.colors.gray[6]
+		},
 		footer: {
 			borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
 			paddingTop: theme.spacing.md
@@ -85,61 +86,84 @@ const useStyles = createStyles((theme, _params, getRef) => {
 const Sidebar = () => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const router = useRouter();
+	const { data: session } = useSession()
+	const { data, isLoading, isError } = trpc.getAccount.useQuery(
+		{
+			id: session?.id
+		},
+		{
+			// The query will not execute until the userId exists
+			enabled: !!session?.id
+		}
+	);
+
 	const tabs = {
 		general: [
 			{
 				link: PATHS.HOME,
 				label: 'Dashboard',
 				icon: IconChartLine,
-				isActive: router.pathname === PATHS.HOME
+				isActive: router.pathname === PATHS.HOME,
+				disabled: false
 			},
 			{
 				link: PATHS.TRANSACTIONS,
 				label: 'Transactions',
 				icon: IconArrowsLeftRight,
-				isActive: router.pathname === PATHS.TRANSACTIONS
+				isActive: router.pathname === PATHS.TRANSACTIONS,
+				disabled: !data?.approved
 			},
 			{
 				link: PATHS.CARDS,
 				label: 'Cards',
 				icon: IconCreditCard,
-				isActive: router.pathname.includes(PATHS.CARDS)
+				isActive: router.pathname.includes(PATHS.CARDS),
+				disabled: !data?.approved
 			},
 			{
 				link: PATHS.DRIVERS,
 				label: 'Drivers',
 				icon: IconUsers,
-				isActive: router.pathname.includes(PATHS.DRIVERS)
+				isActive: router.pathname.includes(PATHS.DRIVERS),
+				disabled: !data?.approved
 			},
 			{
 				link: PATHS.PAYMENTS,
 				label: 'Payments',
 				icon: IconCalendarTime,
-				isActive: router.pathname === PATHS.PAYMENTS
+				isActive: router.pathname === PATHS.PAYMENTS,
+				disabled: !data?.approved
 			},
 			{
 				link: PATHS.STATEMENTS,
 				label: 'Statements',
 				icon: IconFileText,
-				isActive: router.pathname === PATHS.STATEMENTS
+				isActive: router.pathname === PATHS.STATEMENTS,
+				disabled: !data?.approved
 			},
 			{
 				link: PATHS.BANK_ACCOUNT,
 				label: 'Payment Method',
 				icon: IconWallet,
-				isActive: router.pathname === PATHS.BANK_ACCOUNT
+				isActive: router.pathname === PATHS.BANK_ACCOUNT,
+				disabled: !data?.approved
 			}
 		]
 	};
+
+	useEffect(() => console.log(tabs), [tabs]);
 	const { classes, cx } = useStyles();
 	const [section, setSection] = useState<'account' | 'general'>('general');
 
 	const links = tabs[section].map((item, index) => (
 		<div
 			role='button'
-			className={cx(classes.link, { [classes.linkActive]: item.isActive })}
+			className={cx(classes.link, {
+				[classes.linkDisabled]: item.disabled,
+				[classes.linkActive]: item.isActive,
+			})}
 			key={index}
-			onClick={() => router.push(item.link)}
+			onClick={() => !item.disabled && router.push(item.link)}
 		>
 			<item.icon className={classes.linkIcon} stroke={1.5} />
 			<span>{item.label}</span>
@@ -169,14 +193,16 @@ const Sidebar = () => {
 				</Navbar.Section>
 			)}
 			<Navbar.Section className={classes.footer}>
-				{!isProd && <div
-					role='button'
-					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
-					onClick={() => router.push(PATHS.REFERRAL)}
-				>
-					<IconGift className={classes.linkIcon} stroke={1.5} />
-					<span>Refer & Earn</span>
-				</div>}
+				{!isProd && (
+					<div
+						role='button'
+						className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
+						onClick={() => router.push(PATHS.REFERRAL)}
+					>
+						<IconGift className={classes.linkIcon} stroke={1.5} />
+						<span>Refer & Earn</span>
+					</div>
+				)}
 				<div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}

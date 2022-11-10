@@ -58,4 +58,8 @@ export function includesCaseInsensitive(this: string, str: string): boolean {
 	return this.toLowerCase().includes(str.toLowerCase());
 }
 
+export function checkIfNullOrUndefined(variable: any) {
+	return typeof variable === 'undefined' || variable === null;
+}
+
 export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
