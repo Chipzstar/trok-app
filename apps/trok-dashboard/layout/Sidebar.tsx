@@ -93,7 +93,7 @@ const Sidebar = () => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const router = useRouter();
 	const { data: session } = useSession()
-	const { data, isLoading, isError } = trpc.getAccount.useQuery(
+	const { data, isLoading, isError } = trpc.checkAccountApproved.useQuery(
 		{
 			id: session?.id
 		},
@@ -117,42 +117,42 @@ const Sidebar = () => {
 				label: 'Transactions',
 				icon: IconArrowsLeftRight,
 				isActive: router.pathname === PATHS.TRANSACTIONS,
-				disabled: !data?.approved
+				disabled: data === false
 			},
 			{
 				link: PATHS.CARDS,
 				label: 'Cards',
 				icon: IconCreditCard,
 				isActive: router.pathname.includes(PATHS.CARDS),
-				disabled: !data?.approved
+				disabled: data === false
 			},
 			{
 				link: PATHS.DRIVERS,
 				label: 'Drivers',
 				icon: IconUsers,
 				isActive: router.pathname.includes(PATHS.DRIVERS),
-				disabled: !data?.approved
+				disabled: data === false
 			},
 			{
 				link: PATHS.PAYMENTS,
 				label: 'Payments',
 				icon: IconCalendarTime,
 				isActive: router.pathname === PATHS.PAYMENTS,
-				disabled: !data?.approved
+				disabled: data === false
 			},
 			{
 				link: PATHS.STATEMENTS,
 				label: 'Statements',
 				icon: IconFileText,
 				isActive: router.pathname === PATHS.STATEMENTS,
-				disabled: !data?.approved
+				disabled: data === false
 			},
 			{
 				link: PATHS.BANK_ACCOUNT,
 				label: 'Payment Method',
 				icon: IconWallet,
 				isActive: router.pathname === PATHS.BANK_ACCOUNT,
-				disabled: !data?.approved
+				disabled: data === false
 			}
 		]
 	};
