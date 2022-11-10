@@ -1,11 +1,11 @@
-import redisClient from '../../redis';
-import { BUCKET, STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
+import redisClient from '../redis';
+import { BUCKET, STATEMENT_REDIS_SORTED_SET_ID } from '../utils/constants';
 import dayjs from 'dayjs';
-import prisma from '../../db';
+import prisma from '../db';
 import path from 'path';
 import Prisma from '@prisma/client';
 import orderId from 'order-id';
-import { generateDownloadUrl } from '../gcp';
+import { generateDownloadUrl } from './gcp';
 import PDFDocument from 'pdfkit';
 import { GBP } from '@trok-app/shared-utils';
 
@@ -13,6 +13,8 @@ const order_id = orderId(String(process.env.ENC_SECRET));
 
 export async function checkPastDueStatements() {
 	try {
+		// set buffer of max +1 hour and min -1 hour from current timestamp
+		// when querying statements that are ready to generated
 		const MAX = dayjs().add(1, 'h').unix();
 		const MIN = dayjs().subtract(1, 'h').unix();
 		console.table({ MAX, MIN });

@@ -12,7 +12,7 @@ import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
-import { checkPastDueStatements } from './app/helpers/redis/statements';
+import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ONE_HOUR } from './app/utils/constants';
 
 const runApp = async () => {
@@ -37,7 +37,24 @@ const runApp = async () => {
 		jsonParser,
 		trpcExpress.createExpressMiddleware({
 			router: appRouter,
-			createContext
+			createContext,
+			responseMeta({ ctx, paths, type, errors }) {
+				// check no procedures errored
+				const allOk = errors.length === 0;
+				// check the request is a query request
+				const isQuery = type === 'query';
+				// @ts-ignore
+				if (ctx?.res && allOk && isQuery) {
+					// cache request for 1 day + revalidate once every second
+					const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+					return {
+						headers: {
+							'cache-control': `s-maxage=1, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`,
+						},
+					};
+				}
+				return {};
+			}
 		})
 	);
 

@@ -32,7 +32,11 @@ const Transactions = ({ testMode, session_id }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
 
-	const data = testMode ? SAMPLE_TRANSACTIONS : transactionsQuery?.data ? transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab) : [];
+	const data = testMode
+		? SAMPLE_TRANSACTIONS
+		: transactionsQuery?.data
+		? transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab)
+		: [];
 
 	const form = useForm<ExportForm>({
 		initialValues: {
@@ -43,7 +47,7 @@ const Transactions = ({ testMode, session_id }) => {
 			drivers: []
 		},
 		validate: {
-			transaction_range: value => value.some(d => d === null) ? 'Please enter a complete time range' : null
+			transaction_range: value => (value.some(d => d === null) ? 'Please enter a complete time range' : null)
 		}
 	});
 
@@ -176,7 +180,9 @@ const Transactions = ({ testMode, session_id }) => {
 							<a
 								ref={exportRef}
 								href={`data:text/csv;charset=utf-8,${csv}`}
-								download={`Transactions - ${dayjs(form.values.transaction_range[0]).format("MMM DD")} - ${dayjs(form.values.transaction_range[1]).format("MMM DD")}.csv`}
+								download={`Transactions - ${dayjs(form.values.transaction_range[0]).format(
+									'MMM DD'
+								)} - ${dayjs(form.values.transaction_range[1]).format('MMM DD')}.csv`}
 								className='hidden'
 							>
 								<button>DOWNLOAD</button>
@@ -189,7 +195,7 @@ const Transactions = ({ testMode, session_id }) => {
 				<Tabs
 					defaultValue='all'
 					value={activeTab}
-					onTabChange={(val : TransactionStatus) => setActiveTab(val)}
+					onTabChange={(val: TransactionStatus) => setActiveTab(val)}
 					classNames={{
 						root: 'flex flex-col grow',
 						tabsList: '',

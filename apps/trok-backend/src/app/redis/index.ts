@@ -1,11 +1,5 @@
 import Redis from 'ioredis';
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-/*const options = isDevelopment ? {
-	password: process.env.REDIS_PASSWORD,
-	username: 'default'
-}*/
-
 const redisClient = new Redis(String(process.env.REDIS_URL));
 
 /*// if no connection, an error will be emitted

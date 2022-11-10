@@ -64,8 +64,16 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 			console.log('DECLINED:', res);
 			console.log('************************************************');
 		}
+		// check to see if user id is recorded in the redis statement scheduler
+		const zrank = await redisClient.zrank(STATEMENT_REDIS_SORTED_SET_ID, card.user.id);
+		if (zrank === null) {
+			// add member to sorted set for scheduling statement generation
+			redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().endOf('week').unix(), card.user.id);
+			redisClient.hmset(card.user.id, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
+		}
 		await prisma.transaction.create({
 			data: {
+				created_at: dayjs.unix(auth.created).format(),
 				authorization_id: auth.id,
 				transaction_id: auth.id,
 				driverId: card.driver.id,
@@ -182,13 +190,6 @@ export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 				}
 			}
 		});
-		// check to see if user id is recorded in the redis statement scheduler
-		const zrank = await redisClient.zrank(STATEMENT_REDIS_SORTED_SET_ID, card.user.id);
-		if (zrank === null) {
-			// add member to sorted set for scheduling statement generation
-			redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().endOf('week').unix(), card.user.id);
-			redisClient.hmset(card.user.id, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
-		}
 		return await prisma.transaction.update({
 			where: {
 				authorization_id: String(t.authorization)
