@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import { ActionIcon, Button, Card, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
+import { ActionIcon, Button, Card, Drawer, Group, NumberInput, ScrollArea, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
@@ -23,6 +23,7 @@ import { useToggle } from '@mantine/hooks';
 import { Elements } from '@stripe/react-stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
 import getStripe from '../../utils/load-stripejs';
+import useWindowSize from '../../hooks/useWindowSize';
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -37,6 +38,7 @@ let stripe;
 
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
+	const { height } = useWindowSize()
 	const { cardID } = router.query;
 	const [nonce, setNonce] = useState(null);
 	const [ephemeralKey, setEphemeralKey] = useState(null);
@@ -74,7 +76,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3)
 		: !transactionsQuery.isLoading
-			? transactionsQuery?.data.slice(0, 3)
+			? transactionsQuery?.data
 			: [];
 	useEffect(() => {
 		(async () => {
@@ -370,7 +372,9 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				<Title order={1} weight={500} py='xl'>
 					Recent Transactions
 				</Title>
-				<TransactionTable data={rows} spacingY='sm' withPagination={false} />
+				<ScrollArea.Autosize maxHeight={height - 450}>
+					<TransactionTable data={rows} spacingY='sm' withPagination={false} />
+				</ScrollArea.Autosize>
 			</Page.Body>
 		</Page.Container>
 	);
