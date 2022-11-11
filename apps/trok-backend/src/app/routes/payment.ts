@@ -51,6 +51,7 @@ const paymentsRouter = t.router({
 					select: {
 						stripe_bank_id: true,
 						account_number: true,
+						institution_id: true,
 						sort_code: true,
 						user: {
 							select: {
@@ -109,7 +110,8 @@ const paymentsRouter = t.router({
 					IS_DEVELOPMENT
 						? 'https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
 						: PLAID_WEBHOOK_URL,
-					payment_id
+					payment_id,
+					bankAccount.institution_id
 				);
 				// create payment in db
 				await ctx.prisma.payment.create({
@@ -157,6 +159,7 @@ const paymentsRouter = t.router({
 						stripe_bank_id: true,
 						account_number: true,
 						sort_code: true,
+						institution_id: true,
 						user: {
 							select: {
 								phone: true,
@@ -205,7 +208,8 @@ const paymentsRouter = t.router({
 					IS_DEVELOPMENT
 						? 'https://ede3-146-198-166-218.eu.ngrok.io/server/plaid/webhook'
 						: PLAID_WEBHOOK_URL,
-					payment_id
+					payment_id,
+					bankAccount.institution_id
 				);
 				// create payment in db
 				await ctx.prisma.payment.create({
