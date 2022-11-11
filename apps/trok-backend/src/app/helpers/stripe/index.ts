@@ -163,8 +163,8 @@ export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 				...(t_expanded?.purchase_details?.fuel && {
 					purchase_details: {
 						set: {
-							volume: Number(t_expanded.purchase_details.fuel.volume_decimal),
-							unit_cost_decimal: Number(t_expanded.purchase_details.fuel.unit_cost_decimal),
+							volume: Number(t_expanded.purchase_details.fuel?.volume_decimal),
+							unit_cost_decimal: Number(t_expanded.purchase_details.fuel?.unit_cost_decimal),
 							fuel_type: t_expanded.purchase_details.fuel?.type,
 							unit_type: t_expanded.purchase_details.fuel?.unit
 						}
