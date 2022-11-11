@@ -1,4 +1,9 @@
-import { PaymentInitiationPaymentGetRequest, PaymentInitiationPaymentStatus, PaymentStatusUpdateWebhook } from 'plaid';
+import {
+	PaymentInitiationPaymentGetRequest,
+	PaymentInitiationPaymentStatus,
+	PaymentStatusUpdateWebhook,
+	Products
+} from 'plaid';
 import prisma from '../../db';
 import { plaid } from '../../utils/clients';
 import { PAYMENT_STATUS } from '@trok-app/shared-utils';
@@ -77,6 +82,18 @@ export const generateLinkToken = async (
 	payment_id: string
 ) => {
 	try {
+		// fetch the relevant institution_id using user's bank routing number
+		const institutionResponse = (await plaid.institutionsGet({
+			country_codes: PLAID_COUNTRY_CODES,
+			count: 1,
+			offset: 0,
+			options: {
+				products: [Products.PaymentInitiation],
+				oauth: true,
+				include_auth_metadata: true
+			}
+		})).data;
+		console.log(institutionResponse)
 		const createTokenResponse = (
 			await plaid.linkTokenCreate({
 				client_name: PLAID_CLIENT_NAME,
@@ -94,6 +111,10 @@ export const generateLinkToken = async (
 				products: PLAID_PRODUCTS,
 				payment_initiation: {
 					payment_id
+				},
+				institution_id: institutionResponse.institutions[0].institution_id,
+				eu_config: {
+					headless: true,
 				},
 				redirect_uri: PLAID_REDIRECT_URI
 			})

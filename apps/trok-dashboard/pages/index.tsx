@@ -85,8 +85,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Current Week Savings</span>
 								<span className='heading-1'>
-									{week_savings.split('.')[0]}.
-									<span className='text-base'>{week_savings.split('.')[1]}</span>
+									-
 								</span>
 							</div>
 						</Stack>

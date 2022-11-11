@@ -6,7 +6,7 @@ import { plaid } from '../utils/clients';
 import { prettyPrintResponse } from '../utils/helpers';
 import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
 import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
-import { IS_DEVELOPMENT, PLAID_SANDBOX, PLAID_WEBHOOK_URL } from '../utils/constants';
+import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL } from '../utils/constants';
 
 const paymentsRouter = t.router({
 	getPayments: t.procedure
@@ -85,7 +85,7 @@ const paymentsRouter = t.router({
 				prettyPrintResponse(createRecipientResponse);
 				const routing_number = bankAccount.sort_code.replace(/-/g, '');
 				console.log('-----------------------------------------------');
-				console.log(routing_number);
+				console.table({ routing_number });
 				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
 					recipient_id,
 					reference: input.reference,

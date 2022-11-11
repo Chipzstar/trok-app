@@ -59,9 +59,10 @@ model BankAccount {
   bank_name           String?
   fingerprint         String?
   account_holder_name String
+  institution_id      String
   account_number      String
   sort_code           String
-  currency            String
+  currency            String   @default("gbp")
   country             String   @default("GB")
   status              String
   is_default          Boolean  @default(true)

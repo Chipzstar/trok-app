@@ -1,8 +1,8 @@
 import express from 'express';
 import { NextFunction } from 'express';
-import { stripe } from '../../utils/clients';
+import { stripe } from '../utils/clients';
 import bodyParser from 'body-parser';
-import { updateTransaction, handleAuthorizationRequest, updateCard, createTransaction } from '../../helpers/stripe';
+import { updateTransaction, handleAuthorizationRequest, updateCard, createTransaction } from '../helpers/stripe';
 import Stripe from 'stripe';
 import 'express-async-errors';
 

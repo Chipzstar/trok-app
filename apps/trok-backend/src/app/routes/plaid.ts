@@ -1,7 +1,7 @@
 import express from 'express';
-import { plaid } from '../../utils/clients';
-import { prettyPrintResponse } from '../../utils/helpers';
-import { handlePaymentInitiation } from '../../helpers/plaid';
+import { plaid } from '../utils/clients';
+import { prettyPrintResponse } from '../utils/helpers';
+import { handlePaymentInitiation } from '../helpers/plaid';
 
 let PUBLIC_TOKEN;
 let ACCESS_TOKEN;

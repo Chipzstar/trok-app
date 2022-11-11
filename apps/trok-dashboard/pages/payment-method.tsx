@@ -5,7 +5,6 @@ import {
 	Checkbox,
 	Drawer,
 	Group,
-	Menu,
 	Select,
 	Stack,
 	Text,
@@ -16,14 +15,13 @@ import React, { useCallback, useState } from 'react';
 import Page from '../layout/Page';
 import { SAMPLE_BANK_ACCOUNTS } from '../utils/constants';
 import BankAccountsTable from '../containers/BankAccountsTable';
-import { sanitize } from '../utils/functions';
 import { useForm } from '@mantine/form';
 import SortCodeInput from '../components/SortCodeInput';
-import { IconCheck, IconDots, IconPencil, IconX } from '@tabler/icons';
+import { IconCheck, IconX } from '@tabler/icons';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { notifyError, notifySuccess, PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
 
 const formatAccNumber = (accNumber: string): string => (accNumber ? '****' + accNumber : undefined);
 
@@ -45,122 +43,18 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Bank Accounts refetched'));
 		}
 	});
-	const setDefaultMutation = trpc.setDefaultAccount.useMutation({
-		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Bank Accounts refetched'));
-		}
-	});
-	const rows = testMode
-		? SAMPLE_BANK_ACCOUNTS.map((element, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{element.account_holder_name}</span>
-						</td>
-						<td colSpan={1}>
-							<span className='capitalize'>{sanitize(element.type)}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.account_number}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.sort_code}</span>
-						</td>
-						<td>
-							{element.isDefault ? (
-								<Badge radius='xs' variant='light' color='gray'>
-									DEFAULT
-								</Badge>
-							) : (
-								<Menu transition='pop' withArrow position='bottom-end'>
-									<Menu.Target>
-										<ActionIcon>
-											<IconDots size={16} stroke={1.5} />
-										</ActionIcon>
-									</Menu.Target>
-									<Menu.Dropdown>
-										<Menu.Item color='gray' icon={<IconPencil size={16} stroke={1.5} />}>
-											Set as default
-										</Menu.Item>
-									</Menu.Dropdown>
-								</Menu>
-							)}
-						</td>
-					</tr>
-				);
-		  })
+
+	const data = testMode
+		? SAMPLE_BANK_ACCOUNTS
 		: !query.isLoading
-		? query?.data?.map((element, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{element.account_holder_name}</span>
-						</td>
-						<td colSpan={1}>
-							<span className='capitalize'>Business Account</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.account_number.replace(/^.{4}/g, '****')}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.sort_code}</span>
-						</td>
-						<td>
-							{element.is_default ? (
-								<Badge radius='xs' variant='light' color='gray'>
-									DEFAULT
-								</Badge>
-							) : (
-								<Menu transition='pop' withArrow position='bottom-end'>
-									<Menu.Target>
-										<ActionIcon>
-											<IconDots size={16} stroke={1.5} />
-										</ActionIcon>
-									</Menu.Target>
-									<Menu.Dropdown>
-										<Menu.Item
-											onClick={() =>
-												setDefaultMutation
-													.mutateAsync({
-														id: element.id,
-														userId: session_id,
-														stripeId: stripe_account_id
-													})
-													.then(() =>
-														notifySuccess(
-															'change-default-success',
-															'Default bank account changed!',
-															<IconCheck size={20} />
-														)
-													)
-													.catch(err =>
-														notifyError(
-															'change-default-failure',
-															err.message,
-															<IconX size={20} />
-														)
-													)
-											}
-											color='gray'
-											icon={<IconPencil size={16} stroke={1.5} />}
-										>
-											Set as default
-										</Menu.Item>
-									</Menu.Dropdown>
-								</Menu>
-							)}
-						</td>
-					</tr>
-				);
-		  })
-		: [];
+		? query?.data : [];
 
 	const form = useForm({
 		initialValues: {
 			account_holder_name: '',
 			account_number: '',
 			sort_code: '',
-			account_type: '',
+			institution_id: '',
 			is_default: Boolean(!query?.data?.length)
 		}
 	});
@@ -175,7 +69,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 				account_holder_name: values.account_holder_name,
 				account_number: values.account_number,
 				sort_code: values.sort_code,
-				account_type: values.account_type,
+				institution_id: values.institution_id,
 				is_default: values.is_default,
 				currency: 'gbp',
 				country: 'GB'
@@ -240,15 +134,12 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 						</Group>
 						<Select
 							required
-							label='Account Type'
-							data={[
-								{
-									label: 'Business',
-									value: 'company'
-								},
-								{ label: 'Personal', value: 'individual' }
-							]}
-							{...form.getInputProps('account_type')}
+							label='Institution'
+							data={process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? PLAID_INSTITUTIONS : PLAID_INSTITUTIONS.concat({
+								label: 'STRIPE TEST BANK',
+                                value: "ins_117181",
+							})}
+							{...form.getInputProps('institution_id')}
 						/>
 						{Boolean(query?.data?.length) && (
 							<Group py='xs'>
@@ -268,7 +159,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 				</Stack>
 			</Drawer>
 			<Page.Body>
-				<BankAccountsTable rows={rows} />
+				<BankAccountsTable data={data} />
 			</Page.Body>
 		</Page.Container>
 	);

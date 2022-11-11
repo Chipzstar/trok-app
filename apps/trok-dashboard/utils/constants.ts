@@ -451,20 +451,30 @@ export const SAMPLE_STATEMENTS = [
 	}
 ];
 
-export const SAMPLE_BANK_ACCOUNTS = [
+export const SAMPLE_BANK_ACCOUNTS : Prisma.BankAccountUncheckedCreateInput[] = [
 	{
+		id: uuidv4(),
+		userId: uuidv4(),
+		stripe_bank_id: uuidv4(),
+		fingerprint: uuidv4(),
+		bank_name: 'Barclays Business',
 		account_holder_name: 'Ola Oladapo',
-		type: 'business_account',
-		account_number: 12345678,
+		account_number: "12345678",
 		sort_code: '09-12-90',
-		isDefault: true
+		is_default: true,
+		status: 'active',
 	},
 	{
+		id: uuidv4(),
+		userId: uuidv4(),
+		stripe_bank_id: uuidv4(),
+		fingerprint: uuidv4(),
+		bank_name: 'Barclays Business',
 		account_holder_name: 'Chisom Oguibe',
-		type: 'business_account',
-		account_number: 87654321,
+		account_number: "87654321",
 		sort_code: '89-21-21',
-		isDefault: false
+		is_default: false,
+		status: 'active'
 	}
 ];
 

@@ -1,9 +1,82 @@
 import React, { useState } from 'react';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
+import { ActionIcon, Badge, Menu } from '@mantine/core';
+import { IconCheck, IconDots, IconPencil, IconX } from '@tabler/icons';
+import { notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { trpc } from '../utils/clients';
+import { useSession } from 'next-auth/react';
 
-const BankAccountsTable = ({ rows }) => {
+const BankAccountsTable = ({ data }) => {
+	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
+	const utils = trpc.useContext();
+	const setDefaultMutation = trpc.setDefaultAccount.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Bank Accounts refetched'));
+		}
+	});
+
+	const rows = data.map((element, index) => {
+		return (
+			<tr key={index}>
+				<td colSpan={1}>
+					<span>{element.account_holder_name}</span>
+				</td>
+				<td colSpan={1}>
+					<span className='capitalize'>Business Account</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.account_number.replace(/^.{4}/g, '****')}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{element.sort_code}</span>
+				</td>
+				<td>
+					{element.is_default ? (
+						<Badge radius='xs' variant='light' color='gray'>
+							DEFAULT
+						</Badge>
+					) : (
+						<Menu transition='pop' withArrow position='bottom-end'>
+							<Menu.Target>
+								<ActionIcon>
+									<IconDots size={16} stroke={1.5} />
+								</ActionIcon>
+							</Menu.Target>
+							<Menu.Dropdown>
+								<Menu.Item
+									onClick={() =>
+										setDefaultMutation
+											.mutateAsync({
+												id: element.id,
+												userId: session.id,
+												stripeId: session.stripe.account_id
+											})
+											.then(() =>
+												notifySuccess(
+													'change-default-success',
+													'Default bank account changed!',
+													<IconCheck size={20} />
+												)
+											)
+											.catch(err =>
+												notifyError('change-default-failure', err.message, <IconX size={20} />)
+											)
+									}
+									color='gray'
+									icon={<IconPencil size={16} stroke={1.5} />}
+								>
+									Set as default
+								</Menu.Item>
+							</Menu.Dropdown>
+						</Menu>
+					)}
+				</td>
+			</tr>
+		);
+	});
+
 	return (
 		<DataGrid
 			rows={rows}

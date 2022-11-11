@@ -1,8 +1,6 @@
 import { showNotification } from '@mantine/notifications';
-import { PhoneNumberFormat as PNF, PhoneNumberUtil } from 'google-libphonenumber';
-import currency from 'currency.js';
-
-export const phoneUtil = PhoneNumberUtil.getInstance();
+import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
+import { phoneUtil } from './shared-constants';
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -17,7 +15,6 @@ export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 		icon,
 		loading: false
 	});
-
 }
 export function notifyError(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -62,4 +59,3 @@ export function checkIfNullOrUndefined(variable: any) {
 	return typeof variable === 'undefined' || variable === null;
 }
 
-export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });

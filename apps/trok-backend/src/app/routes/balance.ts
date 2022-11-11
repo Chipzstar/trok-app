@@ -2,7 +2,6 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
-import { checkIfNullOrUndefined } from '@trok-app/shared-utils';
 
 const balanceRouter = t.router({
 	getIssuingBalance: t.procedure
@@ -14,15 +13,6 @@ const balanceRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				// retrieve current stipe info from user
-				/*const stripe_info = await ctx.prisma.user.findUniqueOrThrow({
-					where: {
-                        id: input.user_id
-                    },
-					select: {
-						stripe: true
-					}
-				})*/
 				const balance = await stripe.balance.retrieve(
 					{ expand: ['issuing'] },
 					{ stripeAccount: input.stripeId }
@@ -34,7 +24,7 @@ const balanceRouter = t.router({
 					});
 				} else {
 					// update current balance for the user in DB
-					const user = await ctx.prisma.user.update({
+					await ctx.prisma.user.update({
 						where: {
 							id: input.userId
 						},

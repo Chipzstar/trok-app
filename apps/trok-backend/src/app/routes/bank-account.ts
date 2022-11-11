@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
 import Stripe from 'stripe';
-import { Simulate } from 'react-dom/test-utils';
 
 const bankAccountRouter = t.router({
 	getBankAccounts: t.procedure
@@ -35,7 +34,7 @@ const bankAccountRouter = t.router({
 				stripeId: z.string(),
 				account_holder_name: z.string(),
 				account_number: z.string(),
-				account_type: z.enum(['individual', 'company']),
+				institution_id: z.string(),
 				sort_code: z.string(),
 				currency: z.string(),
 				country: z.string(),
@@ -52,7 +51,6 @@ const bankAccountRouter = t.router({
 							account_number: input.account_number,
 							routing_number: input.sort_code,
 							account_holder_name: input.account_holder_name,
-							account_holder_type: input.account_type,
 							country: input.country,
 							currency: input.currency
 						}
@@ -86,6 +84,7 @@ const bankAccountRouter = t.router({
 						bank_name: bank_account?.bank_name ?? '',
 						fingerprint: bank_account.fingerprint,
 						account_number: input.account_number,
+						institution_id: input.institution_id,
 						sort_code: input.sort_code,
 						currency: input.currency,
 						country: input.country,
