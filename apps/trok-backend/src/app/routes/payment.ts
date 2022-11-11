@@ -85,8 +85,6 @@ const paymentsRouter = t.router({
 				const recipient_id = createRecipientResponse.data.recipient_id;
 				prettyPrintResponse(createRecipientResponse);
 				const routing_number = bankAccount.sort_code.replace(/-/g, '');
-				console.log('-----------------------------------------------');
-				console.table({ routing_number });
 				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
 					recipient_id,
 					reference: input.reference,
@@ -183,8 +181,6 @@ const paymentsRouter = t.router({
 				const recipient_id = createRecipientResponse.data.recipient_id;
 				prettyPrintResponse(createRecipientResponse);
 				const routing_number = bankAccount.sort_code.replace(/-/g, '');
-				console.log('-----------------------------------------------');
-				console.log(routing_number);
 				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
 					recipient_id,
 					reference: input.reference,
