@@ -138,6 +138,19 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 
 export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 	try {
+		const user = await prisma.user.findFirstOrThrow({
+			where: {
+				transactions: {
+					some: {
+						authorization_id: String(t.authorization)
+					}
+				}
+			}
+		})
+		const t_expanded = await stripe.issuing.transactions.retrieve(t.id, {expand: ['purchase_details']}, {stripeAccount: user.stripe.accountId })
+		console.log('-----------------------------------------------');
+		console.log(t_expanded.purchase_details)
+		console.log('-----------------------------------------------');
 		return await prisma.transaction.update({
 			where: {
 				authorization_id: String(t.authorization)
@@ -147,13 +160,13 @@ export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 				transaction_type: t.type,
 				transaction_amount: Math.abs(t.amount),
 				merchant_amount: Math.abs(t.merchant_amount),
-				...(t?.purchase_details?.fuel && {
+				...(t_expanded?.purchase_details?.fuel && {
 					purchase_details: {
 						set: {
-							volume: Number(t.purchase_details.fuel.volume_decimal),
-							unit_cost_decimal: Number(t.purchase_details.fuel.unit_cost_decimal),
-							fuel_type: t.purchase_details.fuel?.type,
-							unit_type: t.purchase_details.fuel?.unit
+							volume: Number(t_expanded.purchase_details.fuel.volume_decimal),
+							unit_cost_decimal: Number(t_expanded.purchase_details.fuel.unit_cost_decimal),
+							fuel_type: t_expanded.purchase_details.fuel?.type,
+							unit_type: t_expanded.purchase_details.fuel?.unit
 						}
 					}
 				}),
