@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
+import { Prisma } from '@prisma/client';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
@@ -279,7 +280,7 @@ export const SAMPLE_PAYMENTS = [
 	}
 ];
 
-export const SAMPLE_TRANSACTIONS = [
+export const SAMPLE_TRANSACTIONS : Prisma.TransactionUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
@@ -292,14 +293,19 @@ export const SAMPLE_TRANSACTIONS = [
 		merchant_amount: 468000,
 		authorization_id: '',
 		merchant_data: {
+			category: '',
+			category_code: '',
+			network_id: uuidv4(),
 			name: 'BP Fuel',
 			city: 'London',
 			postcode: 'E2 9LH'
 		},
-		location: 'London, E2 9LH',
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000
+		transaction_amount: 468000,
+		status: 'approved',
+		transaction_id: uuidv4(),
+		transaction_type: 'capture',
 	},
 	{
 		id: uuidv4(),
@@ -313,13 +319,19 @@ export const SAMPLE_TRANSACTIONS = [
 		merchant_amount: 468000,
 		authorization_id: '',
 		merchant_data: {
+			category: '',
+			category_code: '',
+			network_id: uuidv4(),
 			name: 'BP Fuel',
 			city: 'London',
 			postcode: 'E2 9LH'
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000
+		transaction_amount: 468000,
+		status: 'approved',
+		transaction_id: uuidv4(),
+		transaction_type: 'capture',
 	},
 	{
 		id: uuidv4(),
@@ -333,13 +345,19 @@ export const SAMPLE_TRANSACTIONS = [
 		merchant_amount: 468000,
 		authorization_id: '',
 		merchant_data: {
+			category: '',
+			category_code: '',
+			network_id: uuidv4(),
 			name: 'BP Fuel',
 			city: 'London',
 			postcode: 'E2 9LH'
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000
+		transaction_amount: 468000,
+		status: 'approved',
+		transaction_id: uuidv4(),
+		transaction_type: 'capture',
 	},
 	{
 		id: uuidv4(),
@@ -353,19 +371,25 @@ export const SAMPLE_TRANSACTIONS = [
 		merchant_amount: 468000,
 		authorization_id: '',
 		merchant_data: {
+			category: '',
+			category_code: '',
+			network_id: uuidv4(),
 			name: 'BP Fuel',
 			city: 'London',
 			postcode: 'E2 9LH'
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000
+		transaction_amount: 468000,
+		status: 'approved',
+		transaction_id: uuidv4(),
+		transaction_type: 'capture',
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
 		updated_at: dayjs().format(),
-		userId: '',
+		userId: uuidv4(),
 		driverId: '',
 		cardId: '',
 		cardholder_id: '',
@@ -373,13 +397,19 @@ export const SAMPLE_TRANSACTIONS = [
 		merchant_amount: 468000,
 		authorization_id: '',
 		merchant_data: {
+			category: '',
+			category_code: '',
+			network_id: uuidv4(),
 			name: 'BP Fuel',
 			city: 'London',
 			postcode: 'E2 9LH'
 		},
 		last4: '2681',
 		cardholder_name: 'Joel Cambridge',
-		transaction_amount: 468000
+		transaction_amount: 468000,
+		status: 'approved',
+		transaction_id: uuidv4(),
+		transaction_type: 'capture',
 	}
 ];
 

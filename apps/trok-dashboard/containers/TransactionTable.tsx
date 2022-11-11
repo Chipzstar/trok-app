@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { MantineNumberSize, Text } from '@mantine/core';
+import { Divider, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { GBP } from '@trok-app/shared-utils';
+import { Prisma } from '@prisma/client';
 
-const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
+export interface TransactionTableProps {
+	data: Prisma.TransactionUncheckedCreateInput[];
+	spacingY?: MantineNumberSize;
+	withPagination?: boolean;
+}
+
+const TransactionTable = ({ data, spacingY = 'md', withPagination = true }: TransactionTableProps) => {
 	const [activePage, setPage] = useState(1);
 
 	const rows = data.map((t, index) => {
+		let color = t.status === 'approved' ? 'green' : 'red';
 		return (
 			<tr key={index}>
 				<td colSpan={1}>
-					<span>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+					<div className='flex flex-shrink items-center'>
+						<Divider orientation="vertical" color={color} size="lg"/>
+						<span className='ml-2'>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+					</div>
 				</td>
 				<td colSpan={1}>
 					<span>{t.merchant_data.name}</span>
@@ -34,13 +45,15 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }) => {
 					<span className='text-base font-normal'>{GBP(t.transaction_amount).format()}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{t?.purchase_details?.fuel_type ?? "-"}</span>
+					<span>{t?.purchase_details?.fuel_type ?? '-'}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{t?.purchase_details?.volume ?? "-"}</span>
+					<span>{t?.purchase_details?.volume ?? '-'}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{t?.purchase_details?.unit_cost_decimal ? t?.purchase_details?.unit_cost_decimal + "p" :  "-"}</span>
+					<span>
+						{t?.purchase_details?.unit_cost_decimal ? t?.purchase_details?.unit_cost_decimal + 'p' : '-'}
+					</span>
 				</td>
 			</tr>
 		);

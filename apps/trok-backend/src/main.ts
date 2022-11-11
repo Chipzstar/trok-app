@@ -57,7 +57,6 @@ const runApp = async () => {
 			}
 		})
 	);
-
 	/*app.use(
 		playgroundEndpoint,
 		await expressHandler({

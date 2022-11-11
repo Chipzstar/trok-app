@@ -69,7 +69,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 	
 	return (
 		<div style={{
-			height: user?.approved ? height - 485 : height - 485 - BANNER_HEIGHT
+			height: user?.approved === false ? height - 485 - BANNER_HEIGHT : height - 485
 		}}>
 			<Bar
 				options={{
