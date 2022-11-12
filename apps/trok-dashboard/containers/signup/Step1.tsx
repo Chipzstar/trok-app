@@ -18,7 +18,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
 import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
-import { uploadFile } from '../../utils/functions';
+import { uploadFile, validateCRN } from '../../utils/functions';
 
 const DocumentInfo = ({ fileInfo }: { fileInfo: File | null }) => {
 	return (
@@ -66,6 +66,10 @@ const Step1 = ({ nextStep }) => {
 		async (values: OnboardingBusinessInfo) => {
 			setLoading(true);
 			try {
+				const is_valid = await validateCRN(values.business_crn)
+				if (!is_valid) {
+					throw new Error("The Company registration number does not exist. Please enter a valid company registration number");
+				}
 				if (!file) {
 					throw new Error("Please upload a picture of your driver's license before submitting");
 				}

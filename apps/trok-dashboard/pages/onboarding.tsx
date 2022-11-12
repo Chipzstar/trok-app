@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
-import { Anchor, Group, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
+import { Anchor, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
 import Step1 from '../containers/signup/Step1';
 import Step2 from '../containers/signup/Step2';
 import Step3 from '../containers/signup/Step3';
@@ -13,7 +13,7 @@ const Onboarding = () => {
 
 	const active = useMemo(() => {
 		return isNaN(Number(router.query?.page)) ? 0 : Number(router.query?.page) - 1;
-	}, [router.query?.page]);
+	}, [router.query]);
 
 	const nextStep = useCallback(() => {
 		router.replace({
@@ -24,14 +24,14 @@ const Onboarding = () => {
 		});
 	}, [active, router]);
 
-	const prevStep = () => {
+	const prevStep = useCallback(() => {
 		router.replace({
 			pathname: PATHS.ONBOARDING,
 			query: {
 				page: active
 			}
 		});
-	};
+	}, [active, router]);
 
 	const customerSupportNumber = (
 		<Stack align="center" spacing={0}>
