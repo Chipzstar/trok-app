@@ -52,7 +52,7 @@ export async function checkPastDueStatements() {
 				data: {
 					statement_id,
 					period_start: dayjs.unix(Number(period_start)).toDate(),
-					period_end: dayjs.unix(Number(period_start)).toDate(),
+					period_end: dayjs.unix(Number(period_end)).toDate(),
 					userId: user.id,
 					download_url: url,
 					total_balance: transactions.reduce((prev, curr) => prev + curr.transaction_amount, 0)
