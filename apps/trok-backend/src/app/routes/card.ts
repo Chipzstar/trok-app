@@ -67,7 +67,7 @@ const cardRouter = t.router({
 							shipping: {
 								name: user.business.legal_name,
 								phone_number: user.phone,
-								service: user.card_configuration.shipping_speed,
+								service: 'standard',
 								address: {
 									line1: user.shipping_address.line1,
 									line2: user.shipping_address.line2 || undefined,
