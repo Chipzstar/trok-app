@@ -1,6 +1,7 @@
 import CryptoJS from 'crypto-js';
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
+import bcrypt from 'bcryptjs'
 
 interface selectInput {
 	value: string;
@@ -63,6 +64,10 @@ export async function uploadFile(file, crn, documentType) {
 
 export async function validateCRN(crn: string): Promise<boolean> {
 	try {
+		// if in local development, always return true
+		if (process.env.NODE_ENV === 'development') {
+			return true;
+		}
 		const company_profile = await companyHouseClient.get(`/company/${crn}`);
 		console.log(company_profile)
 		return !!company_profile;
@@ -70,7 +75,6 @@ export async function validateCRN(crn: string): Promise<boolean> {
 		return false;
 	}
 }
-
 //@ts-ignore
 export function filterByTimeRange(data, range: [Date, Date]) {
 	const startDate = dayjs(range[0]).startOf('day');
@@ -271,4 +275,8 @@ export function html({ url, full_name }) {
 
 </body>
 </html>`;
+}
+
+export async function comparePassword(plaintextPassword: string, hash: string) {
+	return await bcrypt.compare(plaintextPassword, hash);
 }

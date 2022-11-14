@@ -22,7 +22,7 @@ const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const Step3 = ({ prevStep }) => {
 	const [loading, setLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo>>({
+	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo>>({
 		key: STORAGE_KEYS.ACCOUNT,
 		defaultValue: null
 	});
@@ -128,16 +128,14 @@ const Step3 = ({ prevStep }) => {
 					country: values.country
 				};
 				const payload: CreateUser = {
-					...personalObj,
+					...account,
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
-					business: { ...businessObj, ...financialObj },
 					location,
 					card_configuration: {
 						card_business_name: values.card_business_name,
 						num_cards: values.num_cards,
 						shipping_speed: values.shipping_speed
-					},
-					full_name: `${personalObj.firstname} ${personalObj.lastname}`
+					}
 				};
 				const user = (
 					await apiClient.post('/server/auth/complete-registration', {
@@ -160,7 +158,7 @@ const Step3 = ({ prevStep }) => {
 				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[personalObj, businessObj, financialObj]
+		[account, personalObj, businessObj, financialObj]
 	);
 
 	useEffect(() => {

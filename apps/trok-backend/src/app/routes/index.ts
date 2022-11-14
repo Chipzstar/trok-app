@@ -7,8 +7,10 @@ import accountRouter from './account';
 import paymentRouter from './payment';
 import balanceRouter from './balance';
 import statementRouter from './statement';
+import { authRouter } from './auth';
 
 export const appRouter = t.mergeRouters(
+	authRouter,
 	accountRouter,
 	driverRouter,
 	cardRouter,

@@ -5,7 +5,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
 import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
-import { html, text } from '../../../utils/functions';
+import { comparePassword, html, text } from '../../../utils/functions';
 
 export async function sendMagicLink({ identifier, url, provider, token, expires }: SendVerificationRequestParams) {
 	try {
@@ -61,15 +61,14 @@ const providers = [
 				where: {
 					email: {
 						equals: credentials.email
-					},
-					password: {
-						equals: credentials.password
 					}
 				}
 			});
 			if (user) {
+				// compare entered password with stored hash
+				const salt = await comparePassword(credentials.password, user.password)
 				// Any object returned will be saved in `user` property of the JWT
-				return user;
+				return salt ? user : null;
 			} else {
 				// If you return null then an error will be displayed advising the user to check their details.
 				return null;

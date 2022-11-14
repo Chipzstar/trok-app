@@ -322,8 +322,8 @@ model User {
   cards              Card[]
   transactions       Transaction[]
   payments           Payment[]
+  statements         Statement[]
   bank_accounts      BankAccount[]
   accounts           Account[]
   sessions           Session[]
-  Statement          Statement[]
 }

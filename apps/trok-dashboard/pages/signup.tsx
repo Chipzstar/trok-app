@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import CryptoJS from 'crypto-js';
 import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
 import { PATHS, STORAGE_KEYS } from '../utils/constants';
 import { Anchor, Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
-import { apiClient } from '../utils/clients';
+import { trpc } from '../utils/clients';
 import { getE164Number, notifyError } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
 import prisma from '../prisma';
@@ -29,6 +28,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 	});
 	const [loading, setLoading] = useState(false);
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const mutation = trpc.signup.useMutation();
 	const [userForm, setUserForm] = useLocalStorage({
 		key: STORAGE_KEYS.SIGNUP_FORM,
 		defaultValue: {
@@ -49,11 +49,11 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 			setLoading(true);
 			values.full_name = values.firstname + ' ' + values.lastname;
 			values.phone = getE164Number(values.phone);
-			setNewAccount({ ...values, password: CryptoJS.AES.encrypt(JSON.stringify(values), secret).toString() });
 			try {
-				const result = (await apiClient.post('/server/auth/signup', values)).data;
+				const result = await mutation.mutateAsync(values);
 				console.log('-----------------------------------------------');
 				console.log(result);
+				setNewAccount({ ...values, password: result.hashed_password });
 				console.log('-----------------------------------------------');
 				router.push(`${PATHS.ONBOARDING}?page=1`);
 				setLoading(false);
@@ -79,8 +79,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 	}, []);
 
 	useEffect(() => {
-		// const decryptedData = JSON.parse(form.values.password.toString(CryptoJS.enc.Utf8));
-		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify(form.values));
+		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify({...form.values, password: null}));
 	}, [form.values]);
 
 	return (

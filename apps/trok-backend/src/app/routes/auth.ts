@@ -1,37 +1,80 @@
 import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
-import { SignupInfo } from '@trok-app/shared-utils';
+import { hashPassword } from '../utils/helpers';
 import { TWENTY_FOUR_HOURS } from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchIssuingAccount } from '../helpers/stripe';
 import dayjs from 'dayjs';
+import { t } from '../trpc';
+import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 const router = express.Router();
 let reminderTimeout;
 
-router.post('/signup', async (req, res, next) => {
+const signupInfoSchema = z.object({
+	full_name: z.string(),
+	firstname: z.string(),
+	lastname: z.string(),
+	email: z.string(),
+	phone: z.string(),
+	password: z.string(),
+	referral_code: z
+		.string()
+		.optional()
+		.nullable(),
+	terms: z
+		.boolean()
+		.optional()
+		.nullable()
+})
+
+export const authRouter = t.router({
+	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
+		try {
+			const hashed_password = await hashPassword(input.password)
+			await redisClient.hmset(input.email, {
+				firstname: input.firstname,
+				lastname: input.lastname,
+				email: input.email,
+				password: hashed_password,
+				phone: input.phone,
+				referral_code: input.referral_code,
+				onboarding_step: 1
+			});
+			// set expiry time for 24hours
+			await ctx.redis.expire(input.email, 60 * 60 * 24 * 2);
+			return { message: `Signup for ${input.email} has been initiated`, hashed_password }
+		} catch (err) {
+			console.error(err);
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message })
+		}
+	})
+})
+
+/*router.post('/signup', async (req, res, next) => {
 	try {
 		const payload: SignupInfo = req.body;
-		console.log(payload);
+		const hashed_password = await hashPassword(payload.password)
 		await redisClient.hmset(payload.email, {
 			firstname: payload.firstname,
 			lastname: payload.lastname,
 			email: payload.email,
-			password: payload.password,
+			password: hashed_password,
 			phone: payload.phone,
 			referral_code: payload.referral_code,
 			onboarding_step: 1
 		});
 		// set expiry time for 24hours
 		await redisClient.expire(payload.email, 60 * 60 * 24 * 2);
-		res.status(200).json({ message: `Signup for ${payload.email} has been initiated` });
+		res.status(200).json({ message: `Signup for ${payload.email} has been initiated`, hashed_password });
 	} catch (err) {
 		console.error(err);
 		next(err);
 	}
-});
+});*/
 
 router.post('/onboarding', async (req, res, next) => {
 	try {
@@ -111,30 +154,5 @@ router.post('/complete-registration', async (req, res, next) => {
 		next(err);
 	}
 });
-
-/*router.post('/login', async (req, res, next) => {
-	try {
-		console.table(req.body)
-		const { email, password } = req.body;
-		const user = await prisma.user.findFirst({
-			where: {
-				email: {
-					equals: email
-				},
-				password: {
-					equals: password
-				}
-			}
-		});
-		if (user) {
-			console.log(user);
-			res.status(200).json(req.body);
-		}
-		throw new Error('User not found!');
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});*/
 
 export default router;
