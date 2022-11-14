@@ -80,6 +80,13 @@ const cardRouter = t.router({
 						},
 						{ stripeAccount: user.stripe.accountId }
 					);
+					if (String(process.env.STRIPE_SECRET_KEY).includes("sk_test")) {
+						card = await stripe.issuing.cards.retrieve(
+							card.id,
+							{ expand: ['number', 'cvc'] },
+							{ stripeAccount: user.stripe.accountId }
+						);
+					}
 					console.log('CARD', card);
 					console.log('-----------------------------------------------');
 					const driver = await ctx.prisma.driver.findUnique({

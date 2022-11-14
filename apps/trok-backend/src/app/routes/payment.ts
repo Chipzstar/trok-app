@@ -7,6 +7,7 @@ import { prettyPrintResponse } from '../utils/helpers';
 import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
 import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
 import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL } from '../utils/constants';
+import { decrypt } from '@trok-app/shared-utils';
 
 const paymentsRouter = t.router({
 	getPayments: t.procedure
@@ -90,7 +91,7 @@ const paymentsRouter = t.router({
 					reference: input.reference,
 					options: {
 						bacs: {
-							account: bankAccount.account_number,
+							account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
 							sort_code: routing_number
 						}
 					},
@@ -186,7 +187,7 @@ const paymentsRouter = t.router({
 					reference: input.reference,
 					options: {
 						bacs: {
-							account: bankAccount.account_number,
+							account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
 							sort_code: routing_number
 						}
 					},
