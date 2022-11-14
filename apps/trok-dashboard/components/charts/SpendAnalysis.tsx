@@ -19,7 +19,7 @@ dayjs.extend(isBetween);
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
 const SpendAnalysis = ({sessionId, dateRange}) => {
-	const { data: user, isLoading, isError } = trpc.getAccount.useQuery(
+	const { data: approved, isLoading, isError } = trpc.checkAccountApproved.useQuery(
 		{
 			id: sessionId
 		},
@@ -69,7 +69,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 	
 	return (
 		<div style={{
-			height: user?.approved === false ? height - 485 - BANNER_HEIGHT : height - 485
+			height: approved === false ? height - 485 - BANNER_HEIGHT : height - 485
 		}}>
 			<Bar
 				options={{

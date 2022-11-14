@@ -9,7 +9,8 @@ const ChangePassword = ({ user_id }) => {
 	const [loading, setLoading] = useState(false);
 	const form = useForm({
 		initialValues: {
-			password: '',
+			curr_password: '',
+			new_password: '',
 			confirm_password: ''
 		}
 	});
@@ -21,10 +22,12 @@ const ChangePassword = ({ user_id }) => {
 			try {
 				await mutation.mutateAsync({
 					id: user_id,
-					password: values.password,
+					curr_password: values.curr_password,
+					new_password: values.new_password,
 					confirm_password: values.confirm_password
 				})
 				setLoading(false);
+				form.reset();
 				notifySuccess(
 					'update-password-success',
 					'Password changed successfully',
@@ -44,8 +47,12 @@ const ChangePassword = ({ user_id }) => {
 			<Card shadow='sm' p='xl' radius='xs' className='w-1/2'>
 				<Stack>
 					<div className='flex flex-col'>
+						<span>Current password</span>
+						<PasswordInput {...form.getInputProps('curr_password')} isPassword />
+					</div>
+					<div className='flex flex-col'>
 						<span>New password</span>
-						<PasswordInput {...form.getInputProps('password')} isPassword />
+						<PasswordInput {...form.getInputProps('new_password')} isPassword />
 					</div>
 					<div className='flex flex-col'>
 						<span>Confirm new password</span>

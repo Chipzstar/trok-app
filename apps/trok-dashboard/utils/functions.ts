@@ -1,7 +1,6 @@
 import CryptoJS from 'crypto-js';
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
-import bcrypt from 'bcryptjs'
 
 interface selectInput {
 	value: string;
@@ -277,6 +276,3 @@ export function html({ url, full_name }) {
 </html>`;
 }
 
-export async function comparePassword(plaintextPassword: string, hash: string) {
-	return await bcrypt.compare(plaintextPassword, hash);
-}

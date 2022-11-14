@@ -1,7 +1,6 @@
 import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
-import { hashPassword } from '../utils/helpers';
 import { TWENTY_FOUR_HOURS } from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +8,7 @@ import dayjs from 'dayjs';
 import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { hashPassword } from '@trok-app/shared-utils';
 
 const router = express.Router();
 let reminderTimeout;

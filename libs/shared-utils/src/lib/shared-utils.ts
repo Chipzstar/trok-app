@@ -1,6 +1,7 @@
 import { showNotification } from '@mantine/notifications';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import { phoneUtil } from './shared-constants';
+import bcrypt from 'bcryptjs';
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -59,3 +60,13 @@ export function checkIfNullOrUndefined(variable: any) {
 	return typeof variable === 'undefined' || variable === null;
 }
 
+export async function hashPassword(password: string, salt_rounds = 10) {
+	const salt = await bcrypt.genSalt(salt_rounds);
+	const hashed_password = await bcrypt.hash(password, salt);
+	console.log(hashed_password);
+	return hashed_password;
+}
+
+export async function comparePassword(plaintextPassword: string, hash: string) {
+	return await bcrypt.compare(plaintextPassword, hash);
+}

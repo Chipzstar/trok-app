@@ -2,6 +2,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
+import { comparePassword, hashPassword } from '@trok-app/shared-utils';
 
 const accountRouter = t.router({
 	getAccount: t.procedure
@@ -196,11 +197,12 @@ const accountRouter = t.router({
 			z
 				.object({
 					id: z.string(),
-					password: z.string(),
+					curr_password: z.string(),
+					new_password: z.string(),
 					confirm_password: z.string()
 				})
-				.superRefine(({ confirm_password, password }, ctx) => {
-					if (confirm_password !== password) {
+				.superRefine(({ confirm_password, new_password }, ctx) => {
+					if (confirm_password !== new_password) {
 						ctx.addIssue({
 							code: 'custom',
 							message: 'The passwords did not match'
@@ -210,12 +212,27 @@ const accountRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
+				// find matching user based on the auth session
+				const user = await ctx.prisma.user.findUniqueOrThrow({
+					where: {
+						id: input.id
+					},
+					select: {
+						password: true
+					}
+				});
+				// check current password is correct
+				const is_match = await comparePassword(input.curr_password, user.password)
+				if (!is_match) {
+					throw new TRPCError({ message: "Current password is invalid. Please double check", code: 'BAD_REQUEST' });
+				}
+				const hashed_password = await hashPassword(input.new_password)
 				return await ctx.prisma.user.update({
 					where: {
 						id: input.id
 					},
 					data: {
-						password: input.password
+						password: hashed_password
 					}
 				});
 			} catch (err) {
