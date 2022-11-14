@@ -2,6 +2,7 @@ import { showNotification } from '@mantine/notifications';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
 import { phoneUtil } from './shared-constants';
 import bcrypt from 'bcryptjs';
+import CryptoJS from 'crypto-js';
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -58,6 +59,20 @@ export function includesCaseInsensitive(this: string, str: string): boolean {
 
 export function checkIfNullOrUndefined(variable: any) {
 	return typeof variable === 'undefined' || variable === null;
+}
+
+export function encrypt(word: string, key: string) {
+	let encJson = CryptoJS.AES.encrypt(JSON.stringify(word), key.slice(0, 16)).toString()
+	let encData = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson))
+	console.log(encData)
+	return encData
+}
+
+export function decrypt(word: string, key: string) {
+	let decData = CryptoJS.enc.Base64.parse(word).toString(CryptoJS.enc.Utf8)
+	let bytes = CryptoJS.AES.decrypt(decData, key.slice(0, 16)).toString(CryptoJS.enc.Utf8)
+	console.log(JSON.parse(bytes))
+	return JSON.parse(bytes)
 }
 
 export async function hashPassword(password: string, salt_rounds = 10) {

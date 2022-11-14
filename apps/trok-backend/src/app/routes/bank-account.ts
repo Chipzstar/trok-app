@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
 import Stripe from 'stripe';
+import { decrypt } from '@trok-app/shared-utils';
 
 const bankAccountRouter = t.router({
 	getBankAccounts: t.procedure
@@ -13,7 +14,7 @@ const bankAccountRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				return await ctx.prisma.bankAccount.findMany({
+				const bank_accounts = await ctx.prisma.bankAccount.findMany({
 					where: {
 						userId: input.userId
 					},
@@ -21,6 +22,7 @@ const bankAccountRouter = t.router({
 						created_at: 'desc'
 					}
 				});
+				return bank_accounts.map((item) => ({...item, account_number: decrypt(item.account_number, String(process.env.ENC_SECRET))}))
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
@@ -43,7 +45,6 @@ const bankAccountRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				console.table(input);
 				// update stripe bank details
 				const token = await stripe.tokens.create(
 					{
