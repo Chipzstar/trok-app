@@ -168,15 +168,15 @@ function generateInvoiceTable(doc: PDFKit.PDFDocument, total: number, transactio
 		const item = transactions[i];
 		const position = invoiceTableTop + (i + 1) * 30;
 		const litres = item?.purchase_details?.unit_cost_decimal
-			? GBP(item.purchase_details.unit_cost_decimal)
-			: GBP(172);
-		const volume = item?.purchase_details?.volume.toString() ?? '120';
+			? GBP(item.purchase_details.unit_cost_decimal).format()
+			: "-";
+		const volume = item?.purchase_details?.volume.toString() ?? '-';
 		generateTableRow(
 			doc,
 			position,
-			item.transaction_id.slice(0, 15),
+			item.authorization_id.slice(0, 15),
 			item.merchant_data?.name ?? item.merchant_data.category,
-			litres.format(),
+			litres,
 			volume,
 			GBP(item.transaction_amount).format()
 		);
