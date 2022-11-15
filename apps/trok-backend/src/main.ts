@@ -7,6 +7,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
 import authRoutes from './app/routes/auth';
+import testRoutes from './app/routes/test';
 import stripeRoutes from './app/routes/stripe';
 import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
@@ -14,6 +15,8 @@ import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ONE_HOUR } from './app/utils/constants';
+import { mailerSend } from './app/utils/clients';
+import { EmailParams, Recipient } from 'mailer-send-ts';
 
 const runApp = async () => {
 	const app = express();
@@ -119,16 +122,7 @@ const runApp = async () => {
 	/**
 	 * TEST ROUTES
 	 */
-	app.get('/test/user-agent', jsonParser, async (req, res, next) => {
-		try {
-			console.log(req.ip);
-			console.log(req.get('User-Agent'));
-			res.status(200).send(Date.now());
-		} catch (err) {
-			console.error(err);
-			next(err);
-		}
-	});
+	app.use('/test', jsonParser, testRoutes);
 	/**
 	 * ERROR HANDLERS
 	 */
