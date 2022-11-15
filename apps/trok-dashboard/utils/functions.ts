@@ -2,7 +2,7 @@ import CryptoJS from 'crypto-js';
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
 
-interface selectInput {
+interface SelectInput {
 	value: string;
 	label: string;
 }
@@ -15,8 +15,13 @@ export function sanitize(str: string): string {
 	return str.replace(/[_-]/g, ' ').toLowerCase();
 }
 
-export function uniqueArray(array: selectInput[], key) {
+export function uniqueArray(array: SelectInput[], key) {
 	return [...new Map(array.map(item => [item[key], item])).values()];
+}
+
+export function uniqueSimpleArray(array: SelectInput[]) {
+	const values = array.map(item => item.value.toUpperCase())
+	return [...new Set(values)];
 }
 
 export function decryptPassword(password: string) {

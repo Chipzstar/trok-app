@@ -157,7 +157,6 @@ const Sidebar = () => {
 		]
 	};
 
-	useEffect(() => console.log(tabs), [tabs]);
 	const { classes, cx } = useStyles();
 	const [section, setSection] = useState<'account' | 'general'>('general');
 
