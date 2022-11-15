@@ -16,7 +16,6 @@ import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/share
 import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
-
 dayjs.extend(isBetween);
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {

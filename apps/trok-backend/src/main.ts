@@ -15,8 +15,6 @@ import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ONE_HOUR } from './app/utils/constants';
-import { mailerSend } from './app/utils/clients';
-import { EmailParams, Recipient } from 'mailer-send-ts';
 
 const runApp = async () => {
 	const app = express();

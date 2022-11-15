@@ -54,28 +54,6 @@ export const authRouter = t.router({
 	})
 })
 
-/*router.post('/signup', async (req, res, next) => {
-	try {
-		const payload: SignupInfo = req.body;
-		const hashed_password = await hashPassword(payload.password)
-		await redisClient.hmset(payload.email, {
-			firstname: payload.firstname,
-			lastname: payload.lastname,
-			email: payload.email,
-			password: hashed_password,
-			phone: payload.phone,
-			referral_code: payload.referral_code,
-			onboarding_step: 1
-		});
-		// set expiry time for 24hours
-		await redisClient.expire(payload.email, 60 * 60 * 24 * 2);
-		res.status(200).json({ message: `Signup for ${payload.email} has been initiated`, hashed_password });
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});*/
-
 router.post('/onboarding', async (req, res, next) => {
 	try {
 		const { email, step } = req.query;
@@ -83,8 +61,8 @@ router.post('/onboarding', async (req, res, next) => {
 		console.log('EMAIL: ' + email);
 		const payload = req.body;
 		console.log(payload);
-		await redisClient.hmset(<string>email, payload);
-		await redisClient.hset(<string>email, 'onboarding_step', <string>step);
+		await redisClient.hmset(String(email), payload);
+		await redisClient.hset(String(email), 'onboarding_step', String(step));
 		// reset expiry time for 24hours
 		await redisClient.expire(<string>email, 60 * 60 * 24 * 2);
 		res.status(200).json({ message: `${email} has completed onboarding step ${step}` });
