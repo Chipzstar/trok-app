@@ -49,9 +49,8 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 					<NumberInput
 						required
 						precision={2}
-						type='text'
 						label='Amount'
-						min={0}
+						min={1}
 						max={1000000}
 						step={5}
 						parser={value => value.replace(/£\s?|(,*)/g, '')}

@@ -138,7 +138,7 @@ const cardRouter = t.router({
 									  ]
 									: [],
 								status: 'inactive',
-								shipping_status: card?.shipping?.status ?? ''
+								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING
 							}
 						});
 					} else {
@@ -239,47 +239,6 @@ const cardRouter = t.router({
 					},
 					data: {
 						status: input.status
-					}
-				});
-			} catch (err) {
-				console.error(err);
-				// @ts-ignore
-				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
-			}
-		}),
-	topUp: t.procedure
-		.input(
-			z.object({
-				id: z.string(),
-				amount: z.number(),
-				stripeId: z.string()
-			})
-		)
-		.mutation(async ({ input, ctx }) => {
-			try {
-				const card = await ctx.prisma.card.findFirstOrThrow({
-					where: {
-						id: input.id
-					}
-				});
-				const response = await stripe.topups.create(
-					{
-						amount: input.amount,
-						currency: 'gbp',
-						description: `Top-up for ${card.cardholder_name}`,
-						source: 'ba_1LwPPFB7Fq8bPfODtpqj4jQg',
-						statement_descriptor: 'Top-up'
-					},
-					{ stripeAccount: input.stripeId }
-				);
-				console.log(response);
-				console.log('-----------------------------------------------');
-				return await ctx.prisma.card.update({
-					where: {
-						id: input.id
-					},
-					data: {
-						current_balance: card.current_balance + input.amount
 					}
 				});
 			} catch (err) {

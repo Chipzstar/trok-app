@@ -85,6 +85,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			reference: ''
 		},
 		validate: {
+			amount: val => val > 1000000 ? 'Amount must not be greater then £1,000,000' : null,
 			reference: val =>
 				val.search(/[^a-zA-Z0-9 ]/g) !== -1 ? 'Reference must not contain special characters' : null
 		}

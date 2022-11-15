@@ -196,7 +196,6 @@ function generateInvoiceTable(doc: PDFKit.PDFDocument, total: number, transactio
 const upload = (doc: PDFKit.PDFDocument, filename: string, filepath: string) => {
 	return new Promise((resolve, reject) => {
 		const file = BUCKET.file(filepath);
-
 		doc.pipe(file.createWriteStream())
 			.on('finish', () => {
 				resolve(`${filename} uploaded successfully`);

@@ -2,7 +2,6 @@ import {
 	PaymentInitiationPaymentGetRequest,
 	PaymentInitiationPaymentStatus,
 	PaymentStatusUpdateWebhook,
-	Products
 } from 'plaid';
 import prisma from '../../db';
 import { plaid } from '../../utils/clients';
@@ -102,9 +101,6 @@ export const generateLinkToken = async (
 					payment_id
 				},
 				institution_id,
-				eu_config: {
-					headless: true,
-				},
 				redirect_uri: PLAID_REDIRECT_URI
 			})
 		).data;

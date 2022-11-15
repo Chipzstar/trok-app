@@ -43,16 +43,7 @@ const accountRouter = t.router({
 					id: input.id
 				},
 				select: {
-					approved: true,
-					full_name: true,
-					firstname: true,
-					lastname: true,
-					email: true,
-					phone: true,
-					business: true,
-					location: true,
-					shipping_address: true,
-					card_configuration: true
+					approved: true
 				}
 			});
 			return user ? user.approved : true;
