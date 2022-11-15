@@ -12,7 +12,7 @@ import { PlaidLinkOnSuccess, PlaidLinkOnSuccessMetadata, usePlaidLink } from 're
 import { apiClient, trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { GBP, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -66,14 +66,17 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const data = testMode
 		? SAMPLE_PAYMENTS
 		: !query?.isLoading
-		? query?.data?.filter(
-				p =>
-					dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h') &&
+		? query?.data?.filter(p => {
+				const in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h')
+				const is_not_cancelled = p.status !== PAYMENT_STATUS.CANCELLED
+				return (
+					in_range && is_not_cancelled &&
 					(p.recipient_name.contains(search) ||
 						p.payment_type.contains(search) ||
 						GBP(p.amount).format().contains(search) ||
 						p.reference.contains(search))
-		  )
+				);
+		  })
 		: [];
 
 	const form = useForm({

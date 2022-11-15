@@ -1,8 +1,4 @@
-import {
-	PaymentInitiationPaymentGetRequest,
-	PaymentInitiationPaymentStatus,
-	PaymentStatusUpdateWebhook,
-} from 'plaid';
+import { PaymentInitiationPaymentGetRequest, PaymentInitiationPaymentStatus, PaymentStatusUpdateWebhook } from 'plaid';
 import prisma from '../../db';
 import { plaid } from '../../utils/clients';
 import { PAYMENT_STATUS } from '@trok-app/shared-utils';
@@ -28,6 +24,12 @@ export function convertPlaidStatus(status: string) {
 			return PAYMENT_STATUS.FAILED;
 		case PaymentInitiationPaymentStatus.Executed:
 			return PAYMENT_STATUS.COMPLETE;
+		case PaymentInitiationPaymentStatus.Rejected:
+			return PAYMENT_STATUS.CANCELLED;
+		case PaymentInitiationPaymentStatus.Settled:
+			return PAYMENT_STATUS.COMPLETE;
+		case PaymentInitiationPaymentStatus.Unknown:
+			return PAYMENT_STATUS.FAILED;
 		default:
 			return PAYMENT_STATUS.PENDING;
 	}

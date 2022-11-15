@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
+import { numericId } from '../../trok-backend/src/app/utils/constants';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
@@ -211,70 +212,88 @@ export const SAMPLE_CARDS = [
 	}
 ];
 
-export const SAMPLE_PAYMENTS = [
+export const SAMPLE_PAYMENTS : Prisma.PaymentUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient_id: '2',
 		recipient_name: 'John Smith',
 		reference: "send to John Smith"
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient_id: '6',
 		recipient_name: 'George Smith',
 		reference: "send to George Smith"
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
-		recipient_id: '9',
 		recipient_name: 'Rayan Bannai',
 		reference: "send to Rayan Bannai"
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
-		recipient_id: '5',
 		recipient_name: 'King Dave',
 		reference: 'Send to King Dave'
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
-		recipient_id: '8',
 		recipient_name: 'Stripe Payments UK Limited',
 		reference: 'Top-up balance'
 	},
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
-		finish_date: dayjs().unix(),
+		userId: uuidv4(),
+		plaid_payment_id: uuidv4(),
+		plaid_recipient_id: uuidv4(),
+		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.FAILED,
-		recipient_id: '1',
 		recipient_name: 'Michael Phelps',
 		reference: 'Send to Michael'
 	}
