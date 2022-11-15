@@ -1,4 +1,3 @@
-import CryptoJS from 'crypto-js';
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
 
@@ -22,15 +21,6 @@ export function uniqueArray(array: SelectInput[], key) {
 export function uniqueSimpleArray(array: SelectInput[]) {
 	const values = array.map(item => item.value.toUpperCase())
 	return [...new Set(values)];
-}
-
-export function decryptPassword(password: string) {
-	let decryptedPassword = '';
-	if (password) {
-		const bytes = CryptoJS.AES.decrypt(password, process.env.ENC_SECRET);
-		decryptedPassword = JSON.parse(bytes.toString());
-	}
-	return decryptedPassword;
 }
 
 export async function uploadFile(file, crn, documentType) {

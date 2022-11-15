@@ -4,7 +4,7 @@ import Page from '../layout/Page';
 import TransactionTable from '../containers/TransactionTable';
 import { SAMPLE_CARDS, SAMPLE_DRIVERS, SAMPLE_TRANSACTIONS } from '../utils/constants';
 import { useForm } from '@mantine/form';
-import { uniqueArray, uniqueSimpleArray } from '../utils/functions';
+import { uniqueSimpleArray } from '../utils/functions';
 import { IconCalendar, IconFilter } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import { unstable_getServerSession } from 'next-auth';

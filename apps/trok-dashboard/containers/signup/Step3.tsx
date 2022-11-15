@@ -233,19 +233,6 @@ const Step3 = ({ prevStep }) => {
 					)}
 					<h1 className='text-2xl font-medium'>Configure card details</h1>
 					<TextInput required label='Business name on card' {...form.getInputProps('card_business_name')} />
-					<Radio.Group
-						required
-						spacing='xs'
-						name='Shipping Speed'
-						orientation='vertical'
-						label='Select shipping speed'
-						withAsterisk
-						{...form.getInputProps('shipping_speed')}
-					>
-						<Radio value='standard' label='3-8 days. Cards left at address' />
-						<Radio value='express' label='2-3 days. Cards left at address' />
-						<Radio value='priority' label='2-3 days. Signature required at delivery' />
-					</Radio.Group>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>
