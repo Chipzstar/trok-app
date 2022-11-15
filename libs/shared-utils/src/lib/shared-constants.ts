@@ -1,9 +1,11 @@
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import currency from 'currency.js';
+import { customAlphabet } from 'nanoid';
 
+export const numericId = customAlphabet('1234567890', 16);
 export const phoneUtil = PhoneNumberUtil.getInstance();
-export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
+export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
 export const PLAID_INSTITUTIONS = [
 	{
 		label: 'Allied Irish Bank (GB) - Business',
@@ -153,4 +155,4 @@ export const PLAID_INSTITUTIONS = [
 		label: 'Yorkshire Building Society (UK)',
 		value: 'ins_118392'
 	}
-]
+] // PLAID

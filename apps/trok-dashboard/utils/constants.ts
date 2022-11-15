@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
-import { CARD_STATUS, PAYMENT_STATUS } from '@trok-app/shared-utils';
+import { CARD_STATUS, numericId, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
 import { Prisma } from '@prisma/client';
-import { numericId } from '../../trok-backend/src/app/utils/constants';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 

@@ -1,11 +1,8 @@
 import { CountryCode, Products } from 'plaid';
-import { customAlphabet } from 'nanoid';
 import { storage } from './clients';
 
 //GCP
 export const BUCKET = storage.bucket(String(process.env.GCS_BUCKET_NAME));
-// PLAID
-export const numericId = customAlphabet('1234567890', 16)
 export const STATEMENT_REDIS_SORTED_SET_ID = 'upcoming_statements'
 export const PLAID_CLIENT_NAME = 'Trok';
 export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
