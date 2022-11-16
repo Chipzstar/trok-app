@@ -186,7 +186,7 @@ model Payment {
   userId               String
   plaid_payment_id     String        @unique
   plaid_recipient_id   String
-  plaid_link_token     String?
+  plaid_link_token     String        @unique
   recipient_name       String
   reference            String
   amount               Int

@@ -56,6 +56,9 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 			sort_code: '',
 			institution_id: '',
 			is_default: Boolean(!query?.data?.length)
+		},
+		validate: {
+			institution_id: val => !val ? "Please select your bank's institution" : null
 		}
 	});
 

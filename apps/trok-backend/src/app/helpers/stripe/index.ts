@@ -12,7 +12,7 @@ import { FuelMerchantCategoryCodes, TransactionStatus } from '@trok-app/shared-u
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
 	console.log('-----------------------------------------------');
-	console.log(auth);
+	console.log("AUTH_ID:", auth.id);
 	console.log('-----------------------------------------------');
 	let res,
 		status: TransactionStatus = 'declined';
@@ -40,10 +40,11 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 				}
 			}
 		});
-		if (FuelMerchantCategoryCodes.find(item => {
-			console.log(item)
-			return item === auth.merchant_data.category_code
-		})) {
+		const is_valid_merchant_code = FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)
+		console.log('-----------------------------------------------');
+		console.log("ENV", process.env.DOPPLER_ENVIRONMENT)
+		console.log('-----------------------------------------------');
+		if (is_valid_merchant_code || String(process.env.STRIPE_SECRET_KEY).includes("sk_test")) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
 				{},

@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, createStyles, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../utils/constants';
+import { trpc } from '../utils/clients';
+import { signIn } from 'next-auth/react';
+import { IconCheck, IconX } from '@tabler/icons';
+import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -65,13 +69,45 @@ const useStyles = createStyles(theme => ({
 }));
 
 const SignUpComplete = () => {
-	const [account, setAccount] = useLocalStorage({key: STORAGE_KEYS.ACCOUNT, defaultValue: null})
+	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const router = useRouter();
 	const { classes } = useStyles();
+	const mutation = trpc.verifyEmail.useMutation();
+
+	useEffect(() => {
+		(async () => {
+			const params = router.query;
+			if (params?.email && params?.token) {
+				try {
+					await mutation.mutateAsync({
+						email: String(params.email),
+						token: String(params.token)
+					});
+					notifySuccess('email-verification-success', "Email verification successful", <IconCheck size={20} />)
+					const { ok, error } = await signIn('verify-email', {
+						email: params.email,
+						password: params.token,
+						redirect: false
+					});
+					if (ok) {
+						console.log('Login Success');
+						await router.replace('/');
+						return;
+					} else {
+						console.log(error)
+					}
+				} catch (err) {
+					let message;
+					message = err.message instanceof Array ? err[0].message : err?.message;
+					notifyError('email-verification-failed', message, <IconX size={20} />);
+				}
+			}
+		})();
+	}, [router]);
 
 	return (
-		<div className='h-screen w-full flex justify-center items-center'>
-			<div className="w-2/5 space-y-5">
+		<div className='flex h-screen w-full items-center justify-center'>
+			<div className='w-2/5 space-y-5'>
 				<Title weight={500} order={2} mb={5}>
 					Thank you for submitting your application
 				</Title>
@@ -79,19 +115,26 @@ const SignUpComplete = () => {
 					Before we approve your application, we need you to confirm your email.
 				</Text>
 				<Text size='sm' color='dimmed'>
-					Please check your inbox at <span className="font-medium">{account?.email}</span> for an email confirmation link. <br/>You have 24 hours to confirm your email.
+					Please check your inbox at <span className='font-medium'>{account?.email}</span> for an email
+					confirmation link. <br />
+					You have 24 hours to confirm your email.
 				</Text>
-				{process.env.NODE_ENV !== "production" && <div className={classes.controls}>
-					<Button px="xl" size="md" onClick={() => {
-						router.push('/')
-					}}>
-						<Text weight={500}>Go to Dashboard</Text>
-					</Button>
-				</div>}
+				{process.env.NODE_ENV !== 'production' && (
+					<div className={classes.controls}>
+						<Button
+							px='xl'
+							size='md'
+							onClick={() => {
+								router.push('/');
+							}}
+						>
+							<Text weight={500}>Go to Dashboard</Text>
+						</Button>
+					</div>
+				)}
 			</div>
 		</div>
 	);
 };
-
 
 export default SignUpComplete;

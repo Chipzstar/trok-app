@@ -4,7 +4,7 @@ import { plaid } from '../../utils/clients';
 import { PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { PLAID_CLIENT_NAME, PLAID_COUNTRY_CODES, PLAID_PRODUCTS, PLAID_REDIRECT_URI } from '../../utils/constants';
 
-export function convertPlaidStatus(status: string) {
+export function convertPlaidStatus(status: PaymentInitiationPaymentStatus) {
 	switch (status) {
 		case PaymentInitiationPaymentStatus.Blocked:
 			return PAYMENT_STATUS.FAILED;

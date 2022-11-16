@@ -48,6 +48,26 @@ const providers = [
 		sendVerificationRequest: sendMagicLink
 	}),
 	CredentialsProvider({
+		id: 'verify-email',
+		type: 'credentials',
+		name: 'Verified Email Login',
+		credentials: {
+			email: { label: 'Email', type: 'email' },
+			password: { label: 'Password', type: 'password' }
+		},
+		async authorize(credentials, req) {
+			if (credentials == null) return null;
+			const { created_at, updated_at, ...user } = await prisma.user.findFirst({
+				where: {
+					email: {
+						equals: credentials.email
+					}
+				}
+			});
+			return !!user ? user : null;
+		}
+	}),
+	CredentialsProvider({
 		id: 'credentials',
 		type: 'credentials',
 		name: 'Credentials',
@@ -67,7 +87,7 @@ const providers = [
 			});
 			if (user) {
 				// compare entered password with stored hash
-				const salt = await comparePassword(credentials.password, user.password)
+				const salt = await comparePassword(credentials.password, user.password);
 				// Any object returned will be saved in `user` property of the JWT
 				return salt ? user : null;
 			} else {
@@ -80,16 +100,7 @@ const providers = [
 
 const callbacks = {
 	signIn: async ({ user, account, email, credentials }) => {
-		if (account.provider === 'credentials') {
-			user.accessToken = uuidv4();
-			return true;
-		} else if (account.provider === 'email') {
-			console.log(user)
-			console.log('-----------------------------------------------');
-			console.log(account)
-			return true;
-		}
-		return false;
+		return ['credentials', 'email', 'verify-email'].includes(account.provider);
 	},
 	jwt: async ({ token, user }) => {
 		if (user) {
