@@ -231,7 +231,29 @@ const paymentsRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	updatePaymentStatus: t.procedure.input(
+	updateLinkSession: t.procedure.input(
+		z.object({
+			userId: z.string(),
+			plaid_link_token: z.string(),
+			link_session_id: z.string(),
+		})
+	).mutation(async ({ input, ctx}) => {
+		try {
+			return await ctx.prisma.payment.update({
+				where: {
+					plaid_link_token: input.plaid_link_token
+				},
+				data: {
+					link_session_id: input.link_session_id
+				}
+			})
+		} catch (err) {
+		    console.error(err)
+			//@ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?? err?.message });
+		}
+	}),
+	cancelPayment: t.procedure.input(
 		z.object({
 			userId: z.string(),
 			link_session_id: z.string(),
@@ -240,7 +262,7 @@ const paymentsRouter = t.router({
 		try {
 		    return await ctx.prisma.payment.update({
 				where: {
-					plaid_link_token: input.link_session_id,
+					link_session_id: input.link_session_id,
 				},
 				data: {
 					status: convertPlaidStatus(PaymentInitiationPaymentStatus.Cancelled)
@@ -249,7 +271,7 @@ const paymentsRouter = t.router({
 		} catch (err) {
 		    console.error(err)
 			//@ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?? err });
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?? err?.message });
 		}
 	})
 });

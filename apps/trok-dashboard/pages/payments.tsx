@@ -9,6 +9,8 @@ import dayjs from 'dayjs';
 import PaymentDetails from '../modals/PaymentDetails';
 import { useForm } from '@mantine/form';
 import {
+	PlaidLinkOnEvent,
+	PlaidLinkOnEventMetadata,
 	PlaidLinkOnExit,
 	PlaidLinkOnExitMetadata,
 	PlaidLinkOnSuccess,
@@ -22,9 +24,11 @@ import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/share
 import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
+import SuccessModal from '../components/SuccessModal';
 dayjs.extend(isBetween);
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
+	const [show, openModal] = useState(false)
 	const [opened, setOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [linkToken, setLinkToken] = useState(null);
@@ -45,23 +49,20 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
 	});
-	const updateStatusMutation = trpc.updatePaymentStatus.useMutation({
+	const linkSessionMutation = trpc.updateLinkSession.useMutation({
 		onSuccess(input) {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
 	})
-
+	const updateStatusMutation = trpc.cancelPayment.useMutation({
+		onSuccess(input) {
+			utils.getPayments.invalidate({ userId: session_id });
+		}
+	})
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
 		// log and save metadata
 		// exchange public token
-		apiClient
-			.post('/server/plaid/set_access_token', {
-				public_token
-			})
-			.then(({ data }) => {
-				console.log(data);
-			})
-			.catch(err => console.error(err));
+		openModal(true)
 	}, []);
 	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
 		try {
@@ -75,6 +76,16 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		    console.error(err)
 		}
 	}, []);
+	const onEvent = useCallback<PlaidLinkOnEvent>( (eventName, metadata) => {
+		if (eventName === "SELECT_INSTITUTION") {
+			linkSessionMutation.mutate({
+				userId: session_id,
+				plaid_link_token: linkToken,
+				link_session_id: metadata.link_session_id
+			})
+		}
+		console.table(metadata)
+	}, [])
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
@@ -82,9 +93,10 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		token: linkToken,
 		onSuccess,
 		onExit,
+		onEvent,
 		onLoad: () => console.log('loading...')
 	};
-	const { open, ready, exit } = usePlaidLink(config);
+	const { open, ready } = usePlaidLink(config);
 	const data = testMode
 		? SAMPLE_PAYMENTS
 		: !query?.isLoading
@@ -141,7 +153,6 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			setLoading(false);
 			setPaymentOpened(false);
 			notifySuccess('plaid-payment-success', 'Starting Plaid session...', <IconCheck size={20} />);
-			exit() && open()
 		} catch (err) {
 			console.error(err);
 			setLoading(false);
@@ -151,7 +162,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 
 	useEffect(() => {
 		ready && open();
-	}, [ready]);
+	}, [ready, open, linkToken]);
 
 	return (
 		<Page.Container
@@ -164,6 +175,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
+			<SuccessModal opened={show} onClose={() => openModal(false)} />
 			<PaymentDetails opened={opened} setOpened={setOpened} payment={selectedPayment} />
 			<PaymentForm
 				opened={paymentOpened}

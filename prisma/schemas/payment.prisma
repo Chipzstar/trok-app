@@ -7,6 +7,7 @@ model Payment {
     plaid_payment_id String @unique
     plaid_recipient_id String
     plaid_link_token String @unique
+    link_session_id String @unique @default(uuid())
     recipient_name String
     reference String
     amount Int
