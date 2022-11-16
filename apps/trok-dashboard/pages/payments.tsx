@@ -10,14 +10,13 @@ import PaymentDetails from '../modals/PaymentDetails';
 import { useForm } from '@mantine/form';
 import {
 	PlaidLinkOnEvent,
-	PlaidLinkOnEventMetadata,
 	PlaidLinkOnExit,
 	PlaidLinkOnExitMetadata,
 	PlaidLinkOnSuccess,
 	PlaidLinkOnSuccessMetadata,
 	usePlaidLink
 } from 'react-plaid-link';
-import { apiClient, trpc } from '../utils/clients';
+import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
@@ -25,6 +24,7 @@ import PaymentForm from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
 import SuccessModal from '../components/SuccessModal';
+
 dayjs.extend(isBetween);
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {

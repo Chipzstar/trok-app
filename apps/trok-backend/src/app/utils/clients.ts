@@ -8,7 +8,12 @@ export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 });
 
 const plaidConfig = new Configuration({
-	basePath: process.env.DOPPLER_ENVIRONMENT === 'prd' ? PlaidEnvironments.development : PlaidEnvironments.sandbox,
+	basePath:
+		process.env.DOPPLER_ENVIRONMENT === 'prd'
+			? PlaidEnvironments.production
+			: process.env.DOPPLER_ENVIRONMENT === 'stg'
+			? PlaidEnvironments.development
+			: PlaidEnvironments.sandbox,
 	baseOptions: {
 		headers: {
 			'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
@@ -30,4 +35,4 @@ export const storage = new Storage({
 
 export const mailerSend = new MailerSend({ apiKey: String(process.env.MAILERSEND_API_KEY) });
 
-export const sentFrom = new Sender("hello@trok.co", "Ola Oladapo");
+export const sentFrom = new Sender('hello@trok.co', 'Ola Oladapo');
