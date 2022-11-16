@@ -94,7 +94,7 @@ const SignUpComplete = () => {
 						await router.replace('/');
 						return;
 					} else {
-						console.log(error)
+						notifyError('email-verification-failed', error, <IconX size={20} />);
 					}
 				} catch (err) {
 					let message;

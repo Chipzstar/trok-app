@@ -3,7 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import EmailProvider, { SendVerificationRequestParams } from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
-import { v4 as uuidv4 } from 'uuid';
 import * as nodemailer from 'nodemailer';
 import { html, text } from '../../../utils/functions';
 import { comparePassword } from '@trok-app/shared-utils';
