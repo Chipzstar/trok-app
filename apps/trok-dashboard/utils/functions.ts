@@ -1,5 +1,6 @@
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
+import Prisma from '@prisma/client';
 
 interface SelectInput {
 	value: string;
@@ -70,13 +71,13 @@ export async function validateCRN(crn: string): Promise<boolean> {
 	}
 }
 //@ts-ignore
-export function filterByTimeRange(data, range: [Date, Date]) {
+export function filterByTimeRange(data: Prisma.Transaction[], range: [Date, Date]) {
 	const startDate = dayjs(range[0]).startOf('day');
 	const endDate = dayjs(range[1]).endOf('day');
 	// @ts-ignore
 	return data.filter(t => {
 		const curr = dayjs(t.created_at);
-		return curr.isBefore(endDate) && curr.isAfter(startDate);
+		return curr.isBefore(endDate) && curr.isAfter(startDate) && t.status === "approved";
 	});
 }
 
