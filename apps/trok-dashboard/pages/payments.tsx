@@ -8,7 +8,13 @@ import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import dayjs from 'dayjs';
 import PaymentDetails from '../modals/PaymentDetails';
 import { useForm } from '@mantine/form';
-import { PlaidLinkOnSuccess, PlaidLinkOnSuccessMetadata, usePlaidLink } from 'react-plaid-link';
+import {
+	PlaidLinkOnExit,
+	PlaidLinkOnExitMetadata,
+	PlaidLinkOnSuccess,
+	PlaidLinkOnSuccessMetadata,
+	usePlaidLink
+} from 'react-plaid-link';
 import { apiClient, trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
@@ -40,6 +46,11 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
 	});
+	const updateStatusMutation = trpc.updatePaymentStatus.useMutation({
+		onSuccess(input) {
+			utils.getPayments.invalidate({ userId: session_id });
+		}
+	})
 
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
 		// log and save metadata
@@ -53,16 +64,28 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			})
 			.catch(err => console.error(err));
 	}, []);
+	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
+		try {
+			const result = await updateStatusMutation.mutateAsync({
+				userId: session_id,
+				link_session_id: metadata.link_session_id
+			})
+			console.log(result)
+			notifyError("plaid-cancelled", "Plaid session was closed unexpectedly. No funds were transferred from your bank account", <IconX size={20}/>)
+		} catch (err) {
+		    console.error(err)
+		}
+	}, []);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
 		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
 		token: linkToken,
 		onSuccess,
+		onExit,
 		onLoad: () => console.log('loading...')
 	};
-
-	const { open, ready } = usePlaidLink(config);
+	const { open, ready, exit } = usePlaidLink(config);
 	const data = testMode
 		? SAMPLE_PAYMENTS
 		: !query?.isLoading
@@ -119,6 +142,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			setLoading(false);
 			setPaymentOpened(false);
 			notifySuccess('plaid-payment-success', 'Starting Plaid session...', <IconCheck size={20} />);
+			exit() && open()
 		} catch (err) {
 			console.error(err);
 			setLoading(false);

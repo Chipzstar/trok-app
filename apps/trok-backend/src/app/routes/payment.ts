@@ -7,7 +7,7 @@ import { prettyPrintResponse } from '../utils/helpers';
 import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
 import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
 import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL } from '../utils/constants';
-import { decrypt } from '@trok-app/shared-utils';
+import { decrypt, PAYMENT_STATUS } from '@trok-app/shared-utils';
 
 const paymentsRouter = t.router({
 	getPayments: t.procedure
@@ -123,7 +123,7 @@ const paymentsRouter = t.router({
 						payment_type: 'bank_transfer',
 						plaid_payment_status: PaymentInitiationPaymentStatus.InputNeeded,
 						amount: input.amount * 100,
-						status: convertPlaidStatus(createPaymentResponse.data.status),
+						status: PAYMENT_STATUS.PENDING,
 						reference: input.reference
 					}
 				});
@@ -219,7 +219,7 @@ const paymentsRouter = t.router({
 						payment_type: 'bank_transfer',
 						plaid_payment_status: PaymentInitiationPaymentStatus.InputNeeded,
 						amount: input.amount * 100,
-						status: convertPlaidStatus(createPaymentResponse.data.status),
+						status: PAYMENT_STATUS.PENDING,
 						reference: input.reference
 					}
 				});
@@ -230,7 +230,28 @@ const paymentsRouter = t.router({
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
+		}),
+	updatePaymentStatus: t.procedure.input(
+		z.object({
+			userId: z.string(),
+			link_session_id: z.string(),
 		})
+	).mutation(async ({ input, ctx }) => {
+		try {
+		    return await ctx.prisma.payment.update({
+				where: {
+					plaid_link_token: input.link_session_id,
+				},
+				data: {
+					status: convertPlaidStatus(PaymentInitiationPaymentStatus.Cancelled)
+				}
+			})
+		} catch (err) {
+		    console.error(err)
+			//@ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.response?.data?? err });
+		}
+	})
 });
 
 export default paymentsRouter;
