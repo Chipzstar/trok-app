@@ -9,9 +9,9 @@ export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 
 const plaidConfig = new Configuration({
 	basePath:
-		process.env.DOPPLER_ENVIRONMENT === 'prd'
+		process.env.PLAID_ENV === 'production'
 			? PlaidEnvironments.production
-			: process.env.DOPPLER_ENVIRONMENT === 'stg'
+			: process.env.PLAID_ENV === 'development'
 			? PlaidEnvironments.development
 			: PlaidEnvironments.sandbox,
 	baseOptions: {
