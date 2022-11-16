@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Checkbox, Group, Radio, Stack, Text, TextInput } from '@mantine/core';
-import { STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
+import { PATHS, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -17,10 +17,12 @@ import {
 import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const Step3 = ({ prevStep }) => {
+	const router = useRouter()
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo>>({
 		key: STORAGE_KEYS.ACCOUNT,
@@ -151,11 +153,11 @@ const Step3 = ({ prevStep }) => {
 					})
 				).data;
 				setLoading(false);
-				await signIn('email', { email: user.email, callbackUrl: window.location.origin })
+				router.push(PATHS.VERIFY_EMAIL)
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
-				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
+				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
 		[account, personalObj, businessObj, financialObj]

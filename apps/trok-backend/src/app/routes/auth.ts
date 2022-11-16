@@ -8,7 +8,8 @@ import dayjs from 'dayjs';
 import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { hashPassword } from '@trok-app/shared-utils';
+import { comparePassword, hashPassword } from '@trok-app/shared-utils';
+import { sendVerificationLink } from '../helpers/email';
 
 const router = express.Router();
 let reminderTimeout;
@@ -20,20 +21,14 @@ const signupInfoSchema = z.object({
 	email: z.string(),
 	phone: z.string(),
 	password: z.string(),
-	referral_code: z
-		.string()
-		.optional()
-		.nullable(),
-	terms: z
-		.boolean()
-		.optional()
-		.nullable()
-})
+	referral_code: z.string().optional().nullable(),
+	terms: z.boolean().optional().nullable()
+});
 
 export const authRouter = t.router({
 	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
-			const hashed_password = await hashPassword(input.password)
+			const hashed_password = await hashPassword(input.password);
 			await redisClient.hmset(input.email, {
 				firstname: input.firstname,
 				lastname: input.lastname,
@@ -45,36 +40,51 @@ export const authRouter = t.router({
 			});
 			// set expiry time for 24hours
 			await ctx.redis.expire(input.email, 60 * 60 * 24 * 2);
-			return { message: `Signup for ${input.email} has been initiated`, hashed_password }
+			return { message: `Signup for ${input.email} has been initiated`, hashed_password };
 		} catch (err) {
 			console.error(err);
 			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message })
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
-	})
-})
-
-/*router.post('/signup', async (req, res, next) => {
-	try {
-		const payload: SignupInfo = req.body;
-		const hashed_password = await hashPassword(payload.password)
-		await redisClient.hmset(payload.email, {
-			firstname: payload.firstname,
-			lastname: payload.lastname,
-			email: payload.email,
-			password: hashed_password,
-			phone: payload.phone,
-			referral_code: payload.referral_code,
-			onboarding_step: 1
-		});
-		// set expiry time for 24hours
-		await redisClient.expire(payload.email, 60 * 60 * 24 * 2);
-		res.status(200).json({ message: `Signup for ${payload.email} has been initiated`, hashed_password });
-	} catch (err) {
-		console.error(err);
-		next(err);
-	}
-});*/
+	}),
+	verifyEmail: t.procedure
+		.input(
+			z.object({
+				email: z.string().email(),
+				token: z.string().uuid()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const user = await ctx.prisma.user.update({
+					where: {
+						email: input.email
+					},
+					data: {
+						emailVerified: dayjs().toDate()
+					}
+				});
+				if (!user) {
+					throw new TRPCError({
+						code: 'NOT_FOUND',
+						message: `No user found with the email address ${input.email}`
+					});
+				}
+				// check token matches verification_token saved in user record
+				if (user.verify_token !== input.token) {
+                    throw new TRPCError({
+                        code: 'UNAUTHORIZED',
+                        message: `Invalid verification token. Please check the URL link matches the link sent to your email`
+                    });
+                }
+				return true
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		})
+});
 
 router.post('/onboarding', async (req, res, next) => {
 	try {
@@ -99,7 +109,6 @@ router.post('/onboarding', async (req, res, next) => {
 
 router.post('/complete-registration', async (req, res, next) => {
 	try {
-		console.log(req.get('User-Agent'));
 		const { accountToken, personToken, business_profile, data } = req.body;
 		console.log(data);
 		const account = await stripe.accounts.create({
@@ -115,7 +124,7 @@ router.post('/complete-registration', async (req, res, next) => {
 				card_issuing: {
 					tos_acceptance: {
 						ip: req.ip,
-						date: dayjs().subtract(2, "m").unix(),
+						date: dayjs().subtract(2, 'm').unix(),
 						user_agent: req.get('User-Agent')
 					}
 				}
@@ -130,12 +139,12 @@ router.post('/complete-registration', async (req, res, next) => {
 		// store user in database
 		const verify_token = uuidv4();
 		const issuing_account = {
-			plaid_recipient_id: "",
-			plaid_request_id: "",
+			plaid_recipient_id: '',
+			plaid_request_id: '',
 			account_holder_name: 'Stripe Payments UK Limited',
-			account_number: "00000000",
-			sort_code: "00-00-00"
-		}
+			account_number: '00000000',
+			sort_code: '00-00-00'
+		};
 		const user = await prisma.user.create({
 			data: {
 				...data,
@@ -148,6 +157,9 @@ router.post('/complete-registration', async (req, res, next) => {
 			}
 		});
 		console.log('USER', user);
+		sendVerificationLink(user.email, user.full_name, verify_token)
+			.then(() => console.log('Verification link sent'))
+			.catch(err => console.error(err));
 		res.status(200).json(user);
 	} catch (err) {
 		console.error(err);
