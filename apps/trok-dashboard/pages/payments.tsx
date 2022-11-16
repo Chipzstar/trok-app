@@ -63,6 +63,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		// log and save metadata
 		// exchange public token
 		openModal(true)
+		setTimeout(() => openModal(false), 3000)
 	}, []);
 	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
 		try {
