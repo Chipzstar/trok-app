@@ -16,7 +16,7 @@ export function uniqueArray(array: SelectInput[], key) {
 }
 
 export function uniqueSimpleArray(array: SelectInput[]) {
-	const values = array.map(item => item.value.toUpperCase())
+	const values = array.map(({ value }) => typeof value === 'string' ? value.toUpperCase() : value)
 	return [...new Set(values)];
 }
 
