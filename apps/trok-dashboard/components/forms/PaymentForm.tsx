@@ -100,9 +100,10 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 				label: dayjs()
 					.date(item + 1)
 					.format('D'), // +1 because date of the month accepts numbers from 1 to 28
-				value: item,
+				value: item + 1,
 				group: 'Specific date'
 			}));
+			values.shift();
 			values.unshift({
 				label: 'First day of the month',
 				value: 1,
@@ -212,17 +213,16 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 									inputFormat="MMM, DD YYYY"
 									value={form.values.start_date}
 									onChange={(date) => form.setFieldValue("start_date", date)}
-									{...form.getInputProps('start_date')}
-									minDate={dayjs().add(1, 'h').toDate()}
+									error={form.errors.start_date}
+									minDate={dayjs().add(1, 'd').toDate()}
 								/>
 								<DatePicker
-
 									icon={<IconCalendar size={16} />}
 									label='End Date'
 									inputFormat="MMM, DD YYYY"
 									value={form.values.end_date}
 									onChange={(date) => form.setFieldValue("end_date", date)}
-									{...form.getInputProps('end_date')}
+									error={form.errors.end_date}
 									minDate={dayjs(form.values.start_date).startOf('day').add(1, 'week').toDate()}
 								/>
 							</Group>

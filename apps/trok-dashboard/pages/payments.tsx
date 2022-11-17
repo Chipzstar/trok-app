@@ -144,6 +144,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		setLoading(true);
 		try {
 			let token;
+			console.log(values)
+			console.log(typeof values.start_date)
 			if (section === 'topup') {
 				token = await topUpMutation.mutateAsync({
 					user_id: String(session_id),
@@ -155,8 +157,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						schedule: {
 							interval: values.interval,
 							interval_execution_day: values.interval_execution_day,
-							start_date: values.start_date.toISOString(),
-							end_date: values?.end_date.toISOString()
+							start_date: values.start_date.toDateString(),
+							end_date: values?.end_date?.toDateString()
 						}
 					})
 				});
@@ -171,10 +173,10 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					is_scheduled: values.is_scheduled,
 					...(values.is_scheduled && {
 						schedule: {
-							interval: values?.interval,
-							interval_execution_day: values?.interval_execution_day,
-							start_date: values?.start_date.toISOString(),
-							end_date: values?.end_date.toISOString()
+							interval: values.interval,
+							interval_execution_day: values.interval_execution_day,
+							start_date: values.start_date.toDateString(),
+							end_date: values?.end_date?.toDateString()
 						}
 					})
 				});
