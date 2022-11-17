@@ -133,9 +133,10 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			amount: val => (val > 1000000 ? 'Amount must not be greater then £1,000,000' : null),
 			reference: val =>
 				val.search(/[^a-zA-Z0-9 ]/g) !== -1 ? 'Reference must not contain special characters' : null,
-			interval: (val, values) => values.is_scheduled && !val ? "Required for direct debit": null,
-			interval_execution_day: (val, values) => values.is_scheduled && isNaN(val) ? "Required for direct debit": null,
-			start_date: (val, values) => values.is_scheduled && !val ? "Required for direct debit": null,
+			interval: (val, values) => (values.is_scheduled && !val ? 'Required for direct debit' : null),
+			interval_execution_day: (val, values) =>
+				values.is_scheduled && isNaN(val) ? 'Required for direct debit' : null,
+			start_date: (val, values) => (values.is_scheduled && !val ? 'Required for direct debit' : null)
 		}
 	});
 
@@ -154,8 +155,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						schedule: {
 							interval: values.interval,
 							interval_execution_day: values.interval_execution_day,
-							start_date: values.start_date,
-							end_date: values.end_date
+							start_date: values.start_date.toISOString(),
+							end_date: values?.end_date.toISOString()
 						}
 					})
 				});
@@ -168,12 +169,14 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					sort_code: values.sort_code,
 					reference: values.reference,
 					is_scheduled: values.is_scheduled,
-					schedule: {
-						interval: values?.interval,
-						interval_execution_day: values?.interval_execution_day,
-						start_date: values?.start_date,
-						end_date: values?.end_date
-					}
+					...(values.is_scheduled && {
+						schedule: {
+							interval: values?.interval,
+							interval_execution_day: values?.interval_execution_day,
+							start_date: values?.start_date.toISOString(),
+							end_date: values?.end_date.toISOString()
+						}
+					})
 				});
 			}
 			setLinkToken(token.link_token);

@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { comparePassword, hashPassword } from '@trok-app/shared-utils';
+import { hashPassword } from '@trok-app/shared-utils';
 import { sendVerificationLink } from '../helpers/email';
 
 const router = express.Router();
