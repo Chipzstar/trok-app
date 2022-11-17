@@ -242,20 +242,44 @@ const paymentsRouter = t.router({
 				const recipient_id = createRecipientResponse.data.recipient_id;
 				prettyPrintResponse(createRecipientResponse);
 				const routing_number = bankAccount.sort_code.replace(/-/g, '');
-				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
-					recipient_id,
-					reference: input.reference,
-					options: {
-						bacs: {
-							account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
-							sort_code: routing_number
+				let createPaymentResponse;
+				if (input.is_scheduled && input?.schedule) {
+					createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
+						recipient_id,
+						reference: input.reference,
+						options: {
+							bacs: {
+								account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
+								sort_code: routing_number
+							}
+						},
+						schedule: {
+							interval: <PaymentScheduleInterval>input.schedule.interval,
+							interval_execution_day: Number(input.schedule.interval_execution_day),
+							start_date: dayjs(input.schedule.start_date).format("YYYY-MM-DD"),
+							...(input.schedule?.end_date && { end_date: dayjs(input.schedule?.end_date).format("YYYY-MM-DD") }),
+						},
+						amount: {
+							value: input.amount,
+							currency: PaymentAmountCurrency.Gbp
 						}
-					},
-					amount: {
-						value: input.amount,
-						currency: PaymentAmountCurrency.Gbp
-					}
-				});
+					});
+				} else {
+					createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
+						recipient_id,
+						reference: input.reference,
+						options: {
+							bacs: {
+								account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
+								sort_code: routing_number
+							}
+						},
+						amount: {
+							value: input.amount,
+							currency: PaymentAmountCurrency.Gbp
+						}
+					});
+				}
 				prettyPrintResponse(createPaymentResponse);
 				const payment_id = createPaymentResponse.data.payment_id;
 
