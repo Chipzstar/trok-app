@@ -63,23 +63,18 @@ export function checkIfNullOrUndefined(variable: any) {
 
 export function encrypt(word: string, key: string) {
 	let encJson = CryptoJS.AES.encrypt(JSON.stringify(word), key.slice(0, 16)).toString()
-	let encData = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson))
-	console.log(encData)
-	return encData
+	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson));
 }
 
 export function decrypt(word: string, key: string) {
 	let decData = CryptoJS.enc.Base64.parse(word).toString(CryptoJS.enc.Utf8)
 	let bytes = CryptoJS.AES.decrypt(decData, key.slice(0, 16)).toString(CryptoJS.enc.Utf8)
-	console.log(JSON.parse(bytes))
 	return JSON.parse(bytes)
 }
 
 export async function hashPassword(password: string, salt_rounds = 10) {
 	const salt = await bcrypt.genSalt(salt_rounds);
-	const hashed_password = await bcrypt.hash(password, salt);
-	console.log(hashed_password);
-	return hashed_password;
+	return await bcrypt.hash(password, salt);
 }
 
 export async function comparePassword(plaintextPassword: string, hash: string) {

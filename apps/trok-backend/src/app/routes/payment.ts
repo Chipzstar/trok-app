@@ -4,10 +4,59 @@ import { TRPCError } from '@trpc/server';
 import { fetchFundingDetails } from '../helpers/stripe';
 import { plaid } from '../utils/clients';
 import { prettyPrintResponse } from '../utils/helpers';
-import { PaymentAmountCurrency, PaymentInitiationPaymentStatus } from 'plaid';
+import { PaymentAmountCurrency, PaymentInitiationPaymentStatus, PaymentScheduleInterval } from 'plaid';
 import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
 import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL } from '../utils/constants';
 import { decrypt, PAYMENT_STATUS } from '@trok-app/shared-utils';
+import dayjs from 'dayjs';
+
+const topUpSchema = z.object({
+	user_id: z.string(),
+	stripe_account_id: z.string(),
+	amount: z.number(),
+	reference: z.string(),
+	is_scheduled: z.boolean(),
+	schedule: z.object({
+		interval: z.enum(["WEEKLY","MONTHLY"]),
+		interval_execution_day: z.number(),
+		start_date: z.string(),
+		end_date: z.string().optional()
+	}).optional()
+})
+
+const accountSchema = z.object({
+	user_id: z.string(),
+	stripe_account_id: z.string(),
+	amount: z.number(),
+	reference: z.string(),
+	account_holder_name: z.string(),
+	account_number: z.string(),
+	sort_code: z.string(),
+	is_scheduled: z.boolean(),
+	schedule: z.object({
+		interval: z.enum(["WEEKLY","MONTHLY"]),
+		interval_execution_day: z.number().nullable(),
+		start_date: z.string(),
+		end_date: z.string().optional()
+	}).optional()
+})
+
+/*const directDebitSchema = z.object({
+	user_id: z.string(),
+	stripe_account_id: z.string(),
+	amount: z.number(),
+	reference: z.string(),
+	account_holder_name: z.string().optional(),
+	account_number: z.string().optional(),
+	sort_code: z.string().optional(),
+	is_scheduled: z.boolean(),
+	interval: z.enum(["WEEKLY","MONTHLY"]),
+	interval_execution_day: z.number().nullable(),
+	start_date: z.date(),
+	end_date: z
+		.date()
+		.optional()
+})*/
 
 const paymentsRouter = t.router({
 	getPayments: t.procedure
@@ -33,16 +82,10 @@ const paymentsRouter = t.router({
 			}
 		}),
 	topUpBalance: t.procedure
-		.input(
-			z.object({
-				user_id: z.string(),
-				stripe_account_id: z.string(),
-				amount: z.number(),
-				reference: z.string()
-			})
-		)
+		.input(topUpSchema)
 		.mutation(async ({ input, ctx }) => {
 			try {
+				console.table(input?.schedule)
 				// fetch the default bank account
 				const bankAccount = await ctx.prisma.bankAccount.findFirstOrThrow({
 					where: {
@@ -86,20 +129,45 @@ const paymentsRouter = t.router({
 				const recipient_id = createRecipientResponse.data.recipient_id;
 				prettyPrintResponse(createRecipientResponse);
 				const routing_number = bankAccount.sort_code.replace(/-/g, '');
-				const createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
-					recipient_id,
-					reference: input.reference,
-					options: {
-						bacs: {
-							account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
-							sort_code: routing_number
+				// Initiate the PLAID Payment intent
+				let createPaymentResponse;
+				if (input.is_scheduled && input?.schedule) {
+					createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
+						recipient_id,
+						reference: input.reference,
+						options: {
+							bacs: {
+								account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
+								sort_code: routing_number
+							}
+						},
+						schedule: {
+							interval: <PaymentScheduleInterval>input.schedule.interval,
+							interval_execution_day: Number(input.schedule.interval_execution_day),
+							start_date: dayjs(input.schedule.start_date).format("YYYY-MM-DD"),
+							...(input.schedule?.end_date && {end_date: dayjs(input.schedule?.end_date).format("YYYY-MM-DD")}),
+						},
+						amount: {
+							value: input.amount,
+							currency: PaymentAmountCurrency.Gbp
 						}
-					},
-					amount: {
-						value: input.amount,
-						currency: PaymentAmountCurrency.Gbp
-					}
-				});
+					});
+				} else {
+					createPaymentResponse = await plaid.paymentInitiationPaymentCreate({
+						recipient_id,
+						reference: input.reference,
+						options: {
+							bacs: {
+								account: decrypt(bankAccount.account_number, String(process.env.ENC_SECRET)),
+								sort_code: routing_number
+							}
+						},
+						amount: {
+							value: input.amount,
+							currency: PaymentAmountCurrency.Gbp
+						}
+					});
+				}
 				prettyPrintResponse(createPaymentResponse);
 				const payment_id = createPaymentResponse.data.payment_id;
 
@@ -127,7 +195,7 @@ const paymentsRouter = t.router({
 						reference: input.reference
 					}
 				});
-				return result;
+				return { ...result, payment_id };
 			} catch (err) {
 				// @ts-ignore
 				console.log(err.response?.data ?? err.response);
@@ -136,18 +204,10 @@ const paymentsRouter = t.router({
 			}
 		}),
 	payExternalAccount: t.procedure
-		.input(
-			z.object({
-				user_id: z.string(),
-				reference: z.string(),
-				amount: z.number(),
-				account_holder_name: z.string(),
-				account_number: z.string(),
-				sort_code: z.string()
-			})
-		)
+		.input(accountSchema)
 		.mutation(async ({ input, ctx }) => {
 			try {
+				console.table(input)
 				// fetch the default bank account
 				const bankAccount = await ctx.prisma.bankAccount.findFirstOrThrow({
 					where: {
@@ -223,7 +283,7 @@ const paymentsRouter = t.router({
 						reference: input.reference
 					}
 				});
-				return result;
+				return { ...result, payment_id };
 			} catch (err) {
 				// @ts-ignore
 				console.error(err?.response?.data ?? err);
@@ -256,13 +316,13 @@ const paymentsRouter = t.router({
 	cancelPayment: t.procedure.input(
 		z.object({
 			userId: z.string(),
-			link_session_id: z.string(),
+			plaid_payment_id: z.string(),
 		})
 	).mutation(async ({ input, ctx }) => {
 		try {
 		    return await ctx.prisma.payment.update({
 				where: {
-					link_session_id: input.link_session_id,
+					plaid_payment_id: input.plaid_payment_id,
 				},
 				data: {
 					status: convertPlaidStatus(PaymentInitiationPaymentStatus.Cancelled)

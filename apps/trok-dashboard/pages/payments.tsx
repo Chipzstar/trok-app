@@ -20,7 +20,7 @@ import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
-import PaymentForm from '../components/forms/PaymentForm';
+import PaymentForm, { PaymentFormValues, SectionState } from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
 import SuccessModal from '../components/SuccessModal';
@@ -28,14 +28,18 @@ import SuccessModal from '../components/SuccessModal';
 dayjs.extend(isBetween);
 
 const Payments = ({ testMode, session_id, stripe_account_id }) => {
-	const [show, openModal] = useState(false)
+	const [show, openModal] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [linkToken, setLinkToken] = useState(null);
+	const [payment_id, setPlaidPaymentId] = useState(null);
+	const [link_token, setLinkToken] = useState(null);
 	const [paymentOpened, setPaymentOpened] = useState(false);
-	const [range, setRange] = useState<DateRangePickerValue>([dayjs().startOf("week").toDate(), dayjs().endOf("week").toDate()]);
+	const [range, setRange] = useState<DateRangePickerValue>([
+		dayjs().startOf('week').toDate(),
+		dayjs().endOf('week').toDate()
+	]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
-	const [section, setSection] = useState<'topup' | 'account'>('topup');
+	const [section, setSection] = useState<SectionState>('topup');
 	const [search, setSearch] = useDebouncedState('', 250);
 	const utils = trpc.useContext();
 	const query = trpc.getPayments.useQuery({ userId: session_id });
@@ -53,45 +57,49 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		onSuccess(input) {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
-	})
+	});
 	const updateStatusMutation = trpc.cancelPayment.useMutation({
 		onSuccess(input) {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
-	})
+	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
 		// log and save metadata
 		// exchange public token
-		openModal(true)
-		setTimeout(() => openModal(false), 3000)
+		openModal(true);
+		setTimeout(() => openModal(false), 3000);
 	}, []);
 	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
 		try {
 			const result = await updateStatusMutation.mutateAsync({
 				userId: session_id,
-				link_session_id: metadata.link_session_id
-			})
-			console.log(result)
-			notifyError("plaid-cancelled", "Plaid session was closed unexpectedly. No funds were transferred from your bank account", <IconX size={20}/>)
+				plaid_payment_id: payment_id
+			});
+			console.log(result);
+			notifyError(
+				'plaid-cancelled',
+				'Plaid session was closed unexpectedly. No funds were transferred from your bank account',
+				<IconX size={20} />
+			);
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 		}
 	}, []);
-	const onEvent = useCallback<PlaidLinkOnEvent>( (eventName, metadata) => {
-		if (eventName === "SELECT_INSTITUTION") {
+	const onEvent = useCallback<PlaidLinkOnEvent>((eventName, metadata) => {
+		if (eventName === 'SELECT_INSTITUTION') {
 			linkSessionMutation.mutate({
 				userId: session_id,
-				plaid_link_token: linkToken,
+				plaid_link_token: link_token,
 				link_session_id: metadata.link_session_id
-			})
+			});
 		}
-		console.table(metadata)
-	}, [])
+		console.table(metadata);
+	}, []);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
 		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
-		token: linkToken,
+		token: link_token,
 		onSuccess,
 		onExit,
 		onEvent,
@@ -102,10 +110,11 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		? SAMPLE_PAYMENTS
 		: !query?.isLoading
 		? query?.data?.filter(p => {
-				const in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h')
-				const is_not_cancelled = p.status !== PAYMENT_STATUS.CANCELLED
+				const in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h');
+				const is_not_cancelled = p.status !== PAYMENT_STATUS.CANCELLED;
 				return (
-					in_range && is_not_cancelled &&
+					in_range &&
+					is_not_cancelled &&
 					(p.recipient_name.contains(search) ||
 						p.payment_type.contains(search) ||
 						GBP(p.amount).format().contains(search) ||
@@ -114,22 +123,23 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		  })
 		: [];
 
-	const form = useForm({
+	const form = useForm<PaymentFormValues>({
 		initialValues: {
-			account_holder_name: '',
-			account_number: '',
-			sort_code: '',
 			amount: 0,
-			reference: ''
+			reference: '',
+			is_scheduled: false
 		},
 		validate: {
-			amount: val => val > 1000000 ? 'Amount must not be greater then £1,000,000' : null,
+			amount: val => (val > 1000000 ? 'Amount must not be greater then £1,000,000' : null),
 			reference: val =>
-				val.search(/[^a-zA-Z0-9 ]/g) !== -1 ? 'Reference must not contain special characters' : null
+				val.search(/[^a-zA-Z0-9 ]/g) !== -1 ? 'Reference must not contain special characters' : null,
+			interval: (val, values) => values.is_scheduled && !val ? "Required for direct debit": null,
+			interval_execution_day: (val, values) => values.is_scheduled && isNaN(val) ? "Required for direct debit": null,
+			start_date: (val, values) => values.is_scheduled && !val ? "Required for direct debit": null,
 		}
 	});
 
-	const handleSubmit = async values => {
+	const handleSubmit = async (values: PaymentFormValues) => {
 		setLoading(true);
 		try {
 			let token;
@@ -138,7 +148,16 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					user_id: String(session_id),
 					stripe_account_id: stripe_account_id,
 					amount: values.amount,
-					reference: values.reference
+					reference: values.reference,
+					is_scheduled: values.is_scheduled,
+					...(values.is_scheduled && {
+						schedule: {
+							interval: values.interval,
+							interval_execution_day: values.interval_execution_day,
+							start_date: values.start_date,
+							end_date: values.end_date
+						}
+					})
 				});
 			} else {
 				token = await payAccountMutation.mutateAsync({
@@ -147,10 +166,18 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 					account_number: values.account_number,
 					amount: values.amount,
 					sort_code: values.sort_code,
-					reference: values.reference
+					reference: values.reference,
+					is_scheduled: values.is_scheduled,
+					schedule: {
+						interval: values?.interval,
+						interval_execution_day: values?.interval_execution_day,
+						start_date: values?.start_date,
+						end_date: values?.end_date
+					}
 				});
 			}
 			setLinkToken(token.link_token);
+			setPlaidPaymentId(token.payment_id);
 			setLoading(false);
 			setPaymentOpened(false);
 			notifySuccess('plaid-payment-success', 'Starting Plaid session...', <IconCheck size={20} />);
@@ -163,7 +190,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 
 	useEffect(() => {
 		ready && open();
-	}, [ready, open, linkToken]);
+	}, [ready, open, link_token]);
 
 	return (
 		<Page.Container

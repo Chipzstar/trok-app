@@ -22,6 +22,7 @@ import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { notifyError, notifySuccess, PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
+import BankAccountForm from '../components/forms/BankAccountForm';
 
 const formatAccNumber = (accNumber: string): string => (accNumber ? '****' + accNumber : undefined);
 
@@ -44,10 +45,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 		}
 	});
 
-	const data = testMode
-		? SAMPLE_BANK_ACCOUNTS
-		: !query.isLoading
-		? query?.data : [];
+	const data = testMode ? SAMPLE_BANK_ACCOUNTS : !query.isLoading ? query?.data : [];
 
 	const form = useForm({
 		initialValues: {
@@ -58,7 +56,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 			is_default: Boolean(!query?.data?.length)
 		},
 		validate: {
-			institution_id: val => !val ? "Please select your bank's institution" : null
+			institution_id: val => (!val ? "Please select your bank's institution" : null)
 		}
 	});
 
@@ -98,69 +96,14 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
-			<Drawer
+			<BankAccountForm
 				opened={opened}
 				onClose={() => setOpened(false)}
-				padding='xl'
-				size='xl'
-				position='right'
-				classNames={{
-					drawer: 'flex h-full'
-				}}
-			>
-				<Stack justify='center'>
-					<Title order={2} weight={500}>
-						<span>Add new bank account</span>
-					</Title>
-					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
-						<TextInput
-							required
-							label='Business Account Name'
-							{...form.getInputProps('account_holder_name')}
-						/>
-						<Group grow spacing='xl'>
-							<TextInput
-								type='number'
-								required
-								label='Account Number'
-								{...form.getInputProps('account_number')}
-								minLength={8}
-							/>
-							<SortCodeInput
-								onChange={event => {
-									console.log(event.currentTarget.value);
-									form.setFieldValue('sort_code', event.currentTarget.value);
-								}}
-								value={form.values.sort_code}
-								required
-							/>
-						</Group>
-						<Select
-							required
-							label='Institution'
-							data={process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? PLAID_INSTITUTIONS : PLAID_INSTITUTIONS.concat({
-								label: 'STRIPE TEST BANK',
-                                value: "ins_117181",
-							})}
-							{...form.getInputProps('institution_id')}
-						/>
-						{Boolean(query?.data?.length) && (
-							<Group py='xs'>
-								<Checkbox
-									size='sm'
-									label='Set as default'
-									{...form.getInputProps('is_default', { type: 'checkbox' })}
-								/>
-							</Group>
-						)}
-						<Group py='xl' position='right'>
-							<Button type='submit' loading={loading}>
-								<Text weight={500}>Add bank account</Text>
-							</Button>
-						</Group>
-					</form>
-				</Stack>
-			</Drawer>
+				form={form}
+				onSubmit={handleSubmit}
+				loading={loading}
+				numBankAccounts={query?.data?.length}
+			/>
 			<Page.Body>
 				<BankAccountsTable data={data} />
 			</Page.Body>

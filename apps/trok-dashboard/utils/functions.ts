@@ -1,11 +1,7 @@
 import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
 import Prisma from '@prisma/client';
-
-interface SelectInput {
-	value: string;
-	label: string;
-}
+import { SelectInput } from './types';
 
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
