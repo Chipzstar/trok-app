@@ -42,7 +42,7 @@ const TransactionDetails = ({ opened, setOpened, transaction }: TransactionDetai
 							<Title size={50}>{GBP(transaction?.transaction_amount).format()}</Title>
 						</Group>
 						<Text weight={500} color='dimmed'>
-							{transaction?.merchant_data.name} . {dayjs(transaction?.created_at).format('DD MMM YYYY')}
+							{transaction?.merchant_data?.name} . {dayjs(transaction?.created_at).format('DD MMM YYYY')}
 						</Text>
 					</Stack>
 					{transaction?.status === TRANSACTION_STATUS.DECLINED && (<div

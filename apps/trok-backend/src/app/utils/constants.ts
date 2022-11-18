@@ -12,6 +12,7 @@ export const PLAID_PRODUCTS = [Products.Transactions, Products.PaymentInitiation
 export const PLAID_WEBHOOK_URL = String(process.env.PLAID_WEBHOOK_URL)
 export const ONE_HOUR = 1000 * 60 * 60
 export const THIRTY_SECONDS = 1000 * 30
+export const STRIPE_TEST_MODE = String(process.env.STRIPE_SECRET_KEY).includes('sk_test')
 
 export enum HttpCode {
 	OK = 200,

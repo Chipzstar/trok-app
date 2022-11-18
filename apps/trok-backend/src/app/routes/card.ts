@@ -2,7 +2,8 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
-import { CARD_SHIPPING_STATUS } from '@trok-app/shared-utils';
+import { CARD_SHIPPING_STATUS, CARD_STATUS } from '@trok-app/shared-utils';
+import { STRIPE_TEST_MODE } from '../utils/constants';
 
 const cardRouter = t.router({
 	getCards: t.procedure
@@ -68,7 +69,7 @@ const cardRouter = t.router({
 						{
 							['type']: 'physical',
 							cardholder: input.cardholder_id,
-							status: 'inactive',
+							status: CARD_STATUS.INACTIVE,
 							currency: input.currency,
 							spending_controls: {
 								spending_limits: [
@@ -94,7 +95,7 @@ const cardRouter = t.router({
 						},
 						{ stripeAccount: user.stripe.accountId }
 					);
-					if (String(process.env.STRIPE_SECRET_KEY).includes('sk_test')) {
+					if (STRIPE_TEST_MODE) {
 						card = await stripe.issuing.cards.retrieve(
 							card.id,
 							{ expand: ['number', 'cvc'] },
@@ -108,27 +109,29 @@ const cardRouter = t.router({
 							id: input.driver_id
 						}
 					});
-					// attach card payment method to customer
 					if (driver) {
-						const paymentMethod = await stripe.paymentMethods.create(
-							{
-								['type']: 'card',
-								card: {
-									number: card.number ?? '',
-									exp_month: card.exp_month,
-									exp_year: card.exp_year,
-									cvc: card.cvc
-								}
-							},
-							{ stripeAccount: user.stripe.accountId }
-						);
-						await stripe.paymentMethods.attach(
-							paymentMethod.id,
-							{
-								customer: driver.customer_id
-							},
-							{ stripeAccount: user.stripe.accountId }
-						);
+						if (STRIPE_TEST_MODE) {
+							// attach card payment method to customer
+							const paymentMethod = await stripe.paymentMethods.create(
+								{
+									['type']: 'card',
+									card: {
+										number: card.number ?? '',
+										exp_month: card.exp_month,
+										exp_year: card.exp_year,
+										cvc: card.cvc
+									}
+								},
+								{ stripeAccount: user.stripe.accountId }
+							);
+							await stripe.paymentMethods.attach(
+								paymentMethod.id,
+								{
+									customer: driver.customer_id
+								},
+								{ stripeAccount: user.stripe.accountId }
+							);
+						}
 						return await ctx.prisma.card.create({
 							data: {
 								userId: input.user_id,
@@ -151,7 +154,7 @@ const cardRouter = t.router({
 											}
 									  ]
 									: [],
-								status: 'inactive',
+								status: CARD_STATUS.INACTIVE,
 								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING,
 								shipping_eta: Number(card?.shipping?.eta)
 							}
