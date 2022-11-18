@@ -102,7 +102,7 @@ const driverRouter = t.router({
 					billing: {
 						address: {
 							line1: input.address.line1,
-							line2: input.address.line2 ?? undefined,
+							...(input.address.line2 && {line2: input.address.line2}),
 							city: input.address.city,
 							state: input.address.region,
 							postal_code: input.address.postcode,
@@ -123,7 +123,7 @@ const driverRouter = t.router({
 					phone: input.phone,
 					address: {
 						line1: input.address.line1,
-						line2: input.address.line2 ?? undefined,
+						...(input.address.line2 && {line2: input.address.line2}),
 						city: input.address.city,
 						state: input.address.region,
 						postal_code: input.address.postcode,
