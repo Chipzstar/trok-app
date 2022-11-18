@@ -5,16 +5,23 @@ import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { GBP } from '@trok-app/shared-utils';
+import { Prisma } from '@prisma/client';
 dayjs.extend(advancedFormat)
 
-const PaymentDetails = ({opened, setOpened, payment}) => {
+interface PaymentDetailsProps {
+	opened: boolean;
+	setOpened: (value: boolean) => void;
+	payment: Prisma.PaymentUncheckedCreateInput
+}
+
+const PaymentDetails = ({opened, setOpened, payment} : PaymentDetailsProps) => {
 	return (
 		<Drawer opened={opened} onClose={() => setOpened(false)} padding="xl" size='xl' position='right' classNames={{
 			drawer: 'flex h-full'
 		}}>
 			<Stack justify="center">
 				<Stack spacing='xs'>
-					<span>Payment <span className="font-semibold">{sanitize(payment?.status ?? "in progress")}</span> to {payment?.recipient?.name}</span>
+					<span>Payment <span className="font-semibold">{sanitize(payment?.status ?? "in progress")}</span> to {payment?.recipient_name}</span>
 					<span className='heading-1'>-{GBP(payment?.amount).format()}</span>
 				</Stack>
 				<Divider />

@@ -22,7 +22,7 @@ import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { notifyError, notifySuccess, PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
-import BankAccountForm from '../components/forms/BankAccountForm';
+import BankAccountForm from '../modals/BankAccountForm';
 
 const formatAccNumber = (accNumber: string): string => (accNumber ? '****' + accNumber : undefined);
 

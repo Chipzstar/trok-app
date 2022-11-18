@@ -39,6 +39,7 @@ import getStripe from '../../utils/load-stripejs';
 import useWindowSize from '../../hooks/useWindowSize';
 import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
+import SpendingLimitForm, { SpendingLimitFormValues } from '../../modals/SpendingLimitForm';
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -114,7 +115,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 
 	useEffect(() => form.reset(), [card]);
 
-	const form = useForm({
+	const form = useForm<SpendingLimitFormValues>({
 		initialValues: {
 			per_authorization: {
 				active: Boolean(card?.spending_limits.find(l => l.interval === 'per_authorization')),
@@ -191,117 +192,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
-			<Drawer
-				opened={opened}
-				onClose={() => setOpened(false)}
-				padding='xl'
-				size='xl'
-				position='right'
-				classNames={{
-					drawer: 'flex h-full'
-				}}
-			>
-				<Stack>
-					<Title order={2} weight={500}>
-						<span>Edit Spend Limits</span>
-					</Title>
-					<form onSubmit={form.onSubmit(updateSpendingLimit)} className='flex flex-col space-y-4'>
-						<div className='flex items-center space-x-4'>
-							<Switch
-								onLabel='ON'
-								offLabel='OFF'
-								size='md'
-								{...form.getInputProps('per_authorization.active', { type: 'checkbox' })}
-							/>
-							<NumberInput
-								disabled={!form.values.per_authorization.active}
-								classNames={{ root: 'w-full' }}
-								label='Per Transaction Limit'
-								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={value =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('per_authorization.amount')}
-							/>
-						</div>
-						<div className='flex items-center space-x-4'>
-							<Switch
-								onLabel='ON'
-								offLabel='OFF'
-								size='md'
-								{...form.getInputProps('daily.active', { type: 'checkbox' })}
-							/>
-							<NumberInput
-								disabled={!form.values.daily.active}
-								classNames={{ root: 'w-full' }}
-								label='Daily Spend Limit'
-								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={value =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('daily.amount')}
-							/>
-						</div>
-						<div className='flex items-center space-x-4'>
-							<Switch
-								onLabel='ON'
-								offLabel='OFF'
-								size='md'
-								{...form.getInputProps('weekly.active', { type: 'checkbox' })}
-							/>
-							<NumberInput
-								disabled={!form.values.weekly.active}
-								classNames={{ root: 'w-full' }}
-								label='Weekly Spend Limit'
-								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={value =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('weekly.amount')}
-							/>
-						</div>
-						<div className='flex items-center space-x-4'>
-							<Switch
-								onLabel='ON'
-								offLabel='OFF'
-								size='md'
-								{...form.getInputProps('monthly.active', { type: 'checkbox' })}
-							/>
-							<NumberInput
-								disabled={!form.values.monthly.active}
-								classNames={{ root: 'w-full' }}
-								label='Monthly Spend Limit'
-								parser={(value: string) => value.replace(/£\s?|(,*)/g, '')}
-								formatter={value =>
-									!Number.isNaN(parseFloat(value))
-										? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-										: '£ '
-								}
-								{...form.getInputProps('monthly.amount')}
-							/>
-						</div>
-						<Group py='xl' position='right'>
-							<Button
-								type='submit'
-								styles={{
-									root: {
-										width: 120
-									}
-								}}
-								loading={loading}
-							>
-								<Text weight={500}>Save</Text>
-							</Button>
-						</Group>
-					</form>
-				</Stack>
-			</Drawer>
+			<SpendingLimitForm opened={opened} onClose={() => setOpened(false)} form={form} loading={loading} onSubmit={updateSpendingLimit}/>
 			<Page.Body extraClassNames='px-10'>
 				<Group className='pb-6' position='apart'>
 					<Group>

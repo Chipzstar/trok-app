@@ -64,6 +64,19 @@ const driverRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
+	getSingleDriver: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
+		try {
+		    return await ctx.prisma.driver.findUniqueOrThrow({
+				where: {
+                    id: input
+                }
+			})
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+		}
+	}),
 	createDriver: t.procedure.input(createDriverInput).mutation(async ({ ctx, input }) => {
 		console.log(input);
 		try {

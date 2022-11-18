@@ -12,13 +12,13 @@ import {
 	TextInput,
 	Title
 } from '@mantine/core';
-import SortCodeInput from '../SortCodeInput';
+import SortCodeInput from '../components/SortCodeInput';
 import { UseFormReturnType } from '@mantine/form';
-import { capitalize } from '../../utils/functions';
+import { capitalize } from '../utils/functions';
 import dayjs from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import weekday from 'dayjs/plugin/weekday';
-import { SelectInput } from '../../utils/types';
+import { SelectInput } from '../utils/types';
 import { DatePicker } from '@mantine/dates';
 import { IconCalendar } from '@tabler/icons';
 

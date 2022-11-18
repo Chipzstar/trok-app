@@ -20,7 +20,7 @@ import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
-import PaymentForm, { PaymentFormValues, SectionState } from '../components/forms/PaymentForm';
+import PaymentForm, { PaymentFormValues, SectionState } from '../modals/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
 import SuccessModal from '../modals/SuccessModal';

@@ -13,6 +13,7 @@ import { trpc } from '../utils/clients';
 import { usePapaParse } from 'react-papaparse';
 import dayjs from 'dayjs';
 import { TransactionStatus } from '@trok-app/shared-utils';
+import TransactionDetails from '../modals/TransactionDetails';
 
 interface ExportForm {
 	file_type: 'CSV' | 'PDF';
@@ -28,6 +29,8 @@ const Transactions = ({ testMode, session_id }) => {
 	const { jsonToCSV } = usePapaParse();
 	const [csv, setCSV] = useState('');
 	const [opened, setOpened] = useState(false);
+	const [exportOpened, setExportOpened] = useState(false);
+	const [selectedTransaction, setSelectedTransaction] = useState(null);
 	const transactionsQuery = trpc.getTransactions.useQuery(
 		{ userId: session_id },
 		{
@@ -99,15 +102,16 @@ const Transactions = ({ testMode, session_id }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Transactions</span>
-					<Button className='' onClick={() => setOpened(true)}>
+					<Button className='' onClick={() => setExportOpened(true)}>
 						<span className='text-base font-normal'>Export</span>
 					</Button>
 				</Page.Header>
 			}
 		>
+			<TransactionDetails opened={opened} setOpened={setOpened} transaction={selectedTransaction} />
 			<Drawer
-				opened={opened}
-				onClose={() => setOpened(false)}
+				opened={exportOpened}
+				onClose={() => setExportOpened(false)}
 				padding='xl'
 				size='xl'
 				position='right'
@@ -214,15 +218,15 @@ const Transactions = ({ testMode, session_id }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-						<TransactionTable data={data} />
+						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='approved' className='h-full'>
-						<TransactionTable data={data} />
+						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='declined' className='h-full'>
-						<TransactionTable data={data} />
+						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

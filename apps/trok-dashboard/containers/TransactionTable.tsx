@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { Divider, MantineNumberSize, Text } from '@mantine/core';
+import { ActionIcon, Divider, Group, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { GBP } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
+import { IconChevronRight } from '@tabler/icons';
 
 export interface TransactionTableProps {
 	data: Prisma.TransactionUncheckedCreateInput[];
+	setOpened?: (val: boolean) => void;
+	selectTransaction?: (t: Prisma.TransactionUncheckedCreateInput) => void;
 	spacingY?: MantineNumberSize;
 	withPagination?: boolean;
+	expandable?: boolean;
 }
 
-const TransactionTable = ({ data, spacingY = 'md', withPagination = true }: TransactionTableProps) => {
+const TransactionTable = ({
+	data,
+	spacingY = 'md',
+	withPagination = true,
+	setOpened,
+	selectTransaction,
+	expandable = false
+}: TransactionTableProps) => {
 	const [activePage, setPage] = useState(1);
-
 	const rows = data.map((t, index) => {
 		let color = t.status === 'approved' ? 'green' : 'red';
 		return (
 			<tr key={index}>
 				<td colSpan={1}>
 					<div className='flex flex-shrink items-center'>
-						<Divider orientation="vertical" color={color} size="lg"/>
+						<Divider orientation='vertical' color={color} size='lg' />
 						<span className='ml-2'>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
 					</div>
 				</td>
@@ -55,6 +65,21 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }: Tran
 						{t?.purchase_details?.unit_cost_decimal ? t?.purchase_details?.unit_cost_decimal + 'p' : '-'}
 					</span>
 				</td>
+				{expandable && (
+					<td
+						role='button'
+						onClick={() => {
+							selectTransaction(t);
+							setOpened(true);
+						}}
+					>
+						<Group grow position='left'>
+							<ActionIcon size='sm'>
+								<IconChevronRight />
+							</ActionIcon>
+						</Group>
+					</td>
+				)}
 			</tr>
 		);
 	});
@@ -77,7 +102,8 @@ const TransactionTable = ({ data, spacingY = 'md', withPagination = true }: Tran
 				{ label: 'Amount', key: null },
 				{ label: 'Type', key: null },
 				{ label: 'Litres', key: null },
-				{ label: 'Price Per Litre', key: null }
+				{ label: 'Price Per Litre', key: null },
+				...expandable ? [{ label: '', key: null }] : []
 			]}
 			withPagination={withPagination}
 			emptyContent={

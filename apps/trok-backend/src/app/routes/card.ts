@@ -27,6 +27,20 @@ const cardRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
+	getSingleCard: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
+		try {
+			return await ctx.prisma.card.findUnique({
+				where: {
+                    id: input
+                }
+			})
+		} catch (err) {
+			console.error(err);
+            // @ts-ignore
+			throw new TRPCError({ code: 'NOT_FOUND', message: err?.message });
+
+		}
+	}),
 	createCard: t.procedure
 		.input(
 			z.object({

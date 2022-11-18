@@ -68,7 +68,11 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 							primaryShade: 5,
 							primaryColor: 'brand',
 							fontFamily: 'Aeonik, sans-serif',
-							colorScheme: 'light'
+							colorScheme: 'light',
+							headings: {
+								// properties for all headings
+								fontFamily: 'Aeonik, sans-serif'
+							}
 						}}
 					>
 						<ModalsProvider>

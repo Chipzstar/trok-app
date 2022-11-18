@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Checkbox, Drawer, Group, Select, Stack, Text, TextInput, Title } from '@mantine/core';
-import SortCodeInput from '../SortCodeInput';
+import SortCodeInput from '../components/SortCodeInput';
 import { PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
 
 const BankAccountForm = ({opened, onClose, form, onSubmit, loading, numBankAccounts}) => {
