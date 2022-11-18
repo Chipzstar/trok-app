@@ -94,7 +94,7 @@ const PaymentsTable = ({data, setOpened, selectPayment}) => {
 			headings={[
 				{ label: 'Sent Date', key: null },
 				{ label: 'Sent To', key: null },
-				{ label: 'Method', key: null },
+				{ label: 'Type', key: null },
 				{ label: 'Amount', key: null },
 				{ label: 'Reference', key: null },
 				{ label: 'Status', key: null },

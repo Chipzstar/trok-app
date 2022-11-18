@@ -23,7 +23,7 @@ import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/share
 import PaymentForm, { PaymentFormValues, SectionState } from '../components/forms/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
-import SuccessModal from '../components/SuccessModal';
+import SuccessModal from '../modals/SuccessModal';
 
 dayjs.extend(isBetween);
 

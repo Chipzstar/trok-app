@@ -12,10 +12,12 @@ import { IconCalendar, IconEdit } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import isBetween from 'dayjs/plugin/isBetween';
 import { GBP } from '@trok-app/shared-utils';
+import ComingSoon from '../modals/ComingSoon';
 
 dayjs.extend(isBetween);
 
 export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
+	const [comingSoonModal, showComingSoon] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const [range, setRange] = useState<DateRangePickerValue>([
 		dayjs().startOf('week').toDate(),
@@ -41,11 +43,11 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 	}, [testMode, transactionsQuery, range]);
 	const week_savings = useMemo(() => {
 		if (testMode) {
-			return GBP(testMode ? 726436 : 0).format()
+			return GBP(testMode ? 726436 : 0).format();
 		} else {
 			let value = transactionsQuery?.data
 				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h'))
-				.reduce((prev, curr) => prev + (41 * 120), 0);
+				.reduce((prev, curr) => prev + 41 * 120, 0);
 			return GBP(value).format();
 		}
 	}, [testMode, transactionsQuery, range]);
@@ -61,13 +63,14 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 
 	return (
 		<Page.Container
-			classNames="unapproved-container flex flex-col"
+			classNames='unapproved-container flex flex-col'
 			header={
 				<Page.Header extraClassNames='mb-3'>
 					<span className='heading-1 capitalize'>{user?.business?.legal_name}</span>
 				</Page.Header>
 			}
 		>
+			<ComingSoon opened={comingSoonModal} onClose={() => showComingSoon(false)} />
 			<Page.Body extraClassNames=''>
 				<Title order={4} weight={500} mb='lg'>
 					Overview
@@ -84,9 +87,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Current Week Savings</span>
-								<span className='heading-1'>
-									-
-								</span>
+								<span className='heading-1'>-</span>
 							</div>
 						</Stack>
 						<Divider px={0} />
@@ -126,7 +127,11 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' pt='lg' pb='sm'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Account Balance</span>
-								<span className={`text-2xl font-medium ${current_balance < FIVE_HUNDRED_POUNDS && 'text-danger'}`}>
+								<span
+									className={`text-2xl font-medium ${
+										current_balance < FIVE_HUNDRED_POUNDS && 'text-danger'
+									}`}
+								>
 									{GBP(current_balance).format()}
 								</span>
 							</div>
@@ -139,8 +144,17 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 							</div>
 						</Stack>
 						<Group position='center' py='xs'>
-							<Button size='md' fullWidth disabled>
-								Pay Balance
+							<Button
+								size='md'
+								fullWidth
+								onClick={() => {
+									showComingSoon(true);
+									setTimeout(() => {
+										showComingSoon(false);
+									}, 2000);
+								}}
+							>
+								Pay Now
 							</Button>
 						</Group>
 					</Card>
@@ -175,11 +189,11 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						inputFormat='DD/MM/YYYY'
 						labelSeparator=' → '
 						labelFormat='MMM YYYY'
-						onChange={(value) => value[1] instanceof Date ? setChartRange(value) : null}
+						onChange={value => (value[1] instanceof Date ? setChartRange(value) : null)}
 					/>
 				</Group>
 				<Card shadow='sm' py='lg' radius='xs'>
-					<SpendAnalysis sessionId={session_id} dateRange={chartRange}/>
+					<SpendAnalysis sessionId={session_id} dateRange={chartRange} />
 				</Card>
 			</Page.Body>
 		</Page.Container>

@@ -12,6 +12,8 @@ export function convertPlaidStatus(status: PaymentInitiationPaymentStatus) {
 			return PAYMENT_STATUS.IN_PROGRESS;
 		case PaymentInitiationPaymentStatus.Cancelled:
 			return PAYMENT_STATUS.CANCELLED;
+		case PaymentInitiationPaymentStatus.Established:
+			return PAYMENT_STATUS.COMPLETE
 		case PaymentInitiationPaymentStatus.Authorising:
 			return PAYMENT_STATUS.IN_PROGRESS;
 		case PaymentInitiationPaymentStatus.Completed:
