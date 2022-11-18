@@ -12,6 +12,11 @@ export enum CARD_STATUS {
 	INACTIVE = 'inactive'
 }
 
+export enum TRANSACTION_STATUS {
+    DECLINED = 'declined',
+	APPROVED = 'approved',
+}
+
 export enum CARD_SHIPPING_STATUS {
 	PENDING = 'pending',
 	SHIPPED= 'shipped',

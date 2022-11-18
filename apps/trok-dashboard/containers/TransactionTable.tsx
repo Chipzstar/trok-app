@@ -3,9 +3,11 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { ActionIcon, Divider, Group, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { IconChevronRight } from '@tabler/icons';
+import { sanitize } from '../utils/functions';
+import classNames from 'classnames';
 
 export interface TransactionTableProps {
 	data: Prisma.TransactionUncheckedCreateInput[];
@@ -26,13 +28,30 @@ const TransactionTable = ({
 }: TransactionTableProps) => {
 	const [activePage, setPage] = useState(1);
 	const rows = data.map((t, index) => {
-		let color = t.status === 'approved' ? 'green' : 'red';
+		const statusClass = classNames({
+			'py-1': true,
+			'w-28': true,
+			rounded: true,
+			'text-center': true,
+			'capitalize': true,
+			'text-xs': true,
+			'tracking-wide': true,
+			'font-semibold': true,
+			'text-success': t.status === TRANSACTION_STATUS.APPROVED,
+			'text-danger': t.status === TRANSACTION_STATUS.DECLINED,
+			'bg-success/25': t.status === TRANSACTION_STATUS.APPROVED,
+			'bg-danger/25': t.status === TRANSACTION_STATUS.DECLINED
+		});
 		return (
 			<tr key={index}>
 				<td colSpan={1}>
 					<div className='flex flex-shrink items-center'>
-						<Divider orientation='vertical' color={color} size='lg' />
 						<span className='ml-2'>{dayjs(t.created_at).format('MMM DD HH:mma')}</span>
+					</div>
+				</td>
+				<td colSpan={1}>
+					<div className={statusClass}>
+						<span>{sanitize(t.status)}</span>
 					</div>
 				</td>
 				<td colSpan={1}>
@@ -53,17 +72,6 @@ const TransactionTable = ({
 				</td>
 				<td colSpan={1}>
 					<span className='text-base font-normal'>{GBP(t.transaction_amount).format()}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{t?.purchase_details?.fuel_type ?? '-'}</span>
-				</td>
-				<td colSpan={1}>
-					<span>{t?.purchase_details?.volume ?? '-'}</span>
-				</td>
-				<td colSpan={1}>
-					<span>
-						{t?.purchase_details?.unit_cost_decimal ? t?.purchase_details?.unit_cost_decimal + 'p' : '-'}
-					</span>
 				</td>
 				{expandable && (
 					<td
@@ -92,6 +100,7 @@ const TransactionTable = ({
 			spacingY={spacingY as MantineNumberSize}
 			headings={[
 				{ label: 'Transacted', key: null },
+				{ label: 'Status', key: null },
 				{ label: 'Merchant', key: null },
 				{ label: 'Location', key: null },
 				{ label: 'Card', key: null },
@@ -100,9 +109,6 @@ const TransactionTable = ({
 					key: null
 				},
 				{ label: 'Amount', key: null },
-				{ label: 'Type', key: null },
-				{ label: 'Litres', key: null },
-				{ label: 'Price Per Litre', key: null },
 				...expandable ? [{ label: '', key: null }] : []
 			]}
 			withPagination={withPagination}
