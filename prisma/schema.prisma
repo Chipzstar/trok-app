@@ -5,7 +5,7 @@
 // -------------------------------------
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
   previewFeatures = ["extendedWhereUnique"]
 }
 
@@ -49,283 +49,275 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
 model BankAccount {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  user                User     @relation(fields: [userId], references: [id])
-  userId              String
-  stripe_bank_id      String   @unique
-  bank_name           String?
-  fingerprint         String?
-  account_holder_name String
-  institution_id      String
-  account_number      String
-  sort_code           String
-  currency            String   @default("gbp")
-  country             String   @default("GB")
-  status              String
-  is_default          Boolean  @default(true)
-}
-model Card {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
-  user            User            @relation(fields: [userId], references: [id])
-  userId          String
-  driver          Driver          @relation(fields: [driverId], references: [id])
-  driverId        String
-  card_id         String          @unique
-  card_name       String?
-  card_type       CardType
-  cardholder_id   String
-  cardholder_name String
-  current_balance Int             @default(0)
-  currency        String
-  status          CardStatus
-  brand           String
-  last4           String
-  exp_month       Int
-  exp_year        Int
-  cvc             String?
-  spending_limits SpendingLimit[]
-  shipping_status String
-  transactions    Transaction[]
-}
-model Driver {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
-  user           User           @relation(fields: [userId], references: [id])
-  userId         String
-  cardholder_id  String         @unique
-  customer_id    String         @unique
-  full_name      String
-  firstname      String
-  lastname       String
-  email          String
-  phone          String
-  status         String
-  spending_limit SpendingLimit?
-  current_spend  Int            @default(0)
-  address        Address
-  cards          Card[]
-  transactions   Transaction[]
-}
-enum ShippingSpeed {
-  express
-  standard
-  priority
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    stripe_bank_id String @unique
+    bank_name String?
+    fingerprint String?
+    account_holder_name String
+    institution_id String
+    account_number String
+    sort_code String
+    currency String @default("gbp")
+    country String @default("GB")
+    status String
+    is_default Boolean @default(true)
+}model Card {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime  @default(now())
+    updated_at DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    driver Driver @relation(fields: [driverId], references: [id])
+    driverId String
+    card_id String @unique
+    card_name String?
+    card_type CardType
+    cardholder_id String
+    cardholder_name String
+    current_balance Int @default(0)
+    currency  String
+    status CardStatus
+    brand String
+    last4  String
+    exp_month Int
+    exp_year Int
+    cvc String?
+    spending_limits SpendingLimit[]
+    shipping_status String
+    shipping_eta Int @db.Long
+    transactions Transaction[]
+}model Driver {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime @default(now())
+    updated_at DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    cardholder_id String @unique
+    customer_id String @unique
+    full_name String
+    firstname String
+    lastname String
+    email String
+    phone String
+    status String
+    spending_limit SpendingLimit?
+    current_spend Int @default(0)
+    address Address
+    cards Card[]
+    transactions Transaction[]
+}enum ShippingSpeed {
+    express
+    standard
+    priority
 }
 
 enum TransactionType {
-  capture
-  refund
+    capture
+    refund
 }
 
 enum SpendingLimitInterval {
-  per_authorization
-  daily
-  weekly
-  monthly
-  yearly
-  all_time
+    per_authorization
+    daily
+    weekly
+    monthly
+    yearly
+    all_time
 }
 
 enum CardStatus {
-  active
-  inactive
-  canceled
+    active
+    inactive
+    canceled
 }
 
 enum CardType {
-  physical
-  virtual
+    physical
+    virtual
 }
 
 enum FuelType {
-  diesel
-  unleaded_plus
-  unleaded_regular
-  unleaded_super
-  other
+    diesel
+    unleaded_plus
+    unleaded_regular
+    unleaded_super
+    other
 }
 
 enum UnitType {
-  us_gallon
-  liter
+    us_gallon
+    liter
 }
 
 enum TransactionStatus {
-  approved
-  declined
-  pending
+    approved
+    declined
+    pending
 }
 
 enum PaymentStatus {
-  PAYMENT_STATUS_INPUT_NEEDED
-  PAYMENT_STATUS_PROCESSING
-  PAYMENT_STATUS_INITIATED
-  PAYMENT_STATUS_COMPLETED
-  PAYMENT_STATUS_INSUFFICIENT_FUNDS
-  PAYMENT_STATUS_FAILED
-  PAYMENT_STATUS_BLOCKED
-  PAYMENT_STATUS_UNKNOWN
-  PAYMENT_STATUS_EXECUTED
-  PAYMENT_STATUS_SETTLED
-  PAYMENT_STATUS_AUTHORISING
-  PAYMENT_STATUS_CANCELLED
-  PAYMENT_STATUS_ESTABLISHED
-  PAYMENT_STATUS_REJECTED
-}
-model Payment {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
-  created_at           DateTime      @default(now())
-  updated_at           DateTime      @updatedAt
-  user                 User          @relation(fields: [userId], references: [id])
-  userId               String
-  plaid_payment_id     String        @unique
-  plaid_recipient_id   String
-  plaid_link_token     String        @unique
-  link_session_id      String        @unique @default(uuid())
-  recipient_name       String
-  reference            String
-  amount               Int
-  currency             String        @default("gbp")
-  payment_type         String        @default("bank_transfer")
-  plaid_payment_status PaymentStatus
-  status               String
-}
-model Statement {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id])
-  userId        String
-  statement_id  String        @unique
-  period_start  DateTime
-  period_end    DateTime
-  total_balance Int           @db.Long
-  transactions  Transaction[]
-  download_url  String
-}
-model Transaction {
-  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
-  created_at         DateTime          @default(now())
-  updated_at         DateTime          @updatedAt
-  user               User              @relation(fields: [userId], references: [id])
-  userId             String
-  driver             Driver            @relation(fields: [driverId], references: [id])
-  driverId           String
-  card               Card              @relation(fields: [cardId], references: [id])
-  cardId             String
-  statement          Statement?        @relation(fields: [statementId], references: [id])
-  statementId        String?
-  cardholder_name    String
-  last4              String
-  authorization_id   String            @unique
-  transaction_id     String            @unique
-  transaction_amount Int
-  transaction_type   TransactionType
-  cardholder_id      String
-  currency           String            @default("gbp")
-  merchant_amount    Int
-  merchant_data      MerchantData
-  purchase_details   PurchaseDetails?
-  status             TransactionStatus
-}
-type StripeInfo {
-  accountId       String
-  personId        String
-  issuing_account IssuingBankAccount
+    PAYMENT_STATUS_INPUT_NEEDED
+    PAYMENT_STATUS_PROCESSING
+    PAYMENT_STATUS_INITIATED
+    PAYMENT_STATUS_COMPLETED
+    PAYMENT_STATUS_INSUFFICIENT_FUNDS
+    PAYMENT_STATUS_FAILED
+    PAYMENT_STATUS_BLOCKED
+    PAYMENT_STATUS_UNKNOWN
+    PAYMENT_STATUS_EXECUTED
+    PAYMENT_STATUS_SETTLED
+    PAYMENT_STATUS_AUTHORISING
+    PAYMENT_STATUS_CANCELLED
+    PAYMENT_STATUS_ESTABLISHED
+    PAYMENT_STATUS_REJECTED
+}model Payment {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime   @default(now())
+    updated_at DateTime    @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    plaid_payment_id String @unique
+    plaid_recipient_id String
+    plaid_link_token String @unique
+    link_session_id String @unique @default(uuid())
+    recipient_name String
+    reference String
+    amount Int
+    currency String @default("gbp")
+    payment_type String @default("bank_transfer")
+    plaid_payment_status PaymentStatus
+    status String
+}model Statement {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at DateTime   @default(now())
+    updated_at DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    statement_id String @unique
+    period_start DateTime
+    period_end DateTime
+    total_balance Int @db.Long
+    transactions Transaction[]
+    download_url String
+}model Transaction {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime   @default(now())
+    updated_at DateTime @updatedAt
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    driver Driver @relation(fields: [driverId], references: [id])
+    driverId String
+    card Card @relation(fields: [cardId], references: [id])
+    cardId String
+    statement Statement? @relation(fields: [statementId], references: [id])
+    statementId String?
+    cardholder_name String
+    last4 String
+    authorization_id String @unique
+    transaction_id String @unique
+    transaction_amount Int
+    transaction_type TransactionType
+    cardholder_id String
+    currency String @default("gbp")
+    merchant_amount Int
+    merchant_data MerchantData
+    purchase_details PurchaseDetails?
+    status TransactionStatus
+}type StripeInfo {
+    accountId String
+    personId String
+    issuing_account IssuingBankAccount
 }
 
 type IssuingBankAccount {
-  plaid_recipient_id  String
-  plaid_request_id    String?
-  current_balance     Int     @default(0)
-  account_holder_name String
-  account_number      String
-  sort_code           String
-  currency            String  @default("gbp")
-  country             String  @default("GB")
+    plaid_recipient_id String
+    plaid_request_id String?
+    current_balance Int @default(0)
+    account_holder_name String
+    account_number String
+    sort_code String
+    currency String @default("gbp")
+    country String @default("GB")
 }
 
 type Address {
-  line1    String
-  line2    String?
-  city     String
-  postcode String
-  region   String
-  country  String  @default("GB")
+    line1 String
+    line2 String?
+    city String
+    postcode String
+    region String
+    country String @default("GB")
 }
 
 type BusinessInfo {
-  legal_name              String
-  weekly_fuel_spend       Int
-  average_monthly_revenue Int
-  business_type           String
-  business_crn            String
-  merchant_category_code  String
-  business_url            String
-  num_vehicles            Int
+    legal_name String
+    weekly_fuel_spend Int
+    average_monthly_revenue Int
+    business_type String
+    business_crn String
+    merchant_category_code String
+    business_url String
+    num_vehicles Int
 }
 
 type CardInfo {
-  card_business_name String
-  num_cards          Int?
-  shipping_speed     ShippingSpeed
+    card_business_name String
+    num_cards Int?
+    shipping_speed ShippingSpeed
 }
 
 type SpendingLimit {
-  amount   Int
-  interval SpendingLimitInterval
+    amount Int
+    interval SpendingLimitInterval
 }
 
 type MerchantData {
-  category      String
-  category_code String
-  name          String?
-  network_id    String
-  city          String?
-  postcode      String?
-  region        String?
-  country       String?
+    category String
+    category_code String
+    name String?
+    network_id String
+    city String?
+    postcode String?
+    region String?
+    country String?
 }
 
 type PurchaseDetails {
-  fuel_type         String
-  unit_type         String
-  unit_cost_decimal Float
-  volume            Int
-}
-model User {
-  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
-  created_at         DateTime      @default(now())
-  updated_at         DateTime      @updatedAt
-  email              String        @unique
-  full_name          String
-  firstname          String
-  lastname           String
-  phone              String
-  emailVerified      DateTime?     @map("email_verified")
-  approved           Boolean       @default(false)
-  verify_token       String        @default("")
-  referral_code      String?
-  terms              Boolean?
-  password           String
-  location           Address
-  shipping_address   Address
+    fuel_type String
+    unit_type String
+    unit_cost_decimal Float
+    volume Int
+}model User {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  created_at  DateTime   @default(now())
+  updated_at DateTime @updatedAt
+  email String @unique
+  full_name String
+  firstname  String
+  lastname  String
+  phone String
+  emailVerified DateTime? @map("email_verified")
+  approved Boolean @default(false)
+  verify_token String @default("")
+  referral_code String?
+  terms Boolean?
+  password String
+  location Address
+  shipping_address Address
   card_configuration CardInfo
-  business           BusinessInfo
-  stripe             StripeInfo
-  drivers            Driver[]
-  cards              Card[]
-  transactions       Transaction[]
-  payments           Payment[]
-  statements         Statement[]
-  bank_accounts      BankAccount[]
-  accounts           Account[]
-  sessions           Session[]
+  business BusinessInfo
+  stripe StripeInfo
+  drivers Driver[]
+  cards Card[]
+  transactions Transaction[]
+  payments Payment[]
+  statements Statement[]
+  bank_accounts BankAccount[]
+  accounts      Account[]
+  sessions      Session[]
 }

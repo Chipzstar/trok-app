@@ -80,7 +80,7 @@ const cardRouter = t.router({
 						},
 						{ stripeAccount: user.stripe.accountId }
 					);
-					if (String(process.env.STRIPE_SECRET_KEY).includes("sk_test")) {
+					if (String(process.env.STRIPE_SECRET_KEY).includes('sk_test')) {
 						card = await stripe.issuing.cards.retrieve(
 							card.id,
 							{ expand: ['number', 'cvc'] },
@@ -138,7 +138,8 @@ const cardRouter = t.router({
 									  ]
 									: [],
 								status: 'inactive',
-								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING
+								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING,
+								shipping_eta: Number(card?.shipping?.eta)
 							}
 						});
 					} else {
@@ -253,20 +254,27 @@ const cardRouter = t.router({
 				userId: z.string(),
 				stripeId: z.string(),
 				card_id: z.string(),
-				spending_limits: z.object({
-					amount: z.number(),
-					interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
-				}).array().nonempty()
+				spending_limits: z
+					.object({
+						amount: z.number(),
+						interval: z.enum(['per_authorization', 'daily', 'weekly', 'monthly', 'yearly', 'all_time'])
+					})
+					.array()
+					.nonempty()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				let card = await stripe.issuing.cards.update(input.card_id, {
-					spending_controls: {
-						// @ts-ignore
-						spending_limits: input.spending_limits
+				let card = await stripe.issuing.cards.update(
+					input.card_id,
+					{
+						spending_controls: {
+							// @ts-ignore
+							spending_limits: input.spending_limits
+						}
 					},
-				}, { stripeAccount: input.stripeId})
+					{ stripeAccount: input.stripeId }
+				);
 				console.log(card);
 				return await ctx.prisma.card.update({
 					where: {
@@ -276,7 +284,7 @@ const cardRouter = t.router({
 						// @ts-ignore
 						spending_limits: input.spending_limits
 					}
-				})
+				});
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore

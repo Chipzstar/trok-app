@@ -1,6 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import { ActionIcon, Button, Card, Drawer, Group, NumberInput, ScrollArea, Stack, Switch, Text, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Card,
+	Drawer,
+	Group,
+	NumberInput,
+	ScrollArea,
+	Stack,
+	Switch,
+	Text,
+	Title
+} from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
@@ -11,7 +23,8 @@ import { authOptions } from '../api/auth/[...nextauth]';
 import { apiClient, trpc } from '../../utils/clients';
 import {
 	CARD_SHIPPING_STATUS,
-	CARD_STATUS, GBP,
+	CARD_STATUS,
+	GBP,
 	notifyError,
 	notifySuccess,
 	SpendingLimit,
@@ -24,6 +37,8 @@ import { Elements } from '@stripe/react-stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
 import getStripe from '../../utils/load-stripejs';
 import useWindowSize from '../../hooks/useWindowSize';
+import Prisma from '@prisma/client';
+import dayjs from 'dayjs';
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -34,11 +49,12 @@ function formatSpendingLimits(
 		interval: key
 	}));
 }
+
 let stripe;
 
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
-	const { height } = useWindowSize()
+	const { height } = useWindowSize();
 	const { cardID } = router.query;
 	const [nonce, setNonce] = useState(null);
 	const [ephemeralKey, setEphemeralKey] = useState(null);
@@ -48,18 +64,18 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
-		onSuccess: function(input) {
+		onSuccess: function (input) {
 			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
-		onSuccess: function(input) {
+		onSuccess: function (input) {
 			utils.invalidate({ userId: session_id }).then(r => form.reset());
 		}
 	});
 	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
 
-	const card = useMemo(
+	const card = useMemo<Prisma.Card | undefined>(
 		() =>
 			testMode ? SAMPLE_CARDS.find(c => c.card_id === cardID) : cardsQuery?.data?.find(c => c.card_id === cardID),
 		[cardID, cardsQuery]
@@ -76,20 +92,22 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const rows = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3)
 		: !transactionsQuery.isLoading
-			? transactionsQuery?.data
-			: [];
+		? transactionsQuery?.data
+		: [];
 	useEffect(() => {
 		(async () => {
-			stripe = await getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })
+			stripe = await getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id });
 			const nonceResult = await stripe.createEphemeralKeyNonce({
 				issuingCard: String(cardID)
 			});
 			setNonce(nonceResult.nonce);
-			const result = (await apiClient.post('/server/stripe/ephemeral-keys', {
-				card_id: String(cardID),
-				nonce: nonceResult.nonce,
-				stripe_account_id
-			})).data;
+			const result = (
+				await apiClient.post('/server/stripe/ephemeral-keys', {
+					card_id: String(cardID),
+					nonce: nonceResult.nonce,
+					stripe_account_id
+				})
+			).data;
 			setEphemeralKey(result.ephemeral_key_secret);
 		})();
 	}, [cardID, stripe_account_id]);
@@ -290,18 +308,27 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 						<Title order={1} weight={500}>
 							Card **** {card?.last4}
 						</Title>
-						<span className={shipping_status_class}>
-							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED
-								? card?.status
-								: card?.shipping_status}
-						</span>
+						<div className='flex flex-col items-center'>
+							<span className={shipping_status_class}>
+								{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED
+									? card?.status
+									: card?.shipping_status}
+							</span>
+							{card?.shipping_status !== CARD_SHIPPING_STATUS.DELIVERED && (
+								<span className='text-xs font-medium text-gray-500'>
+									(ETA. {dayjs.unix(card?.shipping_eta).format('DD MMM')})
+								</span>
+							)}
+						</div>
 					</Group>
-					{!isProd && <CardPaymentButton
-						stripeId={stripe_account_id}
-						cardId={cardID}
-						cardShippingStatus={card?.shipping_status}
-						cardStatus={card?.status}
-					/>}
+					{!isProd && (
+						<CardPaymentButton
+							stripeId={stripe_account_id}
+							cardId={cardID}
+							cardShippingStatus={card?.shipping_status}
+							cardStatus={card?.status}
+						/>
+					)}
 				</Group>
 				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
@@ -324,23 +351,26 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'per_authorization')
 										? GBP(
-											card?.spending_limits.find(
-												({ interval }) => interval === 'per_authorization'
-											)?.amount
-										).format()
+												card?.spending_limits.find(
+													({ interval }) => interval === 'per_authorization'
+												)?.amount
+										  ).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'daily')
 										? GBP(
-											card?.spending_limits.find(({ interval }) => interval === 'daily')
-												?.amount
-										).format()
+												card?.spending_limits.find(({ interval }) => interval === 'daily')
+													?.amount
+										  ).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'weekly')
-										? GBP(card?.spending_limits.find(({ interval }) => interval === 'weekly')?.amount).format()
+										? GBP(
+												card?.spending_limits.find(({ interval }) => interval === 'weekly')
+													?.amount
+										  ).format()
 										: '-'}
 								</span>
 							</Stack>
@@ -356,8 +386,11 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
 									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
-									</Button>)}
-								<Elements stripe={getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })}>
+									</Button>
+								)}
+								<Elements
+									stripe={getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })}
+								>
 									<CardPINDisplay
 										card_id={cardID}
 										nonce={nonce}
@@ -365,7 +398,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 									/>
 								</Elements>
 							</Group>
-
 						</Stack>
 					</Card>
 				</div>

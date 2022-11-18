@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { CARD_STATUS, numericId, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
-import { Prisma } from '@prisma/client';
+import Prisma, { Prisma as Schema } from '@prisma/client';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
@@ -128,11 +128,22 @@ export const SAMPLE_DRIVERS = [
 	}
 ];
 
-export const SAMPLE_CARDS = [
+export const SAMPLE_CARDS : Prisma.Card[] = [
 	{
 		id: uuidv4(),
 		card_id: 'card_0001',
-		created_at: 1665414165,
+		created_at: dayjs().toDate(),
+		updated_at: dayjs().toDate(),
+		card_name: 'card_0001',
+		userId: numericId(),
+		driverId: numericId(),
+		cardholder_id: uuidv4(),
+		brand: 'visa',
+		exp_month: 9,
+		exp_year: 2026,
+		cvc: '123',
+		currency: "gbp",
+        card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
@@ -143,12 +154,24 @@ export const SAMPLE_CARDS = [
 			}
 		],
 		current_balance: 4679995,
-		shipping_status: 'pending'
+		shipping_status: 'pending',
+		shipping_eta: dayjs().unix()
 	},
 	{
 		id: uuidv4(),
 		card_id: 'card_0002',
-		created_at: 1665414165,
+		created_at: dayjs().toDate(),
+		updated_at: dayjs().toDate(),
+		card_name: 'card_0002',
+		userId: numericId(),
+		driverId: numericId(),
+		cardholder_id: uuidv4(),
+		brand: 'visa',
+		exp_month: 9,
+		exp_year: 2026,
+		cvc: '123',
+		currency: "gbp",
+		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '2681',
 		cardholder_name: 'Ola Oladapo',
@@ -159,12 +182,24 @@ export const SAMPLE_CARDS = [
 			}
 		],
 		current_balance: 4679995,
-		shipping_status: 'pending'
+		shipping_status: 'pending',
+		shipping_eta: dayjs().unix()
 	},
 	{
 		id: uuidv4(),
 		card_id: 'card_0003',
-		created_at: 1665414165,
+		created_at: dayjs().toDate(),
+		updated_at: dayjs().toDate(),
+		card_name: 'card_0003',
+		userId: numericId(),
+		driverId: numericId(),
+		cardholder_id: uuidv4(),
+		brand: 'visa',
+		exp_month: 9,
+		exp_year: 2026,
+		cvc: '123',
+		currency: "gbp",
+		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '5410',
 		cardholder_name: 'Daniel Oguibe',
@@ -175,12 +210,25 @@ export const SAMPLE_CARDS = [
 			}
 		],
 		current_balance: 4679995,
-		shipping_status: 'pending'
+		shipping_status: 'pending',
+		shipping_eta: dayjs().unix()
 	},
 	{
 		id: uuidv4(),
 		card_id: 'card_0004',
-		created_at: 1665414165,
+		created_at: dayjs().toDate(),
+		updated_at: dayjs().toDate(),
+		card_name: 	'card_0004',
+		current_balance: 4679995,
+		userId: numericId(),
+		driverId: numericId(),
+		cardholder_id: uuidv4(),
+		brand: 'visa',
+		exp_month: 9,
+		exp_year: 2026,
+		cvc: '123',
+		currency: "gbp",
+		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '7341',
 		cardholder_name: 'King Dave',
@@ -190,13 +238,24 @@ export const SAMPLE_CARDS = [
 				interval: 'weekly'
 			}
 		],
-		current_balance: 4679995,
-		shipping_status: 'pending'
+		shipping_status: 'pending',
+		shipping_eta: dayjs().unix()
 	},
 	{
 		id: uuidv4(),
 		card_id: 'card_0005',
-		created_at: 1665414165,
+		created_at: dayjs().toDate(),
+		updated_at: dayjs().toDate(),
+		card_name: 'card_0005',
+		userId: numericId(),
+		driverId: numericId(),
+		cardholder_id: uuidv4(),
+		brand: 'visa',
+		exp_month: 9,
+		exp_year: 2026,
+		cvc: '123',
+		currency: "gbp",
+		card_type: 'physical',
 		status: CARD_STATUS.INACTIVE,
 		last4: '9127',
 		cardholder_name: 'Rayan Bannai',
@@ -207,11 +266,12 @@ export const SAMPLE_CARDS = [
 			}
 		],
 		current_balance: 4679995,
-		shipping_status: 'pending'
+		shipping_status: 'pending',
+		shipping_eta: dayjs().unix()
 	}
 ];
 
-export const SAMPLE_PAYMENTS : Prisma.PaymentUncheckedCreateInput[] = [
+export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
@@ -298,7 +358,7 @@ export const SAMPLE_PAYMENTS : Prisma.PaymentUncheckedCreateInput[] = [
 	}
 ];
 
-export const SAMPLE_TRANSACTIONS : Prisma.TransactionUncheckedCreateInput[] = [
+export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
@@ -469,7 +529,7 @@ export const SAMPLE_STATEMENTS = [
 	}
 ];
 
-export const SAMPLE_BANK_ACCOUNTS : Prisma.BankAccountUncheckedCreateInput[] = [
+export const SAMPLE_BANK_ACCOUNTS : Schema.BankAccountUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		userId: uuidv4(),

@@ -21,5 +21,6 @@ model Card {
     cvc String?
     spending_limits SpendingLimit[]
     shipping_status String
+    shipping_eta Int @db.Long
     transactions Transaction[]
 }
