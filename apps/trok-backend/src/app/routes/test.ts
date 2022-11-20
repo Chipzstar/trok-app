@@ -33,7 +33,7 @@ router.post('/send-approval-email', async (req, res, next) => {
 		const emailParams = new EmailParams()
 			.setFrom(sentFrom)
 			.setTo(recipients)
-			.setSubject('Trok: Your Application has been Approved!')
+			.setSubject('Trok - Your Application has been Approved!')
 			.setTemplateId('pq3enl6xk70l2vwr')
 			.setPersonalization(personalization);
 		const response = await mailerSend.email.send(emailParams);
