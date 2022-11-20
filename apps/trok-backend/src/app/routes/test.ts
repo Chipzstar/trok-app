@@ -17,32 +17,39 @@ router.get('/user-agent', async (req, res, next) => {
 
 router.post('/send-approval-email', async (req, res, next) => {
 	const { email, name } = req.body;
-	console.table(req.body)
 	try {
 		const recipients = [new Recipient(email, name)];
-		const personalization = [
+		const variables = [
 			{
 				email,
-				data: {
-					name,
-					account_name: 'Trok',
-					support_email: 'hello@trok.co'
-				}
+				substitutions: [
+					{
+						var: 'name',
+						value: name
+					},
+					{
+						var: 'account_name',
+						value: 'Trok'
+					},
+					{
+						var: 'support_email',
+						value: 'hello@trok.co'
+					}
+				],
 			}
 		];
 		const emailParams = new EmailParams()
 			.setFrom(sentFrom)
 			.setTo(recipients)
-			.setSubject('Trok - Your Application has been Approved!')
+			.setSubject('Trok: Your Application has been Approved!')
 			.setTemplateId('pq3enl6xk70l2vwr')
-			.setPersonalization(personalization);
+			.setVariables(variables)
 		const response = await mailerSend.email.send(emailParams);
-		console.log(response)
-		res.status(200).json({ statusCode: response.statusCode, message: 'Approval email sent!' });
+		res.status(200).json({ statusCode: response.statusCode, message: "Approval email sent!" });
 	} catch (err) {
-		console.error(err);
-		res.status(500).json(err);
+		console.error(err)
+		res.status(500).json(err)
 	}
-});
+})
 
 export default router;
