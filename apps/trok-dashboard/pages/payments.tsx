@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, TextInput } from '@mantine/core';
-import { IconCalendar, IconCheck, IconSearch, IconX } from '@tabler/icons';
+import { IconCalendar, IconCheck, IconInfoCircle, IconSearch, IconX } from '@tabler/icons';
 import PaymentsTable from '../containers/PaymentsTable';
 import { SAMPLE_PAYMENTS } from '../utils/constants';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
@@ -19,7 +19,7 @@ import {
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { GBP, notifyError, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
+import { GBP, notifyError, notifyInfo, notifySuccess, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import PaymentForm, { PaymentFormValues, SectionState } from '../modals/PaymentForm';
 import { useDebouncedState } from '@mantine/hooks';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -34,10 +34,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [payment_id, setPlaidPaymentId] = useState(null);
 	const [link_token, setLinkToken] = useState(null);
 	const [paymentOpened, setPaymentOpened] = useState(false);
-	const [range, setRange] = useState<DateRangePickerValue>([
-		dayjs().startOf('week').toDate(),
-		dayjs().endOf('week').toDate()
-	]);
+	const [range, setRange] = useState<DateRangePickerValue>([null, null]);
 	const [selectedPayment, setSelectedPayment] = useState(null);
 	const [section, setSection] = useState<SectionState>('topup');
 	const [search, setSearch] = useDebouncedState('', 250);
@@ -69,31 +66,37 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		openModal(true);
 		setTimeout(() => openModal(false), 3000);
 	}, []);
-	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
-		try {
-			await cancelPaymentMutation.mutateAsync({
-				userId: session_id,
-				plaid_payment_id: payment_id
-			});
-			notifyError(
-				'plaid-cancelled',
-				'Plaid session was closed unexpectedly. No funds were transferred from your bank account',
-				<IconX size={20} />
-			);
-		} catch (err) {
-			console.error(err);
-		}
-	}, [payment_id, session_id]);
-	const onEvent = useCallback<PlaidLinkOnEvent>((eventName, metadata) => {
-		if (eventName === 'SELECT_INSTITUTION') {
-			linkSessionMutation.mutate({
-				userId: session_id,
-				plaid_link_token: link_token,
-				link_session_id: metadata.link_session_id
-			});
-		}
-		console.table(metadata);
-	}, [session_id, link_token]);
+	const onExit = useCallback<PlaidLinkOnExit>(
+		async (error, metadata: PlaidLinkOnExitMetadata) => {
+			try {
+				await cancelPaymentMutation.mutateAsync({
+					userId: session_id,
+					plaid_payment_id: payment_id
+				});
+				notifyInfo(
+					'plaid-cancelled',
+					'Plaid session was closed unexpectedly. No funds were transferred from your bank account',
+					<IconInfoCircle size={20} />
+				);
+			} catch (err) {
+				console.error(err);
+			}
+		},
+		[payment_id, session_id]
+	);
+	const onEvent = useCallback<PlaidLinkOnEvent>(
+		(eventName, metadata) => {
+			if (eventName === 'SELECT_INSTITUTION') {
+				linkSessionMutation.mutate({
+					userId: session_id,
+					plaid_link_token: link_token,
+					link_session_id: metadata.link_session_id
+				});
+			}
+			console.table(metadata);
+		},
+		[session_id, link_token]
+	);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
@@ -109,7 +112,10 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		? SAMPLE_PAYMENTS
 		: !query?.isLoading
 		? query?.data?.filter(p => {
-				const in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h');
+				let in_range = true;
+				if (range.every(r => r instanceof Date)) {
+					in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h');
+				}
 				const is_not_cancelled = p.status !== PAYMENT_STATUS.CANCELLED;
 				return (
 					in_range &&
@@ -143,8 +149,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		setLoading(true);
 		try {
 			let token;
-			console.log(values)
-			console.log(typeof values.start_date)
+			console.log(values);
+			console.log(typeof values.start_date);
 			if (section === 'topup') {
 				token = await topUpMutation.mutateAsync({
 					user_id: String(session_id),

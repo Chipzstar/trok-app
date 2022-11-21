@@ -32,6 +32,20 @@ export function notifyError(id: string, message: string, icon: JSX.Element) {
 		loading: false
 	});
 }
+export function notifyInfo(id: string, message: string, icon: JSX.Element) {
+	showNotification({
+		id,
+		disallowClose: true,
+		onClose: () => console.log('unmounted'),
+		onOpen: () => console.log('mounted'),
+		autoClose: 5000,
+		title: 'Info',
+		message,
+		color: 'blue',
+		icon,
+		loading: false
+	});
+}
 
 export function isValidUrl(urlString: string) {
 	try {
