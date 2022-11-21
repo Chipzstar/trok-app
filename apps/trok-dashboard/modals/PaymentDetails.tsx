@@ -45,8 +45,11 @@ const PaymentDetails = ({ opened, setOpened, payment }: PaymentDetailsProps) => 
 						<span className='font-semibold'>Payment Type</span>
 						{payment?.recurring ? (
 							<div className='flex flex-col'>
-								<span>Standing Order</span>
-								<Text size="sm" weight={500} className="w-72">To manage this direct debit, please use your online / mobile banking app </Text>
+								<span className="mb-2">Standing Order</span>
+								<Text size="sm">Start Date: {dayjs.unix(payment?.schedule?.start_date).format("DD MMM")} - Billed {payment?.schedule?.interval}</Text>
+								<Text size='sm' weight={500} className='w-72'>
+									To manage this direct debit, please use your online / mobile banking app{' '}
+								</Text>
 							</div>
 						) : (
 							<span>{capitalize(sanitize(String(payment?.payment_type)))}</span>
@@ -58,7 +61,9 @@ const PaymentDetails = ({ opened, setOpened, payment }: PaymentDetailsProps) => 
 					</Stack>
 					<Stack spacing='xs'>
 						<span className='font-semibold'>Paid from</span>
-						<span>{bankAccount?.bank_name} ({bankAccount?.sort_code})</span>
+						<span>
+							{bankAccount?.bank_name} ({bankAccount?.sort_code})
+						</span>
 					</Stack>
 				</div>
 				<Divider />
