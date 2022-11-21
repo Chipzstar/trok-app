@@ -14,5 +14,7 @@ model Payment {
     currency String @default("gbp")
     payment_type String @default("bank_transfer")
     plaid_payment_status PaymentStatus
+    recurring Boolean @default(false)
+    schedule PaymentSchedule?
     status String
 }

@@ -64,3 +64,8 @@ enum PaymentStatus {
     PAYMENT_STATUS_ESTABLISHED
     PAYMENT_STATUS_REJECTED
 }
+
+enum PaymentInterval {
+    weekly
+    monthly
+}

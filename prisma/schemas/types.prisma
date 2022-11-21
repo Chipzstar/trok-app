@@ -63,3 +63,8 @@ type PurchaseDetails {
     unit_cost_decimal Float
     volume Int
 }
+
+type PaymentSchedule {
+    interval PaymentInterval
+    start_date Int @db.Long
+}
