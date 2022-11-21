@@ -58,7 +58,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
 	});
-	const updateStatusMutation = trpc.cancelPayment.useMutation({
+	const cancelPaymentMutation = trpc.cancelPayment.useMutation({
 		onSuccess(input) {
 			utils.getPayments.invalidate({ userId: session_id });
 		}
@@ -71,11 +71,10 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	}, []);
 	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
 		try {
-			const result = await updateStatusMutation.mutateAsync({
+			await cancelPaymentMutation.mutateAsync({
 				userId: session_id,
 				plaid_payment_id: payment_id
 			});
-			console.log(result);
 			notifyError(
 				'plaid-cancelled',
 				'Plaid session was closed unexpectedly. No funds were transferred from your bank account',
@@ -84,7 +83,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		} catch (err) {
 			console.error(err);
 		}
-	}, []);
+	}, [payment_id, session_id]);
 	const onEvent = useCallback<PlaidLinkOnEvent>((eventName, metadata) => {
 		if (eventName === 'SELECT_INSTITUTION') {
 			linkSessionMutation.mutate({
@@ -94,7 +93,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 			});
 		}
 		console.table(metadata);
-	}, []);
+	}, [session_id, link_token]);
 
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),

@@ -344,6 +344,7 @@ const paymentsRouter = t.router({
 		})
 	).mutation(async ({ input, ctx }) => {
 		try {
+			console.table(input)
 		    return await ctx.prisma.payment.update({
 				where: {
 					plaid_payment_id: input.plaid_payment_id,
