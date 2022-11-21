@@ -29,6 +29,21 @@ const bankAccountRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
+	getSingleBankAccount: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
+		try {
+			const bank_account = await ctx.prisma.bankAccount.findUnique({
+				where: {
+					id: input
+				}
+			});
+			console.log(bank_account)
+			return bank_account;
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+		}
+	}),
 	addBankAccount: t.procedure
 		.input(
 			z.object({

@@ -8,7 +8,7 @@ export const PLAID_CLIENT_NAME = 'Trok';
 export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 export const PLAID_REDIRECT_URI = String(process.env.PLAID_REDIRECT_URI);
 export const PLAID_COUNTRY_CODES = [CountryCode.Gb];
-export const PLAID_PRODUCTS = [Products.Transactions, Products.PaymentInitiation];
+export const PLAID_PRODUCTS = [Products.PaymentInitiation];
 export const PLAID_WEBHOOK_URL = String(process.env.PLAID_WEBHOOK_URL)
 export const ONE_HOUR = 1000 * 60 * 60
 export const THIRTY_SECONDS = 1000 * 30

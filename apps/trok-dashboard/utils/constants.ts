@@ -274,6 +274,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -284,10 +285,12 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_name: 'John Smith',
-		reference: "send to John Smith"
+		reference: "send to John Smith",
+		recurring: false,
 	},
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -298,10 +301,12 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_name: 'George Smith',
-		reference: "send to George Smith"
+		reference: "send to George Smith",
+		recurring: false,
 	},
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -312,10 +317,12 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
 		recipient_name: 'Rayan Bannai',
-		reference: "send to Rayan Bannai"
+		reference: "send to Rayan Bannai",
+		recurring: false,
 	},
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -326,10 +333,12 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
 		recipient_name: 'King Dave',
-		reference: 'Send to King Dave'
+		reference: 'Send to King Dave',
+		recurring: false
 	},
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -340,10 +349,12 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_name: 'Stripe Payments UK Limited',
-		reference: 'Top-up balance'
+		reference: 'Top-up balance',
+		recurring: false
 	},
 	{
 		id: uuidv4(),
+		bankAccountId: uuidv4(),
 		created_at: dayjs().format(),
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
@@ -354,7 +365,8 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		amount: 650000,
 		status: PAYMENT_STATUS.FAILED,
 		recipient_name: 'Michael Phelps',
-		reference: 'Send to Michael'
+		reference: 'Send to Michael',
+		recurring: false
 	}
 ];
 

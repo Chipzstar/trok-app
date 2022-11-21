@@ -5,11 +5,18 @@ import classNames from 'classnames';
 import { GBP, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
-import { ActionIcon, Group } from '@mantine/core';
-import { IconChevronRight } from '@tabler/icons';
+import { ActionIcon, Group, MantineNumberSize } from '@mantine/core';
+import { IconChevronRight, IconRotateClockwise2 } from '@tabler/icons';
+import { Prisma } from '@prisma/client';
 
-const PaymentsTable = ({data, setOpened, selectPayment}) => {
-	const [activePage, setPage] = useState(1)
+export interface PaymentTableProps {
+	data: Prisma.PaymentUncheckedCreateInput[];
+	setOpened?: (val: boolean) => void;
+	selectPayment?: (p: Prisma.PaymentUncheckedCreateInput) => void;
+}
+
+const PaymentsTable = ({ data, setOpened, selectPayment }: PaymentTableProps) => {
+	const [activePage, setPage] = useState(1);
 	const rows = data.map((p, index) => {
 		const statusClass = classNames({
 			'py-1': true,
@@ -54,19 +61,22 @@ const PaymentsTable = ({data, setOpened, selectPayment}) => {
 					<span>{p.reference}</span>
 				</td>
 				<td colSpan={1}>
-					<div className={statusClass}>
-									<span>
-										<span
-											style={{
-												fontSize: 9
-											}}
-										>
-											●
-										</span>
-										&nbsp;
-										{capitalize(sanitize(p?.status))}
-									</span>
-					</div>
+					<Group align="center">
+						<div className={statusClass}>
+							<span>
+								<span
+									style={{
+										fontSize: 9
+									}}
+								>
+									●
+								</span>
+								&nbsp;
+								{capitalize(sanitize(p?.status))}
+							</span>
+						</div>
+						{p.recurring && <IconRotateClockwise2 size={20} />}
+					</Group>
 				</td>
 				<td
 					role='button'
@@ -83,7 +93,7 @@ const PaymentsTable = ({data, setOpened, selectPayment}) => {
 				</td>
 			</tr>
 		);
-	})
+	});
 
 	return (
 		<DataGrid
@@ -104,10 +114,10 @@ const PaymentsTable = ({data, setOpened, selectPayment}) => {
 				<Empty
 					message={
 						<span className='text-center text-2xl'>
-								You have no payments
-								<br />
+							You have no payments
+							<br />
 							{"Click the 'Send Payment' button to top-up your driver's card"}
-							</span>
+						</span>
 					}
 				/>
 			}
