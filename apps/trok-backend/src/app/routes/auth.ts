@@ -35,7 +35,7 @@ export const authRouter = t.router({
 	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
 			const hashed_password = await hashPassword(input.password);
-			await redisClient.hmset(input.email, {
+			await ctx.redis.hmset(input.email, {
 				firstname: input.firstname,
 				lastname: input.lastname,
 				email: input.email,
