@@ -1,5 +1,5 @@
 import redisClient from '../redis';
-import { BUCKET, STATEMENT_REDIS_SORTED_SET_ID } from '../utils/constants';
+import { BUCKET, IS_DEVELOPMENT, STATEMENT_REDIS_SORTED_SET_ID } from '../utils/constants';
 import dayjs from 'dayjs';
 import prisma from '../db';
 import path from 'path';
@@ -7,7 +7,7 @@ import Prisma from '@prisma/client';
 import orderId from 'order-id';
 import { generateDownloadUrl } from './gcp';
 import PDFDocument from 'pdfkit';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 
 const order_id = orderId(String(process.env.ENC_SECRET));
 
@@ -22,7 +22,7 @@ export async function checkPastDueStatements() {
 			console.log('RESULT:', res)
 		);
 		// generate statement for each entry
-		const result = user_ids.map(async (id, index) => {
+		user_ids.map(async (id, index) => {
 			const statement_interval = await redisClient.hgetall(id);
 			const { period_start, period_end } = statement_interval;
 			// fetch the user's business information
@@ -31,9 +31,10 @@ export async function checkPastDueStatements() {
 					id
 				}
 			});
-			// fetch all the transactions within the time range
+			// fetch all APPROVED transactions within the time range
 			const transactions = await prisma.transaction.findMany({
 				where: {
+					status: TRANSACTION_STATUS.APPROVED,
 					userId: id,
 					created_at: {
 						lte: dayjs.unix(Number(period_end)).toDate(),
@@ -44,7 +45,7 @@ export async function checkPastDueStatements() {
 			console.log('Num transactions:', transactions.length);
 			let statement_id = order_id.generate();
 			const url = await generateStatement(statement_id, user, transactions);
-			if (process.env.NODE_ENV !== 'production') {
+			if (IS_DEVELOPMENT) {
 				return null;
 			}
 			// push statement into database
@@ -58,11 +59,28 @@ export async function checkPastDueStatements() {
 					total_balance: transactions.reduce((prev, curr) => prev + curr.transaction_amount, 0)
 				}
 			});
-			console.log(statement);
+			console.log('************************************************');
+			console.log("NEW STATEMENT:", statement);
+			console.log('************************************************');
+			// attach DB Statement ID to included transactions
+			Promise.all(
+				transactions.map(transaction =>
+					prisma.transaction.update({
+						where: {
+							id: transaction.id
+						},
+						data: {
+							statementId: statement.id
+						}
+					})
+				)
+			)
+				.then(r => console.log('Transactions attached'))
+				.catch(err => console.error('Error attaching transactions:', err));
 			// increment score of the sorted set entry for next month
 			await redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().add(7, 'd').unix(), id);
 			// adjust the start & end periods for the next statement
-			await redisClient.hmset(id, 'period_start', dayjs().unix(), 'period_end', dayjs().add(7, 'd').unix());
+			await redisClient.hmset(id, 'email', user.email, 'period_start', dayjs().unix(), 'period_end', dayjs().add(7, 'd').unix());
 			return statement;
 		});
 		return true;
@@ -169,7 +187,7 @@ function generateInvoiceTable(doc: PDFKit.PDFDocument, total: number, transactio
 		const position = invoiceTableTop + (i + 1) * 30;
 		const litres = item?.purchase_details?.unit_cost_decimal
 			? GBP(item.purchase_details.unit_cost_decimal).format()
-			: "-";
+			: '-';
 		const volume = item?.purchase_details?.volume.toString() ?? '-';
 		generateTableRow(
 			doc,

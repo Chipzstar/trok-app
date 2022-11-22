@@ -134,6 +134,7 @@ const runApp = async () => {
 	const server = app.listen(port, () => {
 		IS_DEVELOPMENT && console.log(`Listening at http://localhost:${port}/server`);
 		// BUSINESS STATEMENT GENERATOR
+		// checkPastDueStatements()
 		setInterval(checkPastDueStatements , ONE_HOUR)
 	});
 	server.on('error', console.error);

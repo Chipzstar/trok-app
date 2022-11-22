@@ -6,7 +6,7 @@ import axios from 'axios';
 import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
-import { STATEMENT_REDIS_SORTED_SET_ID } from '../../utils/constants';
+import { STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
 import { FuelMerchantCategoryCodes, TransactionStatus } from '@trok-app/shared-utils';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
@@ -41,10 +41,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 			}
 		});
 		const is_valid_merchant_code = FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)
-		console.log('-----------------------------------------------');
-		console.log("ENV", process.env.DOPPLER_ENVIRONMENT)
-		console.log('-----------------------------------------------');
-		if (is_valid_merchant_code || String(process.env.STRIPE_SECRET_KEY).includes("sk_test")) {
+		if (is_valid_merchant_code || STRIPE_TEST_MODE) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
 				{},
@@ -92,6 +89,7 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 				user: {
 					select: {
 						id: true,
+						email: true,
 						stripe: true
 					}
 				}
@@ -102,7 +100,7 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 		if (zrank === null) {
 			// add member to sorted set for scheduling statement generation
 			redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().endOf('week').unix(), card.user.id);
-			redisClient.hmset(card.user.id, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
+			redisClient.hmset(card.user.id, 'email', card.user.email, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
 		}
 		await prisma.transaction.create({
 			data: {

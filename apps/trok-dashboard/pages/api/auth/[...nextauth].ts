@@ -79,7 +79,6 @@ const providers = [
 			try {
 				if (credentials == null) return null;
 				const user = await apiClient.post(`${process.env.API_BASE_URL}/server/auth/login`, credentials)
-				console.log("USER", user)
 				return user.data;
 			} catch (err) {
 				console.error("ERROR:", err)
