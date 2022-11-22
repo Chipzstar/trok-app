@@ -14,7 +14,7 @@ import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
-import { BUCKET, ONE_HOUR } from './app/utils/constants';
+import { BUCKET, IS_DEVELOPMENT, ONE_HOUR } from './app/utils/constants';
 
 const runApp = async () => {
 	const app = express();
@@ -27,7 +27,7 @@ const runApp = async () => {
 	app.use(bodyParser.urlencoded({ extended: true }));
 	// adding morgan to log HTTP requests
 	app.use(logger('dev'));
-
+	// apply rate limiting to login auth route
 	app.disable('x-powered-by');
 	const trpcApiEndpoint = '/server/trpc';
 	const playgroundEndpoint = '/server/trpc-playground';
@@ -132,7 +132,7 @@ const runApp = async () => {
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
-		console.log(`Listening at http://localhost:${port}/server`);
+		IS_DEVELOPMENT && console.log(`Listening at http://localhost:${port}/server`);
 		// BUSINESS STATEMENT GENERATOR
 		setInterval(checkPastDueStatements , ONE_HOUR)
 	});

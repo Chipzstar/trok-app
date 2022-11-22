@@ -46,23 +46,6 @@ const accountSchema = z.object({
 		.optional()
 });
 
-/*const directDebitSchema = z.object({
-	user_id: z.string(),
-	stripe_account_id: z.string(),
-	amount: z.number(),
-	reference: z.string(),
-	account_holder_name: z.string().optional(),
-	account_number: z.string().optional(),
-	sort_code: z.string().optional(),
-	is_scheduled: z.boolean(),
-	interval: z.enum(["WEEKLY","MONTHLY"]),
-	interval_execution_day: z.number().nullable(),
-	start_date: z.date(),
-	end_date: z
-		.date()
-		.optional()
-})*/
-
 const paymentsRouter = t.router({
 	getPayments: t.procedure
 		.input(

@@ -1,15 +1,21 @@
 import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
-import { TWENTY_FOUR_HOURS } from '../utils/constants';
+import {
+	MAX_CONSECUTIVE_FAILS_BY_EMAIL_AND_IP,
+	MAX_WRONG_ATTEMPTS_BY_IP_PER_DAY,
+	TWENTY_FOUR_HOURS
+} from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { hashPassword } from '@trok-app/shared-utils';
+import { comparePassword, hashPassword } from '@trok-app/shared-utils';
 import { sendVerificationLink } from '../helpers/email';
+import { getEmailIPkey } from '../utils/helpers';
+import { limiterConsecutiveFailsByEmailAndIP, limiterSlowBruteByIP } from '../middleware/rateLimitController';
 
 const router = express.Router();
 let reminderTimeout;
@@ -21,15 +27,9 @@ const signupInfoSchema = z.object({
 	email: z.string(),
 	phone: z.string(),
 	password: z.string(),
-	referral_code: z
-		.string()
-		.optional()
-		.nullable(),
-	terms: z
-		.boolean()
-		.optional()
-		.nullable()
-})
+	referral_code: z.string().optional().nullable(),
+	terms: z.boolean().optional().nullable()
+});
 
 export const authRouter = t.router({
 	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
@@ -78,18 +78,112 @@ export const authRouter = t.router({
 				}
 				// check token matches verification_token saved in user record
 				if (user.verify_token !== input.token) {
-                    throw new TRPCError({
-                        code: 'UNAUTHORIZED',
-                        message: `Invalid verification token. Please check the URL link matches the link sent to your email`
-                    });
-                }
-				return true
+					throw new TRPCError({
+						code: 'UNAUTHORIZED',
+						message: `Invalid verification token. Please check the URL link matches the link sent to your email`
+					});
+				}
+				return true;
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		})
+});
+
+router.post('/login', limiterConsecutiveFailsByEmailAndIP, limiterSlowBruteByIP, async (req, res, next) => {
+	try {
+		console.table(req.body)
+		const ipAddr = req.ip;
+		const emailIPkey = getEmailIPkey(req.body.email, ipAddr);
+		const { created_at, updated_at, ...user } = await prisma.user.findFirstOrThrow({
+			where: {
+				email: {
+					equals: req.body.email
+				}
+			}
+		});
+		// compare entered password with stored hash
+		const salt = await comparePassword(req.body.password, user.password);
+		// Any object returned will be saved in `user` property of the JWT
+		// Check if IP or email + IP is already blocked
+		res.status(200).json(salt ? user : null);
+		/*if (
+			resSlowByIP !== null &&
+			resSlowByIP.consumedPoints > MAX_WRONG_ATTEMPTS_BY_IP_PER_DAY
+		) {
+			retrySecs = Math.round(resSlowByIP.msBeforeNext / 1000) || 1;
+		} else if (
+			resEmailAndIP !== null &&
+			resEmailAndIP.consumedPoints > MAX_CONSECUTIVE_FAILS_BY_EMAIL_AND_IP
+		) {
+			retrySecs = Math.round(resEmailAndIP.msBeforeNext / 1000) || 1;
+		}
+
+		// the IP and email + ip are not rate limited
+		if (retrySecs > 0) {
+			// sets the response’s HTTP header field
+			res.set('Retry-After', String(retrySecs));
+			res.status(429).send(`Too many requests. Retry after ${retrySecs} seconds.`);
+		} else {
+
+			// authenticate the user
+			const user = await prisma.user.findFirst({
+				where: {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					email: rawInput.email,
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					password: rawInput.password
+				}
+			});
+			console.log('USER', user);
+			if (!user) {
+				// Consume 1 point from limiters on wrong attempt and block if limits reached
+				try {
+					const promises = [limiterSlowBruteByIP.consume(ipAddr)];
+					// check if user exists by checking if authentication failed because of an incorrect password
+					const incorrectPassword = await prisma.user.findFirst({
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-ignore
+						email: rawInput.email
+					});
+					if (incorrectPassword) {
+						console.log('failed login: not authorized');
+						// Count failed attempts by Email + IP only for registered users
+						promises.push(limiterConsecutiveFailsByEmailAndIP.consume(emailIPkey));
+					}
+					// if user does not exist (not registered)
+					if (!incorrectPassword) console.log('failed login: user does not exist');
+					await Promise.all(promises);
+					console.log('Email or password is wrong.');
+					next(new Error('Email or password is wrong.'));
+				} catch (rlRejected:) {
+					if (rlRejected instanceof Error) {
+						throw rlRejected;
+					} else {
+						const timeOut = String(Math.round(rlRejected.msBeforeNext / 1000)) || 1;
+						res.set('Retry-After', timeOut as string);
+						res.status(429).send(`Too many login attempts. Retry after ${timeOut} seconds`);
+					}
+				}
+			}
+			if (user) {
+				console.log('successful login');
+				if (resEmailAndIP !== null && resEmailAndIP.consumedPoints > 0) {
+					// Reset limiter based on IP + email on successful authorisation
+					await limiterConsecutiveFailsByEmailAndIP.delete(emailIPkey);
+				}
+				res.status(200).send('Permission granted!');
+			}
+		}*/
+	} catch (err) {
+		console.error(err);
+		// @ts-ignore
+		next(err);
+	}
 });
 
 router.post('/onboarding', async (req, res, next) => {

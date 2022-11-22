@@ -5,7 +5,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../prisma';
 import * as nodemailer from 'nodemailer';
 import { html, text } from '../../../utils/functions';
-import { comparePassword } from '@trok-app/shared-utils';
+import { apiClient } from '../../../utils/clients';
 
 export async function sendMagicLink({ identifier, url, provider, token, expires }: SendVerificationRequestParams) {
 	try {
@@ -76,22 +76,15 @@ const providers = [
 		},
 		async authorize(credentials, req) {
 			// Add logic here to look up the user from the credentials supplied
-			if (credentials == null) return null;
-			const { created_at, updated_at, ...user } = await prisma.user.findFirst({
-				where: {
-					email: {
-						equals: credentials.email
-					}
-				}
-			});
-			if (user) {
-				// compare entered password with stored hash
-				const salt = await comparePassword(credentials.password, user.password);
-				// Any object returned will be saved in `user` property of the JWT
-				return salt ? user : null;
-			} else {
+			try {
+				if (credentials == null) return null;
+				const user = await apiClient.post(`${process.env.API_BASE_URL}/server/auth/login`, credentials)
+				console.log("USER", user)
+				return user.data;
+			} catch (err) {
+				console.error("ERROR:", err)
 				// If you return null then an error will be displayed advising the user to check their details.
-				return null;
+				throw new Error(err) ;
 			}
 		}
 	})

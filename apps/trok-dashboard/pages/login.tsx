@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import Image from 'next/image';
 import { useForm } from '@mantine/form';
@@ -46,8 +46,11 @@ const Login = ({ csrfToken, users }) => {
 				}
 				// Something went wrong
 				if (error) {
-					console.log(error);
-					form.setFieldError('password', 'Password is incorrect');
+					if (error === "CredentialsSignIn") {
+						form.setFieldError('password', 'Password is incorrect');
+					} else {
+						notifyError('login-failure', error, <IconX size={20} />);
+					}
 				}
 				setLoading(false);
 			} catch (error) {
@@ -58,6 +61,14 @@ const Login = ({ csrfToken, users }) => {
 		},
 		[router]
 	);
+
+	useEffect(() => {
+		if (router.query?.error) {
+			let message = String(router.query.error)
+			notifyError("login-failed", message, <IconX size={20} />);
+		}
+	}, [router.query]);
+
 
 	return (
 		<div className='h-screen w-full overflow-x-hidden bg-white p-5'>
