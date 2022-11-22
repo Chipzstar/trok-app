@@ -46,7 +46,7 @@ const Login = ({ csrfToken, users }) => {
 				}
 				// Something went wrong
 				if (error) {
-					if (error === "CredentialsSignIn") {
+					if (error === "CredentialsSignin") {
 						form.setFieldError('password', 'Password is incorrect');
 					} else {
 						notifyError('login-failure', error, <IconX size={20} />);
