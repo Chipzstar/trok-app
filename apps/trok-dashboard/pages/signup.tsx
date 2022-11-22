@@ -44,7 +44,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 			.string({ required_error: 'Required' })
 			.min(6, "Password must be at least 6 characters")
 			.max(50, "Password must have at most 50 characters")
-			.refine((val: string) => getStrength(val) > 100, 'Your password is too weak, use the suggestions increase password strength'),
+			.refine((val: string) => getStrength(val) >= 100, 'Your password is too weak, use the suggestions increase password strength'),
 		full_name: z.string().nullable(),
 		firstname: z.string({ required_error: 'Required' }).max(25),
 		lastname: z.string({ required_error: 'Required' }).max(25),
