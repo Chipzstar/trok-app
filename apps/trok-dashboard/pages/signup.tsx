@@ -3,13 +3,35 @@ import Image from 'next/image';
 import { useLocalStorage } from '@mantine/hooks';
 import { useRouter } from 'next/router';
 import { useForm, zodResolver } from '@mantine/form';
-import { PATHS, STORAGE_KEYS } from '../utils/constants';
-import { Anchor, Button, Checkbox, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { PATHS, requirements, STORAGE_KEYS } from '../utils/constants';
+import {
+	Anchor,
+	Button,
+	Checkbox,
+	Box,
+	Group,
+	PasswordInput,
+	Popover,
+	Progress,
+	Stack,
+	Text,
+	TextInput,
+	Title
+} from '@mantine/core';
 import { trpc } from '../utils/clients';
-import { getE164Number, notifyError } from '@trok-app/shared-utils';
-import { IconX } from '@tabler/icons';
+import { getE164Number, notifyError, SignupInfo } from '@trok-app/shared-utils';
+import { IconCheck, IconX } from '@tabler/icons';
 import prisma from '../prisma';
 import { z } from 'zod';
+import { getStrength } from '../utils/functions';
+
+function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
+	return (
+		<Text color={meets ? 'teal' : 'red'} sx={{ display: 'flex', alignItems: 'center' }} mt={7} size='sm'>
+			{meets ? <IconCheck size={14} /> : <IconX size={14} />} <Box ml={10}>{label}</Box>
+		</Text>
+	);
+}
 
 export function Signup({ secret, emails }: { secret: string; emails: string[] }) {
 	const SignupSchema = z.object({
@@ -18,22 +40,28 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 			.email({ message: 'Invalid email' })
 			.max(50)
 			.refine((value: string) => !emails.includes(value), 'Account with this email already exists'),
+		password: z
+			.string({ required_error: 'Required' })
+			.min(6, "Password must be at least 6 characters")
+			.max(50, "Password must have at most 50 characters")
+			.refine((val: string) => getStrength(val) > 100, 'Your password is too weak, use the suggestions increase password strength'),
 		full_name: z.string().nullable(),
 		firstname: z.string({ required_error: 'Required' }).max(25),
 		lastname: z.string({ required_error: 'Required' }).max(25),
 		phone: z.string({ required_error: 'Required' }).max(25),
 		referral_code: z.string().max(10, 'Referral code must contain at most 10 characters').optional(),
-		password: z.string().max(50),
-		terms: z.boolean().refine(val => val, 'Please check this box')
+		terms: z.boolean().refine((val: boolean) => val, 'Please check this box')
 	});
+	const [popoverOpened, setPopoverOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const mutation = trpc.signup.useMutation();
-	const [userForm, setUserForm] = useLocalStorage({
+	const [userForm, setUserForm] = useLocalStorage<Partial<SignupInfo>>({
 		key: STORAGE_KEYS.SIGNUP_FORM,
 		defaultValue: {
 			full_name: null,
-			terms: undefined
+			terms: undefined,
+			password: ''
 		}
 	});
 	const router = useRouter();
@@ -43,6 +71,15 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 		},
 		validate: zodResolver(SignupSchema)
 	});
+	const strength = getStrength(form.values?.password ?? '');
+	const color = strength === 100 ? 'teal' : strength > 50 ? 'yellow' : 'red';
+	const checks = requirements.map((requirement, index) => (
+		<PasswordRequirement
+			key={index}
+			label={requirement.label}
+			meets={requirement.re.test(form.values?.password ?? '')}
+		/>
+	));
 
 	const handleSubmit = useCallback(
 		async values => {
@@ -51,10 +88,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 			values.phone = getE164Number(values.phone);
 			try {
 				const result = await mutation.mutateAsync(values);
-				console.log('-----------------------------------------------');
-				console.log(result);
 				setNewAccount({ ...values, password: result.hashed_password });
-				console.log('-----------------------------------------------');
 				router.push(`${PATHS.ONBOARDING}?page=1`);
 				setLoading(false);
 			} catch (err) {
@@ -79,7 +113,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 	}, []);
 
 	useEffect(() => {
-		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify({...form.values, password: null}));
+		window.localStorage.setItem(STORAGE_KEYS.SIGNUP_FORM, JSON.stringify({ ...form.values, password: '' }));
 	}, [form.values]);
 
 	return (
@@ -128,12 +162,30 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 						label='Business phone number'
 						{...form.getInputProps('phone', { withError: true })}
 					/>
-					<PasswordInput
-						withAsterisk
-						label='Password'
-						{...form.getInputProps('password', { withError: true })}
-					/>
-					<TextInput label='Referral code' {...form.getInputProps('referral_code')} />
+					<Popover opened={popoverOpened} position='bottom' width='target' transition='pop'>
+						<Popover.Target>
+							<div
+								onFocusCapture={() => setPopoverOpened(true)}
+								onBlurCapture={() => setPopoverOpened(false)}
+							>
+								<PasswordInput
+									withAsterisk
+									label='Password'
+									description='Strong passwords should include letters in lower and uppercase, at least 1 number, and at least 1 special symbol'
+									{...form.getInputProps('password', { withError: true })}
+								/>
+							</div>
+						</Popover.Target>
+						<Popover.Dropdown>
+							<Progress color={color} value={strength} size={5} style={{ marginBottom: 10 }} />
+							<PasswordRequirement
+								label='Includes at least 6 characters'
+								meets={form.values?.password?.length > 5}
+							/>
+							{checks}
+						</Popover.Dropdown>
+					</Popover>
+					<TextInput label='Referral code' {...form.getInputProps('referral_code', { withError: true })} />
 					<Checkbox
 						label={
 							<>

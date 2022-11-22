@@ -24,6 +24,7 @@ const accountRouter = t.router({
 					lastname: true,
 					email: true,
 					phone: true,
+					password: true,
 					business: true,
 					location: true,
 					shipping_address: true,

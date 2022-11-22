@@ -2,6 +2,7 @@ import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
 import Prisma from '@prisma/client';
 import { SelectInput } from './types';
+import { requirements } from './constants';
 
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -10,6 +11,19 @@ export function capitalize(str: string): string {
 export function sanitize(str: string): string {
 	return str.replace(/[_-]/g, ' ').toLowerCase();
 }
+
+export function getStrength(password: string) {
+	let multiplier = password.length > 5 ? 0 : 1;
+
+	requirements.forEach((requirement) => {
+		if (!requirement.re.test(password)) {
+			multiplier += 1;
+		}
+	});
+
+	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
+}
+
 
 export function uniqueArray(array: SelectInput[], key) {
 	return [...new Map(array.map(item => [item[key], item])).values()];

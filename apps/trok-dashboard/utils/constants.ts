@@ -5,6 +5,13 @@ import Prisma, { Prisma as Schema } from '@prisma/client';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
+export const requirements = [
+	{ re: /[0-9]/, label: 'Includes number' },
+	{ re: /[a-z]/, label: 'Includes lowercase letter' },
+	{ re: /[A-Z]/, label: 'Includes uppercase letter' },
+	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
+];
+
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
