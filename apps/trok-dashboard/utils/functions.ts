@@ -105,7 +105,7 @@ export async function validateCompanyInfo(
 	business_name: string,
 	firstname: string,
 	lastname: string,
-	business_address = null
+	business_address: AddressInfo = null
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true

@@ -5,6 +5,7 @@ import { PATHS, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
+	AddressInfo,
 	CreateUser,
 	getE164Number,
 	isValidUrl,
@@ -17,6 +18,7 @@ import {
 import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
 import { useRouter } from 'next/router';
+import { validateCompanyInfo } from '../../utils/functions';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
@@ -63,6 +65,22 @@ const Step3 = ({ prevStep }) => {
 		async (values: OnboardingLocationInfo) => {
 			setLoading(true);
 			try {
+				const location: AddressInfo = {
+					line1: values.line1,
+					line2: values?.line2,
+					city: values.city,
+					postcode: values.postcode,
+					region: values.region,
+					country: values.country
+				};
+				const { is_valid, reason } = await validateCompanyInfo(
+					businessObj.business_crn,
+					businessObj.legal_name,
+					account.firstname,
+					account.lastname,
+					location
+				);
+				if (!is_valid) throw new Error(reason);
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
 				const personResult = await Stripe.createToken('person', {
@@ -116,18 +134,8 @@ const Step3 = ({ prevStep }) => {
 					},
 					tos_shown_and_accepted: true
 				});
-				if (accountResult.error) {
-					throw new Error(accountResult.error.message);
-				}
+				if (accountResult.error) throw new Error(accountResult.error.message);
 				const isUrlValid = isValidUrl(businessObj.business_url);
-				const location = {
-					line1: values.line1,
-					line2: values?.line2,
-					city: values.city,
-					postcode: values.postcode,
-					region: values.region,
-					country: values.country
-				};
 				const payload: CreateUser = {
 					...account,
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
