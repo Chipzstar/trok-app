@@ -69,3 +69,14 @@ enum PaymentInterval {
     weekly
     monthly
 }
+
+enum TransactionDeclineCode {
+    disallowed_merchant
+    authentication_required
+    insufficient_funds
+    currency_not_supported
+    expired_card
+    fraudulent
+    incorrect_pin
+    invalid_amount
+}

@@ -65,12 +65,12 @@ const TransactionDetails = ({ opened, setOpened, transaction }: TransactionDetai
 								></path>
 							</svg>
 							<span className='sr-only'>Info</span>
-							<h3 className='text-lg font-medium text-red-900 dark:text-red-800'>
-								Disallowed Merchant Category
+							<h3 className='text-lg font-medium text-red-900 dark:text-red-800 capitalize'>
+								{sanitize(String(transaction?.decline_code))}
 							</h3>
 						</div>
 						<div className='mt-2 mb-4 text-sm text-red-900 dark:text-red-800'>
-							This card attempted to make a purchase at a non-fuel card merchant with category: <span className="font-semibold">"{sanitize(String(transaction?.merchant_data.category))}"</span>
+							{transaction?.decline_code === "disallowed_merchant" ? <span>{transaction?.decline_reason?.split(":")[0]} <span className="font-semibold">"{sanitize(String(transaction?.merchant_data.category))}"</span></span> : transaction?.decline_reason}
 						</div>
 					</div>)}
 					<Text size='sm' color='dimmed'>

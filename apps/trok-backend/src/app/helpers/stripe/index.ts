@@ -7,12 +7,13 @@ import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import { STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
-import { FuelMerchantCategoryCodes, TransactionStatus } from '@trok-app/shared-utils';
+import { FuelMerchantCategoryCodes, TRANSACTION_STATUS, TransactionStatus } from '@trok-app/shared-utils';
+import Prisma from '@prisma/client';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
 	// Authorize the transaction.
 	console.log('-----------------------------------------------');
-	console.log("AUTH_ID:", auth.id);
+	console.log('AUTH_ID:', auth.id);
 	console.log('-----------------------------------------------');
 	let res,
 		status: TransactionStatus = 'declined';
@@ -40,7 +41,9 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 				}
 			}
 		});
-		const is_valid_merchant_code = FuelMerchantCategoryCodes.find(item => item === auth.merchant_data.category_code)
+		const is_valid_merchant_code = FuelMerchantCategoryCodes.find(
+			item => item === auth.merchant_data.category_code
+		);
 		if (is_valid_merchant_code || STRIPE_TEST_MODE) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
@@ -126,7 +129,9 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 					country: auth.merchant_data.country ?? ''
 				},
 				last4: card.last4,
-				status: auth.approved ? 'approved' : 'declined'
+				status: auth.approved ? TRANSACTION_STATUS.APPROVED : TRANSACTION_STATUS.DECLINED,
+				...(auth.approved && {decline_code: Prisma.TransactionDeclineCode.disallowed_merchant }),
+				...(auth.approved && {decline_reason: `This card attempted to make a purchase at a non-fuel card merchant with category: ${auth.merchant_data.category}`})
 			}
 		});
 	} catch (err) {
@@ -169,7 +174,7 @@ export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 						}
 					}
 				}),
-				status: 'approved'
+				status: TRANSACTION_STATUS.APPROVED
 			}
 		});
 	} catch (err) {

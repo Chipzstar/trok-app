@@ -22,4 +22,6 @@ model Transaction {
     merchant_data MerchantData
     purchase_details PurchaseDetails?
     status TransactionStatus
+    decline_code TransactionDeclineCode?
+    decline_reason String?
 }
