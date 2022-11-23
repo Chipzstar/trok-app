@@ -68,7 +68,7 @@ export function getE164Number(phoneNumber: string) {
 }
 
 export function includesCaseInsensitive(this: string, str: string): boolean {
-	return this.toLowerCase().includes(str.toLowerCase());
+	return this.toLowerCase().trim().includes(str.toLowerCase().trim());
 }
 
 export function checkIfNullOrUndefined(variable: any) {

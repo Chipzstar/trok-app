@@ -2,6 +2,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { withNx } = require('@nrwl/next/plugins/with-nx');
+const { withSentryConfig } = require('@sentry/nextjs')
 
 const rewritesConfig = [
 	{
@@ -19,6 +20,9 @@ const nextConfig = {
 		// See: https://github.com/gregberge/svgr
 		svgr: false
 	},
+	sentry: {
+		hideSourceMaps: true
+	},
 	webpack: (config, options) => {
 		config.experiments = {
 			topLevelAwait: true,
@@ -31,4 +35,8 @@ const nextConfig = {
 	}
 };
 
-module.exports = withNx(nextConfig);
+const SentryWebpackPluginOptions = {
+
+}
+
+module.exports = withSentryConfig(withNx(nextConfig), SentryWebpackPluginOptions);

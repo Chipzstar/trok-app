@@ -146,8 +146,7 @@ const Step3 = ({ prevStep }) => {
 						shipping_speed: values.shipping_speed
 					}
 				};
-				const user = (
-					await apiClient.post('/server/auth/complete-registration', {
+				await apiClient.post('/server/auth/complete-registration', {
 						accountToken: accountResult.token,
 						personToken: personResult.token,
 						business_profile: {
@@ -158,7 +157,6 @@ const Step3 = ({ prevStep }) => {
 						},
 						data: payload
 					})
-				).data;
 				setLoading(false);
 				router.push(PATHS.VERIFY_EMAIL)
 			} catch (err) {
