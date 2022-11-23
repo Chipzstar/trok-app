@@ -136,7 +136,7 @@ export const authOptions = {
 	jwt: {
 		encryption: true
 	},
-	debug: true
+	debug: process.env.NODE_ENV !== 'production'
 };
 
 // @ts-ignore

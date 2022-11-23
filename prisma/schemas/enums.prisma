@@ -72,11 +72,18 @@ enum PaymentInterval {
 
 enum TransactionDeclineCode {
     disallowed_merchant
-    authentication_required
+    card_active
+    card_inactive
+    cardholder_inactive
+    cardholder_verification_required
+    account_disabled
+    spending_controls
     insufficient_funds
-    currency_not_supported
-    expired_card
-    fraudulent
+    not_allowed
+    verification_failed
+    suspected_fraud
     incorrect_pin
-    invalid_amount
+    webhook_declined
+    webhook_approved
+    webhook_timeout
 }

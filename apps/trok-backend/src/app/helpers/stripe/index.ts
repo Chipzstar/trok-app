@@ -103,8 +103,17 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 		if (zrank === null) {
 			// add member to sorted set for scheduling statement generation
 			redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().endOf('week').unix(), card.user.id);
-			redisClient.hmset(card.user.id, 'email', card.user.email, 'period_start', dayjs().unix(), 'period_end', dayjs().endOf('week').unix());
+			redisClient.hmset(
+				card.user.id,
+				'email',
+				card.user.email,
+				'period_start',
+				dayjs().unix(),
+				'period_end',
+				dayjs().endOf('week').unix()
+			);
 		}
+		const decline_code = auth.request_history.length ? <Prisma.TransactionDeclineCode>auth.request_history[0].reason : null
 		await prisma.transaction.create({
 			data: {
 				created_at: dayjs.unix(auth.created).format(),
@@ -130,15 +139,15 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 				},
 				last4: card.last4,
 				status: auth.approved ? TRANSACTION_STATUS.APPROVED : TRANSACTION_STATUS.DECLINED,
-				...(auth.approved && {decline_code: Prisma.TransactionDeclineCode.disallowed_merchant }),
-				...(auth.approved && {decline_reason: `This card attempted to make a purchase at a non-fuel card merchant with category: ${auth.merchant_data.category}`})
+				...(!auth.approved && { decline_code }),
+				...(!auth.approved && { decline_reason: `This card attempted to make a purchase at a non-fuel card merchant with category: ${auth.merchant_data.category}`})
 			}
 		});
 	} catch (err) {
-	    console.error(err)
+		console.error(err);
 		return null;
 	}
-}
+};
 
 export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 	try {
@@ -150,10 +159,14 @@ export const updateTransaction = async (t: Stripe.Issuing.Transaction) => {
 					}
 				}
 			}
-		})
-		const t_expanded = await stripe.issuing.transactions.retrieve(t.id, {expand: ['purchase_details']}, {stripeAccount: user.stripe.accountId })
+		});
+		const t_expanded = await stripe.issuing.transactions.retrieve(
+			t.id,
+			{ expand: ['purchase_details'] },
+			{ stripeAccount: user.stripe.accountId }
+		);
 		console.log('-----------------------------------------------');
-		console.log(t_expanded.purchase_details)
+		console.log(t_expanded.purchase_details);
 		console.log('-----------------------------------------------');
 		return await prisma.transaction.update({
 			where: {
