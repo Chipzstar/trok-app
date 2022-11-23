@@ -131,7 +131,7 @@ export async function validateCompanyInfo(
 		const company_officers = (await companyHouseClient.get(`/company/${crn}/officers`)).data;
 		console.log('-----------------------------------------------');
 		console.log(company_officers)
-		if (!isCompanyDirector(company_officers, firstname, lastname)){
+		if (!isCompanyDirector(company_officers.items, firstname, lastname)){
 			return {
 				is_valid: false,
 				reason: `The name ${firstname} ${lastname} is not a director at this company. Only company directors listed on your Company House profile can signup`
