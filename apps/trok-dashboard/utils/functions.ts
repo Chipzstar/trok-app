@@ -87,7 +87,7 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 export function isCompanyDirector(directors, firstname: string, lastname: string): boolean {
 	return directors.some(director => {
 		console.log(director.name);
-		console.table({ firstname, lastname });
+		console.table({firstname: director.name.split(',')[0], lastname: director.name.split(',')[1]});
 		return (
 			isStringEqual(director.name.split(',')[0], lastname) &&
 			isStringEqual(director.name.split(',')[1], firstname)

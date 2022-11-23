@@ -87,7 +87,7 @@ export function decrypt(word: string, key: string) {
 }
 
 export function isStringEqual(a: string, b: string) {
-	return a.toLowerCase() === b.toLowerCase()
+	return a.toLowerCase().trim() === b.toLowerCase().trim()
 }
 
 export async function hashPassword(password: string, salt_rounds = 10) {
