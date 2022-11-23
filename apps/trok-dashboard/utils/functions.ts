@@ -72,7 +72,7 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 	// if no input address was provided, return true by default
 	let is_valid = true;
 	if (!address2) return true;
-	if (address1.address_line_1.contains(address2.line1)){
+	if (address1.address_line_1.contains(address2.line1)) {
 		is_valid = false;
 	} else if (!isStringEqual(address1.locality, address2.city)) {
 		is_valid = false;
@@ -81,15 +81,18 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 	} else if (!isStringEqual(address1.country, address2.country)) {
 		is_valid = false;
 	}
-	return is_valid
+	return is_valid;
 }
 
-export function isCompanyDirector(directors, firstname: string, lastname: string) : boolean {
+export function isCompanyDirector(directors, firstname: string, lastname: string): boolean {
 	return directors.some(director => {
-		console.log(director.name)
-		console.table({firstname, lastname})
-		return isStringEqual(director.name.split(",")[0], lastname) && isStringEqual(director.name.split(",")[1], firstname)
-	})
+		console.log(director.name);
+		console.table({ firstname, lastname });
+		return (
+			isStringEqual(director.name.split(',')[0], lastname) &&
+			isStringEqual(director.name.split(',')[1], firstname)
+		);
+	});
 }
 
 /**
@@ -113,8 +116,6 @@ export async function validateCompanyInfo(
 			return { is_valid: true, reason: null };
 		}
 		const company_profile = (await companyHouseClient.get(`/company/${crn}`)).data;
-		console.log('-----------------------------------------------');
-		console.log(company_profile);
 		if (!isStringEqual(company_profile.company_name, business_name)) {
 			return {
 				is_valid: false,
@@ -122,16 +123,14 @@ export async function validateCompanyInfo(
 			};
 		}
 		const company_address = (await companyHouseClient.get(`/company/${crn}/registered-office-address`)).data;
-		if(!compareCompanyAddress(company_address, business_address)) {
+		if (!compareCompanyAddress(company_address, business_address)) {
 			return {
 				is_valid: false,
 				reason: "Provided address does not match the company's registered office address. Please double check all address fields match with your Company House profile"
 			};
 		}
 		const company_officers = (await companyHouseClient.get(`/company/${crn}/officers`)).data;
-		console.log('-----------------------------------------------');
-		console.log(company_officers)
-		if (!isCompanyDirector(company_officers.items, firstname, lastname)){
+		if (!isCompanyDirector(company_officers.items, firstname, lastname)) {
 			return {
 				is_valid: false,
 				reason: `The name ${firstname} ${lastname} is not a director at this company. Only company directors listed on your Company House profile can signup`
@@ -142,13 +141,11 @@ export async function validateCompanyInfo(
 			reason: null
 		};
 	} catch (err) {
-		if (err.response.status === 404) {
-			return {
-				is_valid: false,
-				reason: 'The Company registration number does not exist. Please enter a valid company registration number'
-			};
-		}
-		return { is_valid: false, reason: err.message };
+		console.error(err)
+		return {
+			is_valid: false,
+			reason: 'The Company registration number does not exist. Please enter a valid company registration number'
+		};
 	}
 }
 
