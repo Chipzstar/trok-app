@@ -8,7 +8,7 @@ import {
 	CreateUser,
 	getE164Number,
 	isValidUrl,
-	notifyError,
+	notifyError, OnboardingAccountStep2,
 	OnboardingBusinessInfo,
 	OnboardingFinancialInfo,
 	OnboardingLocationInfo,
@@ -16,7 +16,6 @@ import {
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
@@ -24,7 +23,7 @@ const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 const Step3 = ({ prevStep }) => {
 	const router = useRouter()
 	const [loading, setLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo>>({
+	const [account, setAccount] = useLocalStorage<OnboardingAccountStep2>({
 		key: STORAGE_KEYS.ACCOUNT,
 		defaultValue: null
 	});
@@ -39,7 +38,7 @@ const Step3 = ({ prevStep }) => {
 			city: '',
 			postcode: '',
 			region: '',
-			country: 'GB',
+			country: 'England',
 			card_business_name: '',
 			num_cards: undefined,
 			shipping_speed: 'standard',
@@ -50,7 +49,7 @@ const Step3 = ({ prevStep }) => {
 				city: '',
 				postcode: '',
 				region: '',
-				country: 'GB'
+				country: 'England'
 			}
 		}
 	});
@@ -194,7 +193,7 @@ const Step3 = ({ prevStep }) => {
 					</Group>
 					<Group grow>
 						<TextInput required label='County / Region' {...form.getInputProps('region')} />
-						<TextInput readOnly label='Country' {...form.getInputProps('country')} />
+						<TextInput required label='Country' {...form.getInputProps('country')} />
 					</Group>
 					<Checkbox
 						label='Use a different shipping address'
@@ -226,7 +225,7 @@ const Step3 = ({ prevStep }) => {
 									{...form.getInputProps('shipping_address.region')}
 								/>
 								<TextInput
-									readOnly
+									required
 									label='Country'
 									{...form.getInputProps('shipping_address.country')}
 								/>

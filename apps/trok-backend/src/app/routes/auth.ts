@@ -2,8 +2,6 @@ import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
 import {
-	MAX_CONSECUTIVE_FAILS_BY_EMAIL_AND_IP,
-	MAX_WRONG_ATTEMPTS_BY_IP_PER_DAY,
 	TWENTY_FOUR_HOURS
 } from '../utils/constants';
 import { stripe } from '../utils/clients';

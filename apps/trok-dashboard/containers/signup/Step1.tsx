@@ -9,16 +9,19 @@ import {
 	Stack,
 	Text,
 	TextInput,
-	Loader,
 	Tooltip,
 	Center
 } from '@mantine/core';
 import { IconCurrencyPound, IconX, IconInfoCircle } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
-import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
+import {
+	notifyError,
+	OnboardingBusinessInfo,
+	OnboardingAccountStep1
+} from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
-import { uploadFile, validateCRN } from '../../utils/functions';
+import { uploadFile, validateCompanyInfo } from '../../utils/functions';
 
 const DocumentInfo = ({ fileInfo }: { fileInfo: File | null }) => {
 	return (
@@ -34,7 +37,7 @@ const DocumentInfo = ({ fileInfo }: { fileInfo: File | null }) => {
 const Step1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<File>(null);
-	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const [account, setAccount] = useLocalStorage<Partial<OnboardingAccountStep1>>({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [companyForm, setCompanyForm] = useLocalStorage<OnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
 		defaultValue: {
@@ -66,9 +69,14 @@ const Step1 = ({ nextStep }) => {
 		async (values: OnboardingBusinessInfo) => {
 			setLoading(true);
 			try {
-				const is_valid = await validateCRN(values.business_crn)
+				const { is_valid, reason } = await validateCompanyInfo(
+					values.business_crn,
+					values.legal_name,
+					account.firstname,
+					account.lastname
+				);
 				if (!is_valid) {
-					throw new Error("The Company registration number does not exist. Please enter a valid company registration number");
+					throw new Error(reason);
 				}
 				if (!file) {
 					throw new Error("Please upload a picture of your driver's license before submitting");

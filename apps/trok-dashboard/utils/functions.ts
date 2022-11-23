@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import Prisma from '@prisma/client';
 import { SelectInput } from './types';
 import { requirements } from './constants';
+import { AddressInfo, isStringEqual, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import '../utils/string.extensions';
 
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -15,7 +17,7 @@ export function sanitize(str: string): string {
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
 
-	requirements.forEach((requirement) => {
+	requirements.forEach(requirement => {
 		if (!requirement.re.test(password)) {
 			multiplier += 1;
 		}
@@ -24,13 +26,12 @@ export function getStrength(password: string) {
 	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 
-
 export function uniqueArray(array: SelectInput[], key) {
 	return [...new Map(array.map(item => [item[key], item])).values()];
 }
 
 export function uniqueSimpleArray(array: SelectInput[]) {
-	const values = array.map(({ value }) => typeof value === 'string' ? value.toUpperCase() : value)
+	const values = array.map(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value));
 	return [...new Set(values)];
 }
 
@@ -67,19 +68,90 @@ export async function uploadFile(file, crn, documentType) {
 	}
 }
 
-export async function validateCRN(crn: string): Promise<boolean> {
+export function compareCompanyAddress(address1, address2: AddressInfo | null): boolean {
+	// if no input address was provided, return true by default
+	let is_valid = true;
+	if (!address2) return true;
+	if (address1.address_line_1.contains(address2.line1)){
+		is_valid = false;
+	} else if (!isStringEqual(address1.locality, address2.city)) {
+		is_valid = false;
+	} else if (!isStringEqual(address1.postal_code, address2.postcode)) {
+		is_valid = false;
+	} else if (!isStringEqual(address1.country, address2.country)) {
+		is_valid = false;
+	}
+	return is_valid
+}
+
+export function isCompanyDirector(directors, firstname: string, lastname: string) : boolean {
+	return directors.some(director => {
+		console.log(director.name)
+		console.table({firstname, lastname})
+		return director.name.split(",")[0].contains(lastname) && director.name.split(",")[1].contains(firstname)
+	})
+}
+
+/**
+ * Perform KYB on director business name, business legal name, crn and business address
+ * @param crn
+ * @param business_name
+ * @param firstname
+ * @param lastname
+ * @param business_address
+ */
+export async function validateCompanyInfo(
+	crn: string,
+	business_name: string,
+	firstname: string,
+	lastname: string,
+	business_address = null
+): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
 		if (process.env.NODE_ENV === 'development') {
-			return true;
+			return { is_valid: true, reason: null };
 		}
-		const company_profile = await companyHouseClient.get(`/company/${crn}`);
-		console.log(company_profile)
-		return !!company_profile;
+		const company_profile = (await companyHouseClient.get(`/company/${crn}`)).data;
+		console.log('-----------------------------------------------');
+		console.log(company_profile);
+		if (!isStringEqual(company_profile.company_name, business_name)) {
+			return {
+				is_valid: false,
+				reason: 'Your business name does not match the company registration number. Please make sure you are using the full company name that appears on your Company House profile'
+			};
+		}
+		const company_address = (await companyHouseClient.get(`/company/${crn}/registered-office-address`)).data;
+		if(!compareCompanyAddress(company_address, business_address)) {
+			return {
+				is_valid: false,
+				reason: "Provided address does not match the company's registered office address. Please double check all address fields match with your Company House profile"
+			};
+		}
+		const company_officers = (await companyHouseClient.get(`/company/${crn}/officers`)).data;
+		console.log('-----------------------------------------------');
+		console.log(company_officers)
+		if (!isCompanyDirector(company_officers, firstname, lastname)){
+			return {
+				is_valid: false,
+				reason: `The name ${firstname} ${lastname} is not a director at this company. Only company directors listed on your Company House profile can signup`
+			};
+		}
+		return {
+			is_valid: !!company_profile,
+			reason: null
+		};
 	} catch (err) {
-		return false;
+		if (err.response.status === 404) {
+			return {
+				is_valid: false,
+				reason: 'The Company registration number does not exist. Please enter a valid company registration number'
+			};
+		}
+		return { is_valid: false, reason: err.message };
 	}
 }
+
 //@ts-ignore
 export function filterByTimeRange(data: Prisma.Transaction[], range: [Date, Date]) {
 	const startDate = dayjs(range[0]).startOf('day');
@@ -87,7 +159,7 @@ export function filterByTimeRange(data: Prisma.Transaction[], range: [Date, Date
 	// @ts-ignore
 	return data.filter(t => {
 		const curr = dayjs(t.created_at);
-		return curr.isBefore(endDate) && curr.isAfter(startDate) && t.status === "approved";
+		return curr.isBefore(endDate) && curr.isAfter(startDate) && t.status === TRANSACTION_STATUS.APPROVED;
 	});
 }
 
@@ -281,4 +353,3 @@ export function html({ url, full_name }) {
 </body>
 </html>`;
 }
-

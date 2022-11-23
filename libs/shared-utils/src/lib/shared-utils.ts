@@ -86,6 +86,10 @@ export function decrypt(word: string, key: string) {
 	return JSON.parse(bytes)
 }
 
+export function isStringEqual(a: string, b: string) {
+	return a.toLowerCase() === b.toLowerCase()
+}
+
 export async function hashPassword(password: string, salt_rounds = 10) {
 	const salt = await bcrypt.genSalt(salt_rounds);
 	return await bcrypt.hash(password, salt);

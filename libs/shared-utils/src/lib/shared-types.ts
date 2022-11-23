@@ -25,10 +25,18 @@ export enum CARD_SHIPPING_STATUS {
 	FAILURE= 'failure',
 }
 
-export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
+export enum PAYMENT_STATUS {
+	PENDING = 'pending',
+	IN_PROGRESS = 'in_progress',
+	COMPLETE = 'complete',
+	FAILED = 'failed',
+	CANCELLED = 'cancelled'
+}
 
+export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
 export type SpendingLimitInterval = typeof intervals[number];
 // export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
+
 
 export type SpendingLimit = {
     interval: SpendingLimitInterval;
@@ -59,6 +67,10 @@ export interface OnboardingBusinessInfo {
 export interface OnboardingFinancialInfo {
 	average_monthly_revenue: number | null;
 }
+
+export type OnboardingAccountStep1 = SignupInfo & Record<'business', OnboardingBusinessInfo>
+
+export type OnboardingAccountStep2 = SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo>
 
 export interface CardConfiguration {
 	card_business_name: string;
@@ -100,12 +112,4 @@ export interface CreateUser extends SignupInfo {
 	card_configuration?: CardConfiguration;
 	shipping_address?: AddressInfo;
 	stripe?: StripeInfo;
-}
-
-export enum PAYMENT_STATUS {
-	PENDING = 'pending',
-	IN_PROGRESS = 'in_progress',
-	COMPLETE = 'complete',
-	FAILED = 'failed',
-	CANCELLED = 'cancelled'
 }
