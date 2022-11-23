@@ -88,7 +88,7 @@ export function isCompanyDirector(directors, firstname: string, lastname: string
 	return directors.some(director => {
 		console.log(director.name)
 		console.table({firstname, lastname})
-		return director.name.split(",")[0].contains(lastname) && director.name.split(",")[1].contains(firstname)
+		return isStringEqual(director.name.split(",")[0], lastname) && isStringEqual(director.name.split(",")[1], firstname)
 	})
 }
 
