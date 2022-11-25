@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { Group, Modal, Stack, Text } from '@mantine/core';
 import { useCounter } from '@mantine/hooks';
 import { signOut } from 'next-auth/react';
 
@@ -9,7 +9,7 @@ const SessionTimeout = ({ opened, onClose }) => {
 	const countdownLogout = useCallback(() => handlers.decrement(), []);
 
 	useEffect(() => {
-		if (opened) setInterval(countdownLogout, 1000);
+		if (opened) interval = setInterval(countdownLogout, 1000);
 		return () => {
 			handlers.reset();
 			clearInterval(interval);

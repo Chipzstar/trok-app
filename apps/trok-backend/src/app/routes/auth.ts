@@ -13,7 +13,7 @@ import { TRPCError } from '@trpc/server';
 import { comparePassword, hashPassword } from '@trok-app/shared-utils';
 import { sendVerificationLink } from '../helpers/email';
 import { getEmailIPkey } from '../utils/helpers';
-import { limiterConsecutiveFailsByEmailAndIP, limiterSlowBruteByIP } from '../middleware/rateLimitController';
+import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
 
 const router = express.Router();
 let reminderTimeout;
