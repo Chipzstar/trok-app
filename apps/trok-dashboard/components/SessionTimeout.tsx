@@ -1,20 +1,27 @@
 import React, { useCallback, useEffect } from 'react';
 import { Group, Modal, Stack, Text } from '@mantine/core';
-import { useCounter } from '@mantine/hooks';
+import { useCounter, useDocumentVisibility } from '@mantine/hooks';
 import { signOut } from 'next-auth/react';
 
 let interval;
 const SessionTimeout = ({ opened, onClose }) => {
-	const [count, handlers] = useCounter(60, { min: 0, max: 60 });
+	const document_state = useDocumentVisibility();
+	const [count, handlers] = useCounter(30, { min: 0, max: 30 });
 	const countdownLogout = useCallback(() => handlers.decrement(), []);
 
 	useEffect(() => {
-		if (opened) interval = setInterval(countdownLogout, 1000);
+		if (opened) {
+			if (document_state === 'visible') {
+				interval = setInterval(countdownLogout, 1000);
+			} else {
+				signOut().then(() => console.log('signed out'))
+			}
+		}
 		return () => {
 			handlers.reset();
 			clearInterval(interval);
 		};
-	}, [opened]);
+	}, [opened, document_state]);
 
 	useEffect(() => {
 		if (count <= 0) signOut().then(() => console.log('signed out'));
