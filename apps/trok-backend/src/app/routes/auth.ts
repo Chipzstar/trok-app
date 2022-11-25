@@ -90,7 +90,7 @@ export const authRouter = t.router({
 		})
 });
 
-router.post('/login', limiterConsecutiveFailsByEmailAndIP, limiterSlowBruteByIP, async (req, res, next) => {
+router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 	try {
 		console.table(req.body)
 		const ipAddr = req.ip;

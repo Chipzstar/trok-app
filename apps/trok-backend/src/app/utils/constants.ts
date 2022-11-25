@@ -10,8 +10,6 @@ export const PLAID_REDIRECT_URI = String(process.env.PLAID_REDIRECT_URI);
 export const PLAID_COUNTRY_CODES = [CountryCode.Gb];
 export const PLAID_PRODUCTS = [Products.PaymentInitiation];
 export const PLAID_WEBHOOK_URL = String(process.env.PLAID_WEBHOOK_URL)
-export const ONE_HOUR = 1000 * 60 * 60
-export const THIRTY_SECONDS = 1000 * 30
 export const STRIPE_TEST_MODE = String(process.env.STRIPE_SECRET_KEY).includes('sk_test')
 
 export enum HttpCode {

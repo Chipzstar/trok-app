@@ -14,7 +14,8 @@ import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
-import { BUCKET, IS_DEVELOPMENT, ONE_HOUR } from './app/utils/constants';
+import { BUCKET, IS_DEVELOPMENT } from './app/utils/constants';
+import { ONE_HOUR } from '@trok-app/shared-utils';
 
 const runApp = async () => {
 	const app = express();

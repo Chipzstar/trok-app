@@ -2,9 +2,11 @@ import { PhoneNumberUtil } from 'google-libphonenumber';
 import currency from 'currency.js';
 import { customAlphabet } from 'nanoid';
 
+export const ONE_HOUR = 1000 * 60 * 60;
+export const THIRTY_SECONDS = 1000 * 30;
 export const numericId = customAlphabet('1234567890', 16);
-export const phoneUtil = PhoneNumberUtil.getInstance();
 
+export const phoneUtil = PhoneNumberUtil.getInstance();
 export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
 export const PLAID_INSTITUTIONS = [
 	{

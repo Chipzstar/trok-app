@@ -260,14 +260,15 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 
 export const updateCard = async (c: Stripe.Issuing.Card) => {
 	try {
-		// auto update the card status, shipping status and spending limits in the database
+		// auto update the card status, shipping status and shipping eta in the database
 		return await prisma.card.update({
 			where: {
 				card_id: c.id
 			},
 			data: {
 				status: c.status,
-				...(c?.shipping?.status && { shipping_status: c.shipping.status })
+				...(c?.shipping?.status && { shipping_status: c.shipping.status }),
+				...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
 			}
 		});
 	} catch (err) {
