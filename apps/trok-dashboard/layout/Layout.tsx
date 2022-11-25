@@ -25,7 +25,6 @@ const Layout = ({ children }) => {
 		}
 	);
 	const isLoggedIn = useMemo(() => ![PATHS.LOGIN, PATHS.SIGNUP, PATHS.ONBOARDING, PATHS.VERIFY_EMAIL].includes(router.pathname), [router.pathname]);
-	// useEffect(() => idle && setTimeout(true), [idle]);
 	
 	return (
 		<div className='relative flex min-h-screen font-aeonik'>
