@@ -89,7 +89,7 @@ const cardRouter = t.router({
 									city: user.shipping_address.city,
 									postal_code: user.shipping_address.postcode,
 									state: user.shipping_address.region,
-									country: user.shipping_address.country
+									country: user.shipping_address?.country ?? "GB"
 								}
 							}
 						},
