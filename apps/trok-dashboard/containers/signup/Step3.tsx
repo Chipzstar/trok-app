@@ -71,14 +71,13 @@ const Step3 = ({ prevStep }) => {
 					city: values.city,
 					postcode: values.postcode,
 					region: values.region,
-					country: values.country
+					country: values?.country
 				};
 				const { is_valid, reason } = await validateCompanyInfo(
 					businessObj.business_crn,
 					businessObj.legal_name,
 					account.firstname,
-					account.lastname,
-					location
+					account.lastname
 				);
 				if (!is_valid) throw new Error(reason);
 				// convert phone number to E164 format
