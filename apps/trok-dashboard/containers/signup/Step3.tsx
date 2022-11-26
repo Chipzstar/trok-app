@@ -199,7 +199,7 @@ const Step3 = ({ prevStep }) => {
 					</Group>
 					<Group grow>
 						<TextInput required label='County / Region' {...form.getInputProps('region')} />
-						<TextInput required label='Country' {...form.getInputProps('country')} />
+						<TextInput label='Country' {...form.getInputProps('country')} />
 					</Group>
 					<Checkbox
 						label='Use a different shipping address'
