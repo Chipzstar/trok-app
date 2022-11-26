@@ -84,7 +84,7 @@ export interface AddressInfo {
 	city: string;
 	postcode: string;
 	region: string;
-	country: string;
+	country?: string;
 }
 
 export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
@@ -93,7 +93,7 @@ export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
 	city: string;
 	postcode: string;
 	region: string;
-	country: string;
+	country?: string;
 	card_business_name: string;
 	num_cards?: number;
 	shipping_speed: ShippingSpeed;

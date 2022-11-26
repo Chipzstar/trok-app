@@ -231,7 +231,6 @@ const Step3 = ({ prevStep }) => {
 									{...form.getInputProps('shipping_address.region')}
 								/>
 								<TextInput
-									required
 									label='Country'
 									{...form.getInputProps('shipping_address.country')}
 								/>

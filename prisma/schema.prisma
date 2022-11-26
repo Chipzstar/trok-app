@@ -289,7 +289,7 @@ type Address {
   city     String
   postcode String
   region   String
-  country  String  @default("GB")
+  country  String? @default("GB")
 }
 
 type BusinessInfo {
