@@ -40,7 +40,7 @@ const Step3 = ({ prevStep }) => {
 			city: '',
 			postcode: '',
 			region: '',
-			country: 'England',
+			country: '',
 			card_business_name: '',
 			num_cards: undefined,
 			shipping_speed: 'standard',
@@ -90,7 +90,7 @@ const Step3 = ({ prevStep }) => {
 								city: values.shipping_address.city,
 								state: values.shipping_address.region,
 								postal_code: values.shipping_address.postcode,
-								country: values.shipping_address.country
+								country: 'GB'
 						  }
 						: {
 								line1: values.line1,
@@ -98,7 +98,7 @@ const Step3 = ({ prevStep }) => {
 								city: values.city,
 								state: values.region,
 								postal_code: values.postcode,
-								country: values.country
+								country: 'GB'
 						  },
 					relationship: {
 						owner: true,
@@ -123,7 +123,7 @@ const Step3 = ({ prevStep }) => {
 							city: values.city,
 							state: values.region,
 							postal_code: values.postcode,
-							country: values.country
+							country: 'GB'
 						},
 						tax_id: businessObj.business_crn,
 						structure: businessObj.business_type,
