@@ -1,18 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../layout/Page';
-import {
-	ActionIcon,
-	Button,
-	Card,
-	Drawer,
-	Group,
-	NumberInput,
-	ScrollArea,
-	Stack,
-	Switch,
-	Text,
-	Title
-} from '@mantine/core';
+import { ActionIcon, Button, Card, Group, ScrollArea, Stack, Text, Title } from '@mantine/core';
 import { IconCheck, IconChevronLeft, IconEdit, IconX } from '@tabler/icons';
 import { useRouter } from 'next/router';
 import { isProd, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../../utils/constants';
@@ -59,7 +47,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const { cardID } = router.query;
 	const [nonce, setNonce] = useState(null);
 	const [ephemeralKey, setEphemeralKey] = useState(null);
-	const [status, toggle] = useToggle(['active', 'inactive']);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
@@ -162,16 +149,16 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	}, []);
 
 	const toggleCardStatus = useCallback(
-		async status => {
+		async () => {
 			setLoading(true);
 			try {
+				let status = card?.status !== CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
 				await cardStatusMutation.mutateAsync({
 					card_id: String(cardID),
 					stripeId: stripe_account_id,
 					status
 				});
 				setLoading(false);
-				toggle();
 				notifySuccess('activate-card-success', `Card ${card?.last4} is now ${status}`, <IconCheck size={20} />);
 			} catch (err) {
 				setLoading(false);
@@ -275,7 +262,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 							</div>
 							<Group grow position='apart'>
 								{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
-									<Button size='md' onClick={() => toggleCardStatus(status)} loading={loading}>
+									<Button size='md' onClick={toggleCardStatus} loading={loading}>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
 									</Button>
 								)}
