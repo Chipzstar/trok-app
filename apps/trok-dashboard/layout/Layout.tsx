@@ -13,7 +13,7 @@ import SessionTimeout from '../components/SessionTimeout';
 const Layout = ({ children }) => {
 	const router = useRouter()
 	const [timeout, setTimeout] = useState(false)
-	const idle = useIdle(ONE_HOUR);
+	const idle = useIdle(ONE_HOUR, { initialState: false });
 	const { data: session } = useSession()
 	const { data: approved } = trpc.checkAccountApproved.useQuery(
 		{
@@ -28,7 +28,7 @@ const Layout = ({ children }) => {
 	
 	return (
 		<div className='relative flex min-h-screen font-aeonik'>
-			<SessionTimeout opened={idle && session} onClose={() => setTimeout(false)}/>
+			<SessionTimeout opened={idle && !!session} onClose={() => setTimeout(false)}/>
 			<AppShell
 				padding={0}
 				header={isLoggedIn && approved === false && <Header height={DEFAULT_HEADER_HEIGHT} zIndex={50}><VerifyBanner/></Header>}

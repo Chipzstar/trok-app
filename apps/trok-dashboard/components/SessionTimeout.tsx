@@ -4,7 +4,7 @@ import { useCounter, useDocumentVisibility } from '@mantine/hooks';
 import { signOut } from 'next-auth/react';
 
 let interval;
-const SessionTimeout = ({ opened, onClose }) => {
+const SessionTimeout = ({ opened=false, onClose }) => {
 	const document_state = useDocumentVisibility();
 	const [count, handlers] = useCounter(30, { min: 0, max: 30 });
 	const countdownLogout = useCallback(() => handlers.decrement(), []);

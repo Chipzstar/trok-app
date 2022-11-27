@@ -11,7 +11,7 @@ import { trpc } from '../utils/clients';
 import { IconCalendar, IconEdit } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import isBetween from 'dayjs/plugin/isBetween';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import ComingSoon from '../modals/ComingSoon';
 
 dayjs.extend(isBetween);
@@ -36,7 +36,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 			return GBP(21272900).format();
 		} else {
 			let value = transactionsQuery?.data
-				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h'))
+				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h') && t.status === TRANSACTION_STATUS.APPROVED)
 				.reduce((prev, curr) => prev + curr.transaction_amount, 0);
 			return GBP(value).format();
 		}

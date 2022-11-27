@@ -78,8 +78,6 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 		is_valid = false;
 	} else if (!isStringEqual(address1.postal_code, address2.postcode)) {
 		is_valid = false;
-	} else if (!isStringEqual(address1.country, address2.country)) {
-		is_valid = false;
 	}
 	return is_valid;
 }
@@ -112,9 +110,7 @@ export async function validateCompanyInfo(
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
-		if (process.env.NODE_ENV === 'development') {
-			return { is_valid: true, reason: null };
-		}
+		if (process.env.NODE_ENV === 'development') return { is_valid: true, reason: null };
 		const company_profile = (await companyHouseClient.get(`/company/${crn}`)).data;
 		if (!isStringEqual(company_profile.company_name, business_name)) {
 			return {
@@ -141,7 +137,7 @@ export async function validateCompanyInfo(
 			reason: null
 		};
 	} catch (err) {
-		console.error(err)
+		console.error(err);
 		return {
 			is_valid: false,
 			reason: 'The Company registration number does not exist. Please enter a valid company registration number'

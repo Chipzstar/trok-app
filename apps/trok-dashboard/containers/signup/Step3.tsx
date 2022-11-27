@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Checkbox, Group, Radio, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, Stack, Text, TextInput } from '@mantine/core';
 import { PATHS, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
@@ -77,7 +77,8 @@ const Step3 = ({ prevStep }) => {
 					businessObj.business_crn,
 					businessObj.legal_name,
 					account.firstname,
-					account.lastname
+					account.lastname,
+					location
 				);
 				if (!is_valid) throw new Error(reason);
 				// convert phone number to E164 format
