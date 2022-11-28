@@ -5,7 +5,7 @@ import { fetchFundingDetails } from '../helpers/stripe';
 import { plaid } from '../utils/clients';
 import { prettyPrintResponse } from '../utils/helpers';
 import { PaymentAmountCurrency, PaymentInitiationPaymentStatus, PaymentScheduleInterval } from 'plaid';
-import { convertPlaidStatus, generateLinkToken } from '../helpers/plaid';
+import { convertPlaidStatus, generatePaymentLinkToken } from '../helpers/plaid';
 import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL } from '../utils/constants';
 import { decrypt, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
@@ -160,7 +160,7 @@ const paymentsRouter = t.router({
 			prettyPrintResponse(createPaymentResponse);
 			const payment_id = createPaymentResponse.data.payment_id;
 
-			const result = await generateLinkToken(
+			const result = await generatePaymentLinkToken(
 				input.user_id,
 				bankAccount.user.phone,
 				IS_DEVELOPMENT ? 'https://1ac4-146-198-166-218.eu.ngrok.io/server/plaid/webhook' : PLAID_WEBHOOK_URL,
@@ -298,7 +298,7 @@ const paymentsRouter = t.router({
 			prettyPrintResponse(createPaymentResponse);
 			const payment_id = createPaymentResponse.data.payment_id;
 
-			const result = await generateLinkToken(
+			const result = await generatePaymentLinkToken(
 				input.user_id,
 				bankAccount.user.phone,
 				IS_DEVELOPMENT ? 'https://ede3-146-198-166-218.eu.ngrok.io/server/plaid/webhook' : PLAID_WEBHOOK_URL,

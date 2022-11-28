@@ -2,6 +2,7 @@ import express from 'express';
 import { plaid } from '../utils/clients';
 import { prettyPrintResponse } from '../utils/helpers';
 import { handlePaymentInitiation } from '../helpers/plaid';
+import redisClient from '../redis';
 
 let PUBLIC_TOKEN;
 let ACCESS_TOKEN;
@@ -38,6 +39,7 @@ router.post('/set_access_token', async (req, res, next) => {
 		prettyPrintResponse(tokenResponse);
 		ACCESS_TOKEN = tokenResponse.data.access_token;
 		ITEM_ID = tokenResponse.data.item_id;
+		await redisClient.hmset(req.body.email, tokenResponse.data)
 		res.status(200).json({
 			// the 'access_token' is a private token, DO NOT pass this token to the frontend in your production environment
 			access_token: ACCESS_TOKEN,

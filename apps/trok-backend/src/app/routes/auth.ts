@@ -1,9 +1,7 @@
 import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
-import {
-	TWENTY_FOUR_HOURS
-} from '../utils/constants';
+import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL, TWENTY_FOUR_HOURS } from '../utils/constants';
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
@@ -14,6 +12,8 @@ import { comparePassword, hashPassword } from '@trok-app/shared-utils';
 import { sendVerificationLink } from '../helpers/email';
 import { getEmailIPkey } from '../utils/helpers';
 import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
+import { generateAccountLinkToken } from '../helpers/plaid';
+import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 let reminderTimeout;
@@ -87,7 +87,26 @@ export const authRouter = t.router({
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
-		})
+		}),
+	linkBusinessBankAccount: t.procedure.input(z.string()).mutation(async ({ input, ctx }) => {
+		try {
+			const objectId = new ObjectId().toString();
+			console.log(input, objectId)
+			const result = await generateAccountLinkToken(
+				objectId,
+				IS_DEVELOPMENT ? 'https://ede3-146-198-166-218.eu.ngrok.io/server/plaid/webhook' : PLAID_WEBHOOK_URL
+			);
+			console.log(result)
+			return result
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: err?.message });
+		}
+	}),
+	checkAccountLinked: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
+		return await ctx.redis.hgetall(input);
+	})
 });
 
 router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
@@ -193,7 +212,7 @@ router.post('/onboarding', async (req, res, next) => {
 		console.log(payload);
 		await redisClient.hmset(String(email), payload);
 		await redisClient.hset(String(email), 'onboarding_step', String(step));
-		// reset expiry time for 24hours
+		// set expiry time for 48hours
 		await redisClient.expire(<string>email, 60 * 60 * 24 * 2);
 		res.status(200).json({ message: `${email} has completed onboarding step ${step}` });
 		reminderTimeout = setTimeout(() => {

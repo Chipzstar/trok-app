@@ -35,7 +35,6 @@ export enum PAYMENT_STATUS {
 
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;
 export type SpendingLimitInterval = typeof intervals[number];
-// export type SpendingLimitInterval = "per_authorization" | "daily" | "weekly" | "monthly" | "yearly" | "all_time"
 
 export type SpendingLimit = {
     interval: SpendingLimitInterval;

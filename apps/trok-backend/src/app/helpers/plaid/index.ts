@@ -1,4 +1,9 @@
-import { PaymentInitiationPaymentGetRequest, PaymentInitiationPaymentStatus, PaymentStatusUpdateWebhook } from 'plaid';
+import {
+	PaymentInitiationPaymentGetRequest,
+	PaymentInitiationPaymentStatus,
+	PaymentStatusUpdateWebhook,
+	Products
+} from 'plaid';
 import prisma from '../../db';
 import { plaid } from '../../utils/clients';
 import { PAYMENT_STATUS } from '@trok-app/shared-utils';
@@ -78,7 +83,41 @@ export const handlePaymentInitiation = async (event: PaymentStatusUpdateWebhook)
 	}
 };
 
-export const generateLinkToken = async (
+export const generateAccountLinkToken = async (
+	client_user_id: string,
+	webhook: string
+) => {
+	try {
+		const createTokenResponse = (
+			await plaid.linkTokenCreate({
+				client_name: PLAID_CLIENT_NAME,
+				user: {
+					// This should correspond to a unique id for the current user.
+					// Typically, this will be a user ID number from your application.
+					// Personally identifiable information, such as an email address or phone number, should not be used here.
+					client_user_id
+				},
+				webhook,
+				// Institutions from all listed countries will be shown.
+				country_codes: PLAID_COUNTRY_CODES,
+				language: 'en',
+				// The 'payment_initiation' product has to be the only element in the 'products' list.
+				products: [Products.Transactions],
+				redirect_uri: PLAID_REDIRECT_URI
+			})
+		).data;
+		console.log('************************************************');
+		console.log(createTokenResponse);
+		console.log('************************************************');
+		return createTokenResponse;
+	} catch (err) {
+		//@ts-ignore
+		console.error(err?.response?.data ?? err);
+		throw err;
+	}
+};
+
+export const generatePaymentLinkToken = async (
 	client_user_id: string,
 	phone_number: string,
 	webhook: string,

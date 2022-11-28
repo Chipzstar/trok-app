@@ -1,19 +1,26 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Group, Loader, NumberInput, Stack, Text } from '@mantine/core';
-import { Dropzone, FileWithPath, PDF_MIME_TYPE } from '@mantine/dropzone';
-import { IconCurrencyPound, IconFiles, IconUpload, IconX } from '@tabler/icons';
+import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
+import { FileWithPath } from '@mantine/dropzone';
+import { IconCheck, IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
 import { STORAGE_KEYS } from '../../utils/constants';
 import { useListState, useLocalStorage } from '@mantine/hooks';
-import { notifyError, OnboardingBusinessInfo } from '@trok-app/shared-utils';
-import { apiClient } from '../../utils/clients';
-import { uploadFile } from '../../utils/functions';
+import { notifyError, notifyInfo, OnboardingAccountStep1, OnboardingBusinessInfo } from '@trok-app/shared-utils';
+import { apiClient, trpc } from '../../utils/clients';
+import {
+	PlaidLinkOnExit,
+	PlaidLinkOnExitMetadata,
+	PlaidLinkOnSuccess,
+	PlaidLinkOnSuccessMetadata,
+	usePlaidLink
+} from 'react-plaid-link';
 
 const Step2 = ({ prevStep, nextStep }) => {
-	const openRef = useRef<() => void>(null);
+	const [link_token, setLinkToken] = useState<string | null>(null)
 	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const [link_loading, setLinkLoading] = useState(false);
+	const [account, setAccount] = useLocalStorage<OnboardingAccountStep1>({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [business, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
 	const [financialForm, setFinancialForm] = useLocalStorage({
 		key: STORAGE_KEYS.FINANCIAL_FORM,
@@ -21,6 +28,45 @@ const Step2 = ({ prevStep, nextStep }) => {
 			average_monthly_revenue: null
 		}
 	});
+	const linkSessionMutation = trpc.linkBusinessBankAccount.useMutation();
+	const isAccountLinked = trpc.checkAccountLinked.useQuery(account.email, {
+		enabled: !!account?.email
+	});
+	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
+		// log and save metadata
+		// exchange public token
+		apiClient.post('/server/plaid/set_access_token', {
+				email: account?.email,
+				public_token
+			})
+			.then(({ data }) => {
+				console.log(data);
+			})
+			.catch(err => console.error(err));
+	}, [account]);
+	const onExit = useCallback<PlaidLinkOnExit>(
+		async (error, metadata: PlaidLinkOnExitMetadata) => {
+			try {
+				notifyInfo(
+					'link-bank-account-session-cancelled',
+					'Plaid session was closed unexpectedly. No bank account has been linked',
+					<IconInfoCircle size={20} />
+				);
+			} catch (err) {
+				console.error(err);
+			}
+		},
+		[]
+	);
+	const config: Parameters<typeof usePlaidLink>[0] = {
+		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
+		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
+		token: link_token,
+		onSuccess,
+		onExit,
+		onLoad: () => console.log('loading...')
+	};
+	const { open, ready } = usePlaidLink(config);
 	const form = useForm({
 		initialValues: {
 			...financialForm
@@ -30,6 +76,9 @@ const Step2 = ({ prevStep, nextStep }) => {
 		async values => {
 			setLoading(true);
 			try {
+				if (!isAccountLinked?.data?.access_token) {
+					throw new Error("Please link your bank account before continuing")
+				}
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
@@ -69,6 +118,10 @@ const Step2 = ({ prevStep, nextStep }) => {
 		window.localStorage.setItem(STORAGE_KEYS.FINANCIAL_FORM, JSON.stringify(form.values));
 	}, [form.values]);
 
+	useEffect(() => {
+		ready && open();
+	}, [ready, open, link_token]);
+
 	return (
 		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
 			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
@@ -82,6 +135,40 @@ const Step2 = ({ prevStep, nextStep }) => {
 					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('average_monthly_revenue')}
 				/>
+				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
+				<div className='flex flex-row flex-col items-center justify-center space-y-4'>
+					{isAccountLinked?.data?.access_token ? (
+						<Button px='xl' leftIcon={<IconCheck size={18} />} fullWidth loading={link_loading} disabled>
+							<Text weight='normal'>Bank Account Linked</Text>
+						</Button>
+					) : (
+						<Button
+							px='xl'
+							fullWidth
+							loading={link_loading}
+							onClick={() => {
+								setLinkLoading(true);
+								linkSessionMutation
+									.mutateAsync(account.email)
+									.then(res => {
+										setLinkLoading(false);
+										setLinkToken(res.link_token);
+									})
+									.catch(err => {
+										setLinkLoading(false);
+										console.error(err);
+									});
+							}}
+						>
+							<Text weight='normal'>Link Business Bank Account</Text>
+						</Button>
+					)}
+					<Text align='center' size='xs' color='dimmed'>
+						Trok uses Plaid for a safe & secure connection
+						<br />
+						Recommended for instant approval
+					</Text>
+				</div>
 				<Group mt='md' position='apart'>
 					<Button type='button' variant='white' size='md' onClick={prevStep}>
 						<Text weight='normal'>Go Back</Text>
