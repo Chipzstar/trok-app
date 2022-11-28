@@ -76,7 +76,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 		async values => {
 			setLoading(true);
 			try {
-				if (!isAccountLinked?.data?.access_token) {
+				if (!isProd && !isAccountLinked?.data?.access_token) {
 					throw new Error("Please link your bank account before continuing")
 				}
 				const result = (
