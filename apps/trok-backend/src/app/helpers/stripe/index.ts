@@ -108,12 +108,14 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 				'email',
 				card.user.email,
 				'period_start',
-				dayjs().unix(),
+				dayjs().startOf('week').unix(),
 				'period_end',
 				dayjs().endOf('week').unix()
 			);
 		}
-		const decline_code = auth.request_history.length ? <Prisma.TransactionDeclineCode>auth.request_history[0].reason : null
+		const decline_code = !auth.request_history.length
+			? null
+			: auth.request_history[0].reason ===  "webhook_declined" ? "disallowed_merchant" : <Prisma.TransactionDeclineCode>auth.request_history[0].reason;
 		await prisma.transaction.create({
 			data: {
 				created_at: dayjs.unix(auth.created).format(),

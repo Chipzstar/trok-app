@@ -25,6 +25,7 @@ export async function checkPastDueStatements() {
 		user_ids.map(async (id, index) => {
 			const statement_interval = await redisClient.hgetall(id);
 			const { period_start, period_end } = statement_interval;
+			console.table({ period_start, period_end });
 			// fetch the user's business information
 			const user = await prisma.user.findUniqueOrThrow({
 				where: {
@@ -77,7 +78,7 @@ export async function checkPastDueStatements() {
 			)
 				.then(r => console.log('Transactions attached'))
 				.catch(err => console.error('Error attaching transactions:', err));
-			// increment score of the sorted set entry for next month
+			// increment score of the sorted set entry for next week
 			await redisClient.zadd(STATEMENT_REDIS_SORTED_SET_ID, dayjs().add(7, 'd').unix(), id);
 			// adjust the start & end periods for the next statement
 			await redisClient.hmset(id, 'email', user.email, 'period_start', dayjs().unix(), 'period_end', dayjs().add(7, 'd').unix());
