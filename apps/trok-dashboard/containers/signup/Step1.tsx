@@ -71,9 +71,7 @@ const Step1 = ({ nextStep }) => {
 			try {
 				const { is_valid, reason } = await validateCompanyInfo(
 					values.business_crn,
-					values.legal_name,
-					account.firstname,
-					account.lastname
+					values.legal_name
 				);
 				if (!is_valid) {
 					throw new Error(reason);

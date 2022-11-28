@@ -3,7 +3,7 @@ import { useForm } from '@mantine/form';
 import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
 import { FileWithPath } from '@mantine/dropzone';
 import { IconCheck, IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
-import { STORAGE_KEYS } from '../../utils/constants';
+import { isProd, STORAGE_KEYS } from '../../utils/constants';
 import { useListState, useLocalStorage } from '@mantine/hooks';
 import { notifyError, notifyInfo, OnboardingAccountStep1, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient, trpc } from '../../utils/clients';
@@ -136,7 +136,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 					{...form.getInputProps('average_monthly_revenue')}
 				/>
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
-				<div className='flex flex-row flex-col items-center justify-center space-y-4'>
+				{!isProd && <div className='flex flex-row flex-col items-center justify-center space-y-4'>
 					{isAccountLinked?.data?.access_token ? (
 						<Button px='xl' leftIcon={<IconCheck size={18} />} fullWidth loading={link_loading} disabled>
 							<Text weight='normal'>Bank Account Linked</Text>
@@ -168,7 +168,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 						<br />
 						Recommended for instant approval
 					</Text>
-				</div>
+				</div>}
 				<Group mt='md' position='apart'>
 					<Button type='button' variant='white' size='md' onClick={prevStep}>
 						<Text weight='normal'>Go Back</Text>

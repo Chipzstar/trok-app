@@ -104,8 +104,6 @@ export function isCompanyDirector(directors, firstname: string, lastname: string
 export async function validateCompanyInfo(
 	crn: string,
 	business_name: string,
-	firstname: string,
-	lastname: string,
 	business_address: AddressInfo = null
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
@@ -123,13 +121,6 @@ export async function validateCompanyInfo(
 			return {
 				is_valid: false,
 				reason: "Provided address does not match the company's registered office address. Please double check all address fields match with your Company House profile"
-			};
-		}
-		const company_officers = (await companyHouseClient.get(`/company/${crn}/officers`)).data;
-		if (!isCompanyDirector(company_officers.items, firstname, lastname)) {
-			return {
-				is_valid: false,
-				reason: `The name ${firstname} ${lastname} is not a director at this company. Only company directors listed on your Company House profile can signup`
 			};
 		}
 		return {
