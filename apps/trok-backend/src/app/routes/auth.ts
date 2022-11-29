@@ -9,7 +9,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { comparePassword, hashPassword } from '@trok-app/shared-utils';
-import { sendVerificationLink } from '../helpers/email';
+import { sendNewSignupEmail, sendVerificationLink } from '../helpers/email';
 import { getEmailIPkey } from '../utils/helpers';
 import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
 import { generateAccountLinkToken } from '../helpers/plaid';
@@ -33,6 +33,10 @@ export const authRouter = t.router({
 	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
 			const hashed_password = await hashPassword(input.password);
+			// check user hasn't already attempted sign up in last 24 hours
+			const is_signed_up = await ctx.redis.hget(input.email, "email")
+			console.log(is_signed_up)
+			if(!is_signed_up) await sendNewSignupEmail(input.email, input.full_name)
 			await ctx.redis.hmset(input.email, {
 				firstname: input.firstname,
 				lastname: input.lastname,
