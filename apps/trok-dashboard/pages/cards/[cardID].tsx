@@ -152,7 +152,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		async () => {
 			setLoading(true);
 			try {
-				let status = card?.status !== CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
+				let status = card?.status === CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
 				await cardStatusMutation.mutateAsync({
 					card_id: String(cardID),
 					stripeId: stripe_account_id,
