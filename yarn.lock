@@ -3189,7 +3189,7 @@
     rollup "2.78.0"
     tslib "^1.9.3"
 
-"@sentry/node@7.21.1":
+"@sentry/node@7.21.1", "@sentry/node@^7.21.1":
   version "7.21.1"
   resolved "https://registry.yarnpkg.com/@sentry/node/-/node-7.21.1.tgz#929a2ad84c25f5374ec7323267f1171f6b0e261e"
   integrity sha512-B+p1nQHaFWdCCRVmvqlr/+vdQCI3mGLObucNfK2YC22IQZg7+3u6tEbxJ7umITIjeSSKgf7ZoZwCxL9VfkrNXg==
@@ -3213,7 +3213,7 @@
     hoist-non-react-statics "^3.3.2"
     tslib "^1.9.3"
 
-"@sentry/tracing@7.21.1":
+"@sentry/tracing@7.21.1", "@sentry/tracing@^7.21.1":
   version "7.21.1"
   resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-7.21.1.tgz#db02643e84960f1ea14b35fe75a93fc0bbca1fcb"
   integrity sha512-b1BTPsRaNQpohzegoz59KGuBl+To651vEq0vMS4tCzSyIdxkYso3JCrjDdEqW/2MliQYANNVrUai2bmwmU9h1g==

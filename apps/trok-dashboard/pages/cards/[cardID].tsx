@@ -82,6 +82,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		: !transactionsQuery.isLoading
 		? transactionsQuery?.data
 		: [];
+
 	useEffect(() => {
 		(async () => {
 			stripe = await getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id });

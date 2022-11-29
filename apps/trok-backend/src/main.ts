@@ -1,4 +1,6 @@
 import express from 'express';
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 import cors from 'cors';
 import hpp from 'hpp';
 import logger from 'morgan';
@@ -14,11 +16,30 @@ import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
-import { BUCKET, IS_DEVELOPMENT } from './app/utils/constants';
+import { BUCKET, ENVIRONMENT, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
 import { ONE_HOUR } from '@trok-app/shared-utils';
 
 const runApp = async () => {
 	const app = express();
+	Sentry.init({
+		dsn: SENTRY_DSN,
+		integrations: [
+			// enable HTTP calls tracing
+			new Sentry.Integrations.Http({ tracing: true }),
+			// enable Express.js middleware tracing
+			new Tracing.Integrations.Express({ app }),
+		],
+		environment: ENVIRONMENT,
+		// Set tracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production
+		tracesSampleRate: 1.0,
+	});
+	// RequestHandler creates a separate execution context using domains, so that every
+	// transaction/span/breadcrumb is attached to its own Hub instance
+	app.use(Sentry.Handlers.requestHandler());
+	// TracingHandler creates a trace for every incoming request
+	app.use(Sentry.Handlers.tracingHandler());
 	app.set('trust proxy', 1);
 	app.use(cors());
 	// using protecting against HTTP Parameter Pollution attacks
@@ -122,13 +143,18 @@ const runApp = async () => {
 	 * TEST ROUTES
 	 */
 	app.use('/test', jsonParser, testRoutes);
+	app.get("/debug-sentry", function mainHandler(req, res) {
+		throw new Error("My first Sentry error!");
+	});
 	/**
 	 * ERROR HANDLERS
 	 */
 	/*app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 		errorHandler.handleError(err, res);
 	});*/
-
+	// The error handler must be before any other error middleware and after all controllers
+	app.use(Sentry.Handlers.errorHandler());
+	// Custom express error handler
 	app.use(errorHandler)
 
 	const port = process.env.PORT || 3333;
