@@ -4,7 +4,7 @@ const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 const environment = process.env.DOPPLER_ENVIRONMENT
 
 Sentry.init({
-	dsn: SENTRY_DSN || "https://8225abdfb77241e386ff6adee207fe57@o4503959141679104.ingest.sentry.io/4503959143448577",
+	dsn: String(SENTRY_DSN) || "https://8225abdfb77241e386ff6adee207fe57@o4503959141679104.ingest.sentry.io/4503959143448577",
 	// We recommend adjusting this value in production, or using tracesSampler
 	// for finer control
 	tracesSampleRate: 1.0,

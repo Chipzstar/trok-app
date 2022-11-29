@@ -1,6 +1,6 @@
 import express from 'express';
-import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import hpp from 'hpp';
 import logger from 'morgan';
@@ -16,7 +16,7 @@ import { appRouter } from './app/routes';
 import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
-import { BUCKET, ENVIRONMENT, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
+import { BUCKET, ENVIRONMENT, HttpCode, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
 import { ONE_HOUR } from '@trok-app/shared-utils';
 
 const runApp = async () => {
@@ -27,13 +27,13 @@ const runApp = async () => {
 			// enable HTTP calls tracing
 			new Sentry.Integrations.Http({ tracing: true }),
 			// enable Express.js middleware tracing
-			new Tracing.Integrations.Express({ app }),
+			new Tracing.Integrations.Express({ app })
 		],
 		environment: ENVIRONMENT,
 		// Set tracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
 		// We recommend adjusting this value in production
-		tracesSampleRate: 1.0,
+		tracesSampleRate: 1.0
 	});
 	// RequestHandler creates a separate execution context using domains, so that every
 	// transaction/span/breadcrumb is attached to its own Hub instance
@@ -72,8 +72,8 @@ const runApp = async () => {
 					const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
 					return {
 						headers: {
-							'cache-control': `s-maxage=1, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`,
-						},
+							'cache-control': `s-maxage=1, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`
+						}
 					};
 				}
 				return {};
@@ -92,7 +92,6 @@ const runApp = async () => {
 			// }
 		})
 	);*/
-
 	// ROUTES
 	/*
 	 *  WELCOME ROUTE
@@ -143,8 +142,8 @@ const runApp = async () => {
 	 * TEST ROUTES
 	 */
 	app.use('/test', jsonParser, testRoutes);
-	app.get("/debug-sentry", function mainHandler(req, res) {
-		throw new Error("My first Sentry error!");
+	app.get('/debug-sentry', function mainHandler(req, res) {
+		throw new Error('My first Sentry error!');
 	});
 	/**
 	 * ERROR HANDLERS
@@ -153,16 +152,28 @@ const runApp = async () => {
 		errorHandler.handleError(err, res);
 	});*/
 	// The error handler must be before any other error middleware and after all controllers
-	app.use(Sentry.Handlers.errorHandler());
+	app.use(
+		Sentry.Handlers.errorHandler({
+			shouldHandleError(error) {
+				// Capture all 400, 401, 404 and 500 errors
+				if (
+					[HttpCode.BAD_REQUEST, HttpCode.NOT_FOUND, HttpCode.UNAUTHORIZED, HttpCode.TOO_MANY_REQUESTS, HttpCode.INTERNAL_SERVER_ERROR].includes(Number(error.status))
+				) {
+					return true;
+				}
+				return false;
+			}
+		})
+	);
 	// Custom express error handler
-	app.use(errorHandler)
+	app.use(errorHandler);
 
 	const port = process.env.PORT || 3333;
 	const server = app.listen(port, () => {
 		IS_DEVELOPMENT && console.log(`Listening at http://localhost:${port}/server`);
 		// BUSINESS STATEMENT GENERATOR
 		// checkPastDueStatements()
-		setInterval(checkPastDueStatements , ONE_HOUR)
+		setInterval(checkPastDueStatements, ONE_HOUR);
 	});
 	server.on('error', console.error);
 };
