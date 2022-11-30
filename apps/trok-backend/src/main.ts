@@ -173,7 +173,6 @@ const runApp = async () => {
 	const server = app.listen(port, () => {
 		IS_DEVELOPMENT && console.log(`Listening at http://localhost:${port}/server`);
 		// BUSINESS STATEMENT GENERATOR
-		checkCardDeliveredStatus(true)
 		setInterval(checkPastDueStatements, ONE_HOUR);
 		setInterval(checkCardDeliveredStatus, THIRTY_MINUTES);
 	});
