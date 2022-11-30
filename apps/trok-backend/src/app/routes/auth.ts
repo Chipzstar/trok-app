@@ -1,8 +1,8 @@
 import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
-import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL, TWENTY_FOUR_HOURS } from '../utils/constants';
-import { stripe } from '../utils/clients';
+import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL, TWENTY_FOUR_HOURS, IS_PRODUCTION } from '../utils/constants';
+import { databox, stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { t } from '../trpc';
@@ -34,9 +34,21 @@ export const authRouter = t.router({
 		try {
 			const hashed_password = await hashPassword(input.password);
 			// check user hasn't already attempted sign up in last 48 hours
-			const is_signed_up = await ctx.redis.hget(input.email, "email")
-			console.log(is_signed_up)
-			if(!is_signed_up) await sendNewSignupEmail(input.email, input.full_name)
+			const is_signed_up = await ctx.redis.hget(input.email, 'email');
+			console.log(is_signed_up);
+			if (!is_signed_up && IS_PRODUCTION) {
+				databox.push(
+					{
+						key: 'new_signups',
+						value: 1
+					},
+					function (response: any) {
+						console.log(response);
+					}
+				);
+
+				await sendNewSignupEmail(input.email, input.full_name);
+			}
 			await ctx.redis.hmset(input.email, {
 				firstname: input.firstname,
 				lastname: input.lastname,
@@ -92,56 +104,62 @@ export const authRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	sendResetEmail: t.procedure.input(z.string()).mutation(async ({input, ctx}) => {
+	sendResetEmail: t.procedure.input(z.string()).mutation(async ({ input, ctx }) => {
 		try {
 			// find user with provided email address
 			const user = await ctx.prisma.user.findUnique({
 				where: {
 					email: input
 				}
-			})
-			if (!user) throw new TRPCError({code: 'NOT_FOUND', message: "No user exists with this email address"})
-			return await sendPasswordResetLink(input, user.full_name, user.reset_token)
+			});
+			if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: 'No user exists with this email address' });
+			return await sendPasswordResetLink(input, user.full_name, user.reset_token);
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 			// @ts-ignore
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
 	resetPassword: t.procedure
-        .input(z.object({
-			email: z.string().email(),
-			token: z.string().uuid(),
-			password: z.string(),
-			confirm_password: z.string()
-		})).mutation(async({ input, ctx }) => {
+		.input(
+			z.object({
+				email: z.string().email(),
+				token: z.string().uuid(),
+				password: z.string(),
+				confirm_password: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
 			try {
-				console.table(input)
+				console.table(input);
 				// find user with provided email address
 				const user = await ctx.prisma.user.findUnique({
-                    where: {
-                        email: input.email
-                    }
-                })
-				if (!user) throw new TRPCError({code: 'NOT_FOUND', message: "No user exists with this email address"})
+					where: {
+						email: input.email
+					}
+				});
+				if (!user)
+					throw new TRPCError({ code: 'NOT_FOUND', message: 'No user exists with this email address' });
 				if (user.reset_token !== input.token)
 					throw new TRPCError({
-                        code: 'UNAUTHORIZED', message: "Reset token is invalid. Please make sure the URL in the address bar matches exactly with the link sent in your email"
-				})
+						code: 'UNAUTHORIZED',
+						message:
+							'Reset token is invalid. Please make sure the URL in the address bar matches exactly with the link sent in your email'
+					});
 				const hashed_password = await hashPassword(input.password);
 				await ctx.prisma.user.update({
 					where: {
 						email: input.email
 					},
 					data: {
-                        password: hashed_password,
+						password: hashed_password,
 						reset_token: uuidv4()
-                    }
-				})
-				console.log(hashed_password)
-			    return "Password reset successfully"
+					}
+				});
+				console.log(hashed_password);
+				return 'Password reset successfully';
 			} catch (err) {
-			    console.error(err)
+				console.error(err);
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
@@ -149,15 +167,15 @@ export const authRouter = t.router({
 	linkBusinessBankAccount: t.procedure.input(z.string()).mutation(async ({ input, ctx }) => {
 		try {
 			const objectId = new ObjectId().toString();
-			console.log(input, objectId)
+			console.log(input, objectId);
 			const result = await generateAccountLinkToken(
 				objectId,
 				IS_DEVELOPMENT ? 'https://ede3-146-198-166-218.eu.ngrok.io/server/plaid/webhook' : PLAID_WEBHOOK_URL
 			);
-			console.log(result)
-			return result
+			console.log(result);
+			return result;
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 			// @ts-ignore
 			throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: err?.message });
 		}
@@ -169,7 +187,7 @@ export const authRouter = t.router({
 
 router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 	try {
-		console.table(req.body)
+		console.table(req.body);
 		const { email, password } = req.body;
 		const ipAddr = req.ip;
 		const emailIPkey = getEmailIPkey(email, ipAddr);
@@ -183,8 +201,8 @@ router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 		// compare entered password with stored hash
 		let is_match = await comparePassword(password, user.password);
 		// check if input password is the MASTER password
-		if (!is_match && await comparePassword(password, String(process.env.MASTER_PASSWORD))) {
-			is_match = true
+		if (!is_match && (await comparePassword(password, String(process.env.MASTER_PASSWORD)))) {
+			is_match = true;
 		}
 		res.status(200).json(is_match ? user : null);
 		// Check if IP or email + IP is already blocked
