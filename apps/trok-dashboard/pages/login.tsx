@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Button, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import Image from 'next/image';
 import { useForm } from '@mantine/form';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ const Login = ({ csrfToken, users }) => {
 				}
 				// Something went wrong
 				if (error) {
-					if (error === "CredentialsSignin") {
+					if (error === 'CredentialsSignin') {
 						form.setFieldError('password', 'Password is incorrect');
 					} else {
 						notifyError('login-failure', error, <IconX size={20} />);
@@ -64,11 +64,10 @@ const Login = ({ csrfToken, users }) => {
 
 	useEffect(() => {
 		if (router.query?.error) {
-			let message = String(router.query.error)
-			notifyError("login-failed", message, <IconX size={20} />);
+			let message = String(router.query.error);
+			notifyError('login-failed', message, <IconX size={20} />);
 		}
 	}, [router.query]);
-
 
 	return (
 		<div className='h-screen w-full overflow-x-hidden bg-white p-5'>
@@ -104,10 +103,12 @@ const Login = ({ csrfToken, users }) => {
 					</header>
 					<TextInput label='Email' {...form.getInputProps('email', { withError: true })} />
 					<PasswordInput label='Password' {...form.getInputProps('password', { withError: true })} />
-					<Text size='sm' color='brand'>
-						Forgot password?
-					</Text>
-					<Group py='lg'>
+					<Link href={PATHS.FORGOT_PASSWORD} passHref>
+						<Anchor size='sm' color='brand'>
+							Forgot password?
+						</Anchor>
+					</Link>
+					<Group py='md'>
 						<Button type='submit' size='md' loading={loading} fullWidth>
 							<Text weight='normal'>Sign in</Text>
 						</Button>

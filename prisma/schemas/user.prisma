@@ -10,6 +10,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   approved Boolean @default(false)
   verify_token String @default("")
+  reset_token String @default(uuid())
   referral_code String?
   terms Boolean?
   password String

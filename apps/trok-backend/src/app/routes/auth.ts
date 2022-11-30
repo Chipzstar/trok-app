@@ -9,7 +9,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { comparePassword, hashPassword } from '@trok-app/shared-utils';
-import { sendNewSignupEmail, sendVerificationLink } from '../helpers/email';
+import { sendNewSignupEmail, sendPasswordResetLink, sendVerificationLink } from '../helpers/email';
 import { getEmailIPkey } from '../utils/helpers';
 import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
 import { generateAccountLinkToken } from '../helpers/plaid';
@@ -88,6 +88,60 @@ export const authRouter = t.router({
 				return true;
 			} catch (err) {
 				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	sendResetEmail: t.procedure.input(z.string()).mutation(async ({input, ctx}) => {
+		try {
+			// find user with provided email address
+			const user = await ctx.prisma.user.findUnique({
+				where: {
+					email: input
+				}
+			})
+			if (!user) throw new TRPCError({code: 'NOT_FOUND', message: "No user exists with this email address"})
+			return await sendPasswordResetLink(input, user.full_name, user.reset_token)
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+		}
+	}),
+	resetPassword: t.procedure
+        .input(z.object({
+			email: z.string().email(),
+			token: z.string().uuid(),
+			password: z.string(),
+			confirm_password: z.string()
+		})).mutation(async({ input, ctx }) => {
+			try {
+				console.table(input)
+				// find user with provided email address
+				const user = await ctx.prisma.user.findUnique({
+                    where: {
+                        email: input.email
+                    }
+                })
+				if (!user) throw new TRPCError({code: 'NOT_FOUND', message: "No user exists with this email address"})
+				if (user.reset_token !== input.token)
+					throw new TRPCError({
+                        code: 'UNAUTHORIZED', message: "Reset token is invalid. Please make sure the URL in the address bar matches exactly with the link sent in your email"
+				})
+				const hashed_password = await hashPassword(input.password);
+				await ctx.prisma.user.update({
+					where: {
+						email: input.email
+					},
+					data: {
+                        password: hashed_password,
+						reset_token: uuidv4()
+                    }
+				})
+				console.log(hashed_password)
+			    return "Password reset successfully"
+			} catch (err) {
+			    console.error(err)
 				// @ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
@@ -263,6 +317,7 @@ router.post('/complete-registration', async (req, res, next) => {
 		console.log(person);
 		// store user in database
 		const verify_token = uuidv4();
+		const reset_token = uuidv4();
 		const issuing_account = {
 			plaid_recipient_id: '',
 			plaid_request_id: '',
@@ -274,6 +329,7 @@ router.post('/complete-registration', async (req, res, next) => {
 			data: {
 				...data,
 				verify_token,
+				reset_token,
 				stripe: {
 					accountId: account.id,
 					personId: person.id,

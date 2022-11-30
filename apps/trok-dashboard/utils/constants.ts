@@ -30,7 +30,6 @@ export const STORAGE_KEYS = {
 	ONBOARDING_STEP: 'onboarding-step',
 	TEST_MODE: 'test-mode'
 };
-
 export const PATHS = {
 	HOME: '/',
 	SIGNUP: '/signup',
@@ -45,8 +44,12 @@ export const PATHS = {
 	STATEMENTS: '/statements',
 	SETTINGS: '/settings',
 	REFERRAL: '/referral',
-	VERIFY_EMAIL: '/verify-email'
+	VERIFY_EMAIL: '/verify-email',
+	FORGOT_PASSWORD: '/forgot-password',
+	RESET_PASSWORD: '/reset-password',
 };
+
+export const AUTH_ROUTES = [PATHS.LOGIN, PATHS.SIGNUP, PATHS.ONBOARDING, PATHS.VERIFY_EMAIL, PATHS.FORGOT_PASSWORD, PATHS.RESET_PASSWORD]
 
 export const SAMPLE_DRIVERS = [
 	{

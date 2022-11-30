@@ -1,9 +1,11 @@
 import { createStyles, Title, Text, Button, Container, Group } from '@mantine/core';
+import Link from 'next/link';
+import { PATHS } from '../utils/constants';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(theme => ({
 	root: {
 		paddingTop: 80,
-		paddingBottom: 80,
+		paddingBottom: 80
 	},
 
 	label: {
@@ -15,8 +17,8 @@ const useStyles = createStyles((theme) => ({
 		color: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2],
 
 		[theme.fn.smallerThan('sm')]: {
-			fontSize: 120,
-		},
+			fontSize: 120
+		}
 	},
 
 	title: {
@@ -26,16 +28,16 @@ const useStyles = createStyles((theme) => ({
 		fontSize: 38,
 
 		[theme.fn.smallerThan('sm')]: {
-			fontSize: 32,
-		},
+			fontSize: 32
+		}
 	},
 
 	description: {
 		maxWidth: 500,
 		margin: 'auto',
 		marginTop: theme.spacing.xl,
-		marginBottom: theme.spacing.xl * 1.5,
-	},
+		marginBottom: theme.spacing.xl * 1.5
+	}
 }));
 
 export default function Custom404Error() {
@@ -45,14 +47,16 @@ export default function Custom404Error() {
 		<Container className={classes.root}>
 			<div className={classes.label}>404</div>
 			<Title className={classes.title}>You have found a secret place.</Title>
-			<Text color="dimmed" size="lg" align="center" className={classes.description}>
-				Page you are trying to open does not exist. You may have mistyped the address, or the
-				page has been moved to another URL. If you think this is an error contact support.
+			<Text color='dimmed' size='lg' align='center' className={classes.description}>
+				Page you are trying to open does not exist. You may have mistyped the address, or the page has been
+				moved to another URL. If you think this is an error contact support.
 			</Text>
-			<Group position="center">
-				<Button variant="subtle" size="md">
-					Take me back to home page
-				</Button>
+			<Group position='center'>
+				<Link href={PATHS.HOME} passHref>
+					<Button variant='subtle' size='md'>
+						Take me back to home page
+					</Button>
+				</Link>
 			</Group>
 		</Container>
 	);

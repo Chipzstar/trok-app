@@ -3,7 +3,7 @@ import { AppShell, Header } from '@mantine/core';
 import Sidebar from './Sidebar';
 import { useRouter } from 'next/router';
 import VerifyBanner from '../components/VerifyBanner';
-import { BANNER_HEIGHT, DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
+import { AUTH_ROUTES, BANNER_HEIGHT, DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
 import { useSession } from 'next-auth/react';
 import { trpc } from '../utils/clients';
 import { useIdle } from '@mantine/hooks';
@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
 			enabled: !!session?.id
 		}
 	);
-	const isLoggedIn = useMemo(() => ![PATHS.LOGIN, PATHS.SIGNUP, PATHS.ONBOARDING, PATHS.VERIFY_EMAIL].includes(router.pathname), [router.pathname]);
+	const isLoggedIn = useMemo(() => !AUTH_ROUTES.includes(router.pathname), [router.pathname]);
 	
 	return (
 		<div className='relative flex min-h-screen font-aeonik'>
