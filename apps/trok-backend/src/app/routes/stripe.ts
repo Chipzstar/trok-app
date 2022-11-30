@@ -31,7 +31,7 @@ router.post(
 			}
 		}
 		// Successfully constructed event
-		console.log('✅ Success:', event.id);
+		console.log('✅ Success:', event.id, '-', event.type);
 		// Handle the event
 		switch (event.type) {
 			case 'issuing_authorization.created':

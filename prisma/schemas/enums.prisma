@@ -71,6 +71,7 @@ enum PaymentInterval {
 }
 
 enum TransactionDeclineCode {
+    authorization_controls
     disallowed_merchant
     card_active
     card_inactive

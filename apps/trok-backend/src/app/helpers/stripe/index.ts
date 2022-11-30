@@ -7,7 +7,13 @@ import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import { CARD_REDIS_SORTED_SET_ID, STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
-import { FuelMerchantCategoryCodes, TRANSACTION_STATUS, TransactionStatus } from '@trok-app/shared-utils';
+import {
+	CARD_SHIPPING_STATUS,
+	FuelMerchantCategoryCodes,
+	getDeclineReason,
+	TRANSACTION_STATUS,
+	TransactionStatus
+} from '@trok-app/shared-utils';
 import Prisma from '@prisma/client';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {
@@ -114,9 +120,9 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 			);
 		}
 		const decline_code = !auth.request_history.length
-			? null
+			? "disallowed_merchant"
 			: auth.request_history[0].reason === "webhook_declined" ? "disallowed_merchant" : <Prisma.TransactionDeclineCode>auth.request_history[0].reason;
-		await prisma.transaction.create({
+		return await prisma.transaction.create({
 			data: {
 				created_at: dayjs.unix(auth.created).format(),
 				authorization_id: auth.id,
@@ -142,7 +148,7 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 				last4: card.last4,
 				status: auth.approved ? TRANSACTION_STATUS.APPROVED : TRANSACTION_STATUS.DECLINED,
 				...(!auth.approved && { decline_code }),
-				...(!auth.approved && { decline_reason: `This card attempted to make a purchase at a non-fuel card merchant with category: ${auth.merchant_data.category}`})
+				...(!auth.approved && { decline_reason: getDeclineReason(decline_code, auth.merchant_data.category)})
 			}
 		});
 	} catch (err) {
@@ -263,19 +269,29 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 export const updateCard = async (c: Stripe.Issuing.Card) => {
 	try {
 		// check if the shipping status of the card is "shipped" and there is a value for "delivery_eta"
-		if (c?.shipping?.status === "shipped" && c?.shipping?.eta) {
+		if (c?.shipping?.status === CARD_SHIPPING_STATUS.SHIPPED && c?.shipping?.eta) {
 			await redisClient.zadd(CARD_REDIS_SORTED_SET_ID, c?.shipping?.eta, c.id);
+		}
+		// fetch the card stored in DB
+		const card = await prisma.card.findUniqueOrThrow({
+			where: {
+				card_id: c.id
+			}
+		})
+		const data = card.shipping_status === CARD_SHIPPING_STATUS.DELIVERED ? {
+			status: c.status,
+			...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
+		} : {
+			status: c.status,
+			...(c?.shipping?.status && { shipping_status: c.shipping.status }),
+			...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
 		}
 		// auto update the card status, shipping status and shipping eta in the database
 		return await prisma.card.update({
 			where: {
 				card_id: c.id
 			},
-			data: {
-				status: c.status,
-				...(c?.shipping?.status && { shipping_status: c.shipping.status }),
-				...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
-			}
+			data
 		});
 	} catch (err) {
 		return err;

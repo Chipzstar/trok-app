@@ -158,7 +158,13 @@ const runApp = async () => {
 			shouldHandleError(error) {
 				// Capture all 400, 401, 404 and 500 errors
 				if (
-					[HttpCode.BAD_REQUEST, HttpCode.NOT_FOUND, HttpCode.UNAUTHORIZED, HttpCode.TOO_MANY_REQUESTS, HttpCode.INTERNAL_SERVER_ERROR].includes(Number(error.status))
+					[
+						HttpCode.BAD_REQUEST,
+						HttpCode.NOT_FOUND,
+						HttpCode.UNAUTHORIZED,
+						HttpCode.TOO_MANY_REQUESTS,
+						HttpCode.INTERNAL_SERVER_ERROR
+					].includes(Number(error.status))
 				) {
 					return true;
 				}
