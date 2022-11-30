@@ -6,7 +6,7 @@ import axios from 'axios';
 import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
-import { STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
+import { CARD_REDIS_SORTED_SET_ID, STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
 import { FuelMerchantCategoryCodes, TRANSACTION_STATUS, TransactionStatus } from '@trok-app/shared-utils';
 import Prisma from '@prisma/client';
 
@@ -262,6 +262,10 @@ export const fetchIssuingAccount = async (account: Stripe.Account) => {
 
 export const updateCard = async (c: Stripe.Issuing.Card) => {
 	try {
+		// check if the shipping status of the card is "shipped" and there is a value for "delivery_eta"
+		if (c?.shipping?.status === "shipped" && c?.shipping?.eta) {
+			await redisClient.zadd(CARD_REDIS_SORTED_SET_ID, c?.shipping?.eta, c.id);
+		}
 		// auto update the card status, shipping status and shipping eta in the database
 		return await prisma.card.update({
 			where: {

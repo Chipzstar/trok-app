@@ -17,7 +17,8 @@ import 'express-async-errors';
 import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ENVIRONMENT, HttpCode, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
-import { ONE_HOUR } from '@trok-app/shared-utils';
+import { ONE_HOUR, THIRTY_MINUTES } from '@trok-app/shared-utils';
+import { checkCardDeliveredStatus } from './app/helpers/cards';
 
 const runApp = async () => {
 	const app = express();
@@ -172,8 +173,9 @@ const runApp = async () => {
 	const server = app.listen(port, () => {
 		IS_DEVELOPMENT && console.log(`Listening at http://localhost:${port}/server`);
 		// BUSINESS STATEMENT GENERATOR
-		// checkPastDueStatements()
+		checkCardDeliveredStatus(true)
 		setInterval(checkPastDueStatements, ONE_HOUR);
+		setInterval(checkCardDeliveredStatus, THIRTY_MINUTES);
 	});
 	server.on('error', console.error);
 };

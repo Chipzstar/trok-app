@@ -6,6 +6,7 @@ export const ENVIRONMENT = process.env.DOPPLER_ENVIRONMENT
 //GCP
 export const BUCKET = storage.bucket(String(process.env.GCS_BUCKET_NAME));
 export const STATEMENT_REDIS_SORTED_SET_ID = 'upcoming_statements'
+export const CARD_REDIS_SORTED_SET_ID = 'dispatched_cards'
 export const PLAID_CLIENT_NAME = 'Trok';
 export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 export const PLAID_REDIRECT_URI = String(process.env.PLAID_REDIRECT_URI);

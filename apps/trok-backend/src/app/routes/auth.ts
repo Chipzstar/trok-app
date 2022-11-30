@@ -33,7 +33,7 @@ export const authRouter = t.router({
 	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
 			const hashed_password = await hashPassword(input.password);
-			// check user hasn't already attempted sign up in last 24 hours
+			// check user hasn't already attempted sign up in last 48 hours
 			const is_signed_up = await ctx.redis.hget(input.email, "email")
 			console.log(is_signed_up)
 			if(!is_signed_up) await sendNewSignupEmail(input.email, input.full_name)
@@ -46,7 +46,7 @@ export const authRouter = t.router({
 				referral_code: input.referral_code,
 				onboarding_step: 1
 			});
-			// set expiry time for 24hours
+			// set expiry time for 48hours
 			await ctx.redis.expire(input.email, 60 * 60 * 24 * 2);
 			return { message: `Signup for ${input.email} has been initiated`, hashed_password };
 		} catch (err) {
