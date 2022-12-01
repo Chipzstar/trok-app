@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
-import { ActionIcon, Badge, Menu } from '@mantine/core';
+import { ActionIcon, Badge, LoadingOverlay, Menu } from '@mantine/core';
 import { IconCheck, IconDots, IconPencil, IconX } from '@tabler/icons';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { useSession } from 'next-auth/react';
 
-const BankAccountsTable = ({ data }) => {
+const BankAccountsTable = ({ loading, data }) => {
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
 	const utils = trpc.useContext();
@@ -77,7 +77,11 @@ const BankAccountsTable = ({ data }) => {
 		);
 	});
 
-	return (
+	return loading ? (
+		<div className='relative h-full'>
+			<LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} />
+		</div>
+	) : (
 		<DataGrid
 			rows={rows}
 			activePage={activePage}

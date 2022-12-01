@@ -250,7 +250,7 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 						onChange={setRange}
 					/>
 				</div>
-				<PaymentsTable data={data} setOpened={setOpened} selectPayment={setSelectedPayment} />
+				<PaymentsTable loading={!testMode && query.isLoading} data={data} setOpened={setOpened} selectPayment={setSelectedPayment} />
 			</Page.Body>
 		</Page.Container>
 	);

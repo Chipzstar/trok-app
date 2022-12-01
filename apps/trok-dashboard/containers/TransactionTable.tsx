@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { ActionIcon, Divider, Group, MantineNumberSize, Text } from '@mantine/core';
+import { ActionIcon, Divider, Group, LoadingOverlay, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
@@ -10,6 +10,7 @@ import { sanitize } from '../utils/functions';
 import classNames from 'classnames';
 
 export interface TransactionTableProps {
+	loading: boolean;
 	data: Prisma.TransactionUncheckedCreateInput[];
 	setOpened?: (val: boolean) => void;
 	selectTransaction?: (t: Prisma.TransactionUncheckedCreateInput) => void;
@@ -19,13 +20,14 @@ export interface TransactionTableProps {
 }
 
 const TransactionTable = ({
-	data,
-	spacingY = 'md',
-	withPagination = true,
-	setOpened,
-	selectTransaction,
-	expandable = false
-}: TransactionTableProps) => {
+							  loading,
+							  data,
+							  spacingY = 'md',
+							  withPagination = true,
+							  setOpened,
+							  selectTransaction,
+							  expandable = false
+						  }: TransactionTableProps) => {
 	const [activePage, setPage] = useState(1);
 	const rows = data.map((t, index) => {
 		const statusClass = classNames({
@@ -93,37 +95,38 @@ const TransactionTable = ({
 	});
 
 	return (
-		<DataGrid
-			rows={rows}
-			activePage={activePage}
-			setPage={setPage}
-			spacingY={spacingY as MantineNumberSize}
-			headings={[
-				{ label: 'Transacted', key: null },
-				{ label: 'Status', key: null },
-				{ label: 'Merchant', key: null },
-				{ label: 'Location', key: null },
-				{ label: 'Card', key: null },
-				{
-					label: 'Driver',
-					key: null
-				},
-				{ label: 'Amount', key: null },
-				...expandable ? [{ label: '', key: null }] : []
-			]}
-			withPagination={withPagination}
-			emptyContent={
-				<Empty
-					message={
-						<span className='text-center text-2xl'>
+		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> :
+			<DataGrid
+				rows={rows}
+				activePage={activePage}
+				setPage={setPage}
+				spacingY={spacingY as MantineNumberSize}
+				headings={[
+					{ label: 'Transacted', key: null },
+					{ label: 'Status', key: null },
+					{ label: 'Merchant', key: null },
+					{ label: 'Location', key: null },
+					{ label: 'Card', key: null },
+					{
+						label: 'Driver',
+						key: null
+					},
+					{ label: 'Amount', key: null },
+					...expandable ? [{ label: '', key: null }] : []
+				]}
+				withPagination={withPagination}
+				emptyContent={
+					<Empty
+						message={
+							<span className='text-center text-2xl'>
 							You have no transactions
 							<br />
 							Your transaction will appear once your drivers start using their fuel cards
 						</span>
-					}
-				/>
-			}
-		/>
+						}
+					/>
+				}
+			/>
 	);
 };
 

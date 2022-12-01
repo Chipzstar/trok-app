@@ -72,7 +72,7 @@ const Statements = ({ testMode, session_id }) => {
 			}
 		>
 			<Page.Body>
-				<StatementsTable rows={rows} />
+				<StatementsTable loading={!testMode && query.isLoading} rows={rows} />
 			</Page.Body>
 		</Page.Container>
 	);

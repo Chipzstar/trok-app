@@ -24,16 +24,6 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { notifyError, notifySuccess, PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
 import BankAccountForm from '../modals/BankAccountForm';
 
-const formatAccNumber = (accNumber: string): string => (accNumber ? '****' + accNumber : undefined);
-
-const formatCode = codeText => {
-	return codeText
-		.replace(' ', '')
-		.replace('-', '')
-		.match(/.{1,2}/g)
-		.join('-');
-};
-
 const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -105,7 +95,7 @@ const PaymentMethod = ({ testMode, session_id, stripe_account_id }) => {
 				numBankAccounts={query?.data?.length}
 			/>
 			<Page.Body>
-				<BankAccountsTable data={data} />
+				<BankAccountsTable loading={!testMode && query.isLoading} data={data} />
 			</Page.Body>
 		</Page.Container>
 	);

@@ -218,15 +218,15 @@ const Transactions = ({ testMode, session_id }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='approved' className='h-full'>
-						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='declined' className='h-full'>
-						<TransactionTable data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

@@ -5,17 +5,18 @@ import classNames from 'classnames';
 import { GBP, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { capitalize, sanitize } from '../utils/functions';
-import { ActionIcon, Group, MantineNumberSize } from '@mantine/core';
+import { ActionIcon, Group, LoadingOverlay, MantineNumberSize } from '@mantine/core';
 import { IconChevronRight, IconRotateClockwise2 } from '@tabler/icons';
 import { Prisma } from '@prisma/client';
 
 export interface PaymentTableProps {
+	loading: boolean;
 	data: Prisma.PaymentUncheckedCreateInput[];
 	setOpened?: (val: boolean) => void;
 	selectPayment?: (p: Prisma.PaymentUncheckedCreateInput) => void;
 }
 
-const PaymentsTable = ({ data, setOpened, selectPayment }: PaymentTableProps) => {
+const PaymentsTable = ({ loading, data, setOpened, selectPayment }: PaymentTableProps) => {
 	const [activePage, setPage] = useState(1);
 	const rows = data.map((p, index) => {
 		const statusClass = classNames({
@@ -61,7 +62,7 @@ const PaymentsTable = ({ data, setOpened, selectPayment }: PaymentTableProps) =>
 					<span>{p.reference}</span>
 				</td>
 				<td colSpan={1}>
-					<Group align="center">
+					<Group align='center'>
 						<div className={statusClass}>
 							<span>
 								<span
@@ -95,7 +96,11 @@ const PaymentsTable = ({ data, setOpened, selectPayment }: PaymentTableProps) =>
 		);
 	});
 
-	return (
+	return loading ? (
+		<div className='relative h-full'>
+			<LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} />
+		</div>
+	) : (
 		<DataGrid
 			rows={rows}
 			activePage={activePage}

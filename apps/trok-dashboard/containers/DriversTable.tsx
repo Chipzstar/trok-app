@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
+import { LoadingOverlay } from '@mantine/core';
 
-const DriversTable = ({rows}) => {
+const DriversTable = ({rows, loading}) => {
 	const [activePage, setPage] = useState(1)
 	return (
+		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> :
 		<DataGrid
 			rows={rows}
 			activePage={activePage}

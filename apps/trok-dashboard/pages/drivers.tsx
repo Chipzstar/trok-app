@@ -106,7 +106,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					</tr>
 				);
 		  })
-		: !query.isLoading
+		: !query.data
 		? query.data
 				.filter(d => d.status === 'active')
 				.map((element, index) => {
@@ -321,7 +321,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				</Stack>
 			</Drawer>
 			<Page.Body>
-				<DriversTable rows={rows} />
+				<DriversTable loading={!testMode && query.isLoading} rows={rows} />
 			</Page.Body>
 		</Page.Container>
 	);

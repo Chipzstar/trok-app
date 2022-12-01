@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { FIVE_HUNDRED_POUNDS, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
-import { ActionIcon, Badge, Button, Card, Divider, Group, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Divider, Group, SimpleGrid, Loader, Space, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
 import { getToken } from 'next-auth/jwt';
@@ -15,7 +15,6 @@ import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import ComingSoon from '../modals/ComingSoon';
 
 dayjs.extend(isBetween);
-
 export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 	const [comingSoonModal, showComingSoon] = useState(false);
 	const [editMode, setEditMode] = useState(false);
@@ -80,10 +79,10 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Current Week Spend</span>
-								<span className='heading-1'>
+								{!testMode && transactionsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>
 									{week_spend.split('.')[0]}.
 									<span className='text-base'>{week_spend.split('.')[1]}</span>
-								</span>
+								</span>}
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Current Week Savings</span>
@@ -127,13 +126,13 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' pt='lg' pb='sm'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Account Balance</span>
-								<span
+								{!testMode && balanceQuery.isLoading ? <Loader size="sm"/> : <span
 									className={`text-2xl font-medium ${
 										current_balance < FIVE_HUNDRED_POUNDS && 'text-danger'
 									}`}
 								>
 									{GBP(current_balance).format()}
-								</span>
+								</span>}
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<Group position='apart'>
@@ -162,11 +161,11 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Number of Cards</span>
-								<span className='heading-1'>{num_cards}</span>
+								{!testMode && cardsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_cards}</span>}
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Transactions</span>
-								<span className='heading-1'>{num_transactions}</span>
+								{!testMode && transactionsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_transactions}</span>}
 							</div>
 						</Stack>
 						<Divider px={0} />

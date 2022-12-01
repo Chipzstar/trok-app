@@ -26,7 +26,7 @@ const Cards = ({ testMode, session_id }) => {
 
 	const data = testMode
 		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
-		: !cardsQuery.isLoading
+		: cardsQuery.data
 		? cardsQuery?.data.filter(c => activeTab === 'all' || c.status === activeTab)
 		: [];
 
@@ -175,15 +175,15 @@ const Cards = ({ testMode, session_id }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-						<CardsTable data={data} />
+						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='active' className='h-full'>
-						<CardsTable data={data} />
+						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 
 					<Tabs.Panel value='inactive' className='h-full'>
-						<CardsTable data={data} />
+						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

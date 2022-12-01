@@ -20,7 +20,6 @@ import {
 } from '@trok-app/shared-utils';
 import CardPaymentButton from '../../components/CardPaymentButton';
 import classNames from 'classnames';
-import { useToggle } from '@mantine/hooks';
 import { Elements } from '@stripe/react-stripe-js';
 import CardPINDisplay from '../../components/CardPINDisplay';
 import getStripe from '../../utils/load-stripejs';
@@ -77,7 +76,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		'text-success': card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED || card?.status === CARD_STATUS.ACTIVE
 	});
 
-	const rows = testMode
+	const data = testMode
 		? SAMPLE_TRANSACTIONS.slice(0, 3)
 		: !transactionsQuery.isLoading
 		? transactionsQuery?.data
@@ -284,7 +283,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 					Recent Transactions
 				</Title>
 				<ScrollArea.Autosize maxHeight={height - 450}>
-					<TransactionTable data={rows} spacingY='sm' withPagination={false} />
+					<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} spacingY='sm' withPagination={false} />
 				</ScrollArea.Autosize>
 			</Page.Body>
 		</Page.Container>

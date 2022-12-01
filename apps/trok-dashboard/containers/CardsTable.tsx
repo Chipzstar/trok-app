@@ -5,12 +5,12 @@ import Empty from '../components/Empty';
 import { PATHS, SAMPLE_CARDS, STORAGE_KEYS } from '../utils/constants';
 import classNames from 'classnames';
 import { sanitize } from '../utils/functions';
-import { ActionIcon, Group } from '@mantine/core';
+import { ActionIcon, Group, LoadingOverlay } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { CARD_STATUS, GBP } from '@trok-app/shared-utils';
 
-const CardsTable = ({ data }) => {
+const CardsTable = ({ data, loading }) => {
 	const router = useRouter();
 	const [activePage, setPage] = useState(1);
 
@@ -64,7 +64,7 @@ const CardsTable = ({ data }) => {
 	});
 
 	return (
-		<DataGrid
+		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> : <DataGrid
 			rows={rows}
 			activePage={activePage}
 			setPage={setPage}
