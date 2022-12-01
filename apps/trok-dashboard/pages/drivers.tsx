@@ -106,7 +106,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					</tr>
 				);
 		  })
-		: !query.data
+		: query.data
 		? query.data
 				.filter(d => d.status === 'active')
 				.map((element, index) => {
