@@ -156,7 +156,6 @@ const Sidebar = () => {
 			}
 		]
 	};
-
 	const { classes, cx } = useStyles();
 	const [section, setSection] = useState<'account' | 'general'>('general');
 
@@ -178,7 +177,7 @@ const Sidebar = () => {
 	return (
 		<Navbar width={{ base: 250 }} p='xs'>
 			<Navbar.Section className={classes.header}>
-				<Group spacing='xs'>
+				<Group spacing='xs' role="button" onClick={() => router.push(PATHS.HOME)}>
 					<Image src='/static/images/logo-blue.svg' width={35} height={35} />
 					<Text size={28} weight='600'>
 						Trok
