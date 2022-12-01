@@ -1,6 +1,7 @@
 import { createStyles, Title, Text, Button, Container, Group } from '@mantine/core';
 import Link from 'next/link';
 import { PATHS } from '../utils/constants';
+import Page from '../layout/Page';
 
 const useStyles = createStyles(theme => ({
 	root: {
@@ -44,7 +45,7 @@ export default function Custom404Error() {
 	const { classes } = useStyles();
 
 	return (
-		<Container className={classes.root}>
+		<Page.Container classNames="h-screen flex flex-col justify-center">
 			<div className={classes.label}>404</div>
 			<Title className={classes.title}>You have found a secret place.</Title>
 			<Text color='dimmed' size='lg' align='center' className={classes.description}>
@@ -58,6 +59,6 @@ export default function Custom404Error() {
 					</Button>
 				</Link>
 			</Group>
-		</Container>
+		</Page.Container>
 	);
 }
