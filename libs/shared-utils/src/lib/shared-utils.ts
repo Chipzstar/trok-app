@@ -4,6 +4,9 @@ import { phoneUtil } from './shared-constants';
 import bcrypt from 'bcryptjs';
 import CryptoJS from 'crypto-js';
 import Prisma from '@prisma/client';
+import currency from 'currency.js';
+
+export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
@@ -124,4 +127,12 @@ export function getDeclineReason(decline_code: Prisma.TransactionDeclineCode, me
 		default:
 			return `This card attempted to make a purchase at a non-fuel card merchant with category: ${merchant_category}`;
 	}
+}
+
+export function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function sanitize(str: string): string {
+	return str.replace(/[_-]/g, ' ').toLowerCase();
 }

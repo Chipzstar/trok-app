@@ -42,6 +42,15 @@ const updateDriverInput = createDriverInput.merge(
 );
 
 const driverRouter = t.router({
+	countDrivers: t.procedure.query(async ({ input, ctx }) => {
+		try {
+			return (await ctx.prisma.driver.findMany({})).length;
+		} catch (err) {
+			console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message})
+		}
+	}),
 	getDrivers: t.procedure
 		.input(
 			z.object({

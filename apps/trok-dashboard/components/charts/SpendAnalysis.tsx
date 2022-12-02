@@ -12,7 +12,6 @@ import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import { GBP } from '@trok-app/shared-utils';
-import { useSession } from 'next-auth/react';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);

@@ -4,11 +4,10 @@ import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
 import { PATHS, SAMPLE_CARDS, STORAGE_KEYS } from '../utils/constants';
 import classNames from 'classnames';
-import { sanitize } from '../utils/functions';
 import { ActionIcon, Group, LoadingOverlay } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
-import { CARD_STATUS, GBP } from '@trok-app/shared-utils';
+import { CARD_STATUS, GBP, sanitize } from '@trok-app/shared-utils';
 
 const CardsTable = ({ data, loading }) => {
 	const router = useRouter();

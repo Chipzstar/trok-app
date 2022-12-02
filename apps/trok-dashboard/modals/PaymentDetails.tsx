@@ -1,10 +1,9 @@
 import React from 'react';
 import { Divider, Drawer, Stack, Textarea, Text } from '@mantine/core';
-import { capitalize, sanitize } from '../utils/functions';
 import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
-import { GBP } from '@trok-app/shared-utils';
+import { capitalize, GBP, sanitize } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { trpc } from '../utils/clients';
 

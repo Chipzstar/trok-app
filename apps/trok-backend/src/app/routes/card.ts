@@ -6,6 +6,15 @@ import { CARD_SHIPPING_STATUS, CARD_STATUS } from '@trok-app/shared-utils';
 import { STRIPE_TEST_MODE } from '../utils/constants';
 
 const cardRouter = t.router({
+	countCards: t.procedure.query(async ({ input, ctx }) => {
+		try {
+		    return (await ctx.prisma.card.findMany({})).length;
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message})
+		}
+	}),
 	getCards: t.procedure
 		.input(
 			z.object({

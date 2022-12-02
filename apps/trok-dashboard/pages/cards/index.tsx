@@ -3,13 +3,12 @@ import Page from '../../layout/Page';
 import { Button, Drawer, Group, NumberInput, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
 import CardsTable from '../../containers/CardsTable';
 import { SAMPLE_CARDS } from '../../utils/constants';
-import { capitalize, sanitize } from '../../utils/functions';
 import { trpc } from '../../utils/clients';
 import { IconCheck, IconX } from '@tabler/icons';
 import { useForm } from '@mantine/form';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-import { intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { capitalize, intervals, notifyError, notifySuccess, sanitize } from '@trok-app/shared-utils';
 
 const Cards = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');

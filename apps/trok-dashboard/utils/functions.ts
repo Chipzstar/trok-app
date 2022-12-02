@@ -6,14 +6,6 @@ import { requirements } from './constants';
 import { AddressInfo, isStringEqual, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 
-export function capitalize(str: string): string {
-	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-export function sanitize(str: string): string {
-	return str.replace(/[_-]/g, ' ').toLowerCase();
-}
-
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
 

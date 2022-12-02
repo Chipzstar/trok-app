@@ -3,10 +3,9 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { ActionIcon, Divider, Group, LoadingOverlay, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
-import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import { GBP, sanitize, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { IconChevronRight } from '@tabler/icons';
-import { sanitize } from '../utils/functions';
 import classNames from 'classnames';
 
 export interface TransactionTableProps {

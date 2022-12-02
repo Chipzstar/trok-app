@@ -5,6 +5,20 @@ import { stripe } from '../utils/clients';
 import { comparePassword, hashPassword } from '@trok-app/shared-utils';
 
 const accountRouter = t.router({
+	countUsers: t.procedure.query(async ({ input, ctx }) => {
+		try {
+		    return await ctx.prisma.user.findMany({
+				select: {
+					id: true,
+					created_at: true
+				}
+			})
+		} catch (err) {
+		    console.error(err)
+			// @ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message })
+		}
+	}),
 	getAccount: t.procedure
 		.input(
 			z.object({

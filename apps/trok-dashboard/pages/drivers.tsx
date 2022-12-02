@@ -18,8 +18,15 @@ import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 import { trpc } from '../utils/clients';
-import { GBP, getE164Number, intervals, notifyError, notifySuccess } from '@trok-app/shared-utils';
-import { capitalize, sanitize } from '../utils/functions';
+import {
+	capitalize,
+	GBP,
+	getE164Number,
+	intervals,
+	notifyError,
+	notifySuccess,
+	sanitize
+} from '@trok-app/shared-utils';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import EditDriverForm from '../modals/EditDriverForm';

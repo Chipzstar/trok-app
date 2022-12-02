@@ -1,10 +1,9 @@
 import React from 'react';
 import { Drawer, Stack, Text, Title, Card, Group, ScrollArea } from '@mantine/core';
 import { Prisma } from '@prisma/client';
-import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import { GBP, sanitize, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { trpc } from '../utils/clients';
-import { sanitize } from '../utils/functions';
 import useWindowSize from '../hooks/useWindowSize';
 
 interface TransactionDetailsProps {
