@@ -32,6 +32,7 @@ const accountRouter = t.router({
 					id: input.id
 				},
 				select: {
+					referrals: true,
 					approved: true,
 					full_name: true,
 					firstname: true,

@@ -15,7 +15,6 @@ export const requirements = [
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
-
 export const DEFAULT_HEADER_HEIGHT = 75;
 export const BANNER_HEIGHT = 65
 

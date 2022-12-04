@@ -1,4 +1,5 @@
 import NextAuth, { DefaultSession } from 'next-auth';
+import Prisma from '@prisma/client';
 
 declare module "next-auth" {
 	/**
@@ -15,5 +16,19 @@ declare module "next-auth" {
 			name: string;
 			email: string
 		} & DefaultSession["user"]
+	}
+	interface JWT {
+		id: string;
+        email: string;
+		sub: string;
+		iat: number;
+		exp: number;
+		jti: string;
+		user: {
+			accountId: string;
+			personId: string;
+			/** The user's postal address. */
+			address: string
+		} & Omit<Prisma.User, "password" | "stripe">
 	}
 }

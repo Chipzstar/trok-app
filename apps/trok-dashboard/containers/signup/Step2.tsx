@@ -16,48 +16,57 @@ import {
 } from 'react-plaid-link';
 
 const Step2 = ({ prevStep, nextStep }) => {
-	const [link_token, setLinkToken] = useState<string | null>(null)
+	const [link_token, setLinkToken] = useState<string | null>(null);
 	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
 	const [link_loading, setLinkLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<OnboardingAccountStep1>({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
-	const [business, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM, defaultValue: null });
+	const [account, setAccount] = useLocalStorage<OnboardingAccountStep1>({
+		key: STORAGE_KEYS.ACCOUNT,
+		defaultValue: null
+	});
+	const [business, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({
+		key: STORAGE_KEYS.COMPANY_FORM,
+		defaultValue: null
+	});
 	const [financialForm, setFinancialForm] = useLocalStorage({
 		key: STORAGE_KEYS.FINANCIAL_FORM,
 		defaultValue: {
 			average_monthly_revenue: null
 		}
 	});
+	const utils = trpc.useContext();
 	const linkSessionMutation = trpc.linkBusinessBankAccount.useMutation();
 	const isAccountLinked = trpc.checkAccountLinked.useQuery(account.email, {
 		enabled: !!account?.email
 	});
-	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
-		// log and save metadata
-		// exchange public token
-		apiClient.post('/server/plaid/set_access_token', {
-				email: account?.email,
-				public_token
-			})
-			.then(({ data }) => {
-				console.log(data);
-			})
-			.catch(err => console.error(err));
-	}, [account]);
-	const onExit = useCallback<PlaidLinkOnExit>(
-		async (error, metadata: PlaidLinkOnExitMetadata) => {
-			try {
-				notifyInfo(
-					'link-bank-account-session-cancelled',
-					'Plaid session was closed unexpectedly. No bank account has been linked',
-					<IconInfoCircle size={20} />
-				);
-			} catch (err) {
-				console.error(err);
-			}
+	const onSuccess = useCallback<PlaidLinkOnSuccess>(
+		(public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
+			// log and save metadata
+			// exchange public token
+			apiClient
+				.post('/server/plaid/set_access_token', {
+					email: account?.email,
+					public_token
+				})
+				.then(({ data }) => {
+					console.log(data);
+					utils.checkAccountLinked.invalidate(account.email);
+				})
+				.catch(err => console.error(err));
 		},
-		[]
+		[account]
 	);
+	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
+		try {
+			notifyInfo(
+				'link-bank-account-session-cancelled',
+				'Plaid session was closed unexpectedly. No bank account has been linked',
+				<IconInfoCircle size={20} />
+			);
+		} catch (err) {
+			console.error(err);
+		}
+	}, []);
 	const config: Parameters<typeof usePlaidLink>[0] = {
 		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
 		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
@@ -76,9 +85,9 @@ const Step2 = ({ prevStep, nextStep }) => {
 		async values => {
 			setLoading(true);
 			try {
-				if (!isProd && !isAccountLinked?.data?.access_token) {
+				/*if (!isProd && !isAccountLinked?.data?.access_token) {
 					throw new Error("Please link your bank account before continuing")
-				}
+				}*/
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
@@ -136,39 +145,47 @@ const Step2 = ({ prevStep, nextStep }) => {
 					{...form.getInputProps('average_monthly_revenue')}
 				/>
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
-				{!isProd && <div className='flex flex-row flex-col items-center justify-center space-y-4'>
-					{isAccountLinked?.data?.access_token ? (
-						<Button px='xl' leftIcon={<IconCheck size={18} />} fullWidth loading={link_loading} disabled>
-							<Text weight='normal'>Bank Account Linked</Text>
-						</Button>
-					) : (
-						<Button
-							px='xl'
-							fullWidth
-							loading={link_loading}
-							onClick={() => {
-								setLinkLoading(true);
-								linkSessionMutation
-									.mutateAsync(account.email)
-									.then(res => {
-										setLinkLoading(false);
-										setLinkToken(res.link_token);
-									})
-									.catch(err => {
-										setLinkLoading(false);
-										console.error(err);
-									});
-							}}
-						>
-							<Text weight='normal'>Link Business Bank Account</Text>
-						</Button>
-					)}
-					<Text align='center' size='xs' color='dimmed'>
-						Trok uses Plaid for a safe & secure connection
-						<br />
-						Recommended for instant approval
-					</Text>
-				</div>}
+				{!isProd && (
+					<div className='flex flex-row flex-col items-center justify-center space-y-4'>
+						{isAccountLinked?.data?.access_token ? (
+							<Button
+								px='xl'
+								leftIcon={<IconCheck size={18} />}
+								fullWidth
+								loading={link_loading}
+								disabled
+							>
+								<Text weight='normal'>Bank Account Linked</Text>
+							</Button>
+						) : (
+							<Button
+								px='xl'
+								fullWidth
+								loading={link_loading}
+								onClick={() => {
+									setLinkLoading(true);
+									linkSessionMutation
+										.mutateAsync(account.email)
+										.then(res => {
+											setLinkLoading(false);
+											setLinkToken(res.link_token);
+										})
+										.catch(err => {
+											setLinkLoading(false);
+											console.error(err);
+										});
+								}}
+							>
+								<Text weight='normal'>Link Business Bank Account</Text>
+							</Button>
+						)}
+						<Text align='center' size='xs' color='dimmed'>
+							Trok uses Plaid for a safe & secure connection
+							<br />
+							Recommended for instant approval
+						</Text>
+					</div>
+				)}
 				<Group mt='md' position='apart'>
 					<Button type='button' variant='white' size='md' onClick={prevStep}>
 						<Text weight='normal'>Go Back</Text>

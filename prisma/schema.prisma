@@ -227,6 +227,17 @@ model Payment {
   schedule             PaymentSchedule?
   status               String
 }
+model Referral {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  enabled          Boolean
+  user             User     @relation(fields: [userId], references: [id], name: "user_referral")
+  userId           String   @unique @db.ObjectId
+  referrer         User     @relation(fields: [referrer_user_id], references: [id], name: "referred_users")
+  referrer_user_id String   @db.ObjectId
+  referral_code    String
+}
 model Statement {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   created_at    DateTime      @default(now())
@@ -351,7 +362,9 @@ model User {
   approved           Boolean       @default(false)
   verify_token       String        @default("")
   reset_token        String        @default(uuid())
-  referral_code      String?
+  referral_code      String        @unique @default(cuid())
+  referral           Referral?     @relation("user_referral")
+  referrals          Referral[]    @relation("referred_users")
   terms              Boolean?
   password           String
   location           Address

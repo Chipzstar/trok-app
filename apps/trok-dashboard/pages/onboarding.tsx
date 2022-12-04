@@ -100,4 +100,22 @@ const Onboarding = () => {
 	);
 };
 
+export async function getServerSideProps({ req, res }) {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	if (session) {
+		return {
+			redirect: {
+				destination: PATHS.HOME,
+				permanent: false
+			}
+		};
+	}
+	return {
+		props: {
+			session
+		}
+	};
+}
+
 export default Onboarding;

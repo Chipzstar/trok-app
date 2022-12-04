@@ -11,7 +11,6 @@ import { IconX } from '@tabler/icons';
 import prisma from '../prisma';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-
 const Login = ({ csrfToken, users }) => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();

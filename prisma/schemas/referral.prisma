@@ -1,0 +1,11 @@
+model Referral {
+    id String  @id @default(auto()) @map("_id") @db.ObjectId
+    created_at  DateTime  @default(now())
+    updated_at DateTime @updatedAt
+    enabled Boolean
+    user User @relation(fields: [userId], references: [id], name: "user_referral")
+    userId String @unique @db.ObjectId
+    referrer User @relation(fields: [referrer_user_id], references: [id], name: "referred_users")
+    referrer_user_id String @db.ObjectId
+    referral_code String
+}

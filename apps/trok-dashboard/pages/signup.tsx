@@ -49,7 +49,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 		firstname: z.string({ required_error: 'Required' }).max(25),
 		lastname: z.string({ required_error: 'Required' }).max(25),
 		phone: z.string({ required_error: 'Required' }).max(25),
-		referral_code: z.string().max(10, 'Referral code must contain at most 10 characters').optional(),
+		referral_code: z.string().optional(),
 		terms: z.boolean().refine((val: boolean) => val, 'Please check this box')
 	});
 	const [popoverOpened, setPopoverOpened] = useState(false);
@@ -225,6 +225,16 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 }
 
 export async function getServerSideProps({ req, res }) {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	if (session) {
+		return {
+			redirect: {
+				destination: PATHS.HOME,
+				permanent: false
+			}
+		};
+	}
 	const emails = await prisma.user.findMany({
 		select: {
 			email: true
@@ -237,5 +247,4 @@ export async function getServerSideProps({ req, res }) {
 		}
 	};
 }
-
 export default Signup;

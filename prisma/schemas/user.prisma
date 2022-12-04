@@ -11,7 +11,9 @@ model User {
   approved Boolean @default(false)
   verify_token String @default("")
   reset_token String @default(uuid())
-  referral_code String?
+  referral_code String @unique @default(cuid())
+  referral  Referral? @relation("user_referral")
+  referrals Referral[] @relation("referred_users")
   terms Boolean?
   password String
   location Address

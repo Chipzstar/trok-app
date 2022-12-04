@@ -6,6 +6,7 @@ import prisma from '../../../prisma';
 import * as nodemailer from 'nodemailer';
 import { html, text } from '../../../utils/functions';
 import { apiClient } from '../../../utils/clients';
+import { isProd } from '../../../utils/constants';
 
 export async function sendMagicLink({ identifier, url, provider, token, expires }: SendVerificationRequestParams) {
 	try {
@@ -136,7 +137,7 @@ export const authOptions = {
 	jwt: {
 		encryption: true
 	},
-	debug: process.env.NODE_ENV !== 'production'
+	debug: !isProd
 };
 
 // @ts-ignore

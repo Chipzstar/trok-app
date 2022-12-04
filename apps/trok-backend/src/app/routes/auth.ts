@@ -2,21 +2,21 @@ import express from 'express';
 import prisma from '../db';
 import redisClient from '../redis';
 import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL, TWENTY_FOUR_HOURS, IS_PRODUCTION } from '../utils/constants';
-import { databox, stripe } from '../utils/clients';
+import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { comparePassword, hashPassword } from '@trok-app/shared-utils';
+import { comparePassword, genReferralCode, hashPassword } from '@trok-app/shared-utils';
 import { sendNewSignupEmail, sendPasswordResetLink, sendVerificationLink } from '../helpers/email';
-import { getEmailIPkey } from '../utils/helpers';
+import { getEmailIPkey, validateReferralCode } from '../utils/helpers';
 import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
 import { generateAccountLinkToken } from '../helpers/plaid';
 import { ObjectId } from 'mongodb';
 import utc from 'dayjs/plugin/utc';
 
-dayjs.extend(utc)
+dayjs.extend(utc);
 const router = express.Router();
 let reminderTimeout;
 
@@ -38,19 +38,13 @@ export const authRouter = t.router({
 			// check user hasn't already attempted sign up in last 48 hours
 			const is_signed_up = await ctx.redis.hget(input.email, 'email');
 			console.log(is_signed_up);
-			if (!is_signed_up && IS_PRODUCTION) {
-				databox.push(
-					{
-						key: 'new_signups',
-						value: 1,
-						date: dayjs().utc(true).format("YYYY-MM-DD HH:mm:ss"),
-					},
-					function (response: any) {
-						console.log(response);
-					}
-				);
-
-				await sendNewSignupEmail(input.email, input.full_name);
+			if (!is_signed_up && IS_PRODUCTION) await sendNewSignupEmail(input.email, input.full_name);
+			if (input.referral_code) {
+				// validate if referral belongs to a user
+				const is_valid = await validateReferralCode(input.referral_code);
+				if (!is_valid) {
+					throw new Error('Referral code does not exist!');
+				}
 			}
 			await ctx.redis.hmset(input.email, {
 				firstname: input.firstname,
@@ -335,7 +329,6 @@ router.post('/complete-registration', async (req, res, next) => {
 			person_token: personToken.id
 		});
 		console.log('-----------------------------------------------');
-		console.log(person);
 		// store user in database
 		const verify_token = uuidv4();
 		const reset_token = uuidv4();
@@ -346,9 +339,11 @@ router.post('/complete-registration', async (req, res, next) => {
 			account_number: '00000000',
 			sort_code: '00-00-00'
 		};
-		const user = await prisma.user.create({
+		// create the user in DB
+		let user = await prisma.user.create({
 			data: {
 				...data,
+				referral_code: genReferralCode(),
 				verify_token,
 				reset_token,
 				stripe: {
@@ -358,6 +353,25 @@ router.post('/complete-registration', async (req, res, next) => {
 				}
 			}
 		});
+		// if user signed up with referral code, record the referral in DB
+		if (data.referral_code) {
+			let referrer = await prisma.user.findFirstOrThrow({
+				where: {
+					referral_code: data.referral_code
+				}
+			})
+			const referral = await prisma.referral.create({
+				data: {
+					userId: user.id,
+					enabled: true,
+					referrer_user_id: referrer.id,
+					referral_code: data.referral_code,
+				}
+			});
+			console.log('-----------------------------------------------');
+			console.table(referral)
+			console.log('-----------------------------------------------');
+		}
 		console.log('USER', user);
 		sendVerificationLink(user.email, user.full_name, verify_token)
 			.then(() => console.log('Verification link sent'))

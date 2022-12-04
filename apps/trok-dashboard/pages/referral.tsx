@@ -1,10 +1,17 @@
-import { Button, Card, Group, List, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Card, Group, List, Popover, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core';
 import React from 'react';
 import Page from '../layout/Page';
+import { authOptions } from './api/auth/[...nextauth]';
+import { unstable_getServerSession } from 'next-auth';
+import { getToken } from 'next-auth/jwt';
+import { trpc } from '../utils/clients';
 
-const Referral = () => {
+const Referral = ({ referral_code, session_id }) => {
+	const { data: account } = trpc.getAccount.useQuery({ id: session_id }, { enabled: !!session_id });
+
 	return (
 		<Page.Container
+			classNames='flex flex-col'
 			header={
 				<Page.Header>
 					<span className='heading-1 capitalize'>Refer & Earn</span>
@@ -27,22 +34,29 @@ const Referral = () => {
 										backgroundColor: '#D1D5FD'
 									}
 								}}
-								defaultValue='https://www.trok.co/referral/987b8b'
+								defaultValue={`https://www.trok.co/referral/${referral_code}`}
 								rightSection={
-									<Button radius={0}>
-										<Text
-											weight='normal'
-											onClick={() =>
-												navigator.clipboard
-													.writeText('https://www.trok.co/referral/987b8b')
-													.then(() => {
-														console.log('link copied!');
-													})
-											}
-										>
-											Copy Link
-										</Text>
-									</Button>
+									<Popover width="target" position='bottom' withArrow shadow='md'>
+										<Popover.Target>
+											<Button radius={0}>
+												<Text
+													weight='normal'
+													onClick={() =>
+														navigator.clipboard
+															.writeText(`https://www.trok.co/referral/${referral_code}`)
+															.then(() => {
+																console.log('link copied!');
+															})
+													}
+												>
+													Copy Link
+												</Text>
+											</Button>
+										</Popover.Target>
+										<Popover.Dropdown p="xs">
+											<Text size='sm'>Link copied!</Text>
+										</Popover.Dropdown>
+									</Popover>
 								}
 								rightSectionProps={{
 									padding: 0,
@@ -53,7 +67,7 @@ const Referral = () => {
 							<span className='text-lg font-semibold'>Your Earnings</span>
 							<Group spacing={40}>
 								<span className='font-medium'>Credits Earned: £0</span>
-								<span className='font-medium'>Referrals: 12</span>
+								<span className='font-medium'>Referrals: {account?.referrals.length ?? 0}</span>
 							</Group>
 						</Stack>
 					</Card>
@@ -77,4 +91,17 @@ const Referral = () => {
 	);
 };
 
+export async function getServerSideProps({ req, res }) {
+	// @ts-ignore
+	const session = await unstable_getServerSession(req, res, authOptions);
+	const token = await getToken({ req });
+	session && console.log(token.user);
+	return {
+		props: {
+			session_id: session?.id,
+			// @ts-ignore
+			referral_code: token.user?.referral_code
+		}
+	};
+}
 export default Referral;

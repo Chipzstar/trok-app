@@ -1,11 +1,10 @@
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { customAlphabet } from 'nanoid';
-
 export const ONE_HOUR = 1000 * 60 * 60;
 export const THIRTY_MINUTES = 1000 * 60 * 30;
 export const THIRTY_SECONDS = 1000 * 30;
 export const numericId = customAlphabet('1234567890', 16);
-
+export const genReferralCode = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 16)
 export const phoneUtil = PhoneNumberUtil.getInstance();
 export const PLAID_INSTITUTIONS = [
 	{
