@@ -36,7 +36,7 @@ const Referral = ({ referral_code, session_id }) => {
 								}}
 								defaultValue={`https://www.trok.co/referral/${referral_code}`}
 								rightSection={
-									<Popover width="target" position='bottom' withArrow shadow='md'>
+									<Popover width='target' position='bottom' withArrow shadow='md'>
 										<Popover.Target>
 											<Button radius={0}>
 												<Text
@@ -53,7 +53,7 @@ const Referral = ({ referral_code, session_id }) => {
 												</Text>
 											</Button>
 										</Popover.Target>
-										<Popover.Dropdown p="xs">
+										<Popover.Dropdown p='xs'>
 											<Text size='sm'>Link copied!</Text>
 										</Popover.Dropdown>
 									</Popover>
@@ -99,9 +99,9 @@ export async function getServerSideProps({ req, res }) {
 	return {
 		props: {
 			session_id: session?.id,
-			// @ts-ignore
 			referral_code: token.user?.referral_code
 		}
 	};
 }
+
 export default Referral;

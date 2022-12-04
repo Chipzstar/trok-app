@@ -1,4 +1,5 @@
 import NextAuth, { DefaultSession } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 import Prisma from '@prisma/client';
 
 declare module "next-auth" {
@@ -17,6 +18,9 @@ declare module "next-auth" {
 			email: string
 		} & DefaultSession["user"]
 	}
+}
+
+declare module "next-auth/jwt" {
 	interface JWT {
 		id: string;
         email: string;
