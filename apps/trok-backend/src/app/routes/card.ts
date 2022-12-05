@@ -8,7 +8,12 @@ import { STRIPE_TEST_MODE } from '../utils/constants';
 const cardRouter = t.router({
 	countCards: t.procedure.query(async ({ input, ctx }) => {
 		try {
-		    return (await ctx.prisma.card.findMany({})).length;
+		    return await ctx.prisma.card.findMany({
+				select: {
+					id: true,
+					created_at: true
+				}
+			})
 		} catch (err) {
 		    console.error(err)
 			// @ts-ignore

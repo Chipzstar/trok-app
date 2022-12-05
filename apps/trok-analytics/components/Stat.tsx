@@ -32,9 +32,9 @@ const Stat = ({title, diff, value, icon, loading, is_currency=false, diff_interv
 				<Icon color="gray" size={22} stroke={1.5} />
 			</Group>
 
-			<Group align="flex-end" spacing="xs" mt={10}>
+			<Group align="center" spacing="xs" mt={10}>
 				{loading ? <Loader size="sm"/> : <Text size="xl" className="font-bold">{is_currency ? GBP(value).format() : value}</Text>}
-				<Text
+				{!isNaN(diff) && <Text
 					color={diff > 0 ? 'teal' : 'red'}
 					size="sm"
 					weight={500}
@@ -42,9 +42,8 @@ const Stat = ({title, diff, value, icon, loading, is_currency=false, diff_interv
 				>
 					<span>{diff}%</span>
 					<DiffIcon size={16} stroke={1.5} />
-				</Text>
+				</Text>}
 			</Group>
-
 			<Text size="xs" color="dimmed" mt={7}>
 				{`Compared to previous ${diff_interval}`}
 			</Text>

@@ -6,6 +6,13 @@ import CryptoJS from 'crypto-js';
 import Prisma from '@prisma/client';
 import currency from 'currency.js';
 
+export function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+export function sanitize(str: string): string {
+	return str.replace(/[_-]/g, ' ').toLowerCase();
+}
+
 export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
@@ -129,9 +136,11 @@ export function getDeclineReason(decline_code: Prisma.TransactionDeclineCode, me
 	}
 }
 
-export function capitalize(str: string): string {
-	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-export function sanitize(str: string): string {
-	return str.replace(/[_-]/g, ' ').toLowerCase();
+export function calcPercentageChange(original: number, current: number): number {
+	if (!original) return Number.NaN;
+	const difference = original - current;
+	console.log("difference", difference)
+	const percentage_change = (difference / original) * 100
+	console.log(percentage_change)
+	return percentage_change;
 }

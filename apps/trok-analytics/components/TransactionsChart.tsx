@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { filterByTimeRange } from '../utils/functions';
 import dayjs from 'dayjs';
 import { Line } from 'react-chartjs-2';
-import { useViewportSize } from '@mantine/hooks';
 import { GBP } from '@trok-app/shared-utils';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -12,10 +11,14 @@ import useWindowSize from '../hooks/useWindowSize';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);
-const TransactionsChart = ({dateRange}) => {
-	const { height } = useWindowSize();
-	const transactions = trpc.getApprovedTransactions.useQuery();
+interface TransactionChartProps {
+	dateRange: DateRangePickerValue;
+	height: number;
+}
 
+const TransactionsChart = ({dateRange, height} : TransactionChartProps) => {
+	const { height: HEIGHT } = useWindowSize();
+	const transactions = trpc.getApprovedTransactions.useQuery();
 	const generateLabels = useCallback((range: DateRangePickerValue) => {
 		let startDate = dayjs(range[0])
 		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
@@ -45,8 +48,12 @@ const TransactionsChart = ({dateRange}) => {
 		}
 	}, [transactions.data, dateRange]);
 
+	useEffect(() => {
+		console.log("child:", HEIGHT)
+	}, [HEIGHT]);
+
 	return (
-		<div style={{height: height - 350}}>
+		<div style={{height: HEIGHT - 350}}>
 			<Line
 				options={{
 					plugins: {

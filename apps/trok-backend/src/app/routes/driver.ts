@@ -44,7 +44,12 @@ const updateDriverInput = createDriverInput.merge(
 const driverRouter = t.router({
 	countDrivers: t.procedure.query(async ({ input, ctx }) => {
 		try {
-			return (await ctx.prisma.driver.findMany({})).length;
+			return await ctx.prisma.driver.findMany({
+				select: {
+					id: true,
+					created_at: true
+				}
+			})
 		} catch (err) {
 			console.error(err)
 			// @ts-ignore
