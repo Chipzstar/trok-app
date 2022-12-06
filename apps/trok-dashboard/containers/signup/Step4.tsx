@@ -12,6 +12,7 @@ import {
 	notifyError,
 	OnboardingAccountStep3,
 	OnboardingBusinessInfo,
+	OnboardingDirectorInfo,
 	OnboardingFinancialInfo,
 	OnboardingLocationInfo,
 	SignupInfo
@@ -20,6 +21,7 @@ import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
 import { useRouter } from 'next/router';
 import { validateCompanyInfo } from '../../utils/functions';
+import dayjs from 'dayjs';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
@@ -32,6 +34,7 @@ const Step4 = ({ prevStep }) => {
 	});
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
 	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
+	const [directorObj, setDirector] = useLocalStorage<OnboardingDirectorInfo>({ key: STORAGE_KEYS.DIRECTORS_FORM });
 	const [financialObj, setFinancial] = useLocalStorage<OnboardingFinancialInfo>({ key: STORAGE_KEYS.FINANCIAL_FORM });
 	const [locationForm, setLocationForm] = useLocalStorage<OnboardingLocationInfo>({
 		key: STORAGE_KEYS.LOCATION_FORM,
@@ -81,35 +84,33 @@ const Step4 = ({ prevStep }) => {
 				if (!is_valid) throw new Error(reason);
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
+				console.log(directorObj)
 				const personResult = await Stripe.createToken('person', {
-					address: values.diff_shipping_address
-						? {
-								line1: values.shipping_address.line1,
-								line2: values.shipping_address.line2,
-								city: values.shipping_address.city,
-								state: values.shipping_address.region,
-								postal_code: values.shipping_address.postcode,
-								country: 'GB'
-						  }
-						: {
-								line1: values.line1,
-								line2: values.line2,
-								city: values.city,
-								state: values.region,
-								postal_code: values.postcode,
-								country: 'GB'
-						  },
+					dob: {
+						day: dayjs(directorObj.dob).date(),
+						month: dayjs(directorObj.dob).month() + 1,
+						year: dayjs(directorObj.dob).year(),
+					},
+					address: {
+						line1: directorObj.line1,
+						line2: directorObj.line2,
+						city: directorObj.city,
+						state: directorObj.region,
+						postal_code: directorObj.postcode,
+						country: directorObj.country
+					},
 					relationship: {
 						owner: true,
 						director: true,
 						executive: true,
 						representative: true
 					},
-					first_name: personalObj.firstname,
-					last_name: personalObj.lastname,
-					email: personalObj.email,
+					first_name: directorObj.firstname,
+					last_name: directorObj.lastname,
+					email: directorObj.email,
 					phone: personalObj.phone
 				});
+				if (personResult.error) throw new Error(personResult.error.message);
 				// generate secure tokens to create account + person in stripe
 				const accountResult = await Stripe.createToken('account', {
 					business_type: 'company',
@@ -163,7 +164,7 @@ const Step4 = ({ prevStep }) => {
 				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, personalObj, businessObj, financialObj]
+		[account, personalObj, businessObj, directorObj, financialObj]
 	);
 
 	useEffect(() => {

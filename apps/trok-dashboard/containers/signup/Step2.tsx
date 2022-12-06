@@ -85,7 +85,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 	}, []);
 
 	useEffect(() => {
-		window.localStorage.setItem(STORAGE_KEYS.DIRECTORS_FORM, JSON.stringify({ ...form.values, dob: '' }));
+		window.localStorage.setItem(STORAGE_KEYS.DIRECTORS_FORM, JSON.stringify(form.values));
 	}, [form.values]);
 
 	return (
