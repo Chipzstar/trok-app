@@ -24,6 +24,8 @@ import { IconCheck, IconX } from '@tabler/icons';
 import prisma from '../prisma';
 import { z } from 'zod';
 import { getStrength } from '../utils/functions';
+import { authOptions } from './api/auth/[...nextauth]';
+import { unstable_getServerSession } from 'next-auth';
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
 	return (

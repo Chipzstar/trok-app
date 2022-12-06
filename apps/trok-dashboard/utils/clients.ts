@@ -12,6 +12,13 @@ export const companyHouseClient = axios.create({
 	}
 })
 
+export const griffinClient = axios.create({
+	baseURL: process.env.NEXT_PUBLIC_GRIFFIN_BASE_URL,
+	headers: {
+		Authorization: `GriffinAPIKey ${process.env.NEXT_PUBLIC_GRIFFIN_API_KEY}`,
+	}
+})
+
 companyHouseClient.interceptors.response.use(function (response) {
 	// Any status code that lie within the range of 2xx cause this function to trigger
 	// Do something with response data

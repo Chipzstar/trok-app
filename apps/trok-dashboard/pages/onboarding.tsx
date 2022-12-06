@@ -6,7 +6,8 @@ import Step2 from '../containers/signup/Step2';
 import Step3 from '../containers/signup/Step3';
 import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
-
+import { authOptions } from './api/auth/[...nextauth]';
+import { unstable_getServerSession } from 'next-auth';
 const Onboarding = () => {
 	const router = useRouter();
 	const { height } = useWindowSize();
