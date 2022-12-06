@@ -39,12 +39,17 @@ const Step2 = ({ prevStep, nextStep }) => {
 			firstname: account?.firstname ?? '',
 			lastname: account?.lastname ?? '',
 			email: account?.email ?? ''
+		},
+		validate: {
+			dob: (value) => !value ? "Required" : null
 		}
 	});
 	const handleSubmit = useCallback(
-		async values => {
+		async (values:OnboardingDirectorInfo) => {
 			setLoading(true);
 			try {
+				values.dob = dayjs(values.dob).format("DD-MM-YYYY")
+				console.log(values.dob)
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {

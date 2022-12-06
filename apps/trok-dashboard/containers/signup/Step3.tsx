@@ -41,7 +41,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 	});
 	const utils = trpc.useContext();
 	const linkSessionMutation = trpc.linkBusinessBankAccount.useMutation();
-	const isAccountLinked = trpc.checkAccountLinked.useQuery(account.email, {
+	const { data: plaid_access_token } = trpc.checkAccountLinked.useQuery(account.email, {
 		enabled: !!account?.email
 	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>(
@@ -152,7 +152,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
 				{!isProd && (
 					<div className='flex flex-row flex-col items-center justify-center space-y-4'>
-						{isAccountLinked?.data?.access_token ? (
+						{plaid_access_token ? (
 							<Button
 								px='xl'
 								leftIcon={<IconCheck size={18} />}

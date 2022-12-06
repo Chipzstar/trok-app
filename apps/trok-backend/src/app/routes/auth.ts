@@ -178,7 +178,9 @@ export const authRouter = t.router({
 		}
 	}),
 	checkAccountLinked: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
-		return await ctx.redis.hgetall(input);
+		const redis_account = await ctx.redis.hgetall(input);
+		console.log(redis_account)
+		return !!redis_account?.access_token
 	})
 });
 
@@ -286,7 +288,7 @@ router.post('/onboarding', async (req, res, next) => {
 		console.log('************************************************');
 		console.log('EMAIL: ' + email);
 		const payload = req.body;
-		console.log(payload);
+		console.table(payload);
 		await redisClient.hmset(String(email), payload);
 		await redisClient.hset(String(email), 'onboarding_step', String(step));
 		// set expiry time for 48hours

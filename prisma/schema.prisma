@@ -315,6 +315,19 @@ type BusinessInfo {
   num_vehicles            Int
 }
 
+type DirectorInfo {
+  dob       String
+  firstname String
+  lastname  String
+  email     String
+  line1     String
+  line2     String?
+  city      String
+  postcode  String
+  region    String
+  country   String? @default("GB")
+}
+
 type CardInfo {
   card_business_name String
   num_cards          Int?
@@ -371,6 +384,7 @@ model User {
   shipping_address   Address
   card_configuration CardInfo
   business           BusinessInfo
+  director           DirectorInfo
   stripe             StripeInfo
   drivers            Driver[]
   cards              Card[]

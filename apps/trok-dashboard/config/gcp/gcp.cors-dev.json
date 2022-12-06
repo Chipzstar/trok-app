@@ -6,6 +6,12 @@
 		"maxAgeSeconds": 3600
 	},
 	{
+		"origin": ["http://localhost:4201"],
+		"method": ["GET", "POST", "PUT", "DELETE"],
+		"responseHeader": ["Content-Type"],
+		"maxAgeSeconds": 3600
+	},
+	{
 		"origin": ["https://trok-app-dev.onrender.com"],
 		"method": ["GET", "POST", "PUT", "DELETE"],
 		"responseHeader": ["Content-Type"],

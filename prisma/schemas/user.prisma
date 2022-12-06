@@ -20,6 +20,7 @@ model User {
   shipping_address Address
   card_configuration CardInfo
   business BusinessInfo
+  director DirectorInfo
   stripe StripeInfo
   drivers Driver[]
   cards Card[]
