@@ -1,93 +1,50 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useForm } from '@mantine/form';
-import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
-import { FileWithPath } from '@mantine/dropzone';
-import { IconCheck, IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
-import { isProd, STORAGE_KEYS } from '../../utils/constants';
-import { useListState, useLocalStorage } from '@mantine/hooks';
-import { notifyError, notifyInfo, OnboardingAccountStep1, OnboardingBusinessInfo } from '@trok-app/shared-utils';
-import { apiClient, trpc } from '../../utils/clients';
+import { STORAGE_KEYS } from '../../utils/constants';
 import {
-	PlaidLinkOnExit,
-	PlaidLinkOnExitMetadata,
-	PlaidLinkOnSuccess,
-	PlaidLinkOnSuccessMetadata,
-	usePlaidLink
-} from 'react-plaid-link';
+	notifyError,
+	OnboardingAccountStep2,
+	OnboardingDirectorInfo
+} from '@trok-app/shared-utils';
+import { useLocalStorage } from '@mantine/hooks';
+import { useForm } from '@mantine/form';
+import { apiClient } from '../../utils/clients';
+import { IconX } from '@tabler/icons';
+import { Button, Text, Group, Stack, TextInput } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
+import dayjs from 'dayjs';
 
 const Step2 = ({ prevStep, nextStep }) => {
-	const [link_token, setLinkToken] = useState<string | null>(null);
-	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
-	const [link_loading, setLinkLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<OnboardingAccountStep1>({
+	const [account, setAccount] = useLocalStorage<OnboardingAccountStep2>({
 		key: STORAGE_KEYS.ACCOUNT,
 		defaultValue: null
 	});
-	const [business, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({
-		key: STORAGE_KEYS.COMPANY_FORM,
-		defaultValue: null
-	});
-	const [financialForm, setFinancialForm] = useLocalStorage({
-		key: STORAGE_KEYS.FINANCIAL_FORM,
+	const [director, setDirector] = useLocalStorage<OnboardingDirectorInfo>({
+		key: STORAGE_KEYS.DIRECTORS_FORM,
 		defaultValue: {
-			average_monthly_revenue: null
+			firstname: '',
+			lastname: '',
+			email: '',
+			dob: '',
+			line1: '',
+			city: '',
+			postcode: '',
+			region: '',
+			country: 'GB'
 		}
 	});
-	const utils = trpc.useContext();
-	const linkSessionMutation = trpc.linkBusinessBankAccount.useMutation();
-	const isAccountLinked = trpc.checkAccountLinked.useQuery(account.email, {
-		enabled: !!account?.email
-	});
-	const onSuccess = useCallback<PlaidLinkOnSuccess>(
-		(public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
-			// log and save metadata
-			// exchange public token
-			apiClient
-				.post('/server/plaid/set_access_token', {
-					email: account?.email,
-					public_token
-				})
-				.then(({ data }) => {
-					console.log(data);
-					utils.checkAccountLinked.invalidate(account.email);
-				})
-				.catch(err => console.error(err));
-		},
-		[account]
-	);
-	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
-		try {
-			notifyInfo(
-				'link-bank-account-session-cancelled',
-				'Plaid session was closed unexpectedly. No bank account has been linked',
-				<IconInfoCircle size={20} />
-			);
-		} catch (err) {
-			console.error(err);
-		}
-	}, []);
-	const config: Parameters<typeof usePlaidLink>[0] = {
-		env: String(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT),
-		clientName: String(process.env.NEXT_PUBLIC_PLAID_CLIENT_NAME),
-		token: link_token,
-		onSuccess,
-		onExit,
-		onLoad: () => console.log('loading...')
-	};
-	const { open, ready } = usePlaidLink(config);
-	const form = useForm({
+	const form = useForm<OnboardingDirectorInfo>({
 		initialValues: {
-			...financialForm
+			...director,
+			firstname: account?.firstname ?? '',
+			lastname: account?.lastname ?? '',
+			email: account?.email ?? ''
 		}
 	});
 	const handleSubmit = useCallback(
 		async values => {
 			setLoading(true);
 			try {
-				/*if (!isProd && !isAccountLinked?.data?.access_token) {
-					throw new Error("Please link your bank account before continuing")
-				}*/
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
@@ -99,7 +56,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 				console.log('-----------------------------------------------');
 				console.log(result);
 				console.log('-----------------------------------------------');
-				setAccount({ ...account, business: { ...account.business, ...values } });
+				setAccount({ ...account, director: { ...account.director, ...values } });
 				setLoading(false);
 				nextStep();
 			} catch (err) {
@@ -108,14 +65,13 @@ const Step2 = ({ prevStep, nextStep }) => {
 				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, business, files, nextStep, setAccount]
+		[account, director, nextStep, setAccount]
 	);
-
 	useEffect(() => {
-		const storedValue = window.localStorage.getItem(STORAGE_KEYS.FINANCIAL_FORM);
+		const storedValue = window.localStorage.getItem(STORAGE_KEYS.DIRECTORS_FORM);
 		if (storedValue) {
 			try {
-				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.FINANCIAL_FORM)));
+				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.DIRECTORS_FORM)));
 			} catch (e) {
 				console.log('Failed to parse stored value');
 				console.error(e);
@@ -124,68 +80,41 @@ const Step2 = ({ prevStep, nextStep }) => {
 	}, []);
 
 	useEffect(() => {
-		window.localStorage.setItem(STORAGE_KEYS.FINANCIAL_FORM, JSON.stringify(form.values));
+		window.localStorage.setItem(STORAGE_KEYS.DIRECTORS_FORM, JSON.stringify({ ...form.values, dob: '' }));
 	}, [form.values]);
-
-	useEffect(() => {
-		ready && open();
-	}, [ready, open, link_token]);
 
 	return (
 		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
-			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
+			<h1 className='mb-4 text-2xl font-medium'>Add Director</h1>
 			<Stack>
-				<NumberInput
-					required
-					label='What is your average monthly revenue?'
-					min={100}
-					max={1000000}
-					step={100}
-					icon={<IconCurrencyPound size={16} />}
-					{...form.getInputProps('average_monthly_revenue')}
-				/>
-				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
-				{!isProd && (
-					<div className='flex flex-row flex-col items-center justify-center space-y-4'>
-						{isAccountLinked?.data?.access_token ? (
-							<Button
-								px='xl'
-								leftIcon={<IconCheck size={18} />}
-								fullWidth
-								loading={link_loading}
-								disabled
-							>
-								<Text weight='normal'>Bank Account Linked</Text>
-							</Button>
-						) : (
-							<Button
-								px='xl'
-								fullWidth
-								loading={link_loading}
-								onClick={() => {
-									setLinkLoading(true);
-									linkSessionMutation
-										.mutateAsync(account.email)
-										.then(res => {
-											setLinkLoading(false);
-											setLinkToken(res.link_token);
-										})
-										.catch(err => {
-											setLinkLoading(false);
-											console.error(err);
-										});
-								}}
-							>
-								<Text weight='normal'>Link Business Bank Account</Text>
-							</Button>
-						)}
-						<Text align='center' size='xs' color='dimmed'>
-							Trok uses Plaid for a safe & secure connection
-							<br />
-							Recommended for instant approval
-						</Text>
-					</div>
-				)}
+				<Group grow>
+					<TextInput required label='First name' {...form.getInputProps('firstname')} />
+					<TextInput required label='Last name' {...form.getInputProps('lastname')} />
+				</Group>
+				<Group grow>
+					<TextInput required label='Email' {...form.getInputProps('email')} />
+					<DatePicker
+						required
+						placeholder={'Pick a date'}
+						label='Date of Birth'
+						inputFormat='DD-MM-YYYY'
+						value={dayjs(form.values.dob).isValid() ? dayjs(form.values.dob).toDate() : null}
+						onChange={date => form.setFieldValue('dob', date)}
+						error={form.errors.dob}
+					/>
+				</Group>
+				<Group grow>
+					<TextInput required label='Address line 1' {...form.getInputProps('line1')} />
+					<TextInput label='Address line 2' {...form.getInputProps('line2')} />
+				</Group>
+				<Group grow>
+					<TextInput required label='City' {...form.getInputProps('city')} />
+					<TextInput required label='Postal Code' {...form.getInputProps('postcode')} />
+				</Group>
+				<Group grow>
+					<TextInput required label='County / Region' {...form.getInputProps('region')} />
+					<TextInput readOnly label='Country' {...form.getInputProps('country')} />
+				</Group>
 				<Group mt='md' position='apart'>
 					<Button type='button' variant='white' size='md' onClick={prevStep}>
 						<Text weight='normal'>Go Back</Text>

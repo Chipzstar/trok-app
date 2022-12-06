@@ -41,6 +41,15 @@ export type SpendingLimit = {
     amount: number;
 };
 
+export interface AddressInfo {
+	line1: string;
+	line2?: string;
+	city: string;
+	postcode: string;
+	region: string;
+	country?: string;
+}
+
 export interface SignupInfo {
 	full_name: string;
 	firstname: string;
@@ -62,27 +71,32 @@ export interface OnboardingBusinessInfo {
 	num_vehicles: number;
 }
 
+export interface OnboardingDirectorInfo extends AddressInfo {
+	dob: string | Date;
+	email: string;
+    firstname: string;
+	lastname: string;
+    line1: string;
+	line2?: string;
+	city: string;
+    postcode: string;
+    region: string;
+	country?: string;
+}
+
 export interface OnboardingFinancialInfo {
 	average_monthly_revenue: number | null;
 }
 
 export type OnboardingAccountStep1 = SignupInfo & Record<'business', OnboardingBusinessInfo>
 
-export type OnboardingAccountStep2 = SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo>
+export type OnboardingAccountStep2 = SignupInfo & Record<'business', OnboardingBusinessInfo> & Record<'director', OnboardingDirectorInfo>
 
+export type OnboardingAccountStep3 = SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo> & Record<'director', OnboardingDirectorInfo>
 export interface CardConfiguration {
 	card_business_name: string;
 	num_cards?: number;
 	shipping_speed: ShippingSpeed;
-}
-
-export interface AddressInfo {
-	line1: string;
-	line2?: string;
-	city: string;
-	postcode: string;
-	region: string;
-	country?: string;
 }
 
 export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
@@ -106,6 +120,8 @@ export interface StripeInfo {
 
 export interface CreateUser extends SignupInfo {
 	business?: OnboardingBusinessInfo & OnboardingFinancialInfo;
+
+	director?: OnboardingDirectorInfo
 	location?: AddressInfo;
 	card_configuration?: CardConfiguration;
 	shipping_address?: AddressInfo;

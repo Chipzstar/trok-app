@@ -2,12 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
 import { Anchor, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
 import Step1 from '../containers/signup/Step1';
-import Step2 from '../containers/signup/Step2';
 import Step3 from '../containers/signup/Step3';
+import Step4 from '../containers/signup/Step4';
 import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { authOptions } from './api/auth/[...nextauth]';
 import { unstable_getServerSession } from 'next-auth';
+import Step2 from '../containers/signup/Step2';
 const Onboarding = () => {
 	const router = useRouter();
 	const { height } = useWindowSize();
@@ -45,7 +46,7 @@ const Onboarding = () => {
 		<ScrollArea.Autosize maxHeight={height} mx='auto'>
 			<div className='flex min-h-screen flex-col justify-center bg-white p-5'>
 				<Text mb='md' size='lg' className='text-center'>
-					Step {active + 1} of 3
+					Step {active + 1} of 4
 				</Text>
 				<Stepper
 					iconSize={25}
@@ -76,7 +77,7 @@ const Onboarding = () => {
 					<Stepper.Step
 						icon={<div />}
 						label='First step'
-						description='Create an account'
+						description='Company'
 						allowStepSelect={active > 0}
 					>
 						{customerSupportNumber}
@@ -85,15 +86,24 @@ const Onboarding = () => {
 					<Stepper.Step
 						icon={<div />}
 						label='Second step'
-						description='Financial'
+						description='Director'
 						allowStepSelect={active > 1}
 					>
 						{customerSupportNumber}
 						<Step2 prevStep={prevStep} nextStep={nextStep} />
 					</Stepper.Step>
-					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 2}>
+					<Stepper.Step
+						icon={<div />}
+						label='Second step'
+						description='Financial'
+						allowStepSelect={active > 2}
+					>
 						{customerSupportNumber}
-						<Step3 prevStep={prevStep} />
+						<Step3 prevStep={prevStep} nextStep={nextStep} />
+					</Stepper.Step>
+					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 3}>
+						{customerSupportNumber}
+						<Step4 prevStep={prevStep} />
 					</Stepper.Step>
 				</Stepper>
 			</div>

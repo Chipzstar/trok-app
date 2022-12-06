@@ -2,7 +2,7 @@ import { apiClient, companyHouseClient } from './clients';
 import dayjs from 'dayjs';
 import Prisma from '@prisma/client';
 import { SelectInput } from './types';
-import { requirements } from './constants';
+import { isDev, isProd, requirements } from './constants';
 import { AddressInfo, isStringEqual, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 
@@ -100,7 +100,7 @@ export async function validateCompanyInfo(
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
-		if (process.env.NODE_ENV === 'development') return { is_valid: true, reason: null };
+		if (!isProd && !isDev) return { is_valid: true, reason: null };
 		const company_profile = (await companyHouseClient.get(`/company/${crn}`)).data;
 		if (!isStringEqual(company_profile.company_name, business_name)) {
 			return {

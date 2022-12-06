@@ -5,6 +5,8 @@ import Prisma, { Prisma as Schema } from '@prisma/client';
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 
+export const isDev = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'development';
+
 export const requirements = [
 	{ re: /[0-9]/, label: 'Includes number' },
 	{ re: /[a-z]/, label: 'Includes lowercase letter' },
@@ -24,6 +26,7 @@ export const STORAGE_KEYS = {
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
 	COMPANY_FORM: 'company-form',
+	DIRECTORS_FORM: 'director-form',
 	FINANCIAL_FORM: 'financial-form',
 	LOCATION_FORM: 'location-form',
 	ONBOARDING_STEP: 'onboarding-step',

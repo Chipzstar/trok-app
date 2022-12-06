@@ -69,16 +69,9 @@ const Step1 = ({ nextStep }) => {
 		async (values: OnboardingBusinessInfo) => {
 			setLoading(true);
 			try {
-				const { is_valid, reason } = await validateCompanyInfo(
-					values.business_crn,
-					values.legal_name
-				);
-				if (!is_valid) {
-					throw new Error(reason);
-				}
-				if (!file) {
-					throw new Error("Please upload a picture of your driver's license before submitting");
-				}
+				const { is_valid, reason } = await validateCompanyInfo(values.business_crn, values.legal_name);
+				if (!is_valid) throw new Error(reason);
+				if (!file) throw new Error("Please upload a picture of your driver's license before submitting");
 				await uploadFile(file, values.business_crn, 'DRIVING_LICENCE');
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
