@@ -71,7 +71,7 @@ export interface OnboardingBusinessInfo {
 	num_vehicles: number;
 }
 
-export interface OnboardingDirectorInfo extends AddressInfo {
+export interface OnboardingDirectorInfo {
 	dob: string | Date;
 	email: string;
     firstname: string;
@@ -80,7 +80,8 @@ export interface OnboardingDirectorInfo extends AddressInfo {
 	line2?: string;
 	city: string;
     postcode: string;
-    region: string;
+	region: string;
+    building_number?: number;
 	country?: string;
 }
 

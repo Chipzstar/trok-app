@@ -1,9 +1,9 @@
-import { apiClient, companyHouseClient } from './clients';
+import { apiClient, companyHouseClient, griffinClient } from './clients';
 import dayjs from 'dayjs';
 import Prisma from '@prisma/client';
-import { SelectInput } from './types';
+import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS, SelectInput } from './types';
 import { isDev, isProd, requirements } from './constants';
-import { AddressInfo, isStringEqual, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import { AddressInfo, isStringEqual, OnboardingDirectorInfo, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 
 export function getStrength(password: string) {
@@ -74,45 +74,74 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 	return is_valid;
 }
 
-export function isCompanyDirector(directors, firstname: string, lastname: string): boolean {
-	return directors.some(director => {
-		console.log(director.name);
-		console.table({firstname: director.name.split(',')[0], lastname: director.name.split(',')[1]});
-		return (
-			isStringEqual(director.name.split(',')[0], lastname) &&
-			isStringEqual(director.name.split(',')[1], firstname)
-		);
-	});
+export async function validateDirectorInfo(director: OnboardingDirectorInfo): Promise<{ is_valid: boolean; reason: string | null }> {
+	try {
+		if (!isProd && !isDev) return { is_valid: true, reason: null };
+		// create director as company representative
+		const building_number = director.line1.split(' ')[0];
+		console.log('BUILDING NUMBER', building_number);
+		console.table(director);
+		let payload = {
+			'display-name': `${director.lastname.toUpperCase()}, ${director.firstname}`,
+			'legal-person-type': 'individual',
+			'claims': [
+				{
+					'claim-type': 'individual-identity',
+					'date-of-birth': dayjs(director.dob).format('YYYY-MM-DD'),
+					'given-name': director.firstname,
+					'surname': director.lastname
+				},
+				{
+					'claim-type': 'individual-residence',
+					...(!director.line2 && { 'building-number': building_number }),
+					...(director.line2 && { 'building-name': director.line2 }),
+					'street-name': director.line1 + ' ' + director.line2,
+					'city': director.city,
+					'postal-code': director.postcode,
+					'country-code': director.country
+				},
+				{
+					'claim-type': 'contact-details',
+					'email-address': director.email
+				}
+			]
+		};
+		console.log(payload);
+		const legal_person = (await griffinClient.post(`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`, payload)).data;
+		console.log(legal_person);
+		return {
+			is_valid: !!legal_person,
+			reason: legal_person['legal-person-url']
+		};
+	} catch (err) {
+		console.error(err);
+		return {
+			is_valid: false,
+			reason: 'Director information is invalid. Please double check that the information is accurate'
+		};
+	}
 }
 
 /**
- * Perform KYB on director business name, business legal name, crn and business address
+ * Perform KYB on business legal name, crn and business address
  * @param crn
  * @param business_name
- * @param firstname
- * @param lastname
- * @param business_address
  */
 export async function validateCompanyInfo(
 	crn: string,
-	business_name: string,
-	business_address: AddressInfo = null
+	business_name: string
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
 		if (!isProd && !isDev) return { is_valid: true, reason: null };
-		const company_profile = (await companyHouseClient.get(`/company/${crn}`)).data;
-		if (!isStringEqual(company_profile.company_name, business_name)) {
+		// lookup company profile using provided CRN
+		const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
+		console.log(company_profile);
+		// validate if the provided business_name matches the company's actual entity name
+		if (!isStringEqual(company_profile['entity-name'], business_name)) {
 			return {
 				is_valid: false,
 				reason: 'Your business name does not match the company registration number. Please make sure you are using the full company name that appears on your Company House profile'
-			};
-		}
-		const company_address = (await companyHouseClient.get(`/company/${crn}/registered-office-address`)).data;
-		if (!compareCompanyAddress(company_address, business_address)) {
-			return {
-				is_valid: false,
-				reason: "Provided address does not match the company's registered office address. Please double check all address fields match with your Company House profile"
 			};
 		}
 		return {
@@ -126,6 +155,69 @@ export async function validateCompanyInfo(
 			reason: 'The Company registration number does not exist. Please enter a valid company registration number'
 		};
 	}
+}
+
+/**
+ * Perform Griffin KYB on business address
+ * @param crn
+ * @param business_address
+ * @param legal_person_url
+ */
+export function runGriffinKYBVerification(crn: string, business_address: AddressInfo, legal_person_url: string) : Promise<string> {
+	return new Promise(async (resolve, reject) => {
+		try {
+			if (!isProd && !isDev) resolve(GRIFFIN_RISK_RATING.LOW);
+			const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
+			// create a corporation legal person to represent the company using Organisation ID
+			const payload = {
+				'display-name': company_profile['entity-name'],
+				'legal-person-type': 'corporation',
+				claims: [
+					{
+						'claim-type': 'uk-company-register',
+						'entity-name': company_profile['entity-name'],
+						'corporation-type': company_profile['corporation-type'],
+						'entity-registration-number': crn,
+						'date-of-incorporation': company_profile['date-of-incorporation'],
+						...(company_profile['company-address']['building-number'] && { 'building-number': company_profile['company-address']['building-number'] }),
+						city: business_address.city,
+						'street-name': business_address.line1 + ' ' + business_address.line2,
+						'postal-code': business_address.postcode,
+						'country-code': 'GB'
+					},
+					{
+						'claim-type': 'director',
+						'legal-person-url': legal_person_url
+					}
+				]
+			};
+			const legal_person = (await griffinClient.post(`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`, payload)).data;
+			console.log('-----------------------------------------------');
+			console.log(legal_person);
+			// run verification
+			const verification = (await griffinClient.post(`${legal_person['legal-person-url']}/verifications`, {
+				'workflow-url': `/v0/workflows/${process.env.NEXT_PUBLIC_GRIFFIN_WORKFLOW_ID}`
+			})).data;
+			console.log('-----------------------------------------------');
+			console.log(verification);
+			const interval = setInterval(async function(verification_url) {
+				const result = (await griffinClient.get(verification_url)).data;
+				console.log('************************************************');
+				console.log(result);
+				console.log('************************************************');
+				if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.COMPLETE) {
+					resolve(result['risk-rating']);
+					clearInterval(interval);
+				} else if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.FAILED) {
+					reject(result);
+					clearInterval(interval);
+				}
+			}, 2000, verification['verification-url']);
+		} catch (err) {
+			console.error(err);
+			reject(err);
+		}
+	})
 }
 
 //@ts-ignore
@@ -148,7 +240,7 @@ export function text({ url, full_name }) {
 		url +
 		'\n' +
 		'\n' +
-		"We're here to help\n" +
+		'We\'re here to help\n' +
 		'\n' +
 		'If you have any questions or want more information, drop us a message at hello@trok.co.\n' +
 		'\n' +

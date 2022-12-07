@@ -21,8 +21,6 @@ export const DEFAULT_HEADER_HEIGHT = 75;
 export const BANNER_HEIGHT = 65
 
 export const STORAGE_KEYS = {
-	AUTH: 'auth',
-	COMPLETE: 'complete',
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
 	COMPANY_FORM: 'company-form',
@@ -30,7 +28,8 @@ export const STORAGE_KEYS = {
 	FINANCIAL_FORM: 'financial-form',
 	LOCATION_FORM: 'location-form',
 	ONBOARDING_STEP: 'onboarding-step',
-	TEST_MODE: 'test-mode'
+	TEST_MODE: 'test-mode',
+	GRIFFIN: 'griffin'
 };
 export const PATHS = {
 	HOME: '/',

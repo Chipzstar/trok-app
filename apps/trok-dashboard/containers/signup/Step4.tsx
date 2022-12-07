@@ -20,8 +20,9 @@ import {
 import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
 import { useRouter } from 'next/router';
-import { validateCompanyInfo } from '../../utils/functions';
+import { runGriffinKYBVerification, validateCompanyInfo } from '../../utils/functions';
 import dayjs from 'dayjs';
+import { GRIFFIN_RISK_RATING } from '../../utils/types';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
@@ -30,6 +31,10 @@ const Step4 = ({ prevStep }) => {
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<OnboardingAccountStep3>({
 		key: STORAGE_KEYS.ACCOUNT,
+		defaultValue: null
+	});
+	const [griffin, setGriffin] = useLocalStorage<{legal_person_url: string | null}>({
+		key: STORAGE_KEYS.GRIFFIN,
 		defaultValue: null
 	});
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
@@ -77,19 +82,19 @@ const Step4 = ({ prevStep }) => {
 					region: values.region,
 					country: values?.country
 				};
-				const { is_valid, reason } = await validateCompanyInfo(
-					businessObj.business_crn,
-					businessObj.legal_name
-				);
-				if (!is_valid) throw new Error(reason);
+				const risk_rating = await runGriffinKYBVerification(businessObj.business_crn, location, griffin.legal_person_url);
+				if (risk_rating === GRIFFIN_RISK_RATING.HIGH)
+					throw new Error(
+						'We have detected a high risk of fraud based on your responses. We advise you check your responses carefully and try submitting again'
+					);
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
-				console.log(directorObj)
+				console.log(directorObj);
 				const personResult = await Stripe.createToken('person', {
 					dob: {
 						day: dayjs(directorObj.dob).date(),
 						month: dayjs(directorObj.dob).month() + 1,
-						year: dayjs(directorObj.dob).year(),
+						year: dayjs(directorObj.dob).year()
 					},
 					address: {
 						line1: directorObj.line1,
@@ -164,7 +169,7 @@ const Step4 = ({ prevStep }) => {
 				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, personalObj, businessObj, directorObj, financialObj]
+		[account, griffin, personalObj, businessObj, directorObj, financialObj]
 	);
 
 	useEffect(() => {

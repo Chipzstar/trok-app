@@ -12,11 +12,16 @@ import { IconX } from '@tabler/icons';
 import { Button, Text, Group, Stack, TextInput } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
+import { validateDirectorInfo } from '../../utils/functions';
 
 const Step2 = ({ prevStep, nextStep }) => {
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<OnboardingAccountStep2>({
 		key: STORAGE_KEYS.ACCOUNT,
+		defaultValue: null
+	});
+	const [griffin, setGriffin] = useLocalStorage<{legal_person_url: string | null}>({
+		key: STORAGE_KEYS.GRIFFIN,
 		defaultValue: null
 	});
 	const [director, setDirector] = useLocalStorage<OnboardingDirectorInfo>({
@@ -48,6 +53,9 @@ const Step2 = ({ prevStep, nextStep }) => {
 		async (values:OnboardingDirectorInfo) => {
 			setLoading(true);
 			try {
+				const { is_valid, reason } = await validateDirectorInfo(values);
+				if (!is_valid) throw new Error(reason);
+				setGriffin({legal_person_url: reason})
 				values.dob = dayjs(values.dob).format("DD-MM-YYYY")
 				console.log(values.dob)
 				const result = (

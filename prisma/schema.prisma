@@ -316,16 +316,17 @@ type BusinessInfo {
 }
 
 type DirectorInfo {
-  dob       String
-  firstname String
-  lastname  String
-  email     String
-  line1     String
-  line2     String?
-  city      String
-  postcode  String
-  region    String
-  country   String? @default("GB")
+  dob             String
+  firstname       String
+  lastname        String
+  email           String
+  building_number Int?
+  line1           String
+  line2           String?
+  city            String
+  postcode        String
+  region          String
+  country         String? @default("GB")
 }
 
 type CardInfo {
