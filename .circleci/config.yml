@@ -12,9 +12,6 @@ jobs:
                 type: integer
         steps:
             - checkout
-            - node/install:
-                install-yarn: true
-                node-version: '16.13'
             - run:
                   name: Install dependencies
                   command: yarn install --frozen-lockfile
@@ -24,7 +21,7 @@ jobs:
                   no_output_timeout: 60m
     main:
         docker:
-            - image: cimg/node:lts-browsers
+            - image: cimg/node:16.18.1-browsers
         environment:
             MAIN_BRANCH_NAME: master
             NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
