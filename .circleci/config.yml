@@ -45,9 +45,6 @@ jobs:
                   name: Run workspace lint
                   command: yarn nx-cloud record -- yarn nx workspace-lint
             - run:
-                  name: Check format
-                  command: yarn nx-cloud record -- yarn nx format:check --base=$NX_BASE --head=$NX_HEAD exclude="shared-utils"
-            - run:
                   name: Run lint
                   command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
             - run:
@@ -85,6 +82,7 @@ workflows:
                 only:
                   - dev
             yarn: true
+            config-file: apps/trok-dashboard-e2e/cypress.config.ts
             no-workspace: true
             parallel: true # split all specs across machines
             parallelism: 4 # use 4 CircleCI machines to finish quickly
