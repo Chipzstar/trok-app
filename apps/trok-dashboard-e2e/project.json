@@ -48,12 +48,24 @@
 		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
-			"outputs": ["{options.outputFile}"],
+			"outputs": [
+				"{options.outputFile}"
+			],
 			"options": {
-				"lintFilePatterns": ["apps/trok-dashboard-e2e/**/*.{js,ts}"]
+				"lintFilePatterns": [
+					"apps/trok-dashboard-e2e/**/*.{js,ts}"
+				]
+			}
+		},
+		"serve-static": {
+			"executor": "@nrwl/web:file-server",
+			"options": {
+				"buildTarget": "trok-dashboard:build"
 			}
 		}
 	},
 	"tags": [],
-	"implicitDependencies": ["trok-dashboard"]
+	"implicitDependencies": [
+		"trok-dashboard"
+	]
 }

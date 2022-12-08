@@ -1,8 +1,14 @@
 version: 2.1
 
 orbs:
+    cypress: cypress-io/cypress@2.2.0
     node: circleci/node@5.0.3
     nx: nrwl/nx@1.6.1
+executors:
+  with-chrome:
+    resource_class: medium
+    docker:
+      - image: "cypress/base:16.14.2-slim"
 jobs:
     agent:
         docker:
@@ -58,7 +64,38 @@ jobs:
 
 workflows:
     version: 2
-
+    build:
+      jobs:
+        - cypress/install:
+            yarn: true
+            executor: with-chrome
+            build: yarn install
+            filters:
+              branches:
+                only:
+                  - master
+                  - dev
+        - cypress/run:
+            name: cypress/dev/auth
+            executor: with-chrome
+            requires:
+              - cypress/install
+            filters:
+              branches:
+                only:
+                  - dev
+            yarn: true
+            no-workspace: true
+            parallel: true # split all specs across machines
+            parallelism: 4 # use 4 CircleCI machines to finish quickly
+            group: 'Auth Tests' # name this group "all tests" on the dashboard
+            start: 'yarn run nx:dashboard:serve'
+            env: 'API_BASE_URL=http://localhost:3333,BASE_URL=http://localhost:4200'
+            store_artifacts: true
+            post-steps:
+              - store_test_results:
+                  path: cypress/results
+            tags: 'dev'
     ci:
         jobs:
             - agent:
