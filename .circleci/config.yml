@@ -69,7 +69,7 @@ workflows:
         - cypress/install:
             yarn: true
             executor: with-chrome
-            build: yarn install
+            build: yarn run nx:dashboard:build:ci
             filters:
               branches:
                 only:
@@ -89,7 +89,7 @@ workflows:
             parallel: true # split all specs across machines
             parallelism: 4 # use 4 CircleCI machines to finish quickly
             group: 'Auth Tests' # name this group "all tests" on the dashboard
-            start: 'yarn run nx:dashboard:serve'
+            start: 'yarn run nx:dashboard:serve:ci'
             env: 'API_BASE_URL=http://localhost:3333,BASE_URL=http://localhost:4200'
             store_artifacts: true
             post-steps:
