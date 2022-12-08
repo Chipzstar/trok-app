@@ -83,11 +83,6 @@ export function getE164Number(phoneNumber: string) {
 export function includesCaseInsensitive(this: string, str: string): boolean {
 	return this.toLowerCase().trim().includes(str.toLowerCase().trim());
 }
-
-export function checkIfNullOrUndefined(variable: any) {
-	return typeof variable === 'undefined' || variable === null;
-}
-
 export function encrypt(word: string, key: string) {
 	const encJson = CryptoJS.AES.encrypt(JSON.stringify(word), key.slice(0, 16)).toString();
 	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson));
