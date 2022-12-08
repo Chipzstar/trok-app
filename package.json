@@ -19,6 +19,7 @@
 		"nx:dashboard:test:local": "doppler run -p admin-dashboard -c loc -- nx build trok-dashboard && doppler run -p admin-dashboard -c loc -- nx serve trok-dashboard --prod --port 4201",
 		"nx:dashboard:test:dev": "doppler run -p admin-dashboard -c dev -- nx build trok-dashboard && doppler run -p admin-dashboard -c dev -- nx serve trok-dashboard --prod --port 4201",
 		"nx:dashboard:test:dev:no-cloud": "nx build trok-dashboard --no-cloud && nx serve trok-dashboard --prod --port 4201 --no-cloud",
+		"nx:dashboard:e2e:lint": "nx lint trok-dashboard-e2e",
 		"nx:dashboard:e2e:local": "nx e2e trok-dashboard-e2e --configuration=local",
 		"nx:dashboard:e2e:record": "nx e2e trok-dashboard-e2e --configuration=record",
 		"nx:dashboard:e2e:ci": "nx e2e trok-dashboard-e2e --configuration=ci",

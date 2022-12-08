@@ -8,10 +8,10 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 import { SignupInfo } from '@trok-app/shared-utils';
 
 declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace Cypress {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		interface Chainable<Subject> {
