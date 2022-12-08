@@ -8,6 +8,7 @@ model User {
   lastname  String
   phone String
   emailVerified DateTime? @map("email_verified")
+  admin Boolean @default(false)
   approved Boolean @default(false)
   verify_token String @default("")
   reset_token String @default(uuid())

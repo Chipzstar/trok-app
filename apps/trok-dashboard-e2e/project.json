@@ -12,8 +12,37 @@
 				"testingType": "e2e"
 			},
 			"configurations": {
+				"local": {
+					"env": {
+						"API_BASE_URL": "http://localhost:3333",
+						"BASE_URL": "http://localhost:4200"
+					},
+					"headed": true,
+					"watch": true
+				},
+				"record": {
+					"env": {
+						"API_BASE_URL": "http://localhost:3333",
+						"BASE_URL": "http://localhost:4200"
+					},
+					"record": true,
+					"key": "bf0463d1-6ab9-4691-91fc-5f8578b7e72f"
+				},
+				"development": {
+					"env": {
+						"API_BASE_URL": "https://trok-api-dev.onrender.com",
+						"BASE_URL": "https://trok-app-dev.onrender.com"
+					}
+				},
 				"production": {
-					"devServerTarget": "trok-dashboard:serve:production"
+					"devServerTarget": "trok-dashboard:serve:production",
+					"env": {
+						"API_BASE_URL": "https://trok-api.onrender.com",
+						"BASE_URL": "https://app.trok.co"
+					}
+				},
+				"ci": {
+					"devServerTarget": "trok-dashboard:serve-static"
 				}
 			}
 		},

@@ -5,7 +5,7 @@ import { IS_DEVELOPMENT, PLAID_WEBHOOK_URL, TWENTY_FOUR_HOURS, IS_PRODUCTION } f
 import { stripe } from '../utils/clients';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
-import { t } from '../trpc';
+import { publicProcedure, t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { comparePassword, genReferralCode, hashPassword } from '@trok-app/shared-utils';
@@ -32,12 +32,11 @@ const signupInfoSchema = z.object({
 });
 
 export const authRouter = t.router({
-	signup: t.procedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
+	signup: publicProcedure.input(signupInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
 			const hashed_password = await hashPassword(input.password);
 			// check user hasn't already attempted sign up in last 48 hours
 			const is_signed_up = await ctx.redis.hget(input.email, 'email');
-			console.log(is_signed_up);
 			if (!is_signed_up && IS_PRODUCTION) await sendNewSignupEmail(input.email, input.full_name);
 			if (input.referral_code) {
 				// validate if referral belongs to a user
@@ -64,7 +63,7 @@ export const authRouter = t.router({
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
-	verifyEmail: t.procedure
+	verifyEmail: publicProcedure
 		.input(
 			z.object({
 				email: z.string().email(),
@@ -101,7 +100,7 @@ export const authRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	sendResetEmail: t.procedure.input(z.string()).mutation(async ({ input, ctx }) => {
+	sendResetEmail: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
 		try {
 			// find user with provided email address
 			const user = await ctx.prisma.user.findUnique({
@@ -117,7 +116,7 @@ export const authRouter = t.router({
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
-	resetPassword: t.procedure
+	resetPassword: publicProcedure
 		.input(
 			z.object({
 				email: z.string().email(),
@@ -161,7 +160,7 @@ export const authRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	linkBusinessBankAccount: t.procedure.input(z.string()).mutation(async ({ input, ctx }) => {
+	linkBusinessBankAccount: publicProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
 		try {
 			const objectId = new ObjectId().toString();
 			console.log(input, objectId);
@@ -177,7 +176,7 @@ export const authRouter = t.router({
 			throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: err?.message });
 		}
 	}),
-	checkAccountLinked: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
+	checkAccountLinked: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
 		const redis_account = await ctx.redis.hgetall(input);
 		console.log(redis_account)
 		return !!redis_account?.access_token

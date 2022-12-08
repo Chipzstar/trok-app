@@ -71,6 +71,7 @@ const Login = ({ csrfToken, users }) => {
 	return (
 		<div className='h-screen w-full overflow-x-hidden bg-white p-5'>
 			<form
+				data-cy="login-form"
 				onSubmit={form.onSubmit(handleSignIn)}
 				className='flex h-full w-full flex-col'
 				onError={() => console.log(form.errors)}
@@ -100,8 +101,8 @@ const Login = ({ csrfToken, users }) => {
 						<Title order={2}>Welcome back</Title>
 						<span>Sign in to your Trok account.</span>
 					</header>
-					<TextInput label='Email' {...form.getInputProps('email', { withError: true })} />
-					<PasswordInput label='Password' {...form.getInputProps('password', { withError: true })} />
+					<TextInput label='Email' {...form.getInputProps('email', { withError: true })} data-cy={"login-email"} />
+					<PasswordInput label='Password' {...form.getInputProps('password', { withError: true })} data-cy={"login-password"} />
 					<Link href={PATHS.FORGOT_PASSWORD} passHref>
 						<Anchor size='sm' color='brand'>
 							Forgot password?

@@ -121,6 +121,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 	return (
 		<div className='h-screen w-full overflow-x-hidden bg-white p-5'>
 			<form
+				data-cy="signup-form"
 				onSubmit={form.onSubmit(handleSubmit)}
 				className='flex h-full w-full flex-col'
 				onError={() => console.log(form.errors)}
@@ -144,22 +145,26 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 					</header>
 					<Group grow spacing={40}>
 						<TextInput
+							data-cy={"signup-firstname"}
 							withAsterisk
 							label='Legal first name'
 							{...form.getInputProps('firstname', { withError: true })}
 						/>
 						<TextInput
+							data-cy={"signup-lastname"}
 							withAsterisk
 							label='Legal last name'
 							{...form.getInputProps('lastname', { withError: true })}
 						/>
 					</Group>
 					<TextInput
+						data-cy={"signup-email"}
 						withAsterisk
 						label='Business email'
 						{...form.getInputProps('email', { withError: true })}
 					/>
 					<TextInput
+						data-cy={"signup-phone"}
 						withAsterisk
 						label='Business phone number'
 						{...form.getInputProps('phone', { withError: true })}
@@ -171,6 +176,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 								onBlurCapture={() => setPopoverOpened(false)}
 							>
 								<PasswordInput
+									data-cy={"signup-password"}
 									withAsterisk
 									label='Password'
 									description='Strong passwords should include letters in lower and uppercase, at least 1 number, and at least 1 special symbol'
@@ -187,8 +193,9 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 							{checks}
 						</Popover.Dropdown>
 					</Popover>
-					<TextInput label='Referral code' {...form.getInputProps('referral_code', { withError: true })} />
+					<TextInput data-cy={"signup-referral-code"} label='Referral code' {...form.getInputProps('referral_code', { withError: true })} />
 					<Checkbox
+						data-cy={"signup-terms"}
 						label={
 							<>
 								By checking this box, I acknowledge and agree to the terms of the Trok Terms of Service

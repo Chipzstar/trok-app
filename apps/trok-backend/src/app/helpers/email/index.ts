@@ -80,9 +80,7 @@ export async function sendNewSignupEmail(email: string, full_name: string){
 			.setSubject('Trok - Verify your email')
 			.setTemplateId('yzkq3402pk6gd796')
 			.setPersonalization(personalization);
-		const response = await mailerSend.email.send(emailParams);
-		console.log(response);
-		return response;
+		return await mailerSend.email.send(emailParams);
 	} catch (err) {
 	    console.error(err);
 		throw err;

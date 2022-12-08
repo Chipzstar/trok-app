@@ -44,3 +44,8 @@ Thumbs.db
 # secret files
 .env
 .sentryclirc
+
+# cypress
+/screenshots
+/videos
+cypress.env.json

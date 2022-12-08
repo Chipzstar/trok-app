@@ -8,8 +8,11 @@ import paymentRouter from './payment';
 import balanceRouter from './balance';
 import statementRouter from './statement';
 import { authRouter } from './auth';
+import { TRPCError } from '@trpc/server';
+import { adminRouter } from './admin';
 
 export const appRouter = t.mergeRouters(
+	adminRouter,
 	authRouter,
 	accountRouter,
 	driverRouter,

@@ -216,6 +216,7 @@ const Sidebar = () => {
 					<span>Settings</span>
 				</div>
 				<div
+					data-cy="logout-button"
 					role='button'
 					className={classes.link}
 					onClick={() => signOut().then(r => console.log('Sign Out Success!'))}

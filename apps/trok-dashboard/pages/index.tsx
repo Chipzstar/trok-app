@@ -62,6 +62,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 
 	return (
 		<Page.Container
+			data_cy="homepage"
 			classNames='flex flex-col'
 			header={
 				<Page.Header extraClassNames='mb-3'>

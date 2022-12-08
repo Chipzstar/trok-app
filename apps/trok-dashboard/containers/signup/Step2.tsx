@@ -110,6 +110,7 @@ const Step2 = ({ prevStep, nextStep }) => {
 						required
 						placeholder={'Pick a date'}
 						label='Date of Birth'
+						maxDate={dayjs().subtract(13, "years").toDate()}
 						inputFormat='DD-MM-YYYY'
 						value={dayjs(form.values.dob).isValid() ? dayjs(form.values.dob).toDate() : null}
 						onChange={date => form.setFieldValue('dob', date)}

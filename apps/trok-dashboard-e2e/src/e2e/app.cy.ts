@@ -1,13 +1,10 @@
-import { getGreeting } from '../support/app.po';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:4200'
 
-describe('trok-dashboard', () => {
+describe.skip('trok-dashboard', () => {
 	beforeEach(() => cy.visit('/'));
 
-	it('should display welcome message', () => {
+	it('successful login', () => {
 		// Custom command example, see `../support/commands.ts` file
-		cy.login('my-email@something.com', 'myPassword');
-
-		// Function helper example, see `../support/app.po.ts` file
-		getGreeting().contains('Welcome trok-dashboard');
+		cy.log('env', Cypress.env())
 	});
 });
