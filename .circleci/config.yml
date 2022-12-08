@@ -12,6 +12,9 @@ jobs:
                 type: integer
         steps:
             - checkout
+            - node/install:
+                install-yarn: true
+                node-version: '16.13'
             - run:
                   name: Install dependencies
                   command: yarn install --frozen-lockfile
