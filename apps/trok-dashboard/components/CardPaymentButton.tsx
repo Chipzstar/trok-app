@@ -94,7 +94,7 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 		}
 	}, [cardId, cardShippingStatus, cardStatus, stripeId]);
 
-	let buttonText =
+	const buttonText =
 		cardShippingStatus === CARD_SHIPPING_STATUS.SHIPPED
 			? 'Deliver Card'
 			: cardShippingStatus === CARD_SHIPPING_STATUS.PENDING

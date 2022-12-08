@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { filterByTimeRange } from '../utils/functions';
+import { filterByTimeRange } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { Line } from 'react-chartjs-2';
 import { GBP } from '@trok-app/shared-utils';
@@ -20,8 +20,8 @@ const TransactionsChart = ({dateRange, height} : TransactionChartProps) => {
 	const { height: HEIGHT } = useWindowSize();
 	const transactions = trpc.getApprovedTransactions.useQuery();
 	const generateLabels = useCallback((range: DateRangePickerValue) => {
-		let startDate = dayjs(range[0])
-		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
+		const startDate = dayjs(range[0])
+		const numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
 		console.log(numDays)
 		const labels = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").format("Do MMM"))
 		const values = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").unix())
@@ -40,8 +40,8 @@ const TransactionsChart = ({dateRange, height} : TransactionChartProps) => {
 	}, [transactions.data, dateRange]);
 
 	const { labels, data } = useMemo(() => {
-		let { values, labels } = generateLabels(dateRange);
-		let data = generateDataPoints(values);
+		const { values, labels } = generateLabels(dateRange);
+		const data = generateDataPoints(values);
 		return {
 			labels,
 			data

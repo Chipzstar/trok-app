@@ -40,7 +40,7 @@ const Stat = ({title, diff, value, icon, loading, is_currency=false, diff_interv
 					weight={500}
 					className="flex items-center"
 				>
-					<span>{diff}%</span>
+					<span>{diff.toFixed(1)}%</span>
 					<DiffIcon size={16} stroke={1.5} />
 				</Text>}
 			</Group>

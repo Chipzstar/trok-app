@@ -63,7 +63,7 @@ const Login = ({ csrfToken, users }) => {
 
 	useEffect(() => {
 		if (router.query?.error) {
-			let message = String(router.query.error);
+			const message = String(router.query.error);
 			notifyError('login-failed', message, <IconX size={20} />);
 		}
 	}, [router.query]);

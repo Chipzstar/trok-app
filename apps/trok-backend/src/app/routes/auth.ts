@@ -341,7 +341,7 @@ router.post('/complete-registration', async (req, res, next) => {
 			sort_code: '00-00-00'
 		};
 		// create the user in DB
-		let user = await prisma.user.create({
+		const user = await prisma.user.create({
 			data: {
 				...data,
 				referral_code: genReferralCode(),
@@ -356,7 +356,7 @@ router.post('/complete-registration', async (req, res, next) => {
 		});
 		// if user signed up with referral code, record the referral in DB
 		if (data.referral_code) {
-			let referrer = await prisma.user.findFirstOrThrow({
+			const referrer = await prisma.user.findFirstOrThrow({
 				where: {
 					referral_code: data.referral_code
 				}

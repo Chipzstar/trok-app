@@ -5,7 +5,7 @@ module.exports = {
 	useTabs: true,
 	jsxSingleQuote: true,
 	arrowParens: 'avoid',
-	proseWrap: 'always',
+	proseWrap: "preserve",
 	tabWidth: 4,
 	plugins: [require('prettier-plugin-tailwindcss')]
 };

@@ -5,6 +5,6 @@
   "useTabs": true,
   "jsxSingleQuote": true,
   "arrowParens": "avoid",
-  "proseWrap": "always",
+  "proseWrap": "preserve",
   "tabWidth": 4
 }

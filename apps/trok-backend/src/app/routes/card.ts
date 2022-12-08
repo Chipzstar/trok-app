@@ -8,16 +8,16 @@ import { STRIPE_TEST_MODE } from '../utils/constants';
 const cardRouter = t.router({
 	countCards: t.procedure.query(async ({ input, ctx }) => {
 		try {
-		    return await ctx.prisma.card.findMany({
+			return await ctx.prisma.card.findMany({
 				select: {
 					id: true,
 					created_at: true
 				}
-			})
+			});
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message})
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
 	getCards: t.procedure
@@ -46,14 +46,13 @@ const cardRouter = t.router({
 		try {
 			return await ctx.prisma.card.findUnique({
 				where: {
-                    id: input
-                }
-			})
+					id: input
+				}
+			});
 		} catch (err) {
 			console.error(err);
-            // @ts-ignore
+			// @ts-ignore
 			throw new TRPCError({ code: 'NOT_FOUND', message: err?.message });
-
 		}
 	}),
 	createCard: t.procedure
@@ -103,7 +102,7 @@ const cardRouter = t.router({
 									city: user.shipping_address.city,
 									postal_code: user.shipping_address.postcode,
 									state: user.shipping_address.region,
-									country: user.shipping_address?.country ?? "GB"
+									country: user.shipping_address?.country ?? 'GB'
 								}
 							}
 						},
@@ -161,12 +160,10 @@ const cardRouter = t.router({
 								exp_month: card.exp_month,
 								exp_year: card.exp_year,
 								spending_limits: input?.spending_limits
-									? [
-											{
-												amount: input.spending_limits.amount,
-												interval: input.spending_limits.interval
-											}
-									  ]
+									? [{
+											amount: input.spending_limits.amount,
+											interval: input.spending_limits.interval
+										}]
 									: [],
 								status: CARD_STATUS.INACTIVE,
 								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING,
@@ -296,7 +293,7 @@ const cardRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				let card = await stripe.issuing.cards.update(
+				const card = await stripe.issuing.cards.update(
 					input.card_id,
 					{
 						spending_controls: {

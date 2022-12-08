@@ -81,7 +81,7 @@ export async function validateDirectorInfo(director: OnboardingDirectorInfo): Pr
 		const building_number = director.line1.split(' ')[0];
 		console.log('BUILDING NUMBER', building_number);
 		console.table(director);
-		let payload = {
+		const payload = {
 			'display-name': `${director.lastname.toUpperCase()}, ${director.firstname}`,
 			'legal-person-type': 'individual',
 			'claims': [
@@ -164,6 +164,7 @@ export async function validateCompanyInfo(
  * @param legal_person_url
  */
 export function runGriffinKYBVerification(crn: string, business_address: AddressInfo, legal_person_url: string) : Promise<string> {
+	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (!isProd && !isDev) resolve(GRIFFIN_RISK_RATING.LOW);
@@ -218,17 +219,6 @@ export function runGriffinKYBVerification(crn: string, business_address: Address
 			reject(err);
 		}
 	})
-}
-
-//@ts-ignore
-export function filterByTimeRange(data: Prisma.Transaction[], range: [Date, Date]) {
-	const startDate = dayjs(range[0]).startOf('day');
-	const endDate = dayjs(range[1]).endOf('day');
-	// @ts-ignore
-	return data.filter(t => {
-		const curr = dayjs(t.created_at);
-		return curr.isBefore(endDate) && curr.isAfter(startDate) && t.status === TRANSACTION_STATUS.APPROVED;
-	});
 }
 
 export function text({ url, full_name }) {

@@ -12,6 +12,7 @@ import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 const order_id = orderId(String(process.env.ENC_SECRET));
 
 export async function checkPastDueStatements() {
+	// eslint-disable-next-line no-useless-catch
 	try {
 		// set buffer of max +1 hour and min -1 hour from current timestamp
 		// when querying statements that are ready to generated
@@ -44,7 +45,7 @@ export async function checkPastDueStatements() {
 				}
 			});
 			console.log('Num transactions:', transactions.length);
-			let statement_id = order_id.generate();
+			const statement_id = order_id.generate();
 			const url = await generateStatement(statement_id, user, transactions);
 			if (IS_DEVELOPMENT) {
 				return null;
@@ -91,7 +92,7 @@ export async function checkPastDueStatements() {
 }
 
 async function generateStatement(statement_id: string, user: Prisma.User, transactions: Prisma.Transaction[]) {
-	let doc = new PDFDocument({ margin: 50 });
+	const doc = new PDFDocument({ margin: 50 });
 	const total = transactions.reduce((prev, curr) => prev + curr.transaction_amount, 0);
 	doc.fontSize(12);
 	generateHeader(doc); // Invoke `generateHeader` function.
@@ -178,8 +179,8 @@ function generateTableRow(
 }
 
 function generateInvoiceTable(doc: PDFKit.PDFDocument, total: number, transactions: Prisma.Transaction[]) {
-	let i,
-		invoiceTableTop = 330;
+	let i;
+	const invoiceTableTop = 330;
 	generateTableRow(doc, invoiceTableTop, 'Item ID', 'Merchant', 'Unit Cost', 'Litres', 'Line Total');
 	generateHr(doc, invoiceTableTop + 20);
 	doc.font('Helvetica');

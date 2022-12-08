@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
-import { PATHS, SAMPLE_CARDS, STORAGE_KEYS } from '../utils/constants';
+import { PATHS } from '../utils/constants';
 import classNames from 'classnames';
 import { ActionIcon, Group, LoadingOverlay } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons';
-import { useLocalStorage } from '@mantine/hooks';
 import { CARD_STATUS, GBP, sanitize } from '@trok-app/shared-utils';
 
 const CardsTable = ({ data, loading }) => {

@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import EmailProvider, { SendVerificationRequestParams } from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
@@ -64,7 +64,7 @@ const providers = [
 					}
 				}
 			});
-			return !!user ? user : null;
+			return user ? user : null;
 		}
 	}),
 	CredentialsProvider({
@@ -124,7 +124,7 @@ const pages = {
 	verifyRequest: '/verify-email',
 };
 
-export const authOptions = {
+export const authOptions : NextAuthOptions = {
 	adapter: PrismaAdapter(prisma),
 	providers,
 	pages,
@@ -134,11 +134,7 @@ export const authOptions = {
 		strategy: 'jwt',
 		maxAge: 30 * 24 * 60 * 60 // 30 days
 	},
-	jwt: {
-		encryption: true
-	},
 	debug: !isProd
 };
 
-// @ts-ignore
-export default (req, res) => NextAuth(req, res, authOptions);
+export default NextAuth(authOptions);

@@ -1,4 +1,5 @@
 import axios from 'axios';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import type { AppRouter } from '../../trok-backend/src/app/routes';
 import { createTRPCReact } from '@trpc/react-query';
 

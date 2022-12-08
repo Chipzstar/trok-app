@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useElements, useStripe } from '@stripe/react-stripe-js';
-import { IconCopy, IconEye, IconEyeOff, IconX } from '@tabler/icons';
+import { useStripe } from '@stripe/react-stripe-js';
+import { IconEye, IconEyeOff, IconX } from '@tabler/icons';
 import { ActionIcon, Button, Dialog, Group, PasswordInput, Stack, Title } from '@mantine/core';
 import { trpc } from '../utils/clients';
 import { useSession } from 'next-auth/react';
@@ -50,7 +50,6 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 
 	useEffect(() => {
 		if (card_id && nonce && ephemeral_key_secret) {
-			//@ts-ignore
 			setPinElement(
 				stripe.elements().create('issuingCardPinDisplay', {
 					issuingCard: card_id,

@@ -34,7 +34,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		if (testMode) {
 			return GBP(21272900).format();
 		} else {
-			let value = transactionsQuery?.data
+			const value = transactionsQuery?.data
 				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h') && t.status === TRANSACTION_STATUS.APPROVED)
 				.reduce((prev, curr) => prev + curr.transaction_amount, 0);
 			return GBP(value).format();
@@ -44,7 +44,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		if (testMode) {
 			return GBP(testMode ? 726436 : 0).format();
 		} else {
-			let value = transactionsQuery?.data
+			const value = transactionsQuery?.data
 				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h'))
 				.reduce((prev, curr) => prev + 41 * 120, 0);
 			return GBP(value).format();

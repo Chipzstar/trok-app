@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 import CryptoJS from 'crypto-js';
 import Prisma from '@prisma/client';
 import currency from 'currency.js';
+import dayjs from 'dayjs';
+import { TRANSACTION_STATUS } from './shared-types';
 
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -87,13 +89,13 @@ export function checkIfNullOrUndefined(variable: any) {
 }
 
 export function encrypt(word: string, key: string) {
-	let encJson = CryptoJS.AES.encrypt(JSON.stringify(word), key.slice(0, 16)).toString();
+	const encJson = CryptoJS.AES.encrypt(JSON.stringify(word), key.slice(0, 16)).toString();
 	return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encJson));
 }
 
 export function decrypt(word: string, key: string) {
-	let decData = CryptoJS.enc.Base64.parse(word).toString(CryptoJS.enc.Utf8);
-	let bytes = CryptoJS.AES.decrypt(decData, key.slice(0, 16)).toString(CryptoJS.enc.Utf8);
+	const decData = CryptoJS.enc.Base64.parse(word).toString(CryptoJS.enc.Utf8);
+	const bytes = CryptoJS.AES.decrypt(decData, key.slice(0, 16)).toString(CryptoJS.enc.Utf8);
 	return JSON.parse(bytes);
 }
 
@@ -134,6 +136,15 @@ export function getDeclineReason(decline_code: Prisma.TransactionDeclineCode, me
 		default:
 			return `This card attempted to make a purchase at a non-fuel card merchant with category: ${merchant_category}`;
 	}
+}
+
+export function filterByTimeRange(data: Prisma.Transaction[], range: [Date, Date]) {
+	const startDate = dayjs(range[0]).startOf('day');
+	const endDate = dayjs(range[1]).endOf('day');
+	return data.filter(t => {
+		const curr = dayjs(t.created_at);
+		return curr.isBefore(endDate) && curr.isAfter(startDate) && t.status === TRANSACTION_STATUS.APPROVED;
+	});
 }
 
 export function calcPercentageChange(original: number, current: number): number {

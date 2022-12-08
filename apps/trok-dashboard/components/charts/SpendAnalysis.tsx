@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { BarController, BarElement, CategoryScale, Chart, LinearScale } from 'chart.js';
 import dayjs from 'dayjs';
 import useWindowSize from '../../hooks/useWindowSize';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
-import { BANNER_HEIGHT, DEFAULT_HEADER_HEIGHT, STORAGE_KEYS } from '../../utils/constants';
+import { BANNER_HEIGHT, STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
-import { filterByTimeRange } from '../../utils/functions';
+import { filterByTimeRange } from '@trok-app/shared-utils';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -32,8 +32,8 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 	const { height } = useWindowSize()
 
 	const generateLabels = useCallback((range: DateRangePickerValue) => {
-		let startDate = dayjs(range[0])
-		let numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
+		const startDate = dayjs(range[0])
+		const numDays = dayjs(range[1]).diff(dayjs(range[0]), "days") + 1
 		const labels = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").format("Do MMM"))
 		const values = new Array(numDays).fill(0).map((item, index) => startDate.clone().add(index, "d").unix())
 		return { labels, values }
@@ -51,7 +51,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 	}, [transactionsQuery.data, dateRange]);
 	
 	const { labels, data } = useMemo(() => {
-		let { values, labels } = generateLabels(dateRange);
+		const { values, labels } = generateLabels(dateRange);
 		let data;
 		if (testMode) {
 			data = Array(7)

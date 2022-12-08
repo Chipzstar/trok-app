@@ -152,7 +152,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		async () => {
 			setLoading(true);
 			try {
-				let status = card?.status === CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
+				const status = card?.status === CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
 				await cardStatusMutation.mutateAsync({
 					card_id: String(cardID),
 					stripeId: stripe_account_id,
@@ -228,27 +228,21 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								</div>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'per_authorization')
-										? GBP(
-												card?.spending_limits.find(
+										? GBP(card?.spending_limits.find(
 													({ interval }) => interval === 'per_authorization'
-												)?.amount
-										  ).format()
+												)?.amount).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'daily')
-										? GBP(
-												card?.spending_limits.find(({ interval }) => interval === 'daily')
-													?.amount
-										  ).format()
+										? GBP(card?.spending_limits.find(({ interval }) => interval === 'daily')
+													?.amount).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'weekly')
-										? GBP(
-												card?.spending_limits.find(({ interval }) => interval === 'weekly')
-													?.amount
-										  ).format()
+										? GBP(card?.spending_limits.find(({ interval }) => interval === 'weekly')
+													?.amount).format()
 										: '-'}
 								</span>
 							</Stack>
@@ -291,7 +285,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 };
 
 export const getServerSideProps = async ({ req, res }) => {
-	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
 	return {
 		props: {

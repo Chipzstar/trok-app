@@ -97,8 +97,7 @@ const SignUpComplete = () => {
 						notifyError('email-verification-failed', error, <IconX size={20} />);
 					}
 				} catch (err) {
-					let message;
-					message = err.message instanceof Array ? err[0].message : err?.message;
+					const message = err.message instanceof Array ? err[0].message : err?.message;
 					notifyError('email-verification-failed', message, <IconX size={20} />);
 				}
 			}
