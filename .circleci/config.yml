@@ -48,9 +48,9 @@ jobs:
                   name: Run lint
                   command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
             - run:
-                  name: Run test
+                  name: Run e2e
                   command:
-                      yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=test --parallel=3 --ci --code-coverage
+                      yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
             - run:
                   name: Run build
                   command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
