@@ -52,7 +52,7 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
       - run:
           name: Run backend
-          command: echo ${DOPPLER_TOKEN_BACKEND}
+          command: doppler run --token dp.st.ci.y6I562zKpFTNP5mX9cz5qG05aU4I5wvlprKy4cVJiwy -- yarn nx serve trok-backend
       - run:
           name: Run e2e
           command:
