@@ -1,7 +1,7 @@
 import React from 'react';
 import { Group, Loader, Paper, Text } from '@mantine/core';
 import { IconArrowDownRight, IconArrowUpRight, IconCash, IconCreditCard, IconTruck, IconUserPlus } from '@tabler/icons';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, isNumber } from '@trok-app/shared-utils';
 
 export const icons = {
 	user: IconUserPlus,
@@ -40,7 +40,7 @@ const Stat = ({title, diff, value, icon, loading, is_currency=false, diff_interv
 					weight={500}
 					className="flex items-center"
 				>
-					<span>{diff.toFixed(1)}%</span>
+					<span>{Number(diff).toFixed(1)}%</span>
 					<DiffIcon size={16} stroke={1.5} />
 				</Text>}
 			</Group>

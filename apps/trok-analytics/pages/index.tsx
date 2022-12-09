@@ -62,7 +62,7 @@ export function Main() {
 				));
 			return calcPercentageChange(curr_filtered_users.length, prev_filtered_users.length);
 		}
-		return null
+		return Number.NaN
 	}, [users])
 
 	const cards_diff = useMemo(() => {
@@ -85,7 +85,7 @@ export function Main() {
 			prev_filtered_cards.forEach((card, i) => console.log(i + ": ", dayjs(card.created_at).format("DD-MM-YYYY")))
 			return calcPercentageChange(curr_filtered_cards.length, prev_filtered_cards.length);
 		}
-		return null
+		return Number.NaN
 	}, [cards])
 
 	const cardholders_diff = useMemo(() => {
@@ -108,7 +108,7 @@ export function Main() {
 			prev_filtered_cardholders.forEach((c, i) => console.log(i + ": ", dayjs(c.created_at).format("DD-MM-YYYY")))
 			return calcPercentageChange(curr_filtered_cardholders.length, prev_filtered_cardholders.length);
 		}
-		return null
+		return Number.NaN
 	}, [cardholders])
 
 	const transactions_diff = useMemo(() => {
@@ -129,7 +129,7 @@ export function Main() {
 			console.log("PREVIOUS transactions", );
 			return calcPercentageChange(curr_transactions_amount, prev_transactions_amount);
 		}
-		return null
+		return Number.NaN
 	}, [transactions]);
 
 	return (

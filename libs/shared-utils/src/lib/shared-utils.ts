@@ -7,7 +7,6 @@ import Prisma from '@prisma/client';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { TRANSACTION_STATUS } from './shared-types';
-
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
@@ -16,6 +15,13 @@ export function sanitize(str: string): string {
 }
 
 export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
+
+/**
+ * Checks if the value is a valid number.
+ * Takes "null" values into account which isNaN does not
+ * @param value
+ */
+export const isNumber = (value : any ) : boolean => !(value === null || !isNaN(value))
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
