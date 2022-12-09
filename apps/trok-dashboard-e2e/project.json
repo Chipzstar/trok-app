@@ -6,6 +6,7 @@
 	"targets": {
 		"e2e": {
 			"executor": "@nrwl/cypress:cypress",
+			"defaultConfiguration": "ci",
 			"options": {
 				"cypressConfig": "apps/trok-dashboard-e2e/cypress.config.ts",
 				"devServerTarget": "trok-dashboard:serve:development",
@@ -32,7 +33,8 @@
 					"env": {
 						"API_BASE_URL": "https://trok-api-dev.onrender.com",
 						"BASE_URL": "https://trok-app-dev.onrender.com"
-					}
+					},
+					"headed": true
 				},
 				"production": {
 					"devServerTarget": "trok-dashboard:serve:production",
@@ -42,7 +44,11 @@
 					}
 				},
 				"ci": {
-					"devServerTarget": "trok-dashboard:serve-static"
+					"devServerTarget": "trok-dashboard:serve:production",
+					"env": {
+						"API_BASE_URL": "http://localhost:3333",
+						"BASE_URL": "http://localhost:4200"
+					}
 				}
 			}
 		},
@@ -55,12 +61,6 @@
 				"lintFilePatterns": [
 					"apps/trok-dashboard-e2e/**/*.{js,ts}"
 				]
-			}
-		},
-		"serve-static": {
-			"executor": "@nrwl/web:file-server",
-			"options": {
-				"buildTarget": "trok-dashboard:build"
 			}
 		}
 	},

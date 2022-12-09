@@ -34,6 +34,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Doppler CLI to current directory
+          command: (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.doppler.com/install.sh) | sh
+      - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
       - nx/set-shas:
@@ -48,12 +51,15 @@ jobs:
           name: Run lint
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
       - run:
-          name: Run build
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
+          name: Run backend
+          command: doppler run --token $DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve
       - run:
           name: Run e2e
           command:
             yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
+      - run:
+          name: Run build
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
       - run:
           name: "Echo current working directory"
           command: |

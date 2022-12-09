@@ -57,6 +57,12 @@
 			"options": {
 				"lintFilePatterns": ["apps/trok-dashboard/**/*.{ts,tsx,js,jsx}"]
 			}
+		},
+		"serve-static": {
+			"executor": "@nrwl/web:file-server",
+			"options": {
+				"buildTarget": "trok-dashboard:build"
+			}
 		}
 	},
 	"tags": []
