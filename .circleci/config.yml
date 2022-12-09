@@ -42,15 +42,6 @@ jobs:
           name: Initialize the Nx Cloud distributed CI run
           command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
       - run:
-          name: "Echo current working directory"
-          command: |
-            echo $(pwd)
-            DIR="/dist/"
-            if [ -d "$DIR" ]; then
-              # Take action if $DIR exists. #
-              echo "Installing config files in ${DIR}..."
-            fi
-      - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
@@ -86,6 +77,7 @@ jobs:
           command: |
             root=$(pwd)
             DIR="$root/dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/"
+            echo $(pwd)
             echo ${DIR}
             if [ -d "$pwd" ]; then
               # Take action if $DIR exists. #
