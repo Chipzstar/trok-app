@@ -48,6 +48,9 @@ jobs:
           name: Run lint
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
       - run:
+          name: Run build
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
+      - run:
           name: Run e2e
           command:
             yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
@@ -69,13 +72,10 @@ jobs:
           when: on_fail
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/*
-          destination: /screenshots/0-auth
+          destination: screenshots/0-auth
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth/*
-          destination: /videos/0-auth
-      - run:
-          name: Run build
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
+          destination: videos/0-auth
       - run:
           name: Stop all agents
           command: yarn nx-cloud stop-all-agents
