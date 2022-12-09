@@ -68,5 +68,15 @@ workflows:
                   matrix:
                       parameters:
                           ordinal: [1, 2, 3]
+                  filters:
+                    branches:
+                      only:
+                        - staging
+                        - main
             - main:
                   name: Nx Cloud Main
+                  filters:
+                    branches:
+                      only:
+                        - staging
+                        - main
