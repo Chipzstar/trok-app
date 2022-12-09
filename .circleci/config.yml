@@ -35,7 +35,7 @@ jobs:
       - checkout
       - run:
           name: Install Doppler CLI to current directory
-          command: (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.doppler.com/install.sh) | sh
+          command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
