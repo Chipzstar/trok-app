@@ -38,7 +38,7 @@ jobs:
           command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
       - run:
           name: Test doppler
-          command: doppler secrets --token="dp.st.ci.T1XMItyuzxOay2Culwd34fA7hxaCFgZLQNx0IUhWFm2"
+          command: sudo doppler secrets --token="dp.st.ci.T1XMItyuzxOay2Culwd34fA7hxaCFgZLQNx0IUhWFm2"
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
