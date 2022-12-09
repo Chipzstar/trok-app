@@ -66,6 +66,7 @@ jobs:
               # Take action if $DIST_DIR exists. #
               echo "Installing config files in ${DIST_DIR}..."
             fi
+          when: on_fail
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/*
           destination: /screenshots/0-auth
