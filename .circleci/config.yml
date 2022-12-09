@@ -52,10 +52,10 @@ jobs:
           command:
             yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
       - store_artifacts:
-          path: /dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
+          path: /home/circleci/project/dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
           destination: /screenshots/0-auth
       - store_artifacts:
-          path: /dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
+          path: /home/circleci/project/dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
           destination: /videos/0-auth
       - run:
           name: Run build
