@@ -73,9 +73,9 @@ jobs:
           name: "Echo current working directory"
           command: |
             root=$(pwd)
-            DIR="$root/apps/trok-dashboard-e2e/e2e"
+            DIR="$root/apps/trok-dashboard-e2e/src/e2e"
             echo $(pwd)
-            if [ -d "$(DIR)" ]; then
+            if [ -d "$DIR" ]; then
               # Take action if $DIR exists. #
               echo "Installing config files in ${DIR}..."
             fi
