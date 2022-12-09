@@ -52,6 +52,8 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
       - run:
           name: Run backend
+          environment:
+            NX_CLOUD_DISTRIBUTED_EXECUTION: false
           command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn nx serve trok-backend --prod
       - run:
           name: Run e2e
@@ -115,13 +117,13 @@ workflows:
               only:
                 - staging
                 - main
-#      - test:
-#          name: "Test Run"
-#          filters:
-#            branches:
-#              only:
-#                - staging
-#                - main
+      #      - test:
+      #          name: "Test Run"
+      #          filters:
+      #            branches:
+      #              only:
+      #                - staging
+      #                - main
       - main:
           name: Nx Cloud Main
           filters:
