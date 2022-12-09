@@ -98,27 +98,27 @@ workflows:
   version: 2
   ci:
     jobs:
-      #       - agent:
-      #           name: Nx Cloud Agent << matrix.ordinal >>
-      #           matrix:
-      #             parameters:
-      #               ordinal: [ 1, 2, 3 ]
-      #           filters:
-      #             branches:
-      #               only:
-      #                 - staging
-      #                 - main
-      - test:
-          name: "Test Run"
+      - agent:
+          name: Nx Cloud Agent << matrix.ordinal >>
+          matrix:
+            parameters:
+              ordinal: [ 1, 2, 3 ]
           filters:
             branches:
               only:
                 - staging
                 - main
-#      - main:
-#          name: Nx Cloud Main
+#      - test:
+#          name: "Test Run"
 #          filters:
 #            branches:
 #              only:
 #                - staging
 #                - main
+      - main:
+          name: Nx Cloud Main
+          filters:
+            branches:
+              only:
+                - staging
+                - main
