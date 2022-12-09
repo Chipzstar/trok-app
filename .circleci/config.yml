@@ -42,6 +42,15 @@ jobs:
           name: Initialize the Nx Cloud distributed CI run
           command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
       - run:
+          name: "Echo current working directory"
+          command: |
+            echo $(pwd)
+            DIR="/dist/"
+            if [ -d "$DIR" ]; then
+              # Take action if $DIR exists. #
+              echo "Installing config files in ${DIR}..."
+            fi
+      - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
@@ -51,9 +60,6 @@ jobs:
           name: Run e2e
           command:
             yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
-      - run:
-          name: "Echo current working directory"
-          command: echo $(pwd)
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
           destination: /screenshots/0-auth
@@ -67,7 +73,24 @@ jobs:
           name: Stop all agents
           command: yarn nx-cloud stop-all-agents
           when: always
-
+  test:
+    docker:
+      - image: cimg/node:16.18.1-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: "Echo current working directory"
+          command: |
+            root=$(pwd)
+            DIR="$root/dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/"
+            echo ${DIR}
+            if [ -d "$DIR" ]; then
+              # Take action if $DIR exists. #
+              echo "Installing config files in ${DIR}..."
+            fi
 workflows:
   version: 2
   ci:
@@ -82,10 +105,17 @@ workflows:
               only:
                 - staging
                 - main
-      - main:
-          name: Nx Cloud Main
+      - test:
+          name: "Test Run"
           filters:
             branches:
               only:
                 - staging
                 - main
+#      - main:
+#          name: Nx Cloud Main
+#          filters:
+#            branches:
+#              only:
+#                - staging
+#                - main
