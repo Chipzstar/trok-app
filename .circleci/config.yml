@@ -70,15 +70,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: yarn install --frozen-lockfile
-      - run:
           name: "Echo current working directory"
           command: |
             root=$(pwd)
-            DIR="$root/dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/"
+            DIR="$root/apps/trok-dashboard-e2e/e2e"
             echo $(pwd)
-            if [ -d "$(pwd)" ]; then
+            if [ -d "$(DIR)" ]; then
               # Take action if $DIR exists. #
               echo "Installing config files in ${DIR}..."
             fi
