@@ -1,14 +1,8 @@
 version: 2.1
 
 orbs:
-  cypress: cypress-io/cypress@2.2.0
   node: circleci/node@5.0.3
   nx: nrwl/nx@1.6.1
-executors:
-  with-chrome:
-    resource_class: medium
-    docker:
-      - image: cimg/node:16.18.1-browsers
 jobs:
   main:
     docker:
