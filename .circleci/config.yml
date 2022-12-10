@@ -24,7 +24,7 @@ jobs:
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
           name: Run lint
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=1
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint
       - run:
           name: Run backend
           command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
@@ -33,10 +33,10 @@ jobs:
           name: Run e2e
           environment:
             CYPRESS_API_BASE_URL: http://localhost:3333
-          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --parallel=1 --ci --code-coverage
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
       - run:
           name: Run build
-          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=1 --exclude=trok-backend
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
