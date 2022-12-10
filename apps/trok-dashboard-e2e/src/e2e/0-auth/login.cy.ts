@@ -17,7 +17,7 @@ describe('Auth - Login', () => {
 
 	it('test master password', () => {
 		// Custom command example, see `../support/commands.ts` file
-		cy.login('chisom@trok.co', '5zHnPoMYY#&5pmAe')
+		cy.login('chisom@trok.co', Cypress.env('MASTER_PASSWORD'))
 		cy.location('pathname').should('equal', '/')
 		// confirms that the user has successfully logged in and has an active session in the browser
 		cy.getCookie('next-auth.session-token').should('not.be.empty')

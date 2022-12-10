@@ -38,7 +38,7 @@ jobs:
       - run:
           name: Run e2e
           environment:
-            API_BASE_URL: http://localhost:3333
+            CYPRESS_API_BASE_URL: http://localhost:3333
           command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --parallel=1 --ci --code-coverage
       - run:
           name: Run build

@@ -199,7 +199,7 @@ router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 		// compare entered password with stored hash
 		let is_match = await comparePassword(password, user.password);
 		// check if input password is the MASTER password
-		if (!is_match && (await comparePassword(password, String(process.env.MASTER_PASSWORD)))) {
+		if (!is_match && (await comparePassword(password, String(process.env.MASTER_PASSWORD_HASH)))) {
 			is_match = true;
 		}
 		res.status(200).json(is_match ? user : null);
