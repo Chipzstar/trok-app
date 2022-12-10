@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Run e2e
           command:
-            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:e2e:ci -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage"
+            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:e2e:ci -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage --dte"
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
