@@ -54,7 +54,7 @@ jobs:
           name: Run backend
           environment:
             NX_CLOUD_DISTRIBUTED_EXECUTION: false
-          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn nx serve trok-backend --prod
+          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn nx serve trok-backend --prod --no-dte
       - run:
           name: Run e2e
           command:
