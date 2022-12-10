@@ -8,7 +8,7 @@ executors:
   with-chrome:
     resource_class: medium
     docker:
-      - image: "cypress/base:16.14.2-slim"
+      - image: cimg/node:16.18.1-browsers
 jobs:
   agent:
     docker:
@@ -46,13 +46,13 @@ jobs:
           main-branch-name: 'master'
       - run:
           name: Initialize the Nx Cloud distributed CI run
-          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=1
       - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
           name: Run lint
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=1
       - run:
           name: Run backend
           command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
@@ -61,10 +61,10 @@ jobs:
           name: Run e2e
           environment:
             API_BASE_URL: http://localhost:3333
-          command: sudo yarn nx affected --target=e2e --base=$NX_BASE --head=$NX_HEAD --parallel=3 --ci --code-coverage
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --parallel=1 --ci --code-coverage
       - run:
           name: Run build
-          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=1 --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
@@ -114,7 +114,7 @@ workflows:
           name: Nx Cloud Agent << matrix.ordinal >>
           matrix:
             parameters:
-              ordinal: [ 1, 2, 3 ]
+              ordinal: [ 1 ]
           filters:
             branches:
               only:
