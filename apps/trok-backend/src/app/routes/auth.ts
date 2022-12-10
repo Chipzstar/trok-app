@@ -178,14 +178,12 @@ export const authRouter = t.router({
 	}),
 	checkAccountLinked: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
 		const redis_account = await ctx.redis.hgetall(input);
-		console.log(redis_account)
 		return !!redis_account?.access_token
 	})
 });
 
 router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 	try {
-		console.table(req.body);
 		const { email, password } = req.body;
 		const ipAddr = req.ip;
 		const emailIPkey = getEmailIPkey(email, ipAddr);

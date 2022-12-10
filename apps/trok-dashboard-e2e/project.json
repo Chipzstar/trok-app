@@ -12,12 +12,11 @@
 				"testingType": "e2e"
 			},
 			"configurations": {
-				"local": {
+				"watch": {
 					"env": {
 						"API_BASE_URL": "http://localhost:3333",
 						"BASE_URL": "http://localhost:4200"
 					},
-					"headed": true,
 					"watch": true
 				},
 				"record": {
@@ -32,8 +31,7 @@
 					"env": {
 						"API_BASE_URL": "https://trok-api-dev.onrender.com",
 						"BASE_URL": "https://trok-app-dev.onrender.com"
-					},
-					"headed": true
+					}
 				},
 				"production": {
 					"devServerTarget": "trok-dashboard:serve:production",

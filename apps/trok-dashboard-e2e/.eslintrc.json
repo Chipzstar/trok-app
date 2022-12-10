@@ -4,12 +4,15 @@
 	"overrides": [
 		{
 			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-			"rules": {}
+			"rules": {
+				"cypress/no-unnecessary-waiting": "off"
+			}
 		},
 		{
 			"files": ["src/plugins/index.js"],
 			"rules": {
 				"@typescript-eslint/no-var-requires": "off",
+				"cypress/no-unnecessary-waiting": "off",
 				"no-undef": "off"
 			}
 		}
