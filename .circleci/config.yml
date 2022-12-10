@@ -54,8 +54,9 @@ jobs:
           name: Run e2e
           environment:
             API_BASE_URL: http://localhost:3333
-          command:
-            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:e2e:ci -- "yarn nx run-many --target=e2e --projects=trok-dashboard-e2e --base=$NX_BASE --head=$NX_HEAD --parallel=3 --ci --code-coverage"
+          command: |
+            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn start
+            wait-on http://localhost:3333/ping && yarn nx run-many --target=e2e --projects=trok-dashboard-e2e --base=$NX_BASE --head=$NX_HEAD --parallel=3 --ci --code-coverage
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
