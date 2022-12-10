@@ -6,7 +6,6 @@
 	"targets": {
 		"e2e": {
 			"executor": "@nrwl/cypress:cypress",
-			"defaultConfiguration": "ci",
 			"options": {
 				"cypressConfig": "apps/trok-dashboard-e2e/cypress.config.ts",
 				"devServerTarget": "trok-dashboard:serve:development",
@@ -41,13 +40,6 @@
 					"env": {
 						"API_BASE_URL": "https://trok-api.onrender.com",
 						"BASE_URL": "https://app.trok.co"
-					}
-				},
-				"ci": {
-					"devServerTarget": "trok-dashboard:serve:production",
-					"env": {
-						"API_BASE_URL": "http://localhost:3333",
-						"BASE_URL": "http://localhost:4200"
 					}
 				}
 			}
