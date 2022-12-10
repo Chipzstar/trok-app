@@ -10,6 +10,7 @@
 		"build": "nx build",
 		"test": "nx test",
 		"nx:backend:serve": "doppler run -p backend -c loc -- nx serve trok-backend",
+		"nx:backend:serve:ci": "nx serve trok-backend --no-dte",
 		"nx:backend:lint": "nx lint trok-backend",
 		"nx:backend:build": "nx build trok-backend",
 		"nx:backend:build:prod": "nx build trok-backend --no-cloud",
