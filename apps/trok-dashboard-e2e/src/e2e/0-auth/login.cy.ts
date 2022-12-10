@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 
 describe('Auth - Login', () => {
 	beforeEach(() => cy.visit('/'));
-	afterEach(() => cy.logout());
 
 	it('invalid email', () => {
 		// Custom command example, see `../support/commands.ts` file
@@ -31,4 +30,6 @@ describe('Auth - Login', () => {
 		// confirms that the user has successfully logged in and has an active session in the browser
 		cy.getCookie('next-auth.session-token').should('not.be.empty')
 	});
+
+	after(() => cy.logout());
 });
