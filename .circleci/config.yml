@@ -55,7 +55,7 @@ jobs:
           environment:
             API_BASE_URL: http://localhost:3333
           command: |
-            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn start
+            sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- "nx serve trok-backend --no-dte"
             wait-on http://localhost:3333/ping && yarn nx run-many --target=e2e --projects=trok-dashboard-e2e --base=$NX_BASE --head=$NX_HEAD --parallel=3 --ci --code-coverage
       - run:
           name: Run build
