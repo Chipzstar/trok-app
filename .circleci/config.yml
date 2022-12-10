@@ -25,10 +25,6 @@ jobs:
           name: Install dependencies
           command: yarn install --frozen-lockfile
       - run:
-          name: Run backend
-          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
-          background: true
-      - run:
           name: Start the agent << parameters.ordinal >>
           command: yarn nx-cloud start-agent
           no_output_timeout: 60m
