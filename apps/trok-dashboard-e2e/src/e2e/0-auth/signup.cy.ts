@@ -4,7 +4,7 @@ import { genReferralCode } from '@trok-app/shared-utils';
 const firstname = faker.name.firstName();
 const lastname = faker.name.lastName();
 const email = faker.internet.email(firstname, lastname);
-describe.skip('Auth - Signup', () => {
+describe('Auth - Signup', () => {
 	beforeEach(() => cy.visit('/signup').url().should('contain', '/signup'));
 
 	it('duplicate email', () => {

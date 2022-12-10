@@ -1,4 +1,4 @@
-describe.skip('Auth - Onboarding', () => {
+describe('Auth - Onboarding', () => {
 	beforeEach(() => cy.visit('/'));
 
 	it('navigate to signup page', () => {
