@@ -32,11 +32,11 @@ jobs:
       - run:
           name: Run e2e
           environment:
-            CYPRESS_API_BASE_URL: http://localhost:3333
-          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
+            API_BASE_URL: http://localhost:3333
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
       - run:
           name: Run build
-          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --exclude=trok-backend
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
