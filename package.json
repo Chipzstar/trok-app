@@ -37,7 +37,8 @@
 		"prisma:studio": "npx prisma studio",
 		"create-env-file:backend": "doppler secrets download --no-file --format env > ./apps/trok-backend/.env -p backend -c loc",
 		"create-env-file:dashboard": "doppler secrets download --no-file --format env > ./apps/trok-dashboard/.env -p admin-dashboard -c loc",
-		"stripe-local-webhook": "stripe listen --forward-to localhost:3333/server/stripe/webhook"
+		"stripe-local-webhook": "stripe listen --forward-to localhost:3333/server/stripe/webhook",
+		"circleci-validate": "circleci config validate"
 	},
 	"private": true,
 	"dependencies": {
