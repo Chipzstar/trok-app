@@ -18,16 +18,12 @@ jobs:
         type: integer
     steps:
       - checkout
-      - browser-tools/install-browser-tools
-      - run:
-          name: Install Doppler CLI to current directory
-          command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
       - run:
           name: Install dependencies
           command: yarn install --frozen-lockfile
       - run:
           name: Start the agent << parameters.ordinal >>
-          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:e2e:ci -- "yarn nx-cloud start-agent"
+          command: yarn nx-cloud start-agent
           no_output_timeout: 60m
   main:
     docker:
@@ -96,7 +92,7 @@ jobs:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
-      API_BASE_URL: http://localhost:3333
+      API_BASE_URL: https://trok-api-dev.onrender.com
       MAIN_BRANCH_NAME: staging
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
