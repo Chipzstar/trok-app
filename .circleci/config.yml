@@ -22,6 +22,10 @@ jobs:
           name: Install dependencies
           command: yarn install --frozen-lockfile
       - run:
+          name: Run backend
+          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
+          background: true
+      - run:
           name: Start the agent << parameters.ordinal >>
           command: yarn nx-cloud start-agent
           no_output_timeout: 60m
@@ -92,6 +96,7 @@ jobs:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
+      API_BASE_URL: http://localhost:3333
       MAIN_BRANCH_NAME: staging
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
@@ -119,8 +124,6 @@ jobs:
           background: true
       - run:
           name: Run e2e
-          environment:
-            API_BASE_URL: http://localhost:3333
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
       - run:
           name: Run build
