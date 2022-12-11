@@ -1,14 +1,36 @@
 version: 2.1
 
 orbs:
+  cypress: cypress-io/cypress@2.2.0
   node: circleci/node@5.0.3
   nx: nrwl/nx@1.6.1
+executors:
+  with-chrome:
+    resource_class: medium
+    docker:
+      - image: "cypress/base:16.14.2-slim"
 jobs:
+  agent:
+    docker:
+      - image: cimg/node:16.18.1-browsers
+    parameters:
+      ordinal:
+        type: integer
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - run:
+          name: Start the agent << parameters.ordinal >>
+          command: yarn nx-cloud start-agent
+          no_output_timeout: 60m
   main:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
       MAIN_BRANCH_NAME: master
+      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
       - checkout
       - run:
@@ -20,11 +42,14 @@ jobs:
       - nx/set-shas:
           main-branch-name: 'master'
       - run:
+          name: Initialize the Nx Cloud distributed CI run
+          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+      - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
           name: Run lint
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
       - run:
           name: Run backend
           command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
@@ -36,7 +61,7 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
       - run:
           name: Run build
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --exclude=trok-backend
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=build --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
@@ -54,10 +79,73 @@ jobs:
             fi
           when: on_fail
       - store_artifacts:
-          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth/*
+          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
           destination: screenshots/0-auth
       - store_artifacts:
-          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth/*
+          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
+          destination: videos/0-auth
+      - run:
+          name: Stop all agents
+          command: yarn nx-cloud stop-all-agents
+          when: always
+  staging:
+    docker:
+      - image: cimg/node:16.18.1-browsers
+    environment:
+      MAIN_BRANCH_NAME: staging
+      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+    steps:
+      - checkout
+      - run:
+          name: Install Doppler CLI to current directory
+          command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - nx/set-shas:
+          main-branch-name: 'staging'
+      - run:
+          name: Initialize the Nx Cloud distributed CI run
+          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+      - run:
+          name: Run workspace lint
+          command: yarn nx-cloud record -- yarn nx workspace-lint
+      - run:
+          name: Run lint
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
+      - run:
+          name: Run backend
+          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
+          background: true
+      - run:
+          name: Run e2e
+          environment:
+            API_BASE_URL: http://localhost:3333
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
+      - run:
+          name: Run build
+          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
+      - run:
+          name: "Echo current working directory"
+          command: |
+            root=$(pwd)
+            APP_DIR="$root/apps/trok-dashboard-e2e/src/e2e"
+            DIST_DIR="$root/dist/cypress/apps/trok-dashboard-e2e"
+            echo $(pwd)
+            if [ -d "$APP_DIR" ]; then
+              # Take action if $DIR exists. #
+              echo "Installing config files in ${APP_DIR}..."
+            fi
+            if [ -d "$DIST_DIR" ]; then
+              # Take action if $DIST_DIR exists. #
+              echo "Installing config files in ${DIST_DIR}..."
+            fi
+          when: on_fail
+      - store_artifacts:
+          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
+          destination: screenshots/0-auth
+      - store_artifacts:
+          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
           destination: videos/0-auth
       - run:
           name: Stop all agents
@@ -94,5 +182,10 @@ workflows:
           filters:
             branches:
               only:
-                - staging
                 - main
+      - staging:
+          name: Nx Cloud Staging
+          filters:
+            branches:
+              only:
+                - staging
