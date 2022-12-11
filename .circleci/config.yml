@@ -12,7 +12,7 @@ executors:
 jobs:
   agent:
     docker:
-      - image: cimg/node:16.18.1-browsers
+      - image: cimg/node:lts-browsers
     parameters:
       ordinal:
         type: integer
@@ -97,7 +97,7 @@ jobs:
           when: always
   staging:
     docker:
-      - image: cimg/node:16.18.1-browsers
+      - image: cimg/node:lts-browsers
     environment:
       API_BASE_URL: http://localhost:3333
       MAIN_BRANCH_NAME: staging
