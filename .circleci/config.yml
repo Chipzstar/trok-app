@@ -56,7 +56,7 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage --verbose
       - run:
           name: Run build
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
