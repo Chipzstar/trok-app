@@ -62,10 +62,6 @@ jobs:
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
           destination: videos/0-auth
-      - run:
-          name: Stop all agents
-          command: yarn nx-cloud stop-all-agents
-          when: always
   staging:
     docker:
       - image: cimg/node:16.18.1-browsers
@@ -78,6 +74,12 @@ jobs:
           install-yarn: true
           node-version: '16.13'
       - run: node --version
+      - run:
+          name: Enable permissions for storing Cypress assets
+          command: |
+            mkdir ./dist/cypress
+            echo */
+            chown -R $USER:$USER /home/circleci/project/dist/cypress
       - run:
           name: Install Doppler CLI to current directory
           command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
@@ -122,10 +124,6 @@ jobs:
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
           destination: videos/0-auth
-      - run:
-          name: Stop all agents
-          command: yarn nx-cloud stop-all-agents
-          when: always
   test:
     docker:
       - image: cimg/node:16.18.1-browsers
