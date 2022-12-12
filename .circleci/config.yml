@@ -10,27 +10,12 @@ executors:
     docker:
       - image: "cypress/base:16.14.2-slim"
 jobs:
-  agent:
-    docker:
-      - image: cimg/node:16.18.1-browsers
-    parameters:
-      ordinal:
-        type: integer
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: yarn install --frozen-lockfile
-      - run:
-          name: Start the agent << parameters.ordinal >>
-          command: yarn nx-cloud start-agent
-          no_output_timeout: 60m
   main:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
+      DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
       MAIN_BRANCH_NAME: master
-      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
       - checkout
       - run:
@@ -42,9 +27,6 @@ jobs:
       - nx/set-shas:
           main-branch-name: 'master'
       - run:
-          name: Initialize the Nx Cloud distributed CI run
-          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
-      - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
@@ -54,7 +36,7 @@ jobs:
           name: Run e2e
           environment:
             API_BASE_URL: http://localhost:3333
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
+          command: yarn start-server-and-test "sudo doppler run --token=$DOPPLER_TOKEN -- yarn nx serve trok-backend --no-dte" http://localhost:3333/ping -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=e2e --ci --code-coverage"
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=build --exclude=trok-backend
@@ -88,10 +70,8 @@ jobs:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
-      API_BASE_URL: https://trok-api-dev.onrender.com
-      MAIN_BRANCH_NAME: staging
       DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
-      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+      MAIN_BRANCH_NAME: staging
     steps:
       - checkout
       - node/install:
@@ -107,9 +87,6 @@ jobs:
       - nx/set-shas:
           main-branch-name: 'staging'
       - run:
-          name: Initialize the Nx Cloud distributed CI run
-          command: yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
-      - run:
           name: Run workspace lint
           command: yarn nx-cloud record -- yarn nx workspace-lint
       - run:
@@ -119,7 +96,7 @@ jobs:
           name: Run e2e
           environment:
             DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
-          command: yarn start-server-and-test "sudo doppler run --token=$DOPPLER_TOKEN -- yarn nx serve trok-backend --no-dte" http://localhost:3333/ping -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage"
+          command: yarn start-server-and-test "sudo doppler run --token=$DOPPLER_TOKEN -- yarn nx serve trok-backend --no-dte" http://localhost:3333/ping -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=e2e --ci --code-coverage"
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
@@ -168,23 +145,6 @@ workflows:
   version: 2
   nx-cypress-e2e:
     jobs:
-      - agent:
-          name: Nx Cloud Agent << matrix.ordinal >>
-          matrix:
-            parameters:
-              ordinal: [ 1, 2, 3 ]
-          filters:
-            branches:
-              only:
-                - staging
-                - main
-      #      - test:
-      #          name: "Test Run"
-      #          filters:
-      #            branches:
-      #              only:
-      #                - staging
-      #                - main
       - main:
           name: Nx Cloud Main
           filters:
