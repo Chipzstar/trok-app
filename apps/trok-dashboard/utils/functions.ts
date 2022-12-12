@@ -1,9 +1,8 @@
-import { apiClient, companyHouseClient, griffinClient } from './clients';
+import { apiClient, griffinClient } from './clients';
 import dayjs from 'dayjs';
-import Prisma from '@prisma/client';
 import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS, SelectInput } from './types';
-import { isDev, isProd, requirements } from './constants';
-import { AddressInfo, isStringEqual, OnboardingDirectorInfo, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import { isCI, isDev, isProd, requirements } from './constants';
+import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 
 export function getStrength(password: string) {
@@ -133,7 +132,7 @@ export async function validateCompanyInfo(
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
-		if (!isProd && !isDev) return { is_valid: true, reason: null };
+		if (!isProd && !isDev && !isCI) return { is_valid: true, reason: null };
 		// lookup company profile using provided CRN
 		const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
 		console.log(company_profile);

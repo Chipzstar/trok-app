@@ -62,6 +62,20 @@ describe('Auth - Signup', () => {
 		cy.location('pathname').should('contain', '/onboarding');
 	});
 
+	it('successful signup with referral code', () => {
+		cy.signup({
+			firstname,
+			lastname,
+			email,
+			phone: faker.phone.number('+44 75# ### ####'),
+			password: faker.internet.password(25, false, /[A-Za-z0-9#@_=/><)("*!?.,]/),
+			full_name: `${firstname} ${lastname}`,
+			referral_code: "EaQdpdJWVgRhYvV6",
+			terms: true
+		});
+		cy.location('pathname').should('contain', '/signup');
+	});
+
 	after(() => {
 		cy.request({
 			url: `${Cypress.env('API_BASE_URL')}/server/trpc/removeRedisSignup`,

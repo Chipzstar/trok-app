@@ -10,7 +10,7 @@ executors:
     docker:
       - image: "cypress/base:16.14.2-slim"
 jobs:
-  main:
+  production:
     docker:
       - image: cimg/node:16.18.1-browsers
     environment:
@@ -125,39 +125,46 @@ jobs:
               echo "Installing config files in ${DIST_DIR}..."
             fi
           when: on_fail
-#      - store_artifacts:
-#          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
-#          destination: screenshots/0-auth
-#      - store_artifacts:
-#          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
-#          destination: videos/0-auth
-  test:
+      - store_artifacts:
+          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
+          destination: screenshots/0-auth
+      - store_artifacts:
+          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
+          destination: videos/0-auth
+  deploy:
     docker:
       - image: cimg/node:16.18.1-browsers
     steps:
       - checkout
       - run:
-          name: "Echo current working directory"
-          command: |
-            root=$(pwd)
-            DIR="$root/apps/trok-dashboard-e2e/src/e2e"
-            echo $(pwd)
-            if [ -d "$DIR" ]; then
-              # Take action if $DIR exists. #
-              echo "Installing config files in ${DIR}..."
-            fi
+          name: Install cURL library
+          command: sudo apt install curl
+      - run:
+          name: "Deploy to Render"
+          command: sudo curl ${tfc_app_deploy_hook_url}
 workflows:
   version: 2
   nx-cypress-e2e:
     jobs:
-      - main:
-          name: Nx Cloud Main
+      - production:
+          name: Nx Cloud Production
+          context:
+            - production
           filters:
             branches:
               only:
-                - main
+                - master
       - staging:
           name: Nx Cloud Staging
+          context:
+            - staging
+          filters:
+            branches:
+              only:
+                - staging
+      - deploy:
+          requires:
+            - staging
           filters:
             branches:
               only:

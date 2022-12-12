@@ -7,6 +7,8 @@ export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'productio
 
 export const isDev = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'development';
 
+export const isCI = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'ci';
+
 export const requirements = [
 	{ re: /[0-9]/, label: 'Includes number' },
 	{ re: /[a-z]/, label: 'Includes lowercase letter' },

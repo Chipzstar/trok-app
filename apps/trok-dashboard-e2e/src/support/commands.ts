@@ -8,7 +8,7 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-import { SignupInfo } from '@trok-app/shared-utils';
+import { OnboardingBusinessInfo, SignupInfo } from '@trok-app/shared-utils';
 
 declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
@@ -18,6 +18,7 @@ declare global {
 			login(email: string, password: string): void;
 			logout(): void;
 			signup(values: SignupInfo): void;
+			onboardingStep1(values: OnboardingBusinessInfo)
 		}
 	}
 }
@@ -50,6 +51,20 @@ Cypress.Commands.add('signup', (values) => {
 		cy.get('input[data-cy="signup-terms"]').check();
 		cy.root().submit().wait(2000);
 	});
+})
+
+Cypress.Commands.add('onboardingStep1', (values) => {
+	cy.log('Completing Onboarding step 1...');
+	cy.get('[data-cy="onboarding-company-form"]').within(function () {
+		cy.get('input[data-cy="onboarding-legal-name"]').type(values.legal_name);
+		cy.get('input[data-cy="onboarding-business-crn"]').type(values.business_crn);
+		cy.get('input[data-cy="onboarding-num-vehicles"]').type(String(values.num_vehicles));
+		cy.get('input[data-cy="onboarding-weekly-fuel-spend"]').type(String(values.weekly_fuel_spend));
+		cy.get('input[data-cy="onboarding-business-url"]').type(String(values.business_url));
+		cy.get('input[data-cy="onboarding-merchant-category-code"]').click().get('.mantine-Select-dropdown').click();
+		cy.get('input[data-cy="onboarding-business-type"]').click().get('.mantine-Select-dropdown').click();
+		cy.root().submit().wait(1000);
+	})
 })
 //
 // -- This is a child command --
