@@ -88,25 +88,26 @@ jobs:
           name: Install cURL library
           command: sudo apt install curl
       - run:
+          name: Test deploy hook url
+          command: echo ${tfc_app_deploy_hook_url}
+      - run:
           name: "Deploy to Render"
-          command: sudo curl ${tfc_app_deploy_hook_url}
+          command: sudo curl $tfc_app_deploy_hook_url
 workflows:
   version: 2
   nx-cypress-e2e:
     jobs:
-      - e2e:
-          context:
-            - production
-          filters:
-            branches:
-              only:
-                - master
-                - staging
+#      - e2e:
+#          context:
+#            - production
+#          filters:
+#            branches:
+#              only:
+#                - master
+#                - staging
       - deploy:
           context:
             - staging
-          requires:
-            - e2e
           filters:
             branches:
               only:
