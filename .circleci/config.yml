@@ -90,15 +90,16 @@ jobs:
       - run:
           name: Test deploy hook url
           command: |
-            app_url = $TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
-            api_url = $TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+            ref="&ref=${CIRCLE_SHA1}"
+            app_url=$TFC_APP_DEPLOY_HOOK_URL$ref
+            api_url=$TFC_API_DEPLOY_HOOK_URL&ref
             echo $app_url
             echo $api_url
 #      - run:
 #          name: "Deploy to Render"
 #          command: |
-#            app_url = $TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
-#            api_url = $TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+#            app_url=$TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+#            api_url=$TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
 #            sudo curl $app_url
 #            sudo curl $api_url
 workflows:
