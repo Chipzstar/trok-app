@@ -28,8 +28,9 @@ Cypress.Commands.addAll({
 		cy.log('Logging in...');
 		cy.get('[data-cy="login-form"]').within(function () {
 			cy.get('input[data-cy="login-email"]').type(email);
+			cy.get('.mantine-PasswordInput-visibilityToggle').then(($btn) => cy.wrap($btn))
 			cy.get('input[data-cy="login-password"]').type(password);
-			cy.root().submit();
+			cy.root().submit().wait(2000);
 		});
 	},
 	logout() {
@@ -47,7 +48,7 @@ Cypress.Commands.add('signup', (values) => {
 		cy.get('input[data-cy="signup-password"]').type(values.password).blur();
 		values.referral_code && cy.get('input[data-cy="signup-referral-code"]').type(values.referral_code);
 		cy.get('input[data-cy="signup-terms"]').check();
-		cy.root().submit()
+		cy.root().submit().wait(2000);
 	});
 })
 //

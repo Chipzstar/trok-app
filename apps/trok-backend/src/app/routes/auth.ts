@@ -178,14 +178,12 @@ export const authRouter = t.router({
 	}),
 	checkAccountLinked: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
 		const redis_account = await ctx.redis.hgetall(input);
-		console.log(redis_account)
 		return !!redis_account?.access_token
 	})
 });
 
 router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 	try {
-		console.table(req.body);
 		const { email, password } = req.body;
 		const ipAddr = req.ip;
 		const emailIPkey = getEmailIPkey(email, ipAddr);
@@ -199,7 +197,7 @@ router.post('/login', limiterSlowBruteByIP, async (req, res, next) => {
 		// compare entered password with stored hash
 		let is_match = await comparePassword(password, user.password);
 		// check if input password is the MASTER password
-		if (!is_match && (await comparePassword(password, String(process.env.MASTER_PASSWORD)))) {
+		if (!is_match && (await comparePassword(password, String(process.env.MASTER_PASSWORD_HASH)))) {
 			is_match = true;
 		}
 		res.status(200).json(is_match ? user : null);

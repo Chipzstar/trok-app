@@ -4,10 +4,12 @@
 const { withNx } = require('@nrwl/next/plugins/with-nx');
 const { withSentryConfig } = require('@sentry/nextjs')
 
+const base_url = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3333'
+
 const rewritesConfig = [
 	{
 		source: '/server/:path*',
-		destination: `${process.env.API_BASE_URL}/server/:path*`
+		destination: `${base_url}/server/:path*`
 	}
 ];
 
