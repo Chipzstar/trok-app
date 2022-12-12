@@ -51,10 +51,6 @@ jobs:
           name: Run lint
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
       - run:
-          name: Run backend
-          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
-          background: true
-      - run:
           name: Run e2e
           environment:
             API_BASE_URL: http://localhost:3333
@@ -97,6 +93,10 @@ jobs:
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
       - checkout
+      - node/install:
+          install-yarn: true
+          node-version: '16.13'
+      - run: node --version
       - run:
           name: Install Doppler CLI to current directory
           command: (sudo curl -Ls https://cli.doppler.com/install.sh || sudo wget -qO- https://cli.doppler.com/install.sh) | sudo sh
@@ -115,12 +115,8 @@ jobs:
           name: Run lint
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
       - run:
-          name: Run backend
-          command: sudo doppler run --token=$DOPPLER_TOKEN_BACKEND -- yarn run nx:backend:serve:ci
-          background: true
-      - run:
           name: Run e2e
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD  --target=e2e --ci --code-coverage
+          command: yarn DEBUG=start-server-and-test 'yarn run nx:backend:serve:ci' http://localhost:3333 'yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage'
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
@@ -167,7 +163,7 @@ jobs:
             fi
 workflows:
   version: 2
-  ci:
+  nx-cypress-e2e:
     jobs:
       - agent:
           name: Nx Cloud Agent << matrix.ordinal >>
