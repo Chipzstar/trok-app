@@ -116,7 +116,7 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
       - run:
           name: Run e2e
-          command: yarn run nx:backend:e2e:ci' -- 'yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage'
+          command: yarn run nx:backend:e2e:ci -- 'yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage'
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
