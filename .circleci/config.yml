@@ -90,6 +90,7 @@ jobs:
     environment:
       API_BASE_URL: https://trok-api-dev.onrender.com
       MAIN_BRANCH_NAME: staging
+      DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
     steps:
       - checkout
@@ -116,6 +117,8 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=lint
       - run:
           name: Run e2e
+          environment:
+            DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
           command: yarn run nx:backend:e2e:ci -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage"
       - run:
           name: Run build
