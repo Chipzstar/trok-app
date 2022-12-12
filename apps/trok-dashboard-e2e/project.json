@@ -14,7 +14,6 @@
 			},
 			"configurations": {
 				"ci": {
-					"baseUrl": "https://trok-app-dev.onrender.com",
 					"record": true,
 					"key": "bf0463d1-6ab9-4691-91fc-5f8578b7e72f"
 				},
