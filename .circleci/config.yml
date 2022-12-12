@@ -75,10 +75,12 @@ jobs:
           node-version: '16.13'
       - run: node --version
       - run:
-          name: Enable permissions for storing Cypress assets
+          name: Enable permissions for storing Cypress & build assets
           command: |
             chown -R $USER:$USER /home/circleci/project
             mkdir -p dist/cypress
+            mkdir -p dist/apps
+            chown -R $USER:$USER /home/circleci/project/dist/apps
             chown -R $USER:$USER /home/circleci/project/dist/cypress
             echo */
       - run:
