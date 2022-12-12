@@ -99,7 +99,7 @@ jobs:
           name: Run e2e
           environment:
             DOPPLER_TOKEN: dp.st.ci.0uZw3cZJ76xwRSHRNbNwsNCik3S3RipngU9IEidpnl1
-          command: yarn start-server-and-test "sudo doppler run --token=$DOPPLER_TOKEN -- yarn nx serve trok-backend --no-dte" http://localhost:3333/ping -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=e2e --ci --code-coverage --skip-nx-cache --verbose"
+          command: yarn start-server-and-test "sudo doppler run --token=$DOPPLER_TOKEN -- yarn nx serve trok-backend --no-dte" http://localhost:3333/ping -- "yarn nx affected --base=$NX_BASE --head=$NX_HEAD --parallel=3 --target=e2e --ci --code-coverage --verbose"
       - run:
           name: Run build
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
@@ -119,12 +119,12 @@ jobs:
               echo "Installing config files in ${DIST_DIR}..."
             fi
           when: on_fail
-      - store_artifacts:
-          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
-          destination: screenshots/0-auth
-      - store_artifacts:
-          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
-          destination: videos/0-auth
+#      - store_artifacts:
+#          path: ./dist/cypress/apps/trok-dashboard-e2e/screenshots/0-auth
+#          destination: screenshots/0-auth
+#      - store_artifacts:
+#          path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
+#          destination: videos/0-auth
   test:
     docker:
       - image: cimg/node:16.18.1-browsers
