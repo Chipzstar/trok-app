@@ -89,14 +89,18 @@ jobs:
           command: sudo apt install curl
       - run:
           name: Test deploy hook url
-          command: echo ${tfc_api_deploy_hook_url}
-      - run:
-          name: "Deploy to Render"
           command: |
             app_url = $TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
             api_url = $TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
-            echo app_url
-            echo api_url
+            echo $app_url
+            echo $api_url
+#      - run:
+#          name: "Deploy to Render"
+#          command: |
+#            app_url = $TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+#            api_url = $TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+#            sudo curl $app_url
+#            sudo curl $api_url
 workflows:
   version: 2
   nx-cypress-e2e:
