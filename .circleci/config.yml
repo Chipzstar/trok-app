@@ -79,7 +79,7 @@ jobs:
           command: |
             echo */
             chown -R $USER:$USER /home/circleci/project
-            mkdir ./dist/cypress
+            mkdir -p dist/cypress
             chown -R $USER:$USER /home/circleci/project/dist/cypress
       - run:
           name: Install Doppler CLI to current directory
