@@ -73,7 +73,7 @@ describe('Auth - Signup', () => {
 			referral_code: "EaQdpdJWVgRhYvV6",
 			terms: true
 		});
-		cy.location('pathname').should('contain', '/signup');
+		cy.location('pathname').should('contain', '/onboarding');
 	});
 
 	after(() => {
