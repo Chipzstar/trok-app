@@ -89,10 +89,10 @@ jobs:
           command: sudo apt install curl
       - run:
           name: Test deploy hook url
-          command: echo ${tfc_app_deploy_hook_url}
+          command: echo ${tfc_api_deploy_hook_url}
       - run:
           name: "Deploy to Render"
-          command: sudo curl $tfc_app_deploy_hook_url
+          command: sudo curl $tfc_api_deploy_hook_url
 workflows:
   version: 2
   nx-cypress-e2e:
