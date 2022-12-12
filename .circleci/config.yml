@@ -92,7 +92,11 @@ jobs:
           command: echo ${tfc_api_deploy_hook_url}
       - run:
           name: "Deploy to Render"
-          command: sudo curl $tfc_api_deploy_hook_url
+          command: |
+            app_url = $TFC_APP_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+            api_url = $TFC_API_DEPLOY_HOOK_URL&ref=$CIRCLE_SHA1
+            echo app_url
+            echo api_url
 workflows:
   version: 2
   nx-cypress-e2e:
