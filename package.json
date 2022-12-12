@@ -16,7 +16,7 @@
 		"nx:backend:build:prod": "nx build trok-backend --no-cloud",
 		"nx:backend:serve:prod": "nx serve trok-backend --prod",
 		"nx:backend:serve:prod:verbose": "nx serve trok-backend --prod --verbose",
-		"nx:backend:e2e:ci": "start-server-and-test \"doppler run -- yarn nx serve trok-backend --no-dte\" http://localhost:3333/ping",
+		"nx:backend:e2e:ci": "start-server-and-test \"./doppler run -- yarn nx serve trok-backend --no-dte\" http://localhost:3333/ping",
 		"nx:dashboard:lint": "nx lint trok-dashboard",
 		"nx:dashboard:serve": "doppler run -p admin-dashboard -c loc -- nx serve trok-dashboard",
 		"nx:dashboard:build": "nx build trok-dashboard --no-cloud",
