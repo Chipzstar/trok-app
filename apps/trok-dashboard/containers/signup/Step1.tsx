@@ -203,7 +203,7 @@ const Step1 = ({ nextStep }) => {
 							</Text>
 						</Tooltip>
 					</Group>
-					<FileButton onChange={setFile} accept='image/png,image/jpeg'>
+					<FileButton onChange={setFile} accept='image/png,image/jpeg' data-cy="onboarding-driving-license">
 						{props => (
 							<Button variant='outline' fullWidth {...props}>
 								Upload picture

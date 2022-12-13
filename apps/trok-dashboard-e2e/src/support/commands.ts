@@ -18,7 +18,7 @@ declare global {
 			login(email: string, password: string): void;
 			logout(): void;
 			signup(values: SignupInfo): void;
-			onboardingStep1(values: OnboardingBusinessInfo)
+			onboardingStep1(values: OnboardingBusinessInfo, has_file?: boolean)
 		}
 	}
 }
@@ -53,7 +53,7 @@ Cypress.Commands.add('signup', (values) => {
 	});
 })
 
-Cypress.Commands.add('onboardingStep1', (values) => {
+Cypress.Commands.add('onboardingStep1', (values, has_file=false) => {
 	cy.log('Completing Onboarding step 1...');
 	cy.get('[data-cy="onboarding-company-form"]').within(function () {
 		cy.get('input[data-cy="onboarding-legal-name"]').type(values.legal_name);
@@ -63,7 +63,14 @@ Cypress.Commands.add('onboardingStep1', (values) => {
 		cy.get('input[data-cy="onboarding-business-url"]').type(String(values.business_url));
 		cy.get('input[data-cy="onboarding-merchant-category-code"]').click().get('.mantine-Select-dropdown').click();
 		cy.get('input[data-cy="onboarding-business-type"]').click().get('.mantine-Select-dropdown').click();
-		cy.root().submit().wait(1000);
+		if (has_file) {
+			cy.fixture('test-file.jpg').as('myFixture')
+			cy.get('input[type=file]')
+				.invoke('attr', 'style', 'display: block')
+				.should('have.attr', 'style', 'display: block')
+				.selectFile('@myFixture')
+		}
+		cy.root().submit().wait(has_file ? 3000 : 1000);
 	})
 })
 //

@@ -47,6 +47,20 @@ describe('Auth - Onboarding', () => {
 		cy.get('.mantine-Notification-description').should('have.text', "Please upload a picture of your driver's license before submitting")
 	});
 
+	it('complete onboarding step1', () => {
+		cy.onboardingStep1({
+			business_crn: "13504612",
+			legal_name: "SECONDS TECHNOLOGIES LTD",
+			business_type: "private_company",
+			business_url: "https://useseconds.com",
+			num_vehicles: 10,
+			merchant_category_code: "4214",
+			weekly_fuel_spend: 200000
+		}, true)
+		cy.location('pathname').should('equal', '/onboarding');
+		cy.location('search').should('equal', '?page=2');
+	});
+
 	after(() => {
 		cy.request({
 			url: `${Cypress.env('API_BASE_URL')}/server/trpc/removeRedisSignup`,

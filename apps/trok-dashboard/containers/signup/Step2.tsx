@@ -97,15 +97,15 @@ const Step2 = ({ prevStep, nextStep }) => {
 	}, [form.values]);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
+		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-director-form">
 			<h1 className='mb-4 text-2xl font-medium'>Add Director</h1>
 			<Stack>
 				<Group grow>
-					<TextInput required label='First name' {...form.getInputProps('firstname')} />
-					<TextInput required label='Last name' {...form.getInputProps('lastname')} />
+					<TextInput required label='First name' {...form.getInputProps('firstname')} data-cy="onboarding-firstname"/>
+					<TextInput required label='Last name' {...form.getInputProps('lastname')} data-cy="onboarding-lastname"/>
 				</Group>
 				<Group grow>
-					<TextInput required label='Email' {...form.getInputProps('email')} />
+					<TextInput required label='Email' {...form.getInputProps('email')} data-cy="onboarding-email"/>
 					<DatePicker
 						required
 						placeholder={'Pick a date'}
@@ -118,15 +118,15 @@ const Step2 = ({ prevStep, nextStep }) => {
 					/>
 				</Group>
 				<Group grow>
-					<TextInput required label='Address line 1' {...form.getInputProps('line1')} />
-					<TextInput label='Address line 2' {...form.getInputProps('line2')} />
+					<TextInput required label='Address line 1' {...form.getInputProps('line1')} data-cy="onboarding-line1"/>
+					<TextInput label='Address line 2' {...form.getInputProps('line2')} data-cy="onboarding-line2"/>
 				</Group>
 				<Group grow>
-					<TextInput required label='City' {...form.getInputProps('city')} />
-					<TextInput required label='Postal Code' {...form.getInputProps('postcode')} />
+					<TextInput required label='City' {...form.getInputProps('city')} data-cy="onboarding-city"/>
+					<TextInput required label='Postal Code' {...form.getInputProps('postcode')} data-cy="onboarding-postcode"/>
 				</Group>
 				<Group grow>
-					<TextInput required label='County / Region' {...form.getInputProps('region')} />
+					<TextInput required label='County / Region' {...form.getInputProps('region')} data-cy="onboarding-region"/>
 					<TextInput readOnly label='Country' {...form.getInputProps('country')} />
 				</Group>
 				<Group mt='md' position='apart'>
