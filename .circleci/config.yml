@@ -4,11 +4,6 @@ orbs:
   browser-tools: circleci/browser-tools@1.4.0
   node: circleci/node@5.0.3
   nx: nrwl/nx@1.6.1
-executors:
-  with-chrome:
-    resource_class: medium
-    docker:
-      - image: "cypress/base:16.14.2-slim"
 jobs:
   e2e:
     docker:
@@ -56,7 +51,7 @@ jobs:
           command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --ci --code-coverage --verbose
       - run:
           name: Run build
-          command: yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend --verbose
+          command: sudo yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3 --exclude=trok-backend
       - run:
           name: "Echo current working directory"
           command: |
@@ -116,6 +111,8 @@ workflows:
                 - master
                 - staging
       - deploy:
+          requires:
+            - e2e
           context:
             - Staging
           filters:
