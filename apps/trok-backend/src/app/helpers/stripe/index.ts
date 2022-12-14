@@ -6,7 +6,12 @@ import axios from 'axios';
 import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
-import { CARD_REDIS_SORTED_SET_ID, STATEMENT_REDIS_SORTED_SET_ID, STRIPE_TEST_MODE } from '../../utils/constants';
+import {
+	CARD_REDIS_SORTED_SET_ID,
+	IS_DEVELOPMENT,
+	STATEMENT_REDIS_SORTED_SET_ID,
+	STRIPE_TEST_MODE
+} from '../../utils/constants';
 import {
 	CARD_SHIPPING_STATUS,
 	FuelMerchantCategoryCodes,
@@ -49,7 +54,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 			}
 		});
 		const is_valid_merchant_code = card.allowed_merchant_categories.find(item => item.enabled && item.codes.includes(auth.merchant_data.category_code))
-		if (is_valid_merchant_code || STRIPE_TEST_MODE) {
+		if (is_valid_merchant_code || IS_DEVELOPMENT) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
 				{},
