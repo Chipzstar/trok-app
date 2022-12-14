@@ -19,6 +19,7 @@ model Card {
     exp_month Int
     exp_year Int
     cvc String?
+    allowed_merchant_categories MerchantCodeInfo[]
     spending_limits SpendingLimit[]
     shipping_status String
     shipping_eta Int @db.Long

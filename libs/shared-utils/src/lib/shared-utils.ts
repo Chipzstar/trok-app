@@ -135,7 +135,7 @@ export function getDeclineReason(decline_code: Prisma.TransactionDeclineCode, me
 		case "webhook_timeout":
 			return "This transaction was auto declined due to a system timeout. Our team has been alerted and are investigating the root cause"
 		default:
-			return `This card attempted to make a purchase at a non-fuel card merchant with category: ${merchant_category}`;
+			return `This card attempted to make a purchase at a prohibited merchant with category: ${merchant_category}. Please review this card's settings if this was unexpected`;
 	}
 }
 

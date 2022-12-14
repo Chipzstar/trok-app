@@ -14,7 +14,7 @@ export interface SpendingLimitFormValues {
 	monthly: Limit
 }
 
-interface SpendingLimitForm {
+interface SpendingLimitFormProps {
 	opened: boolean;
 	onClose: () => void;
 	form: UseFormReturnType<SpendingLimitFormValues>
@@ -22,7 +22,7 @@ interface SpendingLimitForm {
 	onSubmit: (val: SpendingLimitFormValues) => Promise<void>
 }
 
-const SpendingLimitForm = ({opened, onClose, form, onSubmit, loading}: SpendingLimitForm) => {
+const SpendingLimitForm = ({opened, onClose, form, onSubmit, loading}: SpendingLimitFormProps) => {
 	return (
 		<Drawer
 			opened={opened}

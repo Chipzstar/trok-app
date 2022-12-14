@@ -157,3 +157,31 @@ export const PLAID_INSTITUTIONS = [
 		value: 'ins_118392'
 	}
 ] // PLAID
+
+export const DEFAULT_ALLOWED_MERCHANTS = [
+	{
+		name: 'fuel',
+		codes: ['5983', '5542', '5172', '5541'],
+		enabled: true
+	},
+	{
+		name: 'truck_stops',
+		codes: ['7511'],
+		enabled: true
+	},
+	{
+		name: 'repair',
+		codes: ['7531', '5511', '7699', '7534'],
+		enabled: false
+	},
+	{
+		name: 'hotels',
+		codes: ['7011'],
+		enabled: false
+	},
+	{
+		name: 'tolls',
+		codes: ['4784'],
+		enabled: false
+	}
+]

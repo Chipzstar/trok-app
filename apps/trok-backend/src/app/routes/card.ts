@@ -2,7 +2,12 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
-import { CARD_SHIPPING_STATUS, CARD_STATUS } from '@trok-app/shared-utils';
+import {
+	CARD_SHIPPING_STATUS,
+	CARD_STATUS,
+	DEFAULT_ALLOWED_MERCHANTS,
+	FuelMerchantCategoryCodes
+} from '@trok-app/shared-utils';
 import { STRIPE_TEST_MODE } from '../utils/constants';
 
 const cardRouter = t.router({
@@ -150,6 +155,7 @@ const cardRouter = t.router({
 								userId: input.user_id,
 								card_id: card.id,
 								...(input?.card_name && { card_name: input.card_name }),
+								allowed_merchant_categories: DEFAULT_ALLOWED_MERCHANTS,
 								cardholder_id: input.cardholder_id,
 								driverId: input.driver_id,
 								cardholder_name: `${driver.firstname} ${driver.lastname}`,
@@ -160,10 +166,12 @@ const cardRouter = t.router({
 								exp_month: card.exp_month,
 								exp_year: card.exp_year,
 								spending_limits: input?.spending_limits
-									? [{
-											amount: input.spending_limits.amount,
-											interval: input.spending_limits.interval
-										}]
+									? [
+											{
+												amount: input.spending_limits.amount,
+												interval: input.spending_limits.interval
+											}
+									  ]
 									: [],
 								status: CARD_STATUS.INACTIVE,
 								shipping_status: card?.shipping?.status ?? CARD_SHIPPING_STATUS.PENDING,
@@ -311,6 +319,51 @@ const cardRouter = t.router({
 					data: {
 						// @ts-ignore
 						spending_limits: input.spending_limits
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	updateAllowedCategories: t.procedure
+		.input(
+			z.object({
+				userId: z.string(),
+				stripeId: z.string(),
+				card_id: z.string(),
+				allowed_categories: z
+					.object({
+						name: z.enum(['fuel', 'truck_stops', 'repair', 'hotels', 'tolls']),
+						codes: z.string().array().nonempty(),
+						enabled: z.boolean()
+					})
+					.array()
+					.nonempty()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const allowed_categories = input.allowed_categories.map(item => item.codes).flat();
+				console.log('-----------------------------------------------');
+				console.log(allowed_categories);
+				/*const card = await stripe.issuing.cards.update(
+				input.card_id,
+				{
+					spending_controls: {
+						allowed_categories: 
+					}
+				},
+				{ stripeAccount: input.stripeId }
+			);*/
+				return await ctx.prisma.card.update({
+					where: {
+						card_id: input.card_id
+					},
+					data: {
+						// @ts-ignore
+						allowed_merchant_categories: input.allowed_categories
 					}
 				});
 			} catch (err) {

@@ -32,6 +32,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 			select: {
 				id: true,
 				last4: true,
+				allowed_merchant_categories: true,
 				cardholder_id: true,
 				driver: {
 					select: {
@@ -47,9 +48,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 				}
 			}
 		});
-		const is_valid_merchant_code = FuelMerchantCategoryCodes.find(
-			item => item === auth.merchant_data.category_code
-		);
+		const is_valid_merchant_code = card.allowed_merchant_categories.find(item => item.enabled && item.codes.includes(auth.merchant_data.category_code))
 		if (is_valid_merchant_code || STRIPE_TEST_MODE) {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
@@ -120,8 +119,10 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 			);
 		}
 		const decline_code = !auth.request_history.length
-			? "disallowed_merchant"
-			: auth.request_history[0].reason === "webhook_declined" ? "disallowed_merchant" : <Prisma.TransactionDeclineCode>auth.request_history[0].reason;
+			? 'disallowed_merchant'
+			: auth.request_history[0].reason === 'webhook_declined'
+			? 'disallowed_merchant'
+			: <Prisma.TransactionDeclineCode>auth.request_history[0].reason;
 		return await prisma.transaction.create({
 			data: {
 				created_at: dayjs.unix(auth.created).format(),
@@ -148,7 +149,7 @@ export const createTransaction = async (auth: Stripe.Issuing.Authorization) => {
 				last4: card.last4,
 				status: auth.approved ? TRANSACTION_STATUS.APPROVED : TRANSACTION_STATUS.DECLINED,
 				...(!auth.approved && { decline_code }),
-				...(!auth.approved && { decline_reason: getDeclineReason(decline_code, auth.merchant_data.category)})
+				...(!auth.approved && { decline_reason: getDeclineReason(decline_code, auth.merchant_data.category) })
 			}
 		});
 	} catch (err) {
@@ -277,7 +278,7 @@ export const updateCard = async (c: Stripe.Issuing.Card) => {
 			where: {
 				card_id: c.id
 			}
-		})
+		});
 		const data = card.shipping_status === CARD_SHIPPING_STATUS.DELIVERED ? {
 			status: c.status,
 			...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
@@ -285,7 +286,7 @@ export const updateCard = async (c: Stripe.Issuing.Card) => {
 			status: c.status,
 			...(c?.shipping?.status && { shipping_status: c.shipping.status }),
 			...(c?.shipping?.eta && { shipping_eta: c.shipping.eta })
-		}
+		};
 		// auto update the card status, shipping status and shipping eta in the database
 		return await prisma.card.update({
 			where: {

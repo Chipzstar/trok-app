@@ -12,11 +12,9 @@ export async function checkCardDeliveredStatus(override = false) {
 		console.table({MIN, MAX})
 		const card_ids = override
 			? await redisClient.zrange(CARD_REDIS_SORTED_SET_ID, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, 'BYSCORE', (err, res) =>
-					console.log('RESULT:', res)
-			  )
+					console.log('RESULT:', res))
 			: await redisClient.zrange(CARD_REDIS_SORTED_SET_ID, MIN, MAX, 'BYSCORE', (err, res) =>
-					console.log('RESULT:', res)
-			  );
+					console.log('RESULT:', res));
 		// mark all returned card shipping_statuses from "shipped" to "delivered"
 		card_ids.map(async (id, index) => {
 			const num_removed = await redisClient.zrem(CARD_REDIS_SORTED_SET_ID, id)

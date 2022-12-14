@@ -166,6 +166,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 				interval: 'weekly'
 			}
 		],
+		allowed_merchant_categories: [],
 		current_balance: 4679995,
 		shipping_status: 'pending',
 		shipping_eta: dayjs().unix()
@@ -194,6 +195,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 				interval: 'weekly'
 			}
 		],
+		allowed_merchant_categories: [],
 		current_balance: 4679995,
 		shipping_status: 'pending',
 		shipping_eta: dayjs().unix()
@@ -222,6 +224,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 				interval: 'weekly'
 			}
 		],
+		allowed_merchant_categories: [],
 		current_balance: 4679995,
 		shipping_status: 'pending',
 		shipping_eta: dayjs().unix()
@@ -251,6 +254,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 				interval: 'weekly'
 			}
 		],
+		allowed_merchant_categories: [],
 		shipping_status: 'pending',
 		shipping_eta: dayjs().unix()
 	},
@@ -278,6 +282,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 				interval: 'weekly'
 			}
 		],
+		allowed_merchant_categories: [],
 		current_balance: 4679995,
 		shipping_status: 'pending',
 		shipping_eta: dayjs().unix()

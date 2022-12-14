@@ -10,7 +10,6 @@ const webhookSecret = String(process.env.STRIPE_WEBHOOK_SECRET);
 const authWebhookSecret = String(process.env.STRIPE_WEBHOOK_AUTHORISATION_SECRET);
 const router = express.Router();
 const jsonParser = bodyParser.json();
-
 router.post(
 	'/webhook',
 	bodyParser.raw({ type: 'application/json' }),

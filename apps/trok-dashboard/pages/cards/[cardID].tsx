@@ -27,6 +27,7 @@ import useWindowSize from '../../hooks/useWindowSize';
 import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
 import SpendingLimitForm, { SpendingLimitFormValues } from '../../modals/SpendingLimitForm';
+import AllowedCategoriesForm, { AllowedCategoriesFormValues } from '../../modals/AllowedCategoriesForm';
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -47,7 +48,8 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const [nonce, setNonce] = useState(null);
 	const [ephemeralKey, setEphemeralKey] = useState(null);
 	const [loading, setLoading] = useState(false);
-	const [opened, setOpened] = useState(false);
+	const [limitsOpened, setLimitsOpened] = useState(false);
+	const [categoriesOpened, setCategoriesOpened] = useState(false);
 	const utils = trpc.useContext();
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
@@ -57,7 +59,12 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	});
 	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => form.reset());
+			utils.invalidate({ userId: session_id }).then(r => spendingLimitForm.reset());
+		}
+	});
+	const allowedCategoriesMutation = trpc.updateAllowedCategories.useMutation({
+		onSuccess: function (input) {
+			utils.invalidate({ userId: session_id }).then(r => allowedCategoriesForm.reset());
 		}
 	});
 	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
@@ -100,9 +107,9 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		})();
 	}, [cardID, stripe_account_id]);
 
-	useEffect(() => form.reset(), [card]);
+	useEffect(() => spendingLimitForm.reset(), [card]);
 
-	const form = useForm<SpendingLimitFormValues>({
+	const spendingLimitForm = useForm<SpendingLimitFormValues>({
 		initialValues: {
 			per_authorization: {
 				active: Boolean(card?.spending_limits.find(l => l.interval === 'per_authorization')),
@@ -123,6 +130,16 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		}
 	});
 
+	const allowedCategoriesForm = useForm<AllowedCategoriesFormValues>({
+		initialValues: {
+			fuel: card?.allowed_merchant_categories[0],
+			truck_stops: card?.allowed_merchant_categories[1],
+			repair: card?.allowed_merchant_categories[2],
+			hotels: card?.allowed_merchant_categories[3],
+			tolls: card?.allowed_merchant_categories[4]
+		}
+	});
+
 	const updateSpendingLimit = useCallback(async values => {
 		setLoading(true);
 		try {
@@ -135,7 +152,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				spending_limits
 			});
 			setLoading(false);
-			setOpened(false);
+			setLimitsOpened(false);
 			notifySuccess(
 				'update-spending-limit-success',
 				'Spending limits updated successfully',
@@ -147,6 +164,31 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			notifyError('update-spending-limit-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 		}
 	}, []);
+
+	const updateAllowedCategories = useCallback(async values => {
+		setLoading(true);
+		try {
+			await allowedCategoriesMutation.mutateAsync({
+				userId: session_id,
+				card_id: String(cardID),
+				stripeId: stripe_account_id,
+				// @ts-ignore
+				allowed_categories: Object.values(values)
+
+			});
+			setLoading(false);
+			setCategoriesOpened(false);
+			notifySuccess(
+				'update-allowed-categories-success',
+				'Allowed categories updated successfully',
+				<IconCheck size={20} />
+			);
+		} catch (err) {
+			setLoading(false);
+			console.error(err);
+			notifyError('update-allowed-categories-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, [])
 
 	const toggleCardStatus = useCallback(
 		async () => {
@@ -179,7 +221,20 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				</Page.Header>
 			}
 		>
-			<SpendingLimitForm opened={opened} onClose={() => setOpened(false)} form={form} loading={loading} onSubmit={updateSpendingLimit}/>
+			<SpendingLimitForm
+				opened={limitsOpened}
+				onClose={() => setLimitsOpened(false)}
+				form={spendingLimitForm}
+				loading={loading}
+				onSubmit={updateSpendingLimit}
+			/>
+			<AllowedCategoriesForm
+				opened={categoriesOpened}
+				onClose={() => setCategoriesOpened(false)}
+				form={allowedCategoriesForm}
+				loading={loading}
+				onSubmit={updateAllowedCategories}
+			/>
 			<Page.Body extraClassNames='px-10'>
 				<Group className='pb-6' position='apart'>
 					<Group>
@@ -208,7 +263,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 						/>
 					)}
 				</Group>
-				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-2'>
+				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-3'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
 						<Group position='apart'>
 							<Stack>
@@ -222,29 +277,58 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 							<Stack>
 								<div className='flex items-center'>
 									<Text>Edit Spend Limits &nbsp;</Text>
-									<ActionIcon size='sm' onClick={() => setOpened(true)}>
+									<ActionIcon size='sm' onClick={() => setLimitsOpened(true)}>
 										<IconEdit />
 									</ActionIcon>
 								</div>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'per_authorization')
-										? GBP(card?.spending_limits.find(
+										? GBP(
+												card?.spending_limits.find(
 													({ interval }) => interval === 'per_authorization'
-												)?.amount).format()
+												)?.amount
+										  ).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'daily')
-										? GBP(card?.spending_limits.find(({ interval }) => interval === 'daily')
-													?.amount).format()
+										? GBP(
+												card?.spending_limits.find(({ interval }) => interval === 'daily')
+													?.amount
+										  ).format()
 										: '-'}
 								</span>
 								<span>
 									{card?.spending_limits.find(({ interval }) => interval === 'weekly')
-										? GBP(card?.spending_limits.find(({ interval }) => interval === 'weekly')
-													?.amount).format()
+										? GBP(
+												card?.spending_limits.find(({ interval }) => interval === 'weekly')
+													?.amount
+										  ).format()
 										: '-'}
 								</span>
+							</Stack>
+						</Group>
+					</Card>
+					<Card shadow='sm' p='lg' radius='md' withBorder>
+						<Group position='apart'>
+							<Stack>
+								<Text color='dimmed' transform='uppercase'>
+									Categories
+								</Text>
+								<span>Fuel</span>
+								<span>Truck Stops</span>
+								<span>Repairs</span>
+							</Stack>
+							<Stack className='h-full'>
+								<div className='flex h-full'>
+									<Text>Edit Allowed Categories &nbsp;</Text>
+									<ActionIcon size='sm' onClick={() => setCategoriesOpened(true)}>
+										<IconEdit />
+									</ActionIcon>
+								</div>
+								<span>{card?.allowed_merchant_categories[0]?.enabled ? "Allowed" : "Prohibited"}</span>
+								<span>{card?.allowed_merchant_categories[1]?.enabled ? "Allowed" : "Prohibited"}</span>
+								<span>{card?.allowed_merchant_categories[2]?.enabled ? "Allowed" : "Prohibited"}</span>
 							</Stack>
 						</Group>
 					</Card>
@@ -277,7 +361,12 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 					Recent Transactions
 				</Title>
 				<ScrollArea.Autosize maxHeight={height - 450}>
-					<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} spacingY='sm' withPagination={false} />
+					<TransactionTable
+						loading={!testMode && transactionsQuery.isLoading}
+						data={data}
+						spacingY='sm'
+						withPagination={false}
+					/>
 				</ScrollArea.Autosize>
 			</Page.Body>
 		</Page.Container>

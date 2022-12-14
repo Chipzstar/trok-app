@@ -83,3 +83,9 @@ type PaymentSchedule {
     interval_execution_day Int
     start_date Int @db.Long
 }
+
+type MerchantCodeInfo {
+    name String
+    codes String[]
+    enabled Boolean
+}
