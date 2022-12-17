@@ -28,6 +28,7 @@ import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
 import SpendingLimitForm, { SpendingLimitFormValues } from '../../modals/SpendingLimitForm';
 import AllowedCategoriesForm, { AllowedCategoriesFormValues } from '../../modals/AllowedCategoriesForm';
+import { useMediaQuery } from '@mantine/hooks';
 
 function formatSpendingLimits(
 	limits: Record<SpendingLimitInterval, { active: boolean; amount: number }>
@@ -43,6 +44,7 @@ let stripe;
 
 const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const router = useRouter();
+	const largeScreen = useMediaQuery('(min-width: 1200px)');
 	const { height } = useWindowSize();
 	const { cardID } = router.query;
 	const [nonce, setNonce] = useState(null);
@@ -108,7 +110,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	}, [cardID, stripe_account_id]);
 
 	useEffect(() => {
-		spendingLimitForm.reset()
+		spendingLimitForm.reset();
 		allowedCategoriesForm.reset();
 	}, [card]);
 
@@ -177,7 +179,6 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 				stripeId: stripe_account_id,
 				// @ts-ignore
 				allowed_categories: Object.values(values)
-
 			});
 			setLoading(false);
 			setCategoriesOpened(false);
@@ -191,28 +192,25 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 			console.error(err);
 			notifyError('update-allowed-categories-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 		}
-	}, [])
+	}, []);
 
-	const toggleCardStatus = useCallback(
-		async () => {
-			setLoading(true);
-			try {
-				const status = card?.status === CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
-				await cardStatusMutation.mutateAsync({
-					card_id: String(cardID),
-					stripeId: stripe_account_id,
-					status
-				});
-				setLoading(false);
-				notifySuccess('activate-card-success', `Card ${card?.last4} is now ${status}`, <IconCheck size={20} />);
-			} catch (err) {
-				setLoading(false);
-				console.error(err);
-				notifyError('activate-card-failed', err?.error?.message ?? err.message, <IconX size={20} />);
-			}
-		},
-		[card, stripe_account_id]
-	);
+	const toggleCardStatus = useCallback(async () => {
+		setLoading(true);
+		try {
+			const status = card?.status === CARD_STATUS.ACTIVE ? CARD_STATUS.INACTIVE : CARD_STATUS.ACTIVE;
+			await cardStatusMutation.mutateAsync({
+				card_id: String(cardID),
+				stripeId: stripe_account_id,
+				status
+			});
+			setLoading(false);
+			notifySuccess('activate-card-success', `Card ${card?.last4} is now ${status}`, <IconCheck size={20} />);
+		} catch (err) {
+			setLoading(false);
+			console.error(err);
+			notifyError('activate-card-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, [card, stripe_account_id]);
 
 	return (
 		<Page.Container
@@ -266,7 +264,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 						/>
 					)}
 				</Group>
-				<div className='grid grid-cols-1 gap-x-8 md:grid-cols-3'>
+				<div className='grid grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-y-0 md:gap-x-4'>
 					<Card shadow='sm' p='lg' radius='md' withBorder>
 						<Group position='apart'>
 							<Stack>
@@ -279,7 +277,7 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 							</Stack>
 							<Stack>
 								<div className='flex items-center'>
-									<Text>Edit Spend Limits &nbsp;</Text>
+									<Text>Edit Limits &nbsp;</Text>
 									<ActionIcon size='sm' onClick={() => setLimitsOpened(true)}>
 										<IconEdit />
 									</ActionIcon>
@@ -324,14 +322,14 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 							</Stack>
 							<Stack className='h-full'>
 								<div className='flex h-full'>
-									<Text>Edit Allowed Categories &nbsp;</Text>
+									<Text>Edit Categories &nbsp;</Text>
 									<ActionIcon size='sm' onClick={() => setCategoriesOpened(true)}>
 										<IconEdit />
 									</ActionIcon>
 								</div>
-								<span>{card?.allowed_merchant_categories[0]?.enabled ? "Allowed" : "Prohibited"}</span>
-								<span>{card?.allowed_merchant_categories[1]?.enabled ? "Allowed" : "Prohibited"}</span>
-								<span>{card?.allowed_merchant_categories[2]?.enabled ? "Allowed" : "Prohibited"}</span>
+								<span>{card?.allowed_merchant_categories[0]?.enabled ? 'Allowed' : 'Prohibited'}</span>
+								<span>{card?.allowed_merchant_categories[1]?.enabled ? 'Allowed' : 'Prohibited'}</span>
+								<span>{card?.allowed_merchant_categories[2]?.enabled ? 'Allowed' : 'Prohibited'}</span>
 							</Stack>
 						</Group>
 					</Card>
@@ -341,22 +339,22 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 								<Text weight={600}>Driver</Text>
 								<span>{card?.cardholder_name}</span>
 							</div>
-							<Group grow position='apart'>
-								{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
-									<Button size='md' onClick={toggleCardStatus} loading={loading}>
+							<Elements
+								stripe={getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })}
+							>
+								<CardPINDisplay card_id={cardID} nonce={nonce} ephemeral_key_secret={ephemeralKey} />
+							</Elements>
+							{card?.shipping_status === CARD_SHIPPING_STATUS.DELIVERED && (
+								<div>
+									<Button
+										size={largeScreen ? 'sm' : 'xs'}
+										onClick={toggleCardStatus}
+										loading={loading}
+									>
 										{card?.status === CARD_STATUS.INACTIVE ? 'Activate' : 'Disable'} Card
 									</Button>
-								)}
-								<Elements
-									stripe={getStripe({ apiVersion: '2022-08-01', stripeAccount: stripe_account_id })}
-								>
-									<CardPINDisplay
-										card_id={cardID}
-										nonce={nonce}
-										ephemeral_key_secret={ephemeralKey}
-									/>
-								</Elements>
-							</Group>
+								</div>
+							)}
 						</Stack>
 					</Card>
 				</div>
