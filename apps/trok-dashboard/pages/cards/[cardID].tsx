@@ -54,17 +54,17 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => spendingLimitForm.reset());
+			utils.getCards.invalidate({ userId: session_id }).then(r => spendingLimitForm.reset());
 		}
 	});
 	const allowedCategoriesMutation = trpc.updateAllowedCategories.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => allowedCategoriesForm.reset());
+			utils.getCards.invalidate({ userId: session_id }).then(r => allowedCategoriesForm.reset());
 		}
 	});
 	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
@@ -107,7 +107,10 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 		})();
 	}, [cardID, stripe_account_id]);
 
-	useEffect(() => spendingLimitForm.reset(), [card]);
+	useEffect(() => {
+		spendingLimitForm.reset()
+		allowedCategoriesForm.reset();
+	}, [card]);
 
 	const spendingLimitForm = useForm<SpendingLimitFormValues>({
 		initialValues: {

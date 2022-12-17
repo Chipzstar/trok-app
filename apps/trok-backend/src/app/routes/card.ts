@@ -2,12 +2,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
-import {
-	CARD_SHIPPING_STATUS,
-	CARD_STATUS,
-	DEFAULT_ALLOWED_MERCHANTS,
-	FuelMerchantCategoryCodes
-} from '@trok-app/shared-utils';
+import { CARD_SHIPPING_STATUS, CARD_STATUS, DEFAULT_ALLOWED_MERCHANTS } from '@trok-app/shared-utils';
 import { STRIPE_TEST_MODE } from '../utils/constants';
 
 const cardRouter = t.router({

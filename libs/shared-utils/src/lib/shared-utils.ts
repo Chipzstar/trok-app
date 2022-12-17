@@ -27,8 +27,6 @@ export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({
 		id,
 		disallowClose: true,
-		onClose: () => console.log('unmounted'),
-		onOpen: () => console.log('mounted'),
 		autoClose: 3000,
 		title: 'Success',
 		message,
@@ -42,8 +40,6 @@ export function notifyError(id: string, message: string, icon: JSX.Element) {
 	showNotification({
 		id,
 		disallowClose: true,
-		onClose: () => console.log('unmounted'),
-		onOpen: () => console.log('mounted'),
 		autoClose: 5000,
 		title: 'Error',
 		message,

@@ -33,7 +33,7 @@ const Step4 = ({ prevStep }) => {
 		key: STORAGE_KEYS.ACCOUNT,
 		defaultValue: null
 	});
-	const [griffin, setGriffin] = useLocalStorage<{legal_person_url: string | null}>({
+	const [griffin, setGriffin] = useLocalStorage<{ legal_person_url: string | null }>({
 		key: STORAGE_KEYS.GRIFFIN,
 		defaultValue: null
 	});
@@ -67,6 +67,14 @@ const Step4 = ({ prevStep }) => {
 	const form = useForm<OnboardingLocationInfo>({
 		initialValues: {
 			...locationForm
+		},
+		validate: {
+			card_business_name: val =>
+				val.search(/[^a-zA-Z0-9 ]/g) !== -1
+					? 'Card business name must not contain special characters'
+					: val.length < 3 || val.length > 24
+					? 'Card business name must be between 3-24 characters'
+					: null
 		}
 	});
 
@@ -82,7 +90,11 @@ const Step4 = ({ prevStep }) => {
 					region: values.region,
 					country: values?.country
 				};
-				const risk_rating = await runGriffinKYBVerification(businessObj.business_crn, location, griffin.legal_person_url);
+				const risk_rating = await runGriffinKYBVerification(
+					businessObj.business_crn,
+					location,
+					griffin.legal_person_url
+				);
 				if (risk_rating === GRIFFIN_RISK_RATING.HIGH)
 					throw new Error(
 						'We have detected a high risk of fraud based on your responses. We advise you check your responses carefully and try submitting again'
@@ -90,7 +102,7 @@ const Step4 = ({ prevStep }) => {
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
 				console.log(directorObj);
-				const personResult = await Stripe.createToken('person', {
+				/*const personResult = await Stripe.createToken('person', {
 					dob: {
 						day: dayjs(directorObj.dob).date(),
 						month: dayjs(directorObj.dob).month() + 1,
@@ -162,7 +174,7 @@ const Step4 = ({ prevStep }) => {
 					data: payload
 				});
 				setLoading(false);
-				router.push(PATHS.VERIFY_EMAIL);
+				router.push(PATHS.VERIFY_EMAIL);*/
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
@@ -239,7 +251,11 @@ const Step4 = ({ prevStep }) => {
 						</>
 					)}
 					<h1 className='text-2xl font-medium'>Configure card details</h1>
-					<TextInput required label='Business name on card' {...form.getInputProps('card_business_name')} />
+					<TextInput
+						required
+						label='Business name on card'
+						{...form.getInputProps('card_business_name')}
+					/>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>

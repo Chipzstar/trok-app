@@ -75,7 +75,7 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 
 export async function validateDirectorInfo(director: OnboardingDirectorInfo): Promise<{ is_valid: boolean; reason: string | null }> {
 	try {
-		if (!isProd && !isDev) return { is_valid: true, reason: null };
+		if (!isDev && !isCI) return { is_valid: true, reason: null };
 		// create director as company representative
 		const building_number = director.line1.split(' ')[0];
 		console.log('BUILDING NUMBER', building_number);
@@ -132,7 +132,7 @@ export async function validateCompanyInfo(
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
-		if (!isProd && !isDev && !isCI) return { is_valid: true, reason: null };
+		if (!isDev && !isCI) return { is_valid: true, reason: null };
 		// lookup company profile using provided CRN
 		const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
 		console.log(company_profile);
@@ -166,7 +166,7 @@ export function runGriffinKYBVerification(crn: string, business_address: Address
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve, reject) => {
 		try {
-			if (!isProd && !isDev) resolve(GRIFFIN_RISK_RATING.LOW);
+			if (!isDev) resolve(GRIFFIN_RISK_RATING.LOW);
 			const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
 			// create a corporation legal person to represent the company using Organisation ID
 			const payload = {
@@ -409,4 +409,11 @@ export function html({ url, full_name }) {
 
 </body>
 </html>`;
+}
+
+export function exclude<Type, Key extends keyof Type>(card: Type, keys: Key[]): Omit<Type, Key> {
+	for (const key of keys) {
+		delete card[key]
+	}
+	return card;
 }
