@@ -102,7 +102,7 @@ const Step4 = ({ prevStep }) => {
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
 				console.log(directorObj);
-				/*const personResult = await Stripe.createToken('person', {
+				const personResult = await Stripe.createToken('person', {
 					dob: {
 						day: dayjs(directorObj.dob).date(),
 						month: dayjs(directorObj.dob).month() + 1,
@@ -174,7 +174,7 @@ const Step4 = ({ prevStep }) => {
 					data: payload
 				});
 				setLoading(false);
-				router.push(PATHS.VERIFY_EMAIL);*/
+				router.push(PATHS.VERIFY_EMAIL);
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
