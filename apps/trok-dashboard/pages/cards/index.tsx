@@ -41,7 +41,7 @@ const Cards = ({ testMode, session_id }) => {
 		},
 		validate: {
 			spending_limit: {
-				amount: (val, values) => val < 100 ? "Limit must be at least than £100" : null,
+				amount: (val, values) => val < 100 ? "Limit must be more than £100" : null,
 				interval: (val, values) => !val ? "Required" : null
 			}
 		}
