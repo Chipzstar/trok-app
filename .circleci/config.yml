@@ -74,7 +74,31 @@ jobs:
       - store_artifacts:
           path: ./dist/cypress/apps/trok-dashboard-e2e/videos/0-auth
           destination: videos/0-auth
-  deploy:
+  deploy-staging:
+    docker:
+      - image: cimg/node:16.18.1-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install cURL library
+          command: sudo apt install curl
+      - run:
+          name: Test deploy hook url
+          command: |
+            ref="&ref=${CIRCLE_SHA1}"
+            app_url="$TFC_APP_DEPLOY_HOOK_URL$ref"
+            api_url="$TFC_API_DEPLOY_HOOK_URL$ref"
+            echo $app_url
+            echo $api_url
+      - run:
+          name: "Deploy to Render"
+          command: |
+            ref="&ref=${CIRCLE_SHA1}"
+            app_url="$TFC_APP_DEPLOY_HOOK_URL$ref"
+            api_url="$TFC_API_DEPLOY_HOOK_URL$ref"
+            sudo curl $app_url
+            sudo curl $api_url
+  deploy-prod:
     docker:
       - image: cimg/node:16.18.1-browsers
     steps:
@@ -110,7 +134,7 @@ workflows:
               only:
                 - master
                 - staging
-      - deploy:
+      - deploy-staging:
           requires:
             - e2e
           context:
@@ -119,3 +143,12 @@ workflows:
             branches:
               only:
                 - staging
+      - deploy-prod:
+          requires:
+            - e2e
+          context:
+            - Production
+          filters:
+            branches:
+              only:
+                - master
