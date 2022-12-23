@@ -29,11 +29,13 @@
 			"configurations": {
 				"development": {
 					"buildTarget": "trok-analytics:build:development",
-					"dev": true
+					"dev": true,
+					"port": 4202
 				},
 				"production": {
 					"buildTarget": "trok-analytics:build:production",
-					"dev": false
+					"dev": false,
+					"port": 4203
 				}
 			}
 		},
