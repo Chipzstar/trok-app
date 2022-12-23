@@ -12,6 +12,11 @@
 				"testingType": "e2e"
 			},
 			"configurations": {
+				"spec": {
+					"spec": "apps/trok-dashboard-e2e/src/e2e/0-auth/onboarding.cy.ts",
+					"headed": true,
+					"exit": false
+				},
 				"watch": {
 					"env": {
 						"API_BASE_URL": "http://localhost:3333",

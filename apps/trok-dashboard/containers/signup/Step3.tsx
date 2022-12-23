@@ -1,16 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Group, NumberInput, Stack, Text } from '@mantine/core';
-import { FileWithPath } from '@mantine/dropzone';
 import { IconCheck, IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
 import { isProd, STORAGE_KEYS } from '../../utils/constants';
-import { useListState, useLocalStorage } from '@mantine/hooks';
-import {
-	notifyError,
-	notifyInfo,
-	OnboardingAccountStep3,
-	OnboardingBusinessInfo
-} from '@trok-app/shared-utils';
+import { useLocalStorage } from '@mantine/hooks';
+import { notifyError, notifyInfo, OnboardingAccountStep3, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient, trpc } from '../../utils/clients';
 import {
 	PlaidLinkOnExit,
@@ -22,7 +16,6 @@ import {
 
 const Step3 = ({ prevStep, nextStep }) => {
 	const [link_token, setLinkToken] = useState<string | null>(null);
-	const [files, handlers] = useListState<FileWithPath>([]);
 	const [loading, setLoading] = useState(false);
 	const [link_loading, setLinkLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<OnboardingAccountStep3>({
@@ -113,7 +106,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, business, files, nextStep, setAccount]
+		[account, business, nextStep, setAccount]
 	);
 
 	useEffect(() => {
@@ -137,7 +130,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 	}, [ready, open, link_token]);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
+		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-finance-form">
 			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
 			<Stack>
 				<NumberInput
@@ -148,6 +141,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 					step={100}
 					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('average_monthly_revenue')}
+					data-cy="onboarding-average-monthly-revenue"
 				/>
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
 				{!isProd && (

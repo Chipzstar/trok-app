@@ -20,7 +20,7 @@ import {
 import { IconX } from '@tabler/icons';
 import { apiClient } from '../../utils/clients';
 import { useRouter } from 'next/router';
-import { runGriffinKYBVerification, validateCompanyInfo } from '../../utils/functions';
+import { runGriffinKYBVerification } from '../../utils/functions';
 import dayjs from 'dayjs';
 import { GRIFFIN_RISK_RATING } from '../../utils/types';
 
@@ -202,24 +202,25 @@ const Step4 = ({ prevStep }) => {
 
 	return (
 		<div className='min-h-screen'>
-			<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col'>
+			<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-location-form">
 				<h1 className='mb-4 text-2xl font-medium'>Business location</h1>
 				<Stack>
 					<Group grow>
-						<TextInput required label='Address line 1' {...form.getInputProps('line1')} />
-						<TextInput label='Address line 2' {...form.getInputProps('line2')} />
+						<TextInput required label='Address line 1' {...form.getInputProps('line1')} data-cy="onboarding-location-line1"/>
+						<TextInput label='Address line 2' {...form.getInputProps('line2')} data-cy="onboarding-location-line2"/>
 					</Group>
 					<Group grow>
-						<TextInput required label='City' {...form.getInputProps('city')} />
-						<TextInput required label='Postal Code' {...form.getInputProps('postcode')} />
+						<TextInput required label='City' {...form.getInputProps('city')} data-cy="onboarding-location-city"/>
+						<TextInput required label='Postal Code' {...form.getInputProps('postcode')} data-cy="onboarding-location-postcode"/>
 					</Group>
 					<Group grow>
-						<TextInput required label='County / Region' {...form.getInputProps('region')} />
-						<TextInput label='Country' {...form.getInputProps('country')} />
+						<TextInput required label='County / Region' {...form.getInputProps('region')} data-cy="onboarding-location-region"/>
+						<TextInput label='Country' {...form.getInputProps('country')} data-cy="onboarding-location-country"/>
 					</Group>
 					<Checkbox
 						label='Use a different shipping address'
 						{...form.getInputProps('diff_shipping_address', { type: 'checkbox' })}
+						data-cy="onboarding-location-diff_shipping_address"
 					/>
 					{form.values.diff_shipping_address && (
 						<>
@@ -229,15 +230,17 @@ const Step4 = ({ prevStep }) => {
 									required
 									label='Address line 1'
 									{...form.getInputProps('shipping_address.line1')}
+									data-cy="onboarding-shipping-address-line1"
 								/>
-								<TextInput label='Address line 2' {...form.getInputProps('shipping_address.line2')} />
+								<TextInput label='Address line 2' {...form.getInputProps('shipping_address.line2')} data-cy="onboarding-shipping-address-line2"/>
 							</Group>
 							<Group grow>
-								<TextInput required label='City' {...form.getInputProps('shipping_address.city')} />
+								<TextInput required label='City' {...form.getInputProps('shipping_address.city')} data-cy="onboarding-shipping-address-city"/>
 								<TextInput
 									required
 									label='Postal code'
 									{...form.getInputProps('shipping_address.postcode')}
+									data-cy="onboarding-shipping-address-postcode"
 								/>
 							</Group>
 							<Group grow>
@@ -245,8 +248,12 @@ const Step4 = ({ prevStep }) => {
 									required
 									label='County/Region'
 									{...form.getInputProps('shipping_address.region')}
+									data-cy="onboarding-shipping-address-region"
 								/>
-								<TextInput label='Country' {...form.getInputProps('shipping_address.country')} />
+								<TextInput
+									label='Country'
+									{...form.getInputProps('shipping_address.country')}
+									data-cy="onboarding-shipping-address-country"/>
 							</Group>
 						</>
 					)}
@@ -255,6 +262,7 @@ const Step4 = ({ prevStep }) => {
 						required
 						label='Business name on card'
 						{...form.getInputProps('card_business_name')}
+						data-cy="onboarding-card-business-name"
 					/>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>

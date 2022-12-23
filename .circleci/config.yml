@@ -127,8 +127,6 @@ workflows:
   nx-cypress-e2e:
     jobs:
       - e2e:
-          context:
-            - production
           filters:
             branches:
               only:
