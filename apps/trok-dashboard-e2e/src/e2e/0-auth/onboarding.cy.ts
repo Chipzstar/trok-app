@@ -143,6 +143,7 @@ describe('Auth - Onboarding', () => {
 	})
 
 	it('Business card name exceeds 24 characters', () => {
+		cy.visit('/onboarding?page=4').location('search').should('equal', '?page=4')
 		cy.onboardingStep4({
 			line1: "35 Forresters Apartments",
 			line2: "42 Linton Road",
