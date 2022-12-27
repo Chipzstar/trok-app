@@ -21,16 +21,12 @@ declare global {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		interface Chainable<Subject> {
 			login(email: string, password: string): void;
-
 			logout(): void;
-
 			signup(values: SignupInfo): void;
-
-			onboardingStep1(values: OnboardingBusinessInfo, has_file?: boolean);
-
-			onboardingStep2(values: OnboardingDirectorInfo);
-			onboardingStep3(values: OnboardingFinancialInfo);
-			onboardingStep4(values: OnboardingLocationInfo, delay?: number);
+			onboardingStep1(values: OnboardingBusinessInfo, has_file?: boolean) : void;
+			onboardingStep2(values: OnboardingDirectorInfo) : void;
+			onboardingStep3(values: OnboardingFinancialInfo) : void;
+			onboardingStep4(values: OnboardingLocationInfo, delay?: number): void;
 		}
 	}
 }
@@ -82,7 +78,7 @@ Cypress.Commands.add('onboardingStep1', (values, has_file = false) => {
 				.should('have.attr', 'style', 'display: block')
 				.selectFile('@myFixture');
 		}
-		cy.root().submit().wait(has_file ? 3000 : 1000);
+		cy.root().submit().wait(has_file ? 3000 : 2000);
 	});
 });
 
@@ -106,7 +102,7 @@ Cypress.Commands.add('onboardingStep2', (values) => {
 		cy.get('input[data-cy="onboarding-director-city"]').type(String(values.city));
 		cy.get('input[data-cy="onboarding-director-postcode"]').type(String(values.postcode));
 		cy.get('input[data-cy="onboarding-director-region"]').type(String(values.region));
-		cy.root().submit().wait(1000);
+		cy.root().submit().wait(2000);
 	});
 });
 
@@ -114,7 +110,7 @@ Cypress.Commands.add('onboardingStep3', (values) => {
 	cy.log('Completing Onboarding step 3...');
 	cy.get('[data-cy="onboarding-finance-form"]').within(function() {
 		cy.get('input[data-cy="onboarding-average-monthly-revenue"]').type(String(values.average_monthly_revenue))
-		cy.root().submit().wait(1000);
+		cy.root().submit().wait(2000);
 	})
 })
 

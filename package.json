@@ -36,7 +36,7 @@
 		"nx:cache-clean": "nx reset",
 		"prisma:generate": "npx prismerge -i prismerge.json && npx prisma generate",
 		"prisma:studio": "npx prisma studio",
-		"prisma:db:push ": "npx prisma db push",
+		"prisma:db:push": "npx prisma db push",
 		"create-env-file:backend": "doppler secrets download --no-file --format env > ./apps/trok-backend/.env -p backend -c loc",
 		"create-env-file:dashboard": "doppler secrets download --no-file --format env > ./apps/trok-dashboard/.env -p admin-dashboard -c loc",
 		"stripe-local-webhook": "stripe listen --forward-to localhost:3333/server/stripe/webhook",
