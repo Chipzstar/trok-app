@@ -16,7 +16,7 @@ import CardsTable from '../containers/CardsTable';
 const Invoices = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
-	const [section, setSection] = useState<SectionState>('Upload Invoice');
+	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
 
 	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });

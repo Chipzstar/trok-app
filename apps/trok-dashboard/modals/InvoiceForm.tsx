@@ -1,8 +1,8 @@
 import React from 'react';
-import { Drawer, Stack, Title } from '@mantine/core';
+import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group } from '@mantine/core';
 
 export type SectionState = 'Create Invoice' | 'Upload Invoice';
-const InvoiceForm = ({opened, onClose, form, onSubmit, loading, section, setSection}) => {
+const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSection }) => {
 	return (
 		<Drawer
 			opened={opened}
@@ -18,6 +18,92 @@ const InvoiceForm = ({opened, onClose, form, onSubmit, loading, section, setSect
 				<Title order={2} weight={500}>
 					<span>Add New Invoice</span>
 				</Title>
+				<Text size='md'>
+					Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit
+					to us.
+				</Text>
+				<Text size='xs' color='dark'>
+					Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
+				</Text>
+				<form
+					onSubmit={form.onSubmit(onSubmit)}
+					className='flex flex-col space-y-4'
+					onClick={() => console.log(typeof form.values.interval_execution_day)}
+				>
+					<SegmentedControl
+						value={section}
+						onChange={(value: 'create' | 'upload') => setSection(value)}
+						transitionTimingFunction='ease'
+						fullWidth
+						data={[
+							{ label: 'Create Invoice', value: 'create' },
+							{ label: 'Upload Invoice', value: 'upload' }
+						]}
+					/>
+					{section === 'create' ? (
+						<Paper
+							component='button'
+							shadow='xs'
+							p='lg'
+							withBorder
+							onClick={() => alert('Creating invoice!!')}
+						>
+							<Group spacing='xl'>
+								<div className='flex rounded-xl bg-primary/25'>
+									<Image
+										width={75}
+										height={75}
+										radius='md'
+										src='/static/images/add-button.svg'
+										alt='create invoice'
+									/>
+								</div>
+								<Text weight='bold'>Create Invoice</Text>
+							</Group>
+						</Paper>
+					) : (
+						<Paper
+							component='button'
+							shadow='xs'
+							p='lg'
+							withBorder
+							onClick={() => alert('Add invoice rate!!')}
+						>
+							<Group spacing='xl'>
+								<div className='flex rounded-xl bg-primary/25'>
+									<Image
+										width={75}
+										height={75}
+										radius='md'
+										src='/static/images/add-button.svg'
+										alt='Add invoice rate'
+									/>
+								</div>
+								<Text weight='bold'>Add invoice rate confirmation</Text>
+							</Group>
+						</Paper>
+					)}
+					<Paper
+						component='button'
+						shadow='xs'
+						p='lg'
+						withBorder
+						onClick={() => alert('Upload proof delivery!!')}
+					>
+						<Group spacing='xl'>
+							<div className='flex rounded-xl bg-primary/25'>
+								<Image
+									width={75}
+									height={75}
+									radius='md'
+									src='/static/images/add-button.svg'
+									alt='Add invoice rate'
+								/>
+							</div>
+							<Text weight='bold'>Upload proof of delivery</Text>
+						</Group>
+					</Paper>
+				</form>
 			</Stack>
 		</Drawer>
 	);
