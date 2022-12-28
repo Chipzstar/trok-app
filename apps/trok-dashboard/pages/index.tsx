@@ -201,7 +201,6 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 }
 
 export async function getServerSideProps({ req, res }) {
-	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
 	const token = await getToken({ req });
 	console.log(session);

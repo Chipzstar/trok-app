@@ -43,6 +43,7 @@ export const PATHS = {
 	ONBOARDING: '/onboarding',
 	CARDS: '/cards',
 	PAYMENTS: '/payments',
+	INVOICES: '/invoices',
 	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
 	SETTINGS: '/settings',

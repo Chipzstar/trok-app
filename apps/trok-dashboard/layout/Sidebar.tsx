@@ -3,6 +3,7 @@ import { createStyles, Group, Navbar, Switch, Text } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
 	IconCalendarTime,
+	IconFileInvoice,
 	IconChartLine,
 	IconCreditCard,
 	IconFileText,
@@ -127,6 +128,13 @@ const Sidebar = () => {
 				disabled: data === false
 			},
 			{
+				link: PATHS.INVOICES,
+				label: 'Invoices',
+				icon: IconFileInvoice,
+				isActive: router.pathname === PATHS.INVOICES,
+				disabled: data === false
+			},
+			{
 				link: PATHS.DRIVERS,
 				label: 'Drivers',
 				icon: IconUsers,
@@ -145,13 +153,6 @@ const Sidebar = () => {
 				label: 'Statements',
 				icon: IconFileText,
 				isActive: router.pathname === PATHS.STATEMENTS,
-				disabled: data === false
-			},
-			{
-				link: PATHS.BANK_ACCOUNT,
-				label: 'Payment Method',
-				icon: IconWallet,
-				isActive: router.pathname === PATHS.BANK_ACCOUNT,
 				disabled: data === false
 			}
 		]
