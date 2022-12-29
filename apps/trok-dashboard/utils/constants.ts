@@ -2,26 +2,25 @@ import dayjs from 'dayjs';
 import { CARD_STATUS, numericId, PAYMENT_STATUS } from '@trok-app/shared-utils';
 import { v4 as uuidv4 } from 'uuid';
 import Prisma, { Prisma as Schema } from '@prisma/client';
+import { faker } from '@faker-js/faker';
+import orderId from 'order-id';
+
+const order_id = orderId(String(process.env.ENC_SECRET));
 
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
-
 export const isDev = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'development';
-
 export const isCI = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'ci';
-
 export const requirements = [
 	{ re: /[0-9]/, label: 'Includes number' },
 	{ re: /[a-z]/, label: 'Includes lowercase letter' },
 	{ re: /[A-Z]/, label: 'Includes uppercase letter' },
 	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
 ];
-
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_HUNDRED_POUNDS = 50000
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 export const DEFAULT_HEADER_HEIGHT = 75;
 export const BANNER_HEIGHT = 65
-
 export const STORAGE_KEYS = {
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
@@ -44,13 +43,14 @@ export const PATHS = {
 	CARDS: '/cards',
 	PAYMENTS: '/payments',
 	INVOICES: '/invoices',
+	CREATE_INVOICE: '/create-invoice',
 	BANK_ACCOUNT: '/payment-method',
 	STATEMENTS: '/statements',
 	SETTINGS: '/settings',
 	REFERRAL: '/referral',
 	VERIFY_EMAIL: '/verify-email',
 	FORGOT_PASSWORD: '/forgot-password',
-	RESET_PASSWORD: '/reset-password',
+	RESET_PASSWORD: '/reset-password'
 };
 
 export const AUTH_ROUTES = [PATHS.LOGIN, PATHS.SIGNUP, PATHS.ONBOARDING, PATHS.VERIFY_EMAIL, PATHS.FORGOT_PASSWORD, PATHS.RESET_PASSWORD]
@@ -588,6 +588,207 @@ export const SAMPLE_BANK_ACCOUNTS : Schema.BankAccountUncheckedCreateInput[] = [
 		status: 'active'
 	}
 ];
+
+export const SAMPLE_INVOICES = [
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+        currency: 'GBP',
+		status: 'in_progress',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'paid',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'paid',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'in_progress',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'paid',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'sent',
+	},
+	{
+		id: uuidv4(),
+		invoice_id: `INV #${order_id.generate()}`,
+		created_at: dayjs().format(),
+		customer_id: uuidv4(),
+		customer_name: faker.company.name(),
+		due_at: dayjs().add(7, "day").format(),
+		line_items: [
+			{
+				quantity: 1,
+				name: faker.commerce.productName(),
+				price: faker.commerce.price()
+			}
+		],
+		amount: 468000,
+		currency: 'GBP',
+		status: 'sent',
+	}
+]
+
+export const SAMPLE_CUSTOMERS = [
+	{
+		id: uuidv4(),
+		name: faker.name.fullName(),
+		email: faker.internet.email(),
+		company: faker.company.name()
+	},
+	{
+		id: uuidv4(),
+		name: faker.name.fullName(),
+		email: faker.internet.email(),
+		company: faker.company.name()
+	},
+	{
+		id: uuidv4(),
+		name: faker.name.fullName(),
+		email: faker.internet.email(),
+		company: faker.company.name()
+	},
+	{
+		id: uuidv4(),
+		name: faker.name.fullName(),
+		email: faker.internet.email(),
+		company: faker.company.name()
+	},
+	{
+		id: uuidv4(),
+		name: faker.name.fullName(),
+		email: faker.internet.email(),
+		company: faker.company.name()
+	}
+]
+
+export const SAMPLE_LINE_ITEMS = [
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+        quantity: faker.random.numeric()
+	},
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+		quantity: faker.random.numeric()
+	},
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+		quantity: faker.random.numeric()
+	},
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+		quantity: faker.random.numeric()
+	},
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+		quantity: faker.random.numeric()
+	},
+	{
+		id: uuidv4(),
+		name: faker.commerce.productName(),
+		price: faker.commerce.price(),
+		quantity: faker.random.numeric()
+	}
+]
 
 export const INDUSTRY_TYPES = [
 	{

@@ -7,9 +7,9 @@ import { IconChevronRight, IconRotateClockwise2 } from '@tabler/icons';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
 
-const InvoiceTable = ({ loading, data, setOpened, selectPayment }) => {
+const InvoiceTable = ({ loading, data, setOpened, selectInvoice }) => {
 	const [activePage, setPage] = useState(1);
-	const rows = data.map((p, index) => {
+	const rows = data.map((i, index) => {
 		const statusClass = classNames({
 			'py-1': true,
 			'w-28': true,
@@ -19,16 +19,16 @@ const InvoiceTable = ({ loading, data, setOpened, selectPayment }) => {
 			'text-xs': true,
 			'tracking-wide': true,
 			'font-semibold': true,
-			'text-violet-500': p.status === PAYMENT_STATUS.PENDING,
-			'text-success': p.status === PAYMENT_STATUS.COMPLETE,
-			'text-warning': p.status === PAYMENT_STATUS.IN_PROGRESS,
-			'text-danger': p.status === PAYMENT_STATUS.FAILED,
-			'text-gray-500': p.status === PAYMENT_STATUS.CANCELLED,
-			'bg-violet-500/25': p.status === PAYMENT_STATUS.PENDING,
-			'bg-success/25': p.status === PAYMENT_STATUS.COMPLETE,
-			'bg-warning/25': p.status === PAYMENT_STATUS.IN_PROGRESS,
-			'bg-danger/25': p.status === PAYMENT_STATUS.FAILED,
-			'bg-gray-500/25': p.status === PAYMENT_STATUS.CANCELLED
+			'text-violet-500': i.status === PAYMENT_STATUS.PENDING,
+			'text-success': i.status === "paid",
+			'text-warning': i.status === PAYMENT_STATUS.IN_PROGRESS,
+			'text-danger': i.status === PAYMENT_STATUS.FAILED,
+			'text-gray-500': i.status === PAYMENT_STATUS.CANCELLED,
+			'bg-violet-500/25': i.status === PAYMENT_STATUS.PENDING,
+			'bg-success/25': i.status === "paid",
+			'bg-warning/25': i.status === PAYMENT_STATUS.IN_PROGRESS,
+			'bg-danger/25': i.status === PAYMENT_STATUS.FAILED,
+			'bg-gray-500/25': i.status === PAYMENT_STATUS.CANCELLED
 		});
 		return (
 			<tr
@@ -38,16 +38,19 @@ const InvoiceTable = ({ loading, data, setOpened, selectPayment }) => {
 				}}
 			>
 				<td colSpan={1}>
-					<span>{p.reference}</span>
+					<span>{i.invoice_id}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{GBP(p.amount).format()}</span>
+					<span>{capitalize(sanitize(i.customer_name))}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{capitalize(sanitize(p.payment_type))}</span>
+					<span>{GBP(i.amount).format()}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{dayjs(p.created_at).format('MMM DD')}</span>
+					<span>{dayjs(i.created_at).format('MMM DD')}</span>
+				</td>
+				<td colSpan={1}>
+					<span>{dayjs(i.due_at).format('MMM DD')}</span>
 				</td>
 				<td colSpan={1}>
 					<Group align='center'>
@@ -61,16 +64,16 @@ const InvoiceTable = ({ loading, data, setOpened, selectPayment }) => {
 									●
 								</span>
 								&nbsp;
-								{capitalize(sanitize(p?.status))}
+								{capitalize(sanitize(i?.status))}
 							</span>
 						</div>
-						{p.recurring && <IconRotateClockwise2 size={20} />}
+						{i.recurring && <IconRotateClockwise2 size={20} />}
 					</Group>
 				</td>
 				<td
 					role='button'
 					onClick={() => {
-						selectPayment(p);
+						selectInvoice(i);
 						setOpened(true);
 					}}
 				>
@@ -90,13 +93,15 @@ const InvoiceTable = ({ loading, data, setOpened, selectPayment }) => {
 		</div>
 	) : (
 		<DataGrid
+			offset={220}
+			rowHeight={140}
 			rows={rows}
 			activePage={activePage}
 			setPage={setPage}
 			spacingY='md'
 			headings={[
-				{ label: 'Customer', key: null },
 				{ label: 'Invoice #', key: null },
+				{ label: 'Customer', key: null },
 				{ label: 'Amount', key: null },
 				{ label: 'Invoice Date', key: null },
 				{ label: 'Due Date', key: null },

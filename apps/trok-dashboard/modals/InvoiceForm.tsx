@@ -1,8 +1,11 @@
 import React from 'react';
 import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group } from '@mantine/core';
+import { PATHS } from '../utils/constants';
+import { useRouter } from 'next/router';
 
-export type SectionState = 'Create Invoice' | 'Upload Invoice';
+export type SectionState = 'create' | 'upload';
 const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSection }) => {
+	const router = useRouter();
 	return (
 		<Drawer
 			opened={opened}
@@ -46,7 +49,7 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 							shadow='xs'
 							p='lg'
 							withBorder
-							onClick={() => alert('Creating invoice!!')}
+							onClick={() => router.push(PATHS.CREATE_INVOICE)}
 						>
 							<Group spacing='xl'>
 								<div className='flex rounded-xl bg-primary/25'>

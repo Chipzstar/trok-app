@@ -1,21 +1,20 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
-import { SectionState } from '../modals/InvoiceForm';
-import InvoiceForm from '../modals/InvoiceForm';
+import InvoiceForm, { SectionState } from '../modals/InvoiceForm';
 import { useForm } from '@mantine/form';
-import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
-import dayjs from 'dayjs';
+import { GBP } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { getToken } from 'next-auth/jwt';
-import { PATHS } from '../utils/constants';
-import CardsTable from '../containers/CardsTable';
+import { PATHS, SAMPLE_INVOICES } from '../utils/constants';
+import InvoiceTable from '../containers/InvoiceTable';
 
 const Invoices = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
+	const [opened, setOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
+	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
 
@@ -76,7 +75,7 @@ const Invoices = ({ testMode, session_id }) => {
 			<Page.Body extraClassNames=''>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
 					<Card shadow='sm' py={0} radius='xs'>
-						<Stack px='md' py='md' spacing="xs">
+						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Approved Invoices</span>
 							{!testMode && transactionsQuery.isLoading ? (
 								<Loader size='sm' />
@@ -89,7 +88,7 @@ const Invoices = ({ testMode, session_id }) => {
 						</Stack>
 					</Card>
 					<Card shadow='sm' py={0} radius='xs'>
-						<Stack px='md' py='md' spacing="xs">
+						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Unapproved Invoices</span>
 							{!testMode && transactionsQuery.isLoading ? (
 								<Loader size='sm' />
@@ -102,7 +101,7 @@ const Invoices = ({ testMode, session_id }) => {
 						</Stack>
 					</Card>
 					<Card shadow='sm' py={0} radius='xs'>
-						<Stack px='md' py='md' spacing="xs">
+						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Invoices</span>
 							{!testMode && transactionsQuery.isLoading ? (
 								<Loader size='sm' />
@@ -115,7 +114,7 @@ const Invoices = ({ testMode, session_id }) => {
 						</Stack>
 					</Card>
 				</SimpleGrid>
-				<Space py="lg" />
+				<Space py='md' />
 				<Tabs
 					value={activeTab}
 					onTabChange={setActiveTab}
@@ -123,7 +122,6 @@ const Invoices = ({ testMode, session_id }) => {
 					classNames={{
 						root: 'flex flex-col grow',
 						tabsList: '',
-						tab: 'mx-4'
 					}}
 				>
 					<Tabs.List>
@@ -134,17 +132,16 @@ const Invoices = ({ testMode, session_id }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all' className='h-full'>
-
+						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
 					</Tabs.Panel>
-
 					<Tabs.Panel value='awaiting' className='h-full'>
-
+						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
 					</Tabs.Panel>
 					<Tabs.Panel value='approval' className='h-full'>
-
+						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
 					</Tabs.Panel>
 					<Tabs.Panel value='paid' className='h-full'>
-
+						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

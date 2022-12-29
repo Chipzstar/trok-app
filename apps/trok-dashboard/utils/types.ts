@@ -9,6 +9,13 @@ export interface SelectInput {
 	group?: string
 }
 
+export interface LineItem {
+	name: string
+	quantity: number
+	price: number
+	amount: number
+}
+
 export enum GRIFFIN_VERIFICATION_STATUS {
 	COMPLETE='checks-complete',
 	FAILED='failed',

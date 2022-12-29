@@ -38,9 +38,17 @@ body {
     margin: 0;
 }
 
-tbody > tr {
+table:not([class*='mantine-DatePicker-month']):not([class*='mantine-DatePicker-year']):not([id*='new-invoice-table']) > tbody > tr {
     border: none;
     background-color: white;
     box-shadow: rgba(173, 173, 173, 0.25) 0 7px 4px;
     /*box-shadow: 0 0 2rem transparentize( black, 0.9 );*/
 }
+
+/*
+table > tbody > tr {
+    border: none;
+    background-color: white;
+    box-shadow: rgba(173, 173, 173, 0.25) 0 7px 4px;
+    !*box-shadow: 0 0 2rem transparentize( black, 0.9 );*!
+}*/
