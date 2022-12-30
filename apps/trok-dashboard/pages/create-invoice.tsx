@@ -7,11 +7,13 @@ import {
 	Breadcrumbs,
 	Button,
 	Card,
-	Center, createStyles,
+	Center,
+	createStyles,
 	Divider,
 	Group,
 	MantineColor,
-	NumberInput, ScrollArea,
+	NumberInput,
+	ScrollArea,
 	Select,
 	SelectItemProps,
 	SimpleGrid,
@@ -19,12 +21,13 @@ import {
 	Stack,
 	Table,
 	Text,
+	Textarea,
 	TextInput
 } from '@mantine/core';
 import { PATHS, SAMPLE_CUSTOMERS, SAMPLE_LINE_ITEMS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
-import { IconCalendar, IconCirclePlus, IconGripVertical, IconSearch, IconTrash } from '@tabler/icons';
+import { IconCalendar, IconCirclePlus, IconGripVertical, IconSearch, IconTrash, IconUserPlus } from '@tabler/icons';
 import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
@@ -70,7 +73,7 @@ const AutoCompleteItem = forwardRef<HTMLDivElement, ItemProps>(
 
 AutoCompleteItem.displayName = 'AuoCompleteItem';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(theme => ({
 	header: {
 		position: 'sticky',
 		top: 0,
@@ -84,12 +87,12 @@ const useStyles = createStyles((theme) => ({
 			left: 0,
 			right: 0,
 			bottom: 0,
-			borderBottom: `1px solid ${theme.colors.gray[2]}`,
-		},
+			borderBottom: `1px solid ${theme.colors.gray[2]}`
+		}
 	},
 	scrolled: {
-		boxShadow: theme.shadows.sm,
-	},
+		boxShadow: theme.shadows.sm
+	}
 }));
 
 const CreateInvoice = () => {
@@ -130,7 +133,7 @@ const CreateInvoice = () => {
 		<Draggable key={index} index={index} draggableId={index.toString()}>
 			{provided => (
 				<tr
-					className="bg-white"
+					className='bg-white'
 					ref={provided.innerRef}
 					{...provided.draggableProps}
 					key={index}
@@ -194,7 +197,7 @@ const CreateInvoice = () => {
 					</td>
 					<td>{GBP(_.amount).format()}</td>
 					<td>
-						<ActionIcon color="red" onClick={() => form.removeListItem('line_items', index)}>
+						<ActionIcon color='red' onClick={() => form.removeListItem('line_items', index)}>
 							<IconTrash size={16} stroke={1.5} />
 						</ActionIcon>
 					</td>
@@ -205,6 +208,7 @@ const CreateInvoice = () => {
 
 	return (
 		<Page.Container
+			classNames='h-screen flex flex-col overflow-x-hidden'
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Create Invoice</span>
@@ -225,7 +229,7 @@ const CreateInvoice = () => {
 						]}
 					>
 						{!visible ? (
-							<Card shadow='sm' py='xs' radius='xs'>
+							<Card withBorder py='xs' radius='xs'>
 								<Stack
 									justify='center'
 									align='center'
@@ -281,6 +285,15 @@ const CreateInvoice = () => {
 										item.company.toLowerCase().includes(value.toLowerCase().trim())
 									}
 								/>
+								<Button
+									variant='outline'
+									mt='sm'
+									leftIcon={<IconUserPlus size={24} />}
+									size='lg'
+									fullWidth
+								>
+									Create Customer
+								</Button>
 							</Stack>
 						)}
 						<Stack>
@@ -326,43 +339,41 @@ const CreateInvoice = () => {
 					</SimpleGrid>
 					<Space py='sm' />
 					<SimpleGrid cols={1}>
-						<ScrollArea.Autosize maxHeight={200} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-							<Table
-								id='new-invoice-table'
-								withBorder={false}
-								withColumnBorders={false}
-								horizontalSpacing='xl'
-								verticalSpacing='sm'
-								fontSize='md'
+						<Table
+							id='new-invoice-table'
+							withBorder
+							withColumnBorders={false}
+							horizontalSpacing='xl'
+							verticalSpacing='sm'
+							fontSize='md'
+						>
+							<thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
+								<tr>
+									<th></th>
+									<th>Items</th>
+									<th>Quantity</th>
+									<th>Price</th>
+									<th>Amount</th>
+									<th></th>
+								</tr>
+							</thead>
+							<DragDropContext
+								onDragEnd={({ destination, source }) =>
+									form.reorderListItem('line_items', {
+										from: source.index,
+										to: destination.index
+									})
+								}
 							>
-								<thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
-									<tr>
-										<th></th>
-										<th>Items</th>
-										<th>Quantity</th>
-										<th>Price</th>
-										<th>Amount</th>
-										<th></th>
-									</tr>
-								</thead>
-								<DragDropContext
-									onDragEnd={({ destination, source }) =>
-										form.reorderListItem('line_items', {
-											from: source.index,
-											to: destination.index
-										})
-									}
-								>
-									<Droppable droppableId='dnd-list' direction='vertical'>
-										{provided => (
-											<tbody {...provided.droppableProps} ref={provided.innerRef}>
-												{fields}
-											</tbody>
-										)}
-									</Droppable>
-								</DragDropContext>
-							</Table>
-						</ScrollArea.Autosize>
+								<Droppable droppableId='dnd-list' direction='vertical'>
+									{provided => (
+										<tbody {...provided.droppableProps} ref={provided.innerRef}>
+											{fields}
+										</tbody>
+									)}
+								</Droppable>
+							</DragDropContext>
+						</Table>
 						<Group position='right'>
 							<Button
 								variant='outline'
@@ -381,29 +392,32 @@ const CreateInvoice = () => {
 						</Group>
 					</SimpleGrid>
 					<Space py='sm' />
-					<Group position='right'>
-						<Card shadow='sm' py='md' radius='xs'>
-							<Stack>
-								<Group position='apart' grow>
+					<Group position='apart' pb='md' grow align='start'>
+						<Textarea placeholder='Invoice Notes' minRows={5} size="lg"/>
+						<Card withBorder py='md' radius='xs'>
+							<SimpleGrid cols={2} spacing='xl'>
+								<div>
 									<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
 										Sub Total
 									</Text>
+								</div>
+								<div>
 									<Text size='md'>{GBP(0).format()}</Text>
-								</Group>
-								<Group position='apart' grow>
-									<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-										Discount
-									</Text>
-									<NumberInput {...form.getInputProps('discount')} />
-								</Group>
-								<Divider size='md' />
-								<Group position='apart' grow>
-									<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-										Total Amount
-									</Text>
-									<Text size='md'>{GBP(0).format()}</Text>
-								</Group>
-							</Stack>
+								</div>
+								<div />
+								<div>
+									<Anchor component="button" type="button">
+										+ Add Tax
+									</Anchor>
+								</div>
+							</SimpleGrid>
+							<Divider size='md' my='xs' />
+							<SimpleGrid cols={2} spacing='xl'>
+								<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
+									Total Amount
+								</Text>
+								<Text size='md'>{GBP(0).format()}</Text>
+							</SimpleGrid>
 						</Card>
 					</Group>
 				</form>
