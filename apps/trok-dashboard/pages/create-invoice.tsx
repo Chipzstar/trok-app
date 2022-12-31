@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
@@ -13,7 +13,6 @@ import {
 	Group,
 	MantineColor,
 	NumberInput,
-	ScrollArea,
 	Select,
 	SelectItemProps,
 	SimpleGrid,
@@ -33,6 +32,7 @@ import { useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { GBP } from '@trok-app/shared-utils';
+import NewCustomerForm from '../modals/NewCustomerForm';
 
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
@@ -97,6 +97,7 @@ const useStyles = createStyles(theme => ({
 
 const CreateInvoice = () => {
 	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 	const { classes, cx } = useStyles();
 	const [scrolled, setScrolled] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -128,6 +129,10 @@ const CreateInvoice = () => {
 			discount: 0
 		}
 	});
+
+	const createNewCustomer = useCallback(async (values) => {
+		console.log(values)
+	}, [])
 
 	const fields = form.values.line_items.map((_, index) => (
 		<Draggable key={index} index={index} draggableId={index.toString()}>
@@ -218,6 +223,13 @@ const CreateInvoice = () => {
 				</Page.Header>
 			}
 		>
+			<NewCustomerForm
+				opened={newCustomer.show}
+				onClose={() => showNewCustomerForm(prevState => ({show: false, query: ''}))}
+				loading={loading}
+				onSubmit={createNewCustomer}
+				query={newCustomer.query}
+			/>
 			<Page.Body extraClassNames=''>
 				<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
 				<form action=''>
@@ -291,6 +303,7 @@ const CreateInvoice = () => {
 									leftIcon={<IconUserPlus size={24} />}
 									size='lg'
 									fullWidth
+									onClick={() => showNewCustomerForm(prevState => ({show: true, query: ''}))}
 								>
 									Create Customer
 								</Button>

@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { createStyles, Group, Navbar, Switch, Text } from '@mantine/core';
+import React, { useState } from 'react';
+import { createStyles, Group, Navbar, Switch } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
 	IconCalendarTime,
-	IconFileInvoice,
 	IconChartLine,
 	IconCreditCard,
+	IconFileInvoice,
 	IconFileText,
 	IconGift,
 	IconLogout,
 	IconSettings,
-	IconUsers,
-	IconWallet
+	IconUsers
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -179,10 +178,7 @@ const Sidebar = () => {
 		<Navbar width={{ base: 250 }} p='xs'>
 			<Navbar.Section className={classes.header}>
 				<Group spacing='xs' role="button" onClick={() => router.push(PATHS.HOME)}>
-					<Image src='/static/images/logo-blue.svg' width={35} height={35} />
-					<Text size={28} weight='600'>
-						Trok
-					</Text>
+					<Image src='/static/images/logo-with-text.svg' width={100} height={35} />
 				</Group>
 			</Navbar.Section>
 			<Navbar.Section grow>{links}</Navbar.Section>
