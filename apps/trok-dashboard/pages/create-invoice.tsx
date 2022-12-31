@@ -33,6 +33,7 @@ import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { GBP } from '@trok-app/shared-utils';
 import NewCustomerForm from '../modals/NewCustomerForm';
+import LineItemForm from '../modals/LineItemForm';
 
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
@@ -103,6 +104,7 @@ const CreateInvoice = () => {
 	const [opened, setOpened] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [newCustomer, showNewCustomerForm] = useState({ query: '', show: false });
+	const [newItem, showNewItemForm] = useState({ query: '', show: false });
 	const items = [
 		{ title: 'Home', href: PATHS.HOME },
 		{ title: 'Invoices', href: PATHS.INVOICES },
@@ -120,7 +122,7 @@ const CreateInvoice = () => {
 			invoice_number: '',
 			line_items: [
 				{
-					name: 'Cereal',
+					name: '',
 					quantity: 1,
 					price: 0,
 					amount: 0
@@ -131,6 +133,10 @@ const CreateInvoice = () => {
 	});
 
 	const createNewCustomer = useCallback(async (values) => {
+		console.log(values)
+	}, [])
+
+	const createNewItem = useCallback(async (values) => {
 		console.log(values)
 	}, [])
 
@@ -167,7 +173,7 @@ const CreateInvoice = () => {
 							withinPortal={false}
 							getCreateLabel={query => `+ Create ${query}`}
 							onCreate={query => {
-								showNewCustomerForm(prevState => ({ show: true, query }));
+								showNewItemForm(prevState => ({ show: true, query }));
 								return null;
 							}}
 							data={SAMPLE_LINE_ITEMS.map(cus => ({
@@ -179,6 +185,7 @@ const CreateInvoice = () => {
 					</td>
 					<td>
 						<NumberInput
+							required
 							value={_.quantity}
 							min={1}
 							max={10}
@@ -229,6 +236,13 @@ const CreateInvoice = () => {
 				loading={loading}
 				onSubmit={createNewCustomer}
 				query={newCustomer.query}
+			/>
+			<LineItemForm
+				opened={newItem.show}
+				onClose={() => showNewItemForm(prevState => ({show: false, query: ''}))}
+				loading={loading}
+				onSubmit={createNewItem}
+				query={newItem.query}
 			/>
 			<Page.Body extraClassNames=''>
 				<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
@@ -390,6 +404,7 @@ const CreateInvoice = () => {
 						<Group position='right'>
 							<Button
 								variant='outline'
+								color="green"
 								leftIcon={<IconCirclePlus size={18} />}
 								onClick={() =>
 									form.insertListItem('line_items', {
@@ -400,7 +415,14 @@ const CreateInvoice = () => {
 									})
 								}
 							>
-								Add New Item
+								Add Item
+							</Button>
+							<Button
+								variant='outline'
+								leftIcon={<IconCirclePlus size={18} />}
+								onClick={() => showNewItemForm(prevState => ({show: true, query: ''}))}
+							>
+								Create New Item
 							</Button>
 						</Group>
 					</SimpleGrid>

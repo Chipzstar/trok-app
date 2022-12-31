@@ -21,7 +21,7 @@ interface NewCustomerFormProps {
 const NewCustomerForm = ({opened, onClose, onSubmit, loading, query} : NewCustomerFormProps) => {
 	const form = useForm<CustomerFormValues>({
 		initialValues: {
-			display_name: '',
+			display_name: query ?? '',
 			primary_contact: '',
 			company_name: '',
 			email: '',
@@ -83,7 +83,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query} : NewCustom
 				</Stack>
 				<Group position='right'>
 					<Button disabled={!form.isDirty()} type='submit' loading={loading}>
-						<Text weight={500}>Create Customer</Text>
+						<Text weight={500}>Save</Text>
 					</Button>
 				</Group>
 			</form>
