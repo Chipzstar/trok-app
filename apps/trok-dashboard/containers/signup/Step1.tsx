@@ -1,38 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import {
-	Button,
-	FileButton,
-	Group,
-	NumberInput,
-	Select,
-	Stack,
-	Text,
-	TextInput,
-	Tooltip,
-	Center
-} from '@mantine/core';
-import { IconCurrencyPound, IconX, IconInfoCircle } from '@tabler/icons';
+import { Button, Center, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
-import {
-	notifyError,
-	OnboardingBusinessInfo,
-	OnboardingAccountStep1
-} from '@trok-app/shared-utils';
+import { notifyError, OnboardingAccountStep1, OnboardingBusinessInfo } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
 import { uploadFile, validateCompanyInfo } from '../../utils/functions';
-
-const DocumentInfo = ({ fileInfo }: { fileInfo: File | null }) => {
-	return (
-		<Group>
-			<Text size='sm'>{fileInfo?.name}</Text>
-			<Text size='sm' color='dimmed'>
-				({fileInfo?.size / 1000} Kb)
-			</Text>
-		</Group>
-	);
-};
+import DocumentInfo from '../../components/DocumentInfo';
 
 const Step1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);

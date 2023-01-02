@@ -4,7 +4,17 @@ import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 
 export type SectionState = 'create' | 'upload';
-const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSection, showUploadForm }) => {
+const InvoiceForm = ({
+	opened,
+	onClose,
+	form,
+	onSubmit,
+	loading,
+	section,
+	setSection,
+	showPODUploadForm,
+	showInvUploadForm
+}) => {
 	const router = useRouter();
 	return (
 		<Drawer
@@ -17,7 +27,7 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 				drawer: 'flex h-full'
 			}}
 			transitionDuration={250}
-			transitionTimingFunction="ease"
+			transitionTimingFunction='ease'
 		>
 			<Stack>
 				<Title order={2} weight={500}>
@@ -67,13 +77,7 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 							</Group>
 						</Paper>
 					) : (
-						<Paper
-							component='button'
-							shadow='xs'
-							p='lg'
-							withBorder
-							onClick={() => alert('Add invoice rate!!')}
-						>
+						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showInvUploadForm}>
 							<Group spacing='xl'>
 								<div className='flex rounded-xl bg-primary/25'>
 									<Image
@@ -88,13 +92,7 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 							</Group>
 						</Paper>
 					)}
-					<Paper
-						component='button'
-						shadow='xs'
-						p='lg'
-						withBorder
-						onClick={showUploadForm}
-					>
+					<Paper component='button' shadow='xs' p='lg' withBorder onClick={showPODUploadForm}>
 						<Group spacing='xl'>
 							<div className='flex rounded-xl bg-primary/25'>
 								<Image

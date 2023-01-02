@@ -10,12 +10,14 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { PATHS, SAMPLE_INVOICES } from '../utils/constants';
 import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
+import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 
 const Invoices = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [opened, setOpened] = useState(false);
 	const [podOpened, setPODOpened] = useState(false);
-	const [invoiceOpened, setInvoiceOpened] = useState(false);
+	const [invUploadOpened, setInvUploadOpened] = useState(false);
+	const [newInvoiceOpened, setNewInvoiceOpened] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
@@ -59,23 +61,27 @@ const Invoices = ({ testMode, session_id }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
-					<Button className='' onClick={() => setInvoiceOpened(true)}>
+					<Button className='' onClick={() => setNewInvoiceOpened(true)}>
 						<span className='text-base font-normal'>New Invoice</span>
 					</Button>
 				</Page.Header>
 			}
 		>
 			<InvoiceForm
-				opened={invoiceOpened}
-				onClose={() => setInvoiceOpened(false)}
+				opened={newInvoiceOpened}
+				onClose={() => setNewInvoiceOpened(false)}
 				form={form}
 				onSubmit={handleSubmit}
 				loading={loading}
 				section={section}
 				setSection={setSection}
-				showUploadForm={() => {
-					setInvoiceOpened(false)
+				showPODUploadForm={() => {
+					setNewInvoiceOpened(false)
 					setTimeout(() => setPODOpened(true), 100)
+				}}
+				showInvUploadForm={() => {
+					setNewInvoiceOpened(false)
+					setTimeout(() => setInvUploadOpened(true), 100)
 				}}
 			/>
 			<PODUploadForm
@@ -86,7 +92,18 @@ const Invoices = ({ testMode, session_id }) => {
 				loading={loading}
 				goBack={() => {
 					setPODOpened(false)
-					setTimeout(() => setInvoiceOpened(true), 100)
+					setTimeout(() => setNewInvoiceOpened(true), 100)
+				}}
+			/>
+			<InvoiceUploadForm
+				opened={invUploadOpened}
+				onClose={() => setInvUploadOpened(false)}
+				form={form}
+				onSubmit={handleSubmit}
+				loading={loading}
+				goBack={() => {
+					setInvUploadOpened(false)
+					setTimeout(() => setNewInvoiceOpened(true), 100)
 				}}
 			/>
 			<Page.Body extraClassNames=''>

@@ -1,8 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { Button, createStyles, Drawer, Image, Group, Space, Stack, Text, Title, SimpleGrid } from '@mantine/core';
-import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
+import React, { useRef, useState } from 'react';
+import { Dropzone, FileWithPath, MS_WORD_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
+import { Button, Center, createStyles, Drawer, Group, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
 import { TEN_MB } from '../../utils/constants';
+import { IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
+import DocumentInfo from '../../components/DocumentInfo';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -27,14 +28,7 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-function Preview(props: { file: FileWithPath }) {
-	const imageUrl = props.file ? URL.createObjectURL(props.file) : null;
-	return imageUrl ? (
-		<Image src={imageUrl} imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }} />
-	) : null;
-}
-
-const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => {
+const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack }) => {
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
@@ -52,9 +46,9 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
-			<form className="flex flex-col" onSubmit={onSubmit}>
-				<Title order={2} weight={500} mb="lg">
-					<span>Upload Proof of Delivery</span>
+			<Stack>
+				<Title order={2} weight={500}>
+					<span>Upload Invoice</span>
 				</Title>
 				<div className={classes.wrapper}>
 					<Dropzone
@@ -65,7 +59,7 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 						onReject={files => console.log('rejected files', files)}
 						maxSize={TEN_MB}
 						className={classes.dropzone}
-						accept={IMAGE_MIME_TYPE}
+						accept={[...PDF_MIME_TYPE, ...MS_WORD_MIME_TYPE]}
 						loading={loading}
 					>
 						<Group position='center' spacing='xl' style={{ pointerEvents: 'none' }}>
@@ -94,22 +88,18 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 						<Text align='center' weight={700} size='lg' mt='xl'>
 							<Dropzone.Accept>Drop Image here</Dropzone.Accept>
 							<Dropzone.Reject>Image file more than 10mb</Dropzone.Reject>
-							<Dropzone.Idle>Upload Image</Dropzone.Idle>
+							<Dropzone.Idle>Upload PDF</Dropzone.Idle>
 						</Text>
 						<Text align='center' size='sm' mt='xs' color='dimmed'>
-							Drag&apos;n&apos;drop files here to upload. We can accept only <i>.png</i> and <i>.jpg</i>{' '}
-							files that are less than 10mb in size.
+							Drag&apos;n&apos;drop files here to upload. We can accept
+							only <i>.pdf</i> and <i>.docx</i>&nbsp;files that are less than 10mb in size.
 						</Text>
 					</Dropzone>
 					<Button className={classes.control} size='md' radius='xl' onClick={() => openRef.current?.()}>
-						Select file
+						{file ? "Change file" : "Select file"}
 					</Button>
 				</div>
-				<SimpleGrid py="xl" cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
-					<div/>
-					<Preview file={file} />
-					<div/>
-				</SimpleGrid>
+				{file && <Center><DocumentInfo fileInfo={file} /></Center>}
 				<Space h='xl' />
 				<Group position='right'>
 					<Button type='button' variant='white' size='md' onClick={goBack}>
@@ -119,9 +109,9 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>
-			</form>
+			</Stack>
 		</Drawer>
 	);
 };
 
-export default PODUploadForm;
+export default InvoiceUploadForm;
