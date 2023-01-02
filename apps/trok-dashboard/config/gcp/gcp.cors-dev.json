@@ -16,5 +16,11 @@
 		"method": ["GET", "POST", "PUT", "DELETE"],
 		"responseHeader": ["Content-Type"],
 		"maxAgeSeconds": 3600
+	},
+	{
+		"origin": ["https://dev.trok.co"],
+		"method": ["GET", "POST", "PUT", "DELETE"],
+		"responseHeader": ["Content-Type"],
+		"maxAgeSeconds": 3600
 	}
 ]

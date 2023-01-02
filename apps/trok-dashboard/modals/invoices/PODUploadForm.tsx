@@ -54,7 +54,7 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 		>
 			<Stack>
 				<Title order={2} weight={500}>
-					<span>Upload Proof of Delivery</span>
+					<span>Upload</span>
 				</Title>
 				<div className={classes.wrapper}>
 					<Dropzone
@@ -113,7 +113,7 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 					<Button type='button' variant='white' size='md' onClick={goBack}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
-					<Button type='submit' size='md' onClick={onSubmit}>
+					<Button type='submit' size='md' onClick={onSubmit} disabled={!file}>
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>

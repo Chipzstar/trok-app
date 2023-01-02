@@ -34,13 +34,21 @@ const runApp = async () => {
 		// Set tracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
 		// We recommend adjusting this value in production
-		tracesSampleRate: 1.0
+		tracesSampleRate: 1.0,
+		beforeSendTransaction(event) {
+			// Filter out PING requests from being sent to Sentry
+			if (event.transaction === "GET /ping") {
+				// Don't send the event to Sentry
+				return null;
+			}
+			return event;
+		},
 	});
 	// RequestHandler creates a separate execution context using domains, so that every
 	// transaction/span/breadcrumb is attached to its own Hub instance
-	app.use(Sentry.Handlers.requestHandler());
+	app.use(Sentry.Handlers.requestHandler() as express.RequestHandler);
 	// TracingHandler creates a trace for every incoming request
-	app.use(Sentry.Handlers.tracingHandler());
+	// app.use(Sentry.Handlers.tracingHandler());
 	app.set('trust proxy', 1);
 	app.use(cors());
 	// using protecting against HTTP Parameter Pollution attacks
@@ -170,7 +178,7 @@ const runApp = async () => {
 				}
 				return false;
 			}
-		})
+		}) as express.ErrorRequestHandler
 	);
 	// Custom express error handler
 	app.use(errorHandler);

@@ -3,7 +3,6 @@ import { storage } from './clients';
 
 export const SENTRY_DSN = process.env.SENTRY_DSN || "https://0e2b765e0dcb44b197705007a5612a2d@o4503959141679104.ingest.sentry.io/4503959143448576"
 export const ENVIRONMENT = process.env.DOPPLER_ENVIRONMENT
-//GCP
 export const BUCKET = storage.bucket(String(process.env.GCS_BUCKET_NAME));
 export const STATEMENT_REDIS_SORTED_SET_ID = 'upcoming_statements'
 export const CARD_REDIS_SORTED_SET_ID = 'dispatched_cards'

@@ -1,1 +1,8 @@
-// gsutil cors set <Json_File_Name> gs://<Bucket_Name>
+run command: gsutil cors set <Relative_Path_To_Json_File> gs://<Bucket_Name>
+
+dev bucket name: "trok-documents-dev"
+prod bucket name: "trok-documents-prod"
+
+For example for setting CORS for dev environment:
+gsutil cors set apps/trok-dashboard/config/gcp/gcp.cors-dev.json gs://trok-documents-dev
+
