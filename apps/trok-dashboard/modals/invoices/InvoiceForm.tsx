@@ -1,10 +1,10 @@
 import React from 'react';
 import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group } from '@mantine/core';
-import { PATHS } from '../utils/constants';
+import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 
 export type SectionState = 'create' | 'upload';
-const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSection }) => {
+const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSection, showUploadForm }) => {
 	const router = useRouter();
 	return (
 		<Drawer
@@ -16,6 +16,8 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 			classNames={{
 				drawer: 'flex h-full'
 			}}
+			transitionDuration={250}
+			transitionTimingFunction="ease"
 		>
 			<Stack>
 				<Title order={2} weight={500}>
@@ -91,7 +93,7 @@ const InvoiceForm = ({ opened, onClose, form, onSubmit, loading, section, setSec
 						shadow='xs'
 						p='lg'
 						withBorder
-						onClick={() => alert('Upload proof delivery!!')}
+						onClick={showUploadForm}
 					>
 						<Group spacing='xl'>
 							<div className='flex rounded-xl bg-primary/25'>

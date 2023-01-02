@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
-import InvoiceForm, { SectionState } from '../modals/InvoiceForm';
+import InvoiceForm, { SectionState } from '../modals/invoices/InvoiceForm';
 import { useForm } from '@mantine/form';
 import { GBP } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
@@ -9,10 +9,12 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import { PATHS, SAMPLE_INVOICES } from '../utils/constants';
 import InvoiceTable from '../containers/InvoiceTable';
+import PODUploadForm from '../modals/invoices/PODUploadForm';
 
 const Invoices = ({ testMode, session_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [opened, setOpened] = useState(false);
+	const [podOpened, setPODOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [section, setSection] = useState<SectionState>('create');
@@ -71,6 +73,21 @@ const Invoices = ({ testMode, session_id }) => {
 				loading={loading}
 				section={section}
 				setSection={setSection}
+				showUploadForm={() => {
+					setInvoiceOpened(false)
+					setTimeout(() => setPODOpened(true), 100)
+				}}
+			/>
+			<PODUploadForm
+				opened={podOpened}
+				onClose={() => setPODOpened(false)}
+				form={form}
+				onSubmit={handleSubmit}
+				loading={loading}
+				goBack={() => {
+					setPODOpened(false)
+					setTimeout(() => setInvoiceOpened(true), 100)
+				}}
 			/>
 			<Page.Body extraClassNames=''>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>

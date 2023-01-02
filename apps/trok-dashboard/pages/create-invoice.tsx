@@ -32,9 +32,8 @@ import { useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { GBP } from '@trok-app/shared-utils';
-import NewCustomerForm from '../modals/NewCustomerForm';
-import LineItemForm from '../modals/LineItemForm';
-
+import NewCustomerForm from '../modals/invoices/NewCustomerForm';
+import LineItemForm from '../modals/invoices/LineItemForm';
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
 	due_date: string | Date;
