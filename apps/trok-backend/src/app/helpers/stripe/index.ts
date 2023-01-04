@@ -9,7 +9,7 @@ import redisClient from '../../redis';
 import {
 	CARD_REDIS_SORTED_SET_ID,
 	IS_DEVELOPMENT,
-	STATEMENT_REDIS_SORTED_SET_ID,
+	STATEMENT_REDIS_SORTED_SET_ID, STRIPE_AUTHORISATION_STATUS,
 	STRIPE_TEST_MODE
 } from '../../utils/constants';
 import {
@@ -54,7 +54,7 @@ export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorizat
 			}
 		});
 		const is_valid_merchant_code = card.allowed_merchant_categories.find(item => item.enabled && item.codes.includes(auth.merchant_data.category_code))
-		if (is_valid_merchant_code || IS_DEVELOPMENT) {
+		if (is_valid_merchant_code || STRIPE_AUTHORISATION_STATUS !== "active") {
 			res = await stripe.issuing.authorizations.approve(
 				auth.id,
 				{},

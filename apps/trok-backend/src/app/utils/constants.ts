@@ -14,6 +14,7 @@ export const PLAID_COUNTRY_CODES = [CountryCode.Gb];
 export const PLAID_PRODUCTS = [Products.PaymentInitiation];
 export const PLAID_WEBHOOK_URL = String(process.env.PLAID_WEBHOOK_URL)
 export const STRIPE_TEST_MODE = String(process.env.STRIPE_SECRET_KEY).includes('sk_test')
+export const STRIPE_AUTHORISATION_STATUS = String(process.env.STRIPE_WEBHOOK_AUTHORISATION_STATUS)
 
 export enum HttpCode {
 	OK = 200,
