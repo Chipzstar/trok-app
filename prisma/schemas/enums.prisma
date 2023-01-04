@@ -88,3 +88,14 @@ enum TransactionDeclineCode {
     webhook_approved
     webhook_timeout
 }
+
+enum InvoicePaidStatus {
+    paid
+    unpaid
+    partially_paid
+}
+
+enum TaxType {
+    inclusive
+    exclusive
+}

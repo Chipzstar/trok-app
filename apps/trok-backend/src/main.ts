@@ -5,6 +5,7 @@ import cors from 'cors';
 import hpp from 'hpp';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+import expressStatusMonitor from 'express-status-monitor';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { createContext } from './app/trpc';
 import { errorHandler } from './app/middleware/errorHandler';
@@ -22,6 +23,7 @@ import { checkCardDeliveredStatus } from './app/helpers/cards';
 
 const runApp = async () => {
 	const app = express();
+	app.use(expressStatusMonitor());
 	Sentry.init({
 		dsn: SENTRY_DSN,
 		integrations: [
@@ -37,12 +39,12 @@ const runApp = async () => {
 		tracesSampleRate: 1.0,
 		beforeSendTransaction(event) {
 			// Filter out PING requests from being sent to Sentry
-			if (event.transaction === "GET /ping") {
+			if (event.transaction === 'GET /ping') {
 				// Don't send the event to Sentry
 				return null;
 			}
 			return event;
-		},
+		}
 	});
 	// RequestHandler creates a separate execution context using domains, so that every
 	// transaction/span/breadcrumb is attached to its own Hub instance
@@ -105,10 +107,16 @@ const runApp = async () => {
 	/*
 	 *  WELCOME ROUTE
 	 */
-	app.get('/server', (req, res) => {
+	app.get('/', (req, res) => {
 		res.send({ message: 'Welcome to trok!' });
 	});
 	// Health check route for hosting platform
+	const healthChecks = [{
+		protocol: 'http',
+		host: 'localhost',
+		path: '/ping',
+		port: process.env.PORT || '3333'
+	}]
 	app.use('/ping', jsonParser, (req, res) => {
 		const message = `Pinged at ${new Date().toUTCString()}`;
 		console.log(`${req.ip} - ${message}`);

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Dropzone, FileWithPath, MS_WORD_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
-import { Button, Center, createStyles, Drawer, Group, SimpleGrid, Space, Stack, Text, Title } from '@mantine/core';
+import { Button, Center, createStyles, Drawer, Group, Space, Stack, Text, Title } from '@mantine/core';
 import { TEN_MB } from '../../utils/constants';
 import { IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
 import DocumentInfo from '../../components/DocumentInfo';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { AddressInfo } from '@trok-app/shared-utils';
@@ -16,12 +16,12 @@ interface NewCustomerFormProps {
 	onClose: () => void;
 	onSubmit: (values: CustomerFormValues) => Promise<void>;
 	loading: boolean;
-	query: string | null
+	query?: string
 }
-const NewCustomerForm = ({opened, onClose, onSubmit, loading, query} : NewCustomerFormProps) => {
+const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCustomerFormProps) => {
 	const form = useForm<CustomerFormValues>({
 		initialValues: {
-			display_name: query ?? '',
+			display_name: query,
 			primary_contact: '',
 			company_name: '',
 			email: '',
@@ -36,6 +36,9 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query} : NewCustom
 			}
 		}
 	});
+	useEffect(() => {
+		form.reset()
+	}, [query]);
 	return (
 		<Modal
 			opened={opened}

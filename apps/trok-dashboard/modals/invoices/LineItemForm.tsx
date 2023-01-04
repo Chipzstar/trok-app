@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Group, Modal, NumberInput, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { GBP } from '@trok-app/shared-utils';
@@ -15,14 +15,19 @@ interface LineItemFormProps {
 	loading: boolean;
 	query?: string | null
 }
-const LineItemForm = ({opened, onClose, onSubmit, loading, query} : LineItemFormProps) => {
+const LineItemForm = ({opened, onClose, onSubmit, loading, query=""} : LineItemFormProps) => {
 	const form = useForm<LineItemValues>({
 		initialValues: {
-			name: query ?? '',
+			name: query,
 			description: '',
 			price: 0,
 		}
 	});
+
+	useEffect(() => {
+		form.reset()
+	}, [query]);
+
 	return (
 		<Modal
 			opened={opened}
