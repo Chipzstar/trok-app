@@ -55,10 +55,10 @@ const invoiceRouter = t.router({
 				display_name: z.string(),
 				primary_contact: z.string(),
 				company: z.string(),
-				email: z.string().email().optional(),
+				email: z.union([z.string().email().optional(), z.literal('')]),
 				phone: z.string().optional(),
 				billing_address: AddressSchema.optional(),
-				website: z.string().url().optional()
+				website: z.union([z.string().url().optional(), z.literal('')]),
 			})
 		)
 		.mutation(async ({ input, ctx }) => {

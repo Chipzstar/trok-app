@@ -124,8 +124,7 @@ const CreateInvoice = ({session_id}) => {
 			{item.title}
 		</Anchor>
 	));
-	const createCustomerMutation = trpc.createCustomer.useMutation();
-	const createLineItemMutation = trpc.createLineItem.useMutation();
+	const utils = trpc.useContext();
 	const customerQuery = trpc.getCustomers.useQuery({
 		userId: session_id
 	}, {
@@ -136,6 +135,16 @@ const CreateInvoice = ({session_id}) => {
 	}, {
 		placeholderData: []
 	})
+	const createCustomerMutation = trpc.createCustomer.useMutation({
+		onSuccess: function (input) {
+			utils.getCustomers.invalidate({userId: session_id});
+		}
+	});
+	const createLineItemMutation = trpc.createLineItem.useMutation({
+		onSuccess: function (input) {
+			utils.getLineItems.invalidate({userId: session_id});
+		}
+	});
 
 	const form = useForm<CreateInvoiceForm>({
 		initialValues: {
