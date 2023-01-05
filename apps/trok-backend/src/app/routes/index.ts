@@ -7,8 +7,8 @@ import accountRouter from './account';
 import paymentRouter from './payment';
 import balanceRouter from './balance';
 import statementRouter from './statement';
+import invoiceRouter from './invoice';
 import { authRouter } from './auth';
-import { TRPCError } from '@trpc/server';
 import { adminRouter } from './admin';
 
 export const appRouter = t.mergeRouters(
@@ -21,7 +21,8 @@ export const appRouter = t.mergeRouters(
 	bankAccountRouter,
 	paymentRouter,
 	balanceRouter,
-	statementRouter
+	statementRouter,
+	invoiceRouter
 );
 
 export type AppRouter = typeof appRouter;

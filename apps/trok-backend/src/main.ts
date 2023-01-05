@@ -14,12 +14,12 @@ import testRoutes from './app/routes/test';
 import stripeRoutes from './app/routes/stripe';
 import plaidRoutes from './app/routes/plaid';
 import { appRouter } from './app/routes';
-import 'express-async-errors';
-import './app/process';
 import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ENVIRONMENT, HttpCode, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
 import { ONE_HOUR, THIRTY_MINUTES } from '@trok-app/shared-utils';
 import { checkCardDeliveredStatus } from './app/helpers/cards';
+import 'express-async-errors';
+import './app/process';
 
 const runApp = async () => {
 	const app = express();

@@ -26,6 +26,7 @@ model User {
   drivers Driver[]
   cards Card[]
   transactions Transaction[]
+  invoices Invoice[]
   payments Payment[]
   statements Statement[]
   bank_accounts BankAccount[]

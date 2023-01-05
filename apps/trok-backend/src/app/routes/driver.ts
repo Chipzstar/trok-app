@@ -2,6 +2,7 @@ import { t } from '../trpc';
 import { z } from 'zod';
 import { stripe } from '../utils/clients';
 import { TRPCError } from '@trpc/server';
+import { AddressSchema } from '../utils/schemas';
 
 const createDriverInput = z.object({
 	userId: z.string(),
@@ -23,14 +24,7 @@ const createDriverInput = z.object({
 			])
 		})
 		.optional(),
-	address: z.object({
-		line1: z.string(),
-		line2: z.nullable(z.string()).optional(),
-		city: z.string(),
-		postcode: z.string(),
-		region: z.string(),
-		country: z.string().default('GB')
-	})
+	address: AddressSchema
 });
 
 const updateDriverInput = createDriverInput.merge(

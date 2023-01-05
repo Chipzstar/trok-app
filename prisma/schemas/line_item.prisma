@@ -9,4 +9,6 @@ model LineItem {
     description String?
     unit String?
     active Boolean @default(true)
+    invoiceIds String[] @db.ObjectId
+    invoices Invoice[] @relation(fields: [invoiceIds], references: [id])
 }

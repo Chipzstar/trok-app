@@ -6,10 +6,11 @@ import { AddressInfo } from '@trok-app/shared-utils';
 export interface CustomerFormValues {
 	display_name: string
 	primary_contact: string
-	company_name: string
+	company: string
 	email: string
 	phone: string
 	billing_address: AddressInfo
+	website: string
 }
 interface NewCustomerFormProps {
 	opened: boolean;
@@ -23,22 +24,18 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 		initialValues: {
 			display_name: query,
 			primary_contact: '',
-			company_name: '',
-			email: '',
-			phone: '',
-			billing_address: {
-				line1: '',
-				line2: '',
-				city: '',
-				postcode: '',
-				region: '',
-				country: ''
-			}
+			company: '',
+			email: undefined,
+			phone: undefined,
+			billing_address: undefined,
+			website: undefined
 		}
 	});
+
 	useEffect(() => {
 		form.reset()
 	}, [query]);
+
 	return (
 		<Modal
 			opened={opened}
@@ -63,24 +60,29 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 					/>
 					<TextInput
 						label="Primary Contact Name"
+						required
 						{...form.getInputProps('primary_contact')}
 					/>
 					<TextInput
-						label="Email"
-						{...form.getInputProps('email')}
+						label="Company Name"
+						required
+						{...form.getInputProps('company')}
 					/>
 					<TextInput
-						label="Company Name"
-						{...form.getInputProps('company_name')}
+						label="Email"
+						type="email"
+						{...form.getInputProps('email')}
 					/>
 					<Group grow>
 						<TextInput
+							type="tel"
 							label="Phone"
 							{...form.getInputProps('phone')}
 						/>
 						<TextInput
 							label="Website"
-							{...form.getInputProps('display_name')}
+							type="url"
+							{...form.getInputProps('website')}
 						/>
 					</Group>
 				</Stack>

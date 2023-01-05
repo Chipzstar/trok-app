@@ -23,17 +23,28 @@ import {
 	Textarea,
 	TextInput
 } from '@mantine/core';
-import { PATHS, SAMPLE_CUSTOMERS, SAMPLE_LINE_ITEMS } from '../utils/constants';
+import { PATHS, SAMPLE_LINE_ITEMS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
-import { IconCalendar, IconCirclePlus, IconGripVertical, IconSearch, IconTrash, IconUserPlus } from '@tabler/icons';
+import {
+	IconCalendar, IconCheck,
+	IconCirclePlus,
+	IconGripVertical,
+	IconSearch,
+	IconTrash,
+	IconUserPlus,
+	IconX
+} from '@tabler/icons';
 import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { GBP } from '@trok-app/shared-utils';
-import NewCustomerForm from '../modals/invoices/NewCustomerForm';
+import { GBP, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
 import LineItemForm from '../modals/invoices/LineItemForm';
+import { trpc } from '../utils/clients';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
 	due_date: string | Date;
@@ -50,7 +61,7 @@ interface ItemProps extends SelectItemProps {
 }
 
 const AutoCompleteItem = forwardRef<HTMLDivElement, ItemProps>(
-	({ company, label, value, email, ...others }: ItemProps, ref) => (
+	({ company, label, value, ...others }: ItemProps, ref) => (
 		<div ref={ref} {...others}>
 			<Group noWrap>
 				<Avatar
@@ -95,7 +106,7 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-const CreateInvoice = () => {
+const CreateInvoice = ({session_id}) => {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const { classes, cx } = useStyles();
@@ -113,6 +124,18 @@ const CreateInvoice = () => {
 			{item.title}
 		</Anchor>
 	));
+	const createCustomerMutation = trpc.createCustomer.useMutation();
+	const createLineItemMutation = trpc.createLineItem.useMutation();
+	const customerQuery = trpc.getCustomers.useQuery({
+		userId: session_id
+	}, {
+		placeholderData: []
+	})
+	const lineItemQuery = trpc.getLineItems.useQuery({
+		userId: session_id
+	}, {
+		placeholderData: []
+	})
 
 	const form = useForm<CreateInvoiceForm>({
 		initialValues: {
@@ -131,22 +154,50 @@ const CreateInvoice = () => {
 		}
 	});
 
-	const createNewCustomer = useCallback(async (values) => {
-		console.log(values)
-	}, [])
+	const createNewCustomer = useCallback(async (values: CustomerFormValues) => {
+		setLoading(true)
+		try {
+			console.log(values)
+		    await createCustomerMutation.mutateAsync({
+				userId: session_id,
+				...values,
+			})
+			setLoading(false)
+			showNewCustomerForm(prevState => ({...prevState, show: false}))
+			notifySuccess('create-customer-success', "New customer has been created", <IconCheck size={20} />)
+		} catch (err) {
+		    console.error(err)
+			setLoading(false);
+			notifyError('create-customer-failed', err.message, <IconX size={20}/>)
+		}
+	}, [session_id])
 
 	const createNewItem = useCallback(async (values) => {
-		console.log(values)
-	}, [])
+		setLoading(true)
+		try {
+			console.log(values)
+			await createLineItemMutation.mutateAsync({
+				userId: session_id,
+				...values,
+			})
+			setLoading(false)
+			showNewCustomerForm(prevState => ({...prevState, show: false}))
+			notifySuccess('create-line-item-success', "New invoice item created", <IconCheck size={20} />)
+		} catch (err) {
+			console.error(err)
+			setLoading(false);
+			notifyError('create-line-item-failed', err.message, <IconX size={20}/>)
+		}
+	}, [session_id])
 
 	const fields = form.values.line_items.map((_, index) => (
 		<Draggable key={index} index={index} draggableId={index.toString()}>
 			{provided => (
 				<tr
+					key={index}
 					className='bg-white'
 					ref={provided.innerRef}
 					{...provided.draggableProps}
-					key={index}
 					style={{
 						border: 'none'
 					}}
@@ -175,7 +226,7 @@ const CreateInvoice = () => {
 								showNewItemForm(prevState => ({ show: true, query }));
 								return null;
 							}}
-							data={SAMPLE_LINE_ITEMS.map(cus => ({
+							data={lineItemQuery?.data?.map(cus => ({
 								value: cus.name,
 								label: cus.name
 							}))}
@@ -298,11 +349,10 @@ const CreateInvoice = () => {
 										root: 'w-full'
 									}}
 									itemComponent={AutoCompleteItem}
-									data={SAMPLE_CUSTOMERS.map(cus => ({
-										value: cus.name,
-										label: cus.name,
-										name: cus.name,
-										email: cus.email,
+									data={customerQuery?.data?.map(cus => ({
+										value: cus.display_name,
+										label: cus.display_name,
+										name: cus.display_name,
 										company: cus.company
 									}))}
 									filter={(value, item) =>
@@ -459,5 +509,24 @@ const CreateInvoice = () => {
 		</Page.Container>
 	);
 };
+
+export async function getServerSideProps({ req, res }) {
+	const session = await unstable_getServerSession(req, res, authOptions);
+	console.log(session);
+	// check if the user is authenticated, it not, redirect back to login page
+	if (!session) {
+		return {
+			redirect: {
+				destination: PATHS.LOGIN,
+				permanent: false
+			}
+		};
+	}
+	return {
+		props: {
+			session_id: session.id
+		}
+	};
+}
 
 export default CreateInvoice;
