@@ -9,7 +9,7 @@ model Customer {
     company String
     email String?
     phone String?
-    billing_address Address?
     website String?
+    billing_address Address?
     invoices Invoice[]
 }

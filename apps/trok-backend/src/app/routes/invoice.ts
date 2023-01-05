@@ -57,14 +57,31 @@ const invoiceRouter = t.router({
 				company: z.string(),
 				email: z.string().email().optional(),
 				phone: z.string().optional(),
-				billing_address: AddressSchema.optional()
+				billing_address: AddressSchema.optional(),
+				website: z.string().url().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
 				return await ctx.prisma.customer.create({
 					data: {
-						...input
+						userId: input.userId,
+						company: input.company,
+						display_name: input.display_name,
+						primary_contact: input.primary_contact,
+						email: input?.email ?? undefined,
+						phone: input?.phone ?? undefined,
+						website: input?.website ?? undefined,
+						...(input?.billing_address && {
+							billing_address: {
+								line1: input.billing_address.line1,
+								line2: input.billing_address.line2,
+								city: input.billing_address.city,
+								postcode: input.billing_address.postcode,
+								region: input.billing_address.region,
+								country: input.billing_address.country
+							}
+						})
 					}
 				});
 			} catch (err) {
@@ -79,6 +96,7 @@ const invoiceRouter = t.router({
 				userId: z.string(),
 				name: z.string(),
 				price: z.number(),
+				unit: z.string().optional(),
 				description: z.string().optional()
 			})
 		)
@@ -86,7 +104,11 @@ const invoiceRouter = t.router({
 			try {
 				return await ctx.prisma.lineItem.create({
 					data: {
-						...input
+						userId: input.userId,
+						name: input.name,
+						price: input.price,
+						description: input?.description ?? undefined,
+						unit: input?.unit ?? undefined
 					}
 				});
 			} catch (err) {
