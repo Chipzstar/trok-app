@@ -95,7 +95,6 @@ export async function getServerSideProps({ req, res }) {
 	// @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
 	const token = await getToken({ req });
-	session && console.log(token.user);
 	return {
 		props: {
 			session_id: session?.id,

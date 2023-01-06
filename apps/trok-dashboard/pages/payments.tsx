@@ -149,8 +149,6 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 		setLoading(true);
 		try {
 			let token;
-			console.log(values);
-			console.log(typeof values.start_date);
 			if (section === 'topup') {
 				token = await topUpMutation.mutateAsync({
 					user_id: String(session_id),

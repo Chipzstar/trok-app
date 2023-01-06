@@ -185,7 +185,6 @@ const Invoices = ({ testMode, session_id }) => {
 
 export async function getServerSideProps({ req, res }) {
 	const session = await unstable_getServerSession(req, res, authOptions);
-	console.log(session);
 	// check if the user is authenticated, it not, redirect back to login page
 	if (!session) {
 		return {

@@ -210,7 +210,6 @@ const CreateInvoice = ({ session_id }) => {
 		async (values: CustomerFormValues) => {
 			setLoading(true);
 			try {
-				console.log(values);
 				await createCustomerMutation.mutateAsync({
 					userId: session_id,
 					...values
@@ -232,7 +231,6 @@ const CreateInvoice = ({ session_id }) => {
 			values.price *= 100;
 			setLoading(true);
 			try {
-				console.log(values);
 				await createLineItemMutation.mutateAsync({
 					userId: session_id,
 					...values
@@ -253,7 +251,6 @@ const CreateInvoice = ({ session_id }) => {
 		async (values: TaxRateFormValues) => {
 			setLoading(true);
 			try {
-				console.log(values);
 				await createTaxRateMutation.mutateAsync({
 					userId: session_id,
 					name: values.name,
@@ -360,7 +357,6 @@ const CreateInvoice = ({ session_id }) => {
 							value={item.price}
 							hideControls
 							precision={2}
-							readOnly
 							min={0}
 							max={100000}
 							parser={value => value.replace(/£\s?|(,*)/g, '')}
@@ -686,7 +682,6 @@ const CreateInvoice = ({ session_id }) => {
 
 export async function getServerSideProps({ req, res }) {
 	const session = await unstable_getServerSession(req, res, authOptions);
-	console.log(session);
 	// check if the user is authenticated, it not, redirect back to login page
 	if (!session) {
 		return {

@@ -44,7 +44,6 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 
 	const handleSubmit = useCallback(async values => {
 		setLoading(true);
-		console.log(values);
 		try {
 			await mutation.mutateAsync({
 				userId: session_id,

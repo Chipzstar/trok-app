@@ -19,12 +19,10 @@ const ForgotPassword = () => {
 		}
 	});
 	const handleSubmit = useCallback(async values => {
-		console.log(values);
 		setLoading(true)
 		try {
 			const result = await sendResetEmail.mutateAsync(values.email)
 			setLoading(false)
-			console.log(result)
 			notifySuccess('forgot-password-success', 'We sent you password reset email. Please check your email and click the link to reset your password', <IconCheck size={20}/>)
 		} catch (err) {
 		    console.error(err)

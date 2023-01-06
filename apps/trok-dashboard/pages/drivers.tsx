@@ -211,7 +211,6 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 	const handleUpdate = useCallback(
 		async values => {
 			setLoading(true);
-			console.log(values);
 			try {
 				await updateMutation.mutateAsync({
 					id: values.id,
