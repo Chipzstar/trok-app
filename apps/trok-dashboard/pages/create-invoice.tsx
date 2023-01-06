@@ -12,6 +12,7 @@ import {
 	Divider,
 	Group,
 	MantineColor,
+	Menu,
 	NumberInput,
 	Select,
 	SelectItemProps,
@@ -37,6 +38,7 @@ import {
 	IconUserPlus,
 	IconX
 } from '@tabler/icons';
+import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
 import { useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
@@ -55,7 +57,7 @@ interface CreateInvoiceForm {
 	due_date: string | Date;
 	invoice_number: string;
 	line_items: LineItem[];
-	tax_rate: number;
+	tax_rate: Prisma.TaxRate;
 }
 
 interface ItemProps extends SelectItemProps {
@@ -156,13 +158,14 @@ const CreateInvoice = ({ session_id }) => {
 			placeholderData: []
 		}
 	);
-	const taxItemQuery = trpc.getTaxRates.useQuery({
+	const taxItemQuery = trpc.getTaxRates.useQuery(
+		{
 			userId: session_id
 		},
 		{
 			placeholderData: []
 		}
-		);
+	);
 	const createCustomerMutation = trpc.createCustomer.useMutation({
 		onSuccess: function (input) {
 			utils.getCustomers.invalidate({ userId: session_id });
@@ -171,6 +174,11 @@ const CreateInvoice = ({ session_id }) => {
 	const createLineItemMutation = trpc.createLineItem.useMutation({
 		onSuccess: function (input) {
 			utils.getLineItems.invalidate({ userId: session_id });
+		}
+	});
+	const createTaxRateMutation = trpc.createTaxRate.useMutation({
+		onSuccess: function (input) {
+			utils.getTaxRates.invalidate({ userId: session_id });
 		}
 	});
 
@@ -188,15 +196,15 @@ const CreateInvoice = ({ session_id }) => {
 	const total = useMemo(() => {
 		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
 		if (form.values.tax_rate) {
-			return sum + sum * form.values.tax_rate/100
+			return sum + (sum * form.values.tax_rate.percentage) / 100;
 		} else {
-			return sum
+			return sum;
 		}
-	}, [form.values.line_items, form.values.tax_rate])
+	}, [form.values.line_items, form.values.tax_rate]);
 
 	const subtotal = useMemo(() => {
 		return form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
-	}, [form.values.line_items])
+	}, [form.values.line_items]);
 
 	const createNewCustomer = useCallback(
 		async (values: CustomerFormValues) => {
@@ -246,17 +254,20 @@ const CreateInvoice = ({ session_id }) => {
 			setLoading(true);
 			try {
 				console.log(values);
-				/*await createLineItemMutation.mutateAsync({
+				await createTaxRateMutation.mutateAsync({
 					userId: session_id,
-					...values
-				});*/
+					name: values.name,
+					description: values.description,
+					percentage: values.percentage,
+					calculation: values.calculation
+				});
 				setLoading(false);
 				showNewTaxForm(false);
-				notifySuccess('create-line-item-success', 'New invoice item created', <IconCheck size={20} />);
+				notifySuccess('create-tax-rate-success', 'New tax rate created', <IconCheck size={20} />);
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
-				notifyError('create-line-item-failed', err.message, <IconX size={20} />);
+				notifyError('create-tax-rate-failed', err.message, <IconX size={20} />);
 			}
 		},
 		[session_id]
@@ -361,7 +372,7 @@ const CreateInvoice = ({ session_id }) => {
 							{...form.getInputProps(`line_items.${index}.price`)}
 						/>
 					</td>
-					<td>{GBP(item.quantity * (item.price)).format()}</td>
+					<td>{GBP(item.quantity * item.price).format()}</td>
 					<td>
 						<div className='flex flex-shrink'>
 							<ActionIcon
@@ -602,12 +613,61 @@ const CreateInvoice = ({ session_id }) => {
 								<div>
 									<Text size='md'>{GBP(subtotal).format()}</Text>
 								</div>
+								{form.values.tax_rate && (
+									<>
+										<div>
+											<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
+												{form.values.tax_rate.name} ({form.values.tax_rate.percentage} %)
+											</Text>
+										</div>
+										<Group>
+											<Text size='md' transform='uppercase'>
+												{GBP((form.values.tax_rate.percentage / 100) * subtotal).format()}
+											</Text>
+											<ActionIcon
+												color='red'
+												onClick={() => form.setFieldValue('tax_rate', null)}
+											>
+												<IconTrash size={16} stroke={1.5} />
+											</ActionIcon>
+										</Group>
+									</>
+								)}
 								<div />
-								<div>
-									<Anchor component='button' type='button' onClick={() => showNewTaxForm(true)}>
-										+ Add Tax
-									</Anchor>
-								</div>
+								<Menu shadow='md' width={200} withinPortal position='bottom'>
+									<div>
+										<Menu.Target>
+											<Anchor
+												component='button'
+												type='button'
+												color={form.values.tax_rate ? 'dimmed' : undefined}
+												disabled={!!form.values.tax_rate}
+											>
+												+ Add Tax
+											</Anchor>
+										</Menu.Target>
+									</div>
+
+									<Menu.Dropdown>
+										<Menu.Label>Tax Rates</Menu.Label>
+										{taxItemQuery.data.map((tax, index) => (
+											<Menu.Item
+												key={index}
+												rightSection={<Text>{tax.percentage} %</Text>}
+												onClick={() => form.setFieldValue('tax_rate', tax)}
+											>
+												{tax.name}
+											</Menu.Item>
+										))}
+										<Menu.Divider />
+										<Menu.Item
+											icon={<IconCirclePlus size={16} />}
+											onClick={() => showNewTaxForm(true)}
+										>
+											Create New Tax
+										</Menu.Item>
+									</Menu.Dropdown>
+								</Menu>
 							</SimpleGrid>
 							<Divider size='md' my='xs' />
 							<SimpleGrid cols={2} spacing='xl'>

@@ -6,7 +6,7 @@ export interface TaxRateFormValues {
 	name: string;
 	percentage: number;
 	description?: string;
-	calculation: string;
+	calculation: "inclusive" | "exclusive";
 }
 
 interface NewTaxRateFormProps {
