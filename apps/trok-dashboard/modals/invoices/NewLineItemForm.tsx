@@ -3,20 +3,20 @@ import { Button, Group, Modal, NumberInput, Stack, Text, Textarea, TextInput } f
 import { useForm } from '@mantine/form';
 import { GBP } from '@trok-app/shared-utils';
 
-export interface LineItemValues {
+export interface LineItemFormValues {
 	name: string;
 	description?: string;
 	price: number;
 }
-interface LineItemFormProps {
+interface NewLineItemFormProps {
 	opened: boolean;
 	onClose: () => void;
-	onSubmit: (values: LineItemValues) => Promise<void>;
+	onSubmit: (values: LineItemFormValues) => Promise<void>;
 	loading: boolean;
 	query?: string | null
 }
-const LineItemForm = ({opened, onClose, onSubmit, loading, query=""} : LineItemFormProps) => {
-	const form = useForm<LineItemValues>({
+const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLineItemFormProps) => {
+	const form = useForm<LineItemFormValues>({
 		initialValues: {
 			name: query,
 			description: '',
@@ -79,4 +79,4 @@ const LineItemForm = ({opened, onClose, onSubmit, loading, query=""} : LineItemF
 	);
 };
 
-export default LineItemForm;
+export default NewLineItemForm;

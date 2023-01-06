@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group } from '@mantine/core';
+import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group, LoadingOverlay } from '@mantine/core';
 import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 
@@ -16,6 +16,7 @@ const InvoiceForm = ({
 	showInvUploadForm
 }) => {
 	const router = useRouter();
+	const [visible, setVisible] = React.useState(false);
 	return (
 		<Drawer
 			opened={opened}
@@ -29,6 +30,7 @@ const InvoiceForm = ({
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
+			<LoadingOverlay visible={visible} overlayBlur={2} />
 			<Stack>
 				<Title order={2} weight={500}>
 					<span>Add New Invoice</span>
@@ -61,7 +63,10 @@ const InvoiceForm = ({
 							shadow='xs'
 							p='lg'
 							withBorder
-							onClick={() => router.push(PATHS.CREATE_INVOICE)}
+							onClick={() => {
+								setVisible(true);
+								router.push(PATHS.CREATE_INVOICE).then(() => setVisible(false))}
+							}
 						>
 							<Group spacing='xl'>
 								<div className='flex rounded-xl bg-primary/25'>

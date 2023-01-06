@@ -10,10 +10,12 @@ export interface SelectInput {
 }
 
 export interface LineItem {
+	id: string;
 	name: string
 	quantity: number
 	price: number
-	amount: number
+	description?: string
+	editing?: boolean
 }
 
 export enum GRIFFIN_VERIFICATION_STATUS {

@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
@@ -27,9 +27,11 @@ import { PATHS, SAMPLE_LINE_ITEMS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
 import {
-	IconCalendar, IconCheck,
+	IconCalendar,
+	IconCheck,
 	IconCirclePlus,
 	IconGripVertical,
+	IconPencil,
 	IconSearch,
 	IconTrash,
 	IconUserPlus,
@@ -41,10 +43,11 @@ import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { GBP, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
-import LineItemForm from '../modals/invoices/LineItemForm';
+import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineItemForm';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
+
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
 	due_date: string | Date;
@@ -106,7 +109,16 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-const CreateInvoice = ({session_id}) => {
+const default_line_item : LineItem = {
+	id: '',
+	name: '',
+	quantity: 1,
+	price: 0,
+	description: '',
+	editing: true
+}
+
+const CreateInvoice = ({ session_id }) => {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
 	const { classes, cx } = useStyles();
@@ -125,24 +137,30 @@ const CreateInvoice = ({session_id}) => {
 		</Anchor>
 	));
 	const utils = trpc.useContext();
-	const customerQuery = trpc.getCustomers.useQuery({
-		userId: session_id
-	}, {
-		placeholderData: []
-	})
-	const lineItemQuery = trpc.getLineItems.useQuery({
-		userId: session_id
-	}, {
-		placeholderData: []
-	})
+	const customerQuery = trpc.getCustomers.useQuery(
+		{
+			userId: session_id
+		},
+		{
+			placeholderData: []
+		}
+	);
+	const lineItemQuery = trpc.getLineItems.useQuery(
+		{
+			userId: session_id
+		},
+		{
+			placeholderData: []
+		}
+	);
 	const createCustomerMutation = trpc.createCustomer.useMutation({
 		onSuccess: function (input) {
-			utils.getCustomers.invalidate({userId: session_id});
+			utils.getCustomers.invalidate({ userId: session_id });
 		}
 	});
 	const createLineItemMutation = trpc.createLineItem.useMutation({
 		onSuccess: function (input) {
-			utils.getLineItems.invalidate({userId: session_id});
+			utils.getLineItems.invalidate({ userId: session_id });
 		}
 	});
 
@@ -152,54 +170,55 @@ const CreateInvoice = ({session_id}) => {
 			due_date: '',
 			invoice_number: '',
 			line_items: [
-				{
-					name: '',
-					quantity: 1,
-					price: 0,
-					amount: 0
-				}
+				default_line_item
 			],
 			discount: 0
 		}
 	});
 
-	const createNewCustomer = useCallback(async (values: CustomerFormValues) => {
-		setLoading(true)
-		try {
-			console.log(values)
-		    await createCustomerMutation.mutateAsync({
-				userId: session_id,
-				...values,
-			})
-			setLoading(false)
-			showNewCustomerForm(prevState => ({...prevState, show: false}))
-			notifySuccess('create-customer-success', "New customer has been created", <IconCheck size={20} />)
-		} catch (err) {
-		    console.error(err)
-			setLoading(false);
-			notifyError('create-customer-failed', err.message, <IconX size={20}/>)
-		}
-	}, [session_id])
+	const createNewCustomer = useCallback(
+		async (values: CustomerFormValues) => {
+			setLoading(true);
+			try {
+				console.log(values);
+				await createCustomerMutation.mutateAsync({
+					userId: session_id,
+					...values
+				});
+				setLoading(false);
+				showNewCustomerForm(prevState => ({ ...prevState, show: false }));
+				notifySuccess('create-customer-success', 'New customer has been created', <IconCheck size={20} />);
+			} catch (err) {
+				console.error(err);
+				setLoading(false);
+				notifyError('create-customer-failed', err.message, <IconX size={20} />);
+			}
+		},
+		[session_id]
+	);
 
-	const createNewItem = useCallback(async (values) => {
-		setLoading(true)
-		try {
-			console.log(values)
-			await createLineItemMutation.mutateAsync({
-				userId: session_id,
-				...values,
-			})
-			setLoading(false)
-			showNewCustomerForm(prevState => ({...prevState, show: false}))
-			notifySuccess('create-line-item-success', "New invoice item created", <IconCheck size={20} />)
-		} catch (err) {
-			console.error(err)
-			setLoading(false);
-			notifyError('create-line-item-failed', err.message, <IconX size={20}/>)
-		}
-	}, [session_id])
+	const createNewItem = useCallback(
+		async (values: LineItemFormValues) => {
+			setLoading(true);
+			try {
+				console.log(values);
+				await createLineItemMutation.mutateAsync({
+					userId: session_id,
+					...values
+				});
+				setLoading(false);
+				showNewItemForm(prevState => ({ ...prevState, show: false }));
+				notifySuccess('create-line-item-success', 'New invoice item created', <IconCheck size={20} />);
+			} catch (err) {
+				console.error(err);
+				setLoading(false);
+				notifyError('create-line-item-failed', err.message, <IconX size={20} />);
+			}
+		},
+		[session_id]
+	);
 
-	const fields = form.values.line_items.map((_, index) => (
+	const fields = form.values.line_items.map((item, index) => (
 		<Draggable key={index} index={index} draggableId={index.toString()}>
 			{provided => (
 				<tr
@@ -221,31 +240,61 @@ const CreateInvoice = ({session_id}) => {
 							width: 600
 						}}
 					>
-						<Select
-							placeholder='Enter item name'
-							withAsterisk
-							dropdownPosition='bottom'
-							maxDropdownHeight={1000}
-							searchable
-							creatable
-							radius='sm'
-							withinPortal={false}
-							getCreateLabel={query => `+ Create ${query}`}
-							onCreate={query => {
-								showNewItemForm(prevState => ({ show: true, query }));
-								return null;
-							}}
-							data={lineItemQuery?.data?.map(cus => ({
-								value: cus.name,
-								label: cus.name
-							}))}
-							{...form.getInputProps(`line_items.${index}.name`)}
-						/>
+						{item.editing ? (
+							<Select
+								placeholder='Enter item name'
+								withAsterisk
+								dropdownPosition='bottom'
+								maxDropdownHeight={400}
+								searchable
+								creatable
+								clearable
+								radius='sm'
+								withinPortal={false}
+								getCreateLabel={query => `+ Create ${query}`}
+								onCreate={query => {
+									showNewItemForm(prevState => ({ show: true, query }));
+									return null;
+								}}
+								data={lineItemQuery.data?.map(cus => ({
+									value: cus.id,
+									label: cus.name
+								}))}
+								value={form.values.line_items[index].name}
+								onChange={value => {
+									form.removeListItem('line_items', index);
+									form.insertListItem(
+										'line_items',
+										{
+											id: value,
+											name: lineItemQuery.data?.find(item => item.id === value)?.name || '',
+											price: lineItemQuery.data?.find(item => item.id === value)?.price || 0,
+											description:
+												lineItemQuery.data?.find(item => item.id === value)?.description ||
+												undefined,
+											quantity: item.quantity,
+											editing: false
+										},
+										index
+									);
+								}}
+								error={form.errors.line_items}
+							/>
+						) : (
+							<div className='flex flex-col'>
+								<Text size='md' weight={600}>
+									{form.values.line_items[index].name}
+								</Text>
+								<Text color='dimmed' size='sm'>
+									{form.values.line_items[index].description}
+								</Text>
+							</div>
+						)}
 					</td>
 					<td>
 						<NumberInput
 							required
-							value={_.quantity}
+							value={item.quantity}
 							min={1}
 							max={10}
 							{...form.getInputProps(`line_items.${index}.quantity`)}
@@ -253,10 +302,11 @@ const CreateInvoice = ({session_id}) => {
 					</td>
 					<td>
 						<NumberInput
-							value={GBP(_.price)}
+							value={GBP(item.price)}
 							precision={2}
-							min={1}
-							max={10}
+							readOnly
+							min={0}
+							max={100000}
 							parser={value => value.replace(/£\s?|(,*)/g, '')}
 							formatter={value =>
 								!Number.isNaN(parseFloat(value))
@@ -266,16 +316,29 @@ const CreateInvoice = ({session_id}) => {
 							{...form.getInputProps(`line_items.${index}.price`)}
 						/>
 					</td>
-					<td>{GBP(_.amount).format()}</td>
+					<td>{GBP(item.quantity * (item.price * 100)).format()}</td>
 					<td>
-						<ActionIcon color='red' onClick={() => form.removeListItem('line_items', index)}>
-							<IconTrash size={16} stroke={1.5} />
-						</ActionIcon>
+						<div className='flex flex-shrink'>
+							<ActionIcon
+								color='gray'
+								onClick={() => {
+									form.removeListItem('line_items', index);
+									form.insertListItem('line_items', { ...item, editing: true }, index);
+								}}
+							>
+								<IconPencil size={16} stroke={1.5} />
+							</ActionIcon>
+							<ActionIcon color='red' onClick={() => form.removeListItem('line_items', index)}>
+								<IconTrash size={16} stroke={1.5} />
+							</ActionIcon>
+						</div>
 					</td>
 				</tr>
 			)}
 		</Draggable>
 	));
+
+	useEffect(() => console.log(form.values.line_items), [form.values]);
 
 	return (
 		<Page.Container
@@ -291,14 +354,14 @@ const CreateInvoice = ({session_id}) => {
 		>
 			<NewCustomerForm
 				opened={newCustomer.show}
-				onClose={() => showNewCustomerForm(prevState => ({show: false, query: ''}))}
+				onClose={() => showNewCustomerForm(prevState => ({ show: false, query: '' }))}
 				loading={loading}
 				onSubmit={createNewCustomer}
 				query={newCustomer.query}
 			/>
-			<LineItemForm
+			<NewLineItemForm
 				opened={newItem.show}
-				onClose={() => showNewItemForm(prevState => ({show: false, query: ''}))}
+				onClose={() => showNewItemForm(prevState => ({ show: false, query: '' }))}
 				loading={loading}
 				onSubmit={createNewItem}
 				query={newItem.query}
@@ -375,7 +438,7 @@ const CreateInvoice = ({session_id}) => {
 									leftIcon={<IconUserPlus size={24} />}
 									size='lg'
 									fullWidth
-									onClick={() => showNewCustomerForm(prevState => ({show: true, query: ''}))}
+									onClick={() => showNewCustomerForm(prevState => ({ show: true, query: '' }))}
 								>
 									Create Customer
 								</Button>
@@ -462,23 +525,16 @@ const CreateInvoice = ({session_id}) => {
 						<Group position='right'>
 							<Button
 								variant='outline'
-								color="green"
+								color='green'
 								leftIcon={<IconCirclePlus size={18} />}
-								onClick={() =>
-									form.insertListItem('line_items', {
-										name: '',
-										quantity: 1,
-										price: 0,
-										amount: 0
-									})
-								}
+								onClick={() => form.insertListItem('line_items', default_line_item)}
 							>
 								Add Item
 							</Button>
 							<Button
 								variant='outline'
 								leftIcon={<IconCirclePlus size={18} />}
-								onClick={() => showNewItemForm(prevState => ({show: true, query: ''}))}
+								onClick={() => showNewItemForm(prevState => ({ show: true, query: '' }))}
 							>
 								Create New Item
 							</Button>
@@ -486,7 +542,7 @@ const CreateInvoice = ({session_id}) => {
 					</SimpleGrid>
 					<Space py='sm' />
 					<Group position='apart' pb='md' grow align='start'>
-						<Textarea placeholder='Invoice Notes' minRows={5} size="lg"/>
+						<Textarea placeholder='Invoice Notes' minRows={5} size='lg' />
 						<Card withBorder py='md' radius='xs'>
 							<SimpleGrid cols={2} spacing='xl'>
 								<div>
@@ -499,7 +555,7 @@ const CreateInvoice = ({session_id}) => {
 								</div>
 								<div />
 								<div>
-									<Anchor component="button" type="button">
+									<Anchor component='button' type='button'>
 										+ Add Tax
 									</Anchor>
 								</div>
