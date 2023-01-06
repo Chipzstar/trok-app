@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
@@ -23,7 +23,7 @@ import {
 	Textarea,
 	TextInput
 } from '@mantine/core';
-import { PATHS, SAMPLE_LINE_ITEMS } from '../utils/constants';
+import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
 import {
@@ -50,11 +50,12 @@ import { authOptions } from './api/auth/[...nextauth]';
 import NewTaxRateForm, { TaxRateFormValues } from '../modals/invoices/NewTaxRateForm';
 
 interface CreateInvoiceForm {
+	customer: string;
 	invoice_date: string | Date;
 	due_date: string | Date;
 	invoice_number: string;
 	line_items: LineItem[];
-	discount: number;
+	tax_rate: number;
 }
 
 interface ItemProps extends SelectItemProps {
@@ -175,13 +176,27 @@ const CreateInvoice = ({ session_id }) => {
 
 	const form = useForm<CreateInvoiceForm>({
 		initialValues: {
+			customer: '',
 			invoice_date: '',
 			due_date: '',
 			invoice_number: '',
 			line_items: [default_line_item],
-			discount: 0
+			tax_rate: null
 		}
 	});
+
+	const total = useMemo(() => {
+		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
+		if (form.values.tax_rate) {
+			return sum + sum * form.values.tax_rate/100
+		} else {
+			return sum
+		}
+	}, [form.values.line_items, form.values.tax_rate])
+
+	const subtotal = useMemo(() => {
+		return form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
+	}, [form.values.line_items])
 
 	const createNewCustomer = useCallback(
 		async (values: CustomerFormValues) => {
@@ -331,7 +346,7 @@ const CreateInvoice = ({ session_id }) => {
 					</td>
 					<td>
 						<NumberInput
-							value={GBP(item.price)}
+							value={item.price}
 							hideControls
 							precision={2}
 							readOnly
@@ -340,13 +355,13 @@ const CreateInvoice = ({ session_id }) => {
 							parser={value => value.replace(/£\s?|(,*)/g, '')}
 							formatter={value =>
 								!Number.isNaN(parseFloat(value))
-									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									? `£ ${GBP(parseFloat(value))}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 									: '£ '
 							}
 							{...form.getInputProps(`line_items.${index}.price`)}
 						/>
 					</td>
-					<td>{GBP(item.quantity * (item.price * 100)).format()}</td>
+					<td>{GBP(item.quantity * (item.price)).format()}</td>
 					<td>
 						<div className='flex flex-shrink'>
 							<ActionIcon
@@ -585,7 +600,7 @@ const CreateInvoice = ({ session_id }) => {
 									</Text>
 								</div>
 								<div>
-									<Text size='md'>{GBP(0).format()}</Text>
+									<Text size='md'>{GBP(subtotal).format()}</Text>
 								</div>
 								<div />
 								<div>
@@ -599,7 +614,7 @@ const CreateInvoice = ({ session_id }) => {
 								<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
 									Total Amount
 								</Text>
-								<Text size='md'>{GBP(0).format()}</Text>
+								<Text size='md'>{GBP(total).format()}</Text>
 							</SimpleGrid>
 						</Card>
 					</Group>

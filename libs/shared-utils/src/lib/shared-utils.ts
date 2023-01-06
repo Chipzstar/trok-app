@@ -14,7 +14,7 @@ export function sanitize(str: string): string {
 	return str.replace(/[_-]/g, ' ').toLowerCase();
 }
 
-export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true });
+export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true, precision: 2 });
 
 /**
  * Checks if the value is a valid number.
