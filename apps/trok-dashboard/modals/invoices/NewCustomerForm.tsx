@@ -48,6 +48,10 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 				title: {
 					fontSize: 24,
 					fontWeight: 500
+				},
+				header: {
+					paddingBottom: 8,
+					borderBottom: '1px solid #E5E5E5'
 				}
 			}}
 		>
@@ -87,7 +91,18 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 					</Group>
 				</Stack>
 				<Group position='right'>
-					<Button disabled={!form.isDirty()} type='submit' loading={loading}>
+					<Button variant="outline" type='button' onClick={onClose} styles={{
+						root: {
+							width: 90,
+						}
+					}}>
+						<Text weight={500}>Cancel</Text>
+					</Button>
+					<Button disabled={!form.isDirty()} type='submit' loading={loading} styles={{
+						root: {
+							width: 90,
+						}
+					}}>
 						<Text weight={500}>Save</Text>
 					</Button>
 				</Group>

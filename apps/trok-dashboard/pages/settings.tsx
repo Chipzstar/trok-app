@@ -9,11 +9,12 @@ import { authOptions } from './api/auth/[...nextauth]';
 import ChangePassword from '../containers/settings/ChangePassword';
 import BankAccountsTable from '../containers/BankAccountsTable';
 import { trpc } from '../utils/clients';
-import { SAMPLE_BANK_ACCOUNTS } from '../utils/constants';
+import { isProd, SAMPLE_BANK_ACCOUNTS } from '../utils/constants';
 import BankAccountForm from '../modals/BankAccountForm';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
 import { useForm } from '@mantine/form';
+import TestMode from '../containers/settings/TestMode';
 
 const Settings = ({ testMode, user, session_id, stripe }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('personal');
@@ -23,7 +24,7 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 	const query = trpc.getBankAccounts.useQuery({ userId: session_id });
 	const mutation = trpc.addBankAccount.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Bank Accounts refetched'));
+			utils.getBankAccounts.invalidate({ userId: session_id }).then(r => console.log(input, 'Bank Accounts refetched'));
 		}
 	});
 	const data = testMode ? SAMPLE_BANK_ACCOUNTS : !query.isLoading ? query?.data : [];
@@ -94,6 +95,7 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 						<Tabs.Tab value='financial'>Bank Account</Tabs.Tab>
 						<Tabs.Tab value='company'>Company</Tabs.Tab>
 						<Tabs.Tab value='password'>Change Password</Tabs.Tab>
+						{!isProd && <Tabs.Tab value='test-mode'>Test Mode</Tabs.Tab>}
 					</Tabs.List>
 					<Tabs.Panel value='personal' pt='xs' className='h-full'>
 						<Personal stripe={stripe} account={user} />
@@ -114,6 +116,9 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 					</Tabs.Panel>
 					<Tabs.Panel value='password' pt='xs' className='h-full'>
 						<ChangePassword user_id={session_id} />
+					</Tabs.Panel>
+					<Tabs.Panel value='test-mode' pt='xs' className='h-full'>
+						<TestMode />
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>

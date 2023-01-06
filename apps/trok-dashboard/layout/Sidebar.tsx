@@ -90,7 +90,6 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 const Sidebar = () => {
-	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const router = useRouter();
 	const { data: session } = useSession()
 	const { data, isLoading, isError } = trpc.checkAccountApproved.useQuery(
@@ -120,17 +119,17 @@ const Sidebar = () => {
 				disabled: data === false
 			},
 			{
-				link: PATHS.CARDS,
-				label: 'Cards',
-				icon: IconCreditCard,
-				isActive: router.pathname.includes(PATHS.CARDS),
-				disabled: data === false
-			},
-			{
 				link: PATHS.INVOICES,
 				label: 'Invoices',
 				icon: IconFileInvoice,
 				isActive: router.pathname === PATHS.INVOICES,
+				disabled: data === false
+			},
+			{
+				link: PATHS.CARDS,
+				label: 'Cards',
+				icon: IconCreditCard,
+				isActive: router.pathname.includes(PATHS.CARDS),
 				disabled: data === false
 			},
 			{
@@ -182,28 +181,7 @@ const Sidebar = () => {
 				</Group>
 			</Navbar.Section>
 			<Navbar.Section grow>{links}</Navbar.Section>
-			{!isProd && (
-				<Navbar.Section py='md' mx='auto'>
-					<Switch
-						color='orange'
-						label='Test mode'
-						size='md'
-						checked={!!testMode}
-						onChange={event => setTestMode(event.currentTarget.checked)}
-					/>
-				</Navbar.Section>
-			)}
 			<Navbar.Section className={classes.footer}>
-				{!isProd && (
-					<div
-						role='button'
-						className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.REFERRAL })}
-						onClick={() => router.push(PATHS.REFERRAL)}
-					>
-						<IconGift className={classes.linkIcon} stroke={1.5} />
-						<span>Refer & Earn</span>
-					</div>
-				)}
 				<div
 					role='button'
 					className={cx(classes.link, { [classes.linkActive]: router.pathname === PATHS.SETTINGS })}

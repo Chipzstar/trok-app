@@ -107,8 +107,8 @@ model Customer {
   company         String
   email           String?
   phone           String?
-  billing_address Address?
   website         String?
+  billing_address Address?
   invoices        Invoice[]
 }
 model Driver {
@@ -321,9 +321,9 @@ model TaxRate {
   user        User      @relation(fields: [userId], references: [id])
   userId      String    @db.ObjectId
   name        String
-  rate        Float
+  percentage  Float
   description String?
-  type        TaxType
+  calculation TaxType
   Invoice     Invoice[]
 }
 model Transaction {

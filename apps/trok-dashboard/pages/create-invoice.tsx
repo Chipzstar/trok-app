@@ -47,6 +47,7 @@ import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineI
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
+import NewTaxRateForm, { TaxRateFormValues } from '../modals/invoices/NewTaxRateForm';
 
 interface CreateInvoiceForm {
 	invoice_date: string | Date;
@@ -109,24 +110,25 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-const default_line_item : LineItem = {
+const default_line_item: LineItem = {
 	id: '',
 	name: '',
 	quantity: 1,
 	price: 0,
 	description: '',
 	editing: true
-}
+};
 
 const CreateInvoice = ({ session_id }) => {
 	const router = useRouter();
-	const [loading, setLoading] = useState(false);
 	const { classes, cx } = useStyles();
+	const [loading, setLoading] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [newCustomer, showNewCustomerForm] = useState({ query: '', show: false });
 	const [newItem, showNewItemForm] = useState({ query: '', show: false });
+	const [newTax, showNewTaxForm] = useState(false);
 	const items = [
 		{ title: 'Home', href: PATHS.HOME },
 		{ title: 'Invoices', href: PATHS.INVOICES },
@@ -153,6 +155,13 @@ const CreateInvoice = ({ session_id }) => {
 			placeholderData: []
 		}
 	);
+	const taxItemQuery = trpc.getTaxRates.useQuery({
+			userId: session_id
+		},
+		{
+			placeholderData: []
+		}
+		);
 	const createCustomerMutation = trpc.createCustomer.useMutation({
 		onSuccess: function (input) {
 			utils.getCustomers.invalidate({ userId: session_id });
@@ -169,9 +178,7 @@ const CreateInvoice = ({ session_id }) => {
 			invoice_date: '',
 			due_date: '',
 			invoice_number: '',
-			line_items: [
-				default_line_item
-			],
+			line_items: [default_line_item],
 			discount: 0
 		}
 	});
@@ -199,6 +206,7 @@ const CreateInvoice = ({ session_id }) => {
 
 	const createNewItem = useCallback(
 		async (values: LineItemFormValues) => {
+			values.price *= 100;
 			setLoading(true);
 			try {
 				console.log(values);
@@ -208,6 +216,27 @@ const CreateInvoice = ({ session_id }) => {
 				});
 				setLoading(false);
 				showNewItemForm(prevState => ({ ...prevState, show: false }));
+				notifySuccess('create-line-item-success', 'New invoice item created', <IconCheck size={20} />);
+			} catch (err) {
+				console.error(err);
+				setLoading(false);
+				notifyError('create-line-item-failed', err.message, <IconX size={20} />);
+			}
+		},
+		[session_id]
+	);
+
+	const createNewTax = useCallback(
+		async (values: TaxRateFormValues) => {
+			setLoading(true);
+			try {
+				console.log(values);
+				/*await createLineItemMutation.mutateAsync({
+					userId: session_id,
+					...values
+				});*/
+				setLoading(false);
+				showNewTaxForm(false);
 				notifySuccess('create-line-item-success', 'New invoice item created', <IconCheck size={20} />);
 			} catch (err) {
 				console.error(err);
@@ -303,6 +332,7 @@ const CreateInvoice = ({ session_id }) => {
 					<td>
 						<NumberInput
 							value={GBP(item.price)}
+							hideControls
 							precision={2}
 							readOnly
 							min={0}
@@ -338,8 +368,6 @@ const CreateInvoice = ({ session_id }) => {
 		</Draggable>
 	));
 
-	useEffect(() => console.log(form.values.line_items), [form.values]);
-
 	return (
 		<Page.Container
 			classNames='h-screen flex flex-col overflow-x-hidden'
@@ -365,6 +393,12 @@ const CreateInvoice = ({ session_id }) => {
 				loading={loading}
 				onSubmit={createNewItem}
 				query={newItem.query}
+			/>
+			<NewTaxRateForm
+				opened={newTax}
+				onClose={() => showNewTaxForm(false)}
+				loading={loading}
+				onSubmit={createNewTax}
 			/>
 			<Page.Body extraClassNames=''>
 				<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
@@ -555,7 +589,7 @@ const CreateInvoice = ({ session_id }) => {
 								</div>
 								<div />
 								<div>
-									<Anchor component='button' type='button'>
+									<Anchor component='button' type='button' onClick={() => showNewTaxForm(true)}>
 										+ Add Tax
 									</Anchor>
 								</div>

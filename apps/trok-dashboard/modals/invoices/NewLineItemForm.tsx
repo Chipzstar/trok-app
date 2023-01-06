@@ -19,14 +19,10 @@ const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLin
 	const form = useForm<LineItemFormValues>({
 		initialValues: {
 			name: query,
-			description: '',
 			price: 0,
+			description: '',
 		}
 	});
-
-	useEffect(() => {
-		form.reset()
-	}, [query]);
 
 	return (
 		<Modal
@@ -40,6 +36,10 @@ const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLin
 				title: {
 					fontSize: 24,
 					fontWeight: 500
+				},
+				header: {
+					paddingBottom: 8,
+					borderBottom: '1px solid #E5E5E5'
 				}
 			}}
 		>
@@ -51,6 +51,8 @@ const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLin
 						{...form.getInputProps('name')}
 					/>
 					<NumberInput
+						required
+						withAsterisk
 						label="Price"
 						precision={2}
 						min={1}
@@ -70,7 +72,18 @@ const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLin
 					/>
 				</Stack>
 				<Group position='right'>
-					<Button disabled={!form.isDirty()} type='submit' loading={loading}>
+					<Button variant="outline" type='button' onClick={onClose} styles={{
+						root: {
+							width: 90,
+						}
+					}}>
+						<Text weight={500}>Cancel</Text>
+					</Button>
+					<Button disabled={!form.isDirty()} type='submit' loading={loading} styles={{
+						root: {
+							width: 90,
+						}
+					}}>
 						<Text weight={500}>Save</Text>
 					</Button>
 				</Group>
