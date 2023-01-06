@@ -1,5 +1,6 @@
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { customAlphabet } from 'nanoid';
+import superjson from 'superjson';
 export const ONE_MINUTE = 1000 * 60;
 export const ONE_HOUR = 1000 * 60 * 60;
 export const THIRTY_MINUTES = 1000 * 60 * 30;
@@ -185,3 +186,11 @@ export const DEFAULT_ALLOWED_MERCHANTS = [
 		enabled: false
 	}
 ]
+
+export const transformer = {
+	input: superjson,
+	output: {
+		serialize: (object: any) => superjson.serialize(object),
+		deserialize: (object: any) => eval(`(${object})`),
+	},
+};

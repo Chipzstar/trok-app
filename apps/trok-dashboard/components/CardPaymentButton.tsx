@@ -53,18 +53,18 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 	const utils = trpc.useContext();
 	const shipMutation = trpc.shipCard.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const deliverMutation = trpc.deliverCard.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 	const paymentMutation = trpc.createTestPayment.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session.id }, {queryKey: ['getCards']}).then(r => console.log(input, 'Cards refetched'));
-			utils.invalidate({ card_id: cardId }, {queryKey: ['getCardTransactions']}).then(r => console.log(input, 'Card Transactions refetched'));
+			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.getCardTransactions.invalidate({ card_id: cardId }).then(r => console.log(input, 'Card Transactions refetched'));
 		}
 	});
 

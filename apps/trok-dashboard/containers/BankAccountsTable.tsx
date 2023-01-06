@@ -13,7 +13,7 @@ const BankAccountsTable = ({ loading, data }) => {
 	const utils = trpc.useContext();
 	const setDefaultMutation = trpc.setDefaultAccount.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session.id }).then(r => console.log(input, 'Bank Accounts refetched'));
+			utils.getBankAccounts.invalidate({ userId: session.id }).then(r => console.log(input, 'Bank Accounts refetched'));
 		}
 	});
 

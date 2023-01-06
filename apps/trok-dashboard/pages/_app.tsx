@@ -27,7 +27,8 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 				httpBatchLink({
 					url: String(process.env.NEXT_PUBLIC_API_BASE_URL) + '/server/trpc'
 				})
-			]
+			],
+			transformer: null
 		})
 	);
 	return (

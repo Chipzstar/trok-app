@@ -19,7 +19,7 @@ const Cards = ({ testMode, session_id }) => {
 	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const mutation = trpc.createCard.useMutation({
 		onSuccess: function (input) {
-			utils.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 
