@@ -2441,6 +2441,13 @@
     "@mantine/utils" "5.5.4"
     react-transition-group "4.4.2"
 
+"@mantine/nprogress@^5.5.4":
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@mantine/nprogress/-/nprogress-5.10.0.tgz#25a4d2b042ea6a7d1dce16302572041220e1f672"
+  integrity sha512-7xKyqjnWbJr5W2I5V9V2X10w7GRyqJHZArVnAVJuyiAedTZNPVuIye6yfPB7Lo+ZvVifYTwyaXE8Xk2IvPfsvw==
+  dependencies:
+    "@mantine/utils" "5.10.0"
+
 "@mantine/ssr@5.5.4":
   version "5.5.4"
   resolved "https://registry.yarnpkg.com/@mantine/ssr/-/ssr-5.5.4.tgz#61dbd84ad0bc8927c0d3b868bcb00a51727e4de1"
@@ -2456,6 +2463,11 @@
   dependencies:
     clsx "1.1.1"
     csstype "3.0.9"
+
+"@mantine/utils@5.10.0":
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.10.0.tgz#d77bdbd4fbf0ef7b10dd0c6480ce9a035dd31ae9"
+  integrity sha512-mHnNm0ajIa8qLAIEwv82N6+7YKecynOA3I8vzgBHXS2x4HwGsHITFYGmMh2LNpx5dRL034tObfEFYZXqncyEDw==
 
 "@mantine/utils@5.5.4":
   version "5.5.4"

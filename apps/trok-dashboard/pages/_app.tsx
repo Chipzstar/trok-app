@@ -10,11 +10,12 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { STORAGE_KEYS } from '../utils/constants';
 import { SessionProvider } from 'next-auth/react';
 import { Session } from 'next-auth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { trpc } from '../utils/clients';
 import { ModalsProvider } from '@mantine/modals';
+import { RouterTransition } from '../components/RouterTransition';
 
 const appendCache = createEmotionCache({ key: 'mantine', prepend: false });
 
@@ -31,6 +32,14 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 			transformer: null
 		})
 	);
+
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			const loader = document.getElementById('globalLoader');
+			if (loader) loader.remove();
+		}
+	}, []);
+
 	return (
 		<trpc.Provider client={trpcClient} queryClient={queryClient}>
 			<QueryClientProvider client={queryClient}>
@@ -76,6 +85,7 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 							}
 						}}
 					>
+						<RouterTransition />
 						<ModalsProvider>
 							<NotificationsProvider position='top-right'>
 								<Layout>
