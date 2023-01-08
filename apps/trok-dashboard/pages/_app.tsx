@@ -37,6 +37,7 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 		if (typeof window !== 'undefined') {
 			const loader = document.getElementById('globalLoader');
 			if (loader) loader.remove();
+			if (loader) loader.remove();
 		}
 	}, []);
 

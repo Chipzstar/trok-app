@@ -320,7 +320,7 @@ const CreateInvoice = ({ session_id }) => {
 										{
 											id: value,
 											name: lineItemQuery.data?.find(item => item.id === value)?.name || '',
-											price: lineItemQuery.data?.find(item => item.id === value)?.price || 0,
+											price: lineItemQuery.data?.find(item => item.id === value)?.price / 100 || 0,
 											description:
 												lineItemQuery.data?.find(item => item.id === value)?.description ||
 												undefined,
@@ -362,13 +362,13 @@ const CreateInvoice = ({ session_id }) => {
 							parser={value => value.replace(/£\s?|(,*)/g, '')}
 							formatter={value =>
 								!Number.isNaN(parseFloat(value))
-									? `£ ${GBP(parseFloat(value))}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 									: '£ '
 							}
 							{...form.getInputProps(`line_items.${index}.price`)}
 						/>
 					</td>
-					<td>{GBP(item.quantity * item.price).format()}</td>
+					<td>{GBP(item.quantity * (item.price * 100)).format()}</td>
 					<td>
 						<div className='flex flex-shrink'>
 							<ActionIcon
