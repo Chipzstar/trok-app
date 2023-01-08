@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Page from '../layout/Page';
-import { FIVE_HUNDRED_POUNDS, PATHS, SAMPLE_CARDS, SAMPLE_TRANSACTIONS } from '../utils/constants';
+import { FIVE_HUNDRED_POUNDS, PATHS, SAMPLE_CARDS, SAMPLE_INVOICES, SAMPLE_TRANSACTIONS } from '../utils/constants';
 import { ActionIcon, Badge, Button, Card, Divider, Group, SimpleGrid, Loader, Space, Stack, Text, Title } from '@mantine/core';
 import dayjs from 'dayjs';
 import SpendAnalysis from '../components/charts/SpendAnalysis';
@@ -11,7 +11,7 @@ import { trpc } from '../utils/clients';
 import { IconCalendar, IconEdit } from '@tabler/icons';
 import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import isBetween from 'dayjs/plugin/isBetween';
-import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
+import { GBP, INVOICE_STATUS, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import ComingSoon from '../modals/ComingSoon';
 
 dayjs.extend(isBetween);
@@ -26,8 +26,9 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		dayjs().startOf('week').toDate(),
 		dayjs().endOf('week').toDate()
 	]);
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
+	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: [] });
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id }, { placeholderData: []});
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: []});
 	const balanceQuery = trpc.getIssuingBalance.useQuery({ userId: session_id, stripeId: stripe_account_id });
 
 	const week_spend = useMemo(() => {
@@ -40,6 +41,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 			return GBP(value).format();
 		}
 	}, [testMode, transactionsQuery, range]);
+	
 	const week_savings = useMemo(() => {
 		if (testMode) {
 			return GBP(testMode ? 726436 : 0).format();
@@ -50,10 +52,13 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 			return GBP(value).format();
 		}
 	}, [testMode, transactionsQuery, range]);
-	const num_transactions = useMemo(
-		() => (testMode ? SAMPLE_TRANSACTIONS.length : transactionsQuery?.data?.length),
-		[testMode, transactionsQuery]
-	);
+	const approved_invoices = useMemo(() => {
+		if (testMode) {
+			return SAMPLE_INVOICES.filter(i => i.status === INVOICE_STATUS.APPROVED).length;
+		} else {
+			return invoicesQuery.data.filter(i => i.status === 'approved').length;
+		}
+	}, [testMode, invoicesQuery]);
 	const num_cards = useMemo(
 		() => (testMode ? SAMPLE_CARDS.length : cardsQuery?.data?.length),
 		[testMode, cardsQuery]
@@ -161,12 +166,12 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
-								<span className='text-base'>Number of Cards</span>
-								{!testMode && cardsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_cards}</span>}
+								<span className='text-base'>Invoices Approved</span>
+								{!testMode && invoicesQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{approved_invoices}</span>}
 							</div>
 							<div className='flex flex-col space-y-1'>
-								<span className='text-base'>Transactions</span>
-								{!testMode && transactionsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_transactions}</span>}
+								<span className='text-base'>Number of Cards</span>
+								{!testMode && cardsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_cards}</span>}
 							</div>
 						</Stack>
 						<Divider px={0} />

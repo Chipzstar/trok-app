@@ -1,5 +1,4 @@
 import { TokenCreateParams } from '@stripe/stripe-js';
-
 export const FuelMerchantCategoryCodes = ["5983", "5542", "5172", "5541", "7511"] as const;
 export type FuelMCC = typeof FuelMerchantCategoryCodes[number];
 
@@ -31,6 +30,12 @@ export enum PAYMENT_STATUS {
 	COMPLETE = 'complete',
 	FAILED = 'failed',
 	CANCELLED = 'cancelled'
+}
+
+export enum INVOICE_STATUS {
+	APPROVED = 'approved',
+	UNAPPROVED = 'unapproved',
+	DRAFT = 'draft'
 }
 
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;

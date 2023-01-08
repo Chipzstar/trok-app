@@ -48,26 +48,47 @@ const invoiceRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	getTaxRates: t.procedure.input(
-		z.object({
-			userId: z.string()
-		})
-	).query(async ({input, ctx}) => {
-		try {
-			return await ctx.prisma.taxRate.findMany({
-				where: {
-					userId: input.userId
-				},
-				orderBy: {
-					created_at: 'desc'
-				}
-			});
-		} catch (err) {
-		    console.error(err)
-			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
-		}
-	}),
+	getTaxRates: t.procedure
+		.input(
+			z.object({
+				userId: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.taxRate.findMany({
+					where: {
+						userId: input.userId
+					},
+					orderBy: {
+						created_at: 'desc'
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
+	getInvoices: t.procedure
+		.input(
+			z.object({
+				userId: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.invoice.findMany({
+					where: {
+						userId: input.userId
+					}
+				});
+			} catch (err) {
+				console.error(err);
+                // @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
 	createCustomer: t.procedure
 		.input(
 			z.object({
