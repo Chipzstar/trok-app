@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
@@ -194,7 +194,7 @@ const CreateInvoice = ({ session_id }) => {
 	});
 
 	const total = useMemo(() => {
-		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
+		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
 		if (form.values.tax_rate) {
 			return sum + (sum * form.values.tax_rate.percentage) / 100;
 		} else {
@@ -203,7 +203,7 @@ const CreateInvoice = ({ session_id }) => {
 	}, [form.values.line_items, form.values.tax_rate]);
 
 	const subtotal = useMemo(() => {
-		return form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price, 0);
+		return form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
 	}, [form.values.line_items]);
 
 	const createNewCustomer = useCallback(
@@ -269,6 +269,8 @@ const CreateInvoice = ({ session_id }) => {
 		},
 		[session_id]
 	);
+
+	useEffect(() => console.log(subtotal), [subtotal]);
 
 	const fields = form.values.line_items.map((item, index) => (
 		<Draggable key={index} index={index} draggableId={index.toString()}>
