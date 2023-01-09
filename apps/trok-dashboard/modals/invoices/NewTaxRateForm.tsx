@@ -1,12 +1,25 @@
 import React from 'react';
-import { Button, Group, Modal, NumberInput, Radio, Stack, Text, Textarea, TextInput } from '@mantine/core';
+import {
+	Button,
+	Center,
+	Group,
+	Modal,
+	NumberInput,
+	Radio,
+	Stack,
+	Text,
+	Textarea,
+	TextInput,
+	Tooltip
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { IconInfoCircle } from '@tabler/icons';
 
 export interface TaxRateFormValues {
 	name: string;
 	percentage: number;
 	description?: string;
-	calculation: "inclusive" | "exclusive";
+	calculation: 'inclusive' | 'exclusive';
 }
 
 interface NewTaxRateFormProps {
@@ -63,9 +76,27 @@ const NewTaxRateForm = ({ opened, onClose, onSubmit, loading }: NewTaxRateFormPr
 					/>
 					<Textarea label='Description' minRows={3} {...form.getInputProps('description')} />
 					<Radio.Group
-						required
-						label='Tax Calculation'
-						withAsterisk
+						label={
+							<Group align="center" spacing="xs">
+								<Text>Tax Calculation</Text>
+								<Tooltip
+									label='Tax rates can either be exclusive or inclusive. An exclusive tax is not included in the invoice subtotal, whereas an inclusive tax is.'
+									position='right-end'
+									withArrow
+									transition='pop-bottom-right'
+									width={250}
+									multiline
+									withinPortal
+								>
+									<Text color='dimmed' size="sm" sx={{ cursor: 'help' }}>
+										<Center>
+											<IconInfoCircle size={18} stroke={1.5} />
+										</Center>
+									</Text>
+								</Tooltip>
+							</Group>
+						}
+						//label='Tax Calculation'
 						{...form.getInputProps('calculation')}
 					>
 						<Radio value='inclusive' label='Inclusive' />

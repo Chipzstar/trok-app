@@ -196,15 +196,22 @@ const CreateInvoice = ({ session_id }) => {
 	const total = useMemo(() => {
 		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
 		if (form.values.tax_rate) {
-			return sum + (sum * form.values.tax_rate.percentage) / 100;
-		} else {
-			return sum;
+			if (form.values.tax_rate.calculation === 'exclusive') {
+				return sum + (sum * form.values.tax_rate.percentage) / 100;
+			}
 		}
+		return sum;
 	}, [form.values.line_items, form.values.tax_rate]);
 
 	const subtotal = useMemo(() => {
-		return form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
-	}, [form.values.line_items]);
+		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
+		if (form.values.tax_rate) {
+			if (form.values.tax_rate.calculation === 'inclusive') {
+				return sum - (sum * form.values.tax_rate.percentage) / 100;
+			}
+		}
+		return sum;
+	}, [form.values.line_items, form.values.tax_rate]);
 
 	const createNewCustomer = useCallback(
 		async (values: CustomerFormValues) => {
@@ -320,7 +327,8 @@ const CreateInvoice = ({ session_id }) => {
 										{
 											id: value,
 											name: lineItemQuery.data?.find(item => item.id === value)?.name || '',
-											price: lineItemQuery.data?.find(item => item.id === value)?.price / 100 || 0,
+											price:
+												lineItemQuery.data?.find(item => item.id === value)?.price / 100 || 0,
 											description:
 												lineItemQuery.data?.find(item => item.id === value)?.description ||
 												undefined,
@@ -611,9 +619,14 @@ const CreateInvoice = ({ session_id }) => {
 								</div>
 								{form.values.tax_rate && (
 									<>
-										<div>
+										<div className="flex flex-wrap">
 											<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-												{form.values.tax_rate.name} ({form.values.tax_rate.percentage} %)
+												{form.values.tax_rate.name} ({form.values.tax_rate.percentage}%){' '}
+												<Text size='xs' color='dimmed' transform="lowercase">
+													{form.values.tax_rate.calculation === 'inclusive'
+														? 'incl.'
+														: 'excl.'}
+												</Text>
 											</Text>
 										</div>
 										<Group>
