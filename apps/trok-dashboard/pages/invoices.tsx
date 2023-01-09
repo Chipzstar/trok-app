@@ -3,7 +3,7 @@ import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
 import InvoiceForm, { SectionState } from '../modals/invoices/InvoiceForm';
 import { useForm } from '@mantine/form';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, genInvoiceId } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
@@ -12,7 +12,7 @@ import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 
-const Invoices = ({ testMode, session_id }) => {
+const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [opened, setOpened] = useState(false);
 	const [podOpened, setPODOpened] = useState(false);
@@ -24,8 +24,11 @@ const Invoices = ({ testMode, session_id }) => {
 
 	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
 
-	const form = useForm({
-		initialValues: {}
+	const form = useForm<{pod: boolean, invoice: boolean}>({
+		initialValues: {
+			pod: false,
+			invoice: false
+		}
 	});
 
 	const handleSubmit = useCallback(async values => {
@@ -83,17 +86,17 @@ const Invoices = ({ testMode, session_id }) => {
 					setNewInvoiceOpened(false)
 					setTimeout(() => setInvUploadOpened(true), 100)
 				}}
+				invoiceId={invoice_id}
 			/>
 			<PODUploadForm
 				opened={podOpened}
 				onClose={() => setPODOpened(false)}
-				form={form}
-				onSubmit={handleSubmit}
-				loading={loading}
 				goBack={() => {
 					setPODOpened(false)
 					setTimeout(() => setNewInvoiceOpened(true), 100)
 				}}
+				form={form}
+				invoiceId={invoice_id}
 			/>
 			<InvoiceUploadForm
 				opened={invUploadOpened}
@@ -105,6 +108,7 @@ const Invoices = ({ testMode, session_id }) => {
 					setInvUploadOpened(false)
 					setTimeout(() => setNewInvoiceOpened(true), 100)
 				}}
+				invoiceId={invoice_id}
 			/>
 			<Page.Body extraClassNames=''>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -194,9 +198,11 @@ export async function getServerSideProps({ req, res }) {
 			}
 		};
 	}
+	const invoice_id = genInvoiceId()
 	return {
 		props: {
-			session_id: session.id
+			session_id: session.id,
+			invoice_id,
 		}
 	};
 }

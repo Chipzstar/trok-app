@@ -2,8 +2,23 @@ import React from 'react';
 import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group, LoadingOverlay } from '@mantine/core';
 import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
+import { UseFormReturnType } from '@mantine/form';
 
 export type SectionState = 'create' | 'upload';
+
+interface InvoiceFormProps {
+	opened: boolean;
+	onClose: () => void;
+	form: UseFormReturnType<{ pod: boolean; invoice: boolean }>;
+	onSubmit: (values: { pod: boolean; invoice: boolean }) => void;
+	loading: boolean;
+	section: SectionState;
+	setSection: (val: SectionState) => void;
+	showPODUploadForm: () => void;
+	showInvUploadForm: () => void;
+	invoiceId: string;
+}
+
 const InvoiceForm = ({
 	opened,
 	onClose,
@@ -13,8 +28,9 @@ const InvoiceForm = ({
 	section,
 	setSection,
 	showPODUploadForm,
-	showInvUploadForm
-}) => {
+	showInvUploadForm,
+	invoiceId
+}: InvoiceFormProps) => {
 	const router = useRouter();
 	const [visible, setVisible] = React.useState(false);
 	return (
@@ -42,11 +58,7 @@ const InvoiceForm = ({
 				<Text size='xs' color='dark'>
 					Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
 				</Text>
-				<form
-					onSubmit={form.onSubmit(onSubmit)}
-					className='flex flex-col space-y-4'
-					onClick={() => console.log(typeof form.values.interval_execution_day)}
-				>
+				<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4'>
 					<SegmentedControl
 						value={section}
 						onChange={(value: 'create' | 'upload') => setSection(value)}
@@ -65,29 +77,43 @@ const InvoiceForm = ({
 							withBorder
 							onClick={() => {
 								setVisible(true);
-								router.push(PATHS.CREATE_INVOICE).then(() => setVisible(false))}
-							}
+								router.push(PATHS.CREATE_INVOICE).then(() => setVisible(false));
+							}}
 						>
 							<Group spacing='xl'>
-								<div className='flex rounded-xl bg-primary/25'>
-									<Image
-										width={75}
-										height={75}
-										radius='md'
-										src='/static/images/add-button.svg'
-										alt='create invoice'
-									/>
-								</div>
-								<Text weight='bold'>Create Invoice</Text>
+								{form.values.invoice ? (
+									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
+										<Image
+											width={60}
+											height={60}
+											radius='md'
+											src='/static/images/add-button.svg'
+											alt='create invoice'
+										/>
+									</div>
+								) : (
+									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
+										<Image
+											width={60}
+											height={60}
+											radius='md'
+											src='/static/images/add-button.svg'
+											alt='create invoice'
+										/>
+									</div>
+								)}
+								<Text weight='bold'>
+									{form.values.invoice ? 'Invoice submitted' : 'Create Invoice'}
+								</Text>
 							</Group>
 						</Paper>
 					) : (
 						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showInvUploadForm}>
 							<Group spacing='xl'>
-								<div className='flex rounded-xl bg-primary/25'>
+								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
 									<Image
-										width={75}
-										height={75}
+										width={60}
+										height={60}
 										radius='md'
 										src='/static/images/add-button.svg'
 										alt='Add invoice rate'
@@ -99,16 +125,28 @@ const InvoiceForm = ({
 					)}
 					<Paper component='button' shadow='xs' p='lg' withBorder onClick={showPODUploadForm}>
 						<Group spacing='xl'>
-							<div className='flex rounded-xl bg-primary/25'>
-								<Image
-									width={75}
-									height={75}
-									radius='md'
-									src='/static/images/add-button.svg'
-									alt='Add invoice rate'
-								/>
-							</div>
-							<Text weight='bold'>Upload proof of delivery</Text>
+							{form.values.pod ? (
+								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
+									<Image
+										width={60}
+										height={60}
+										radius='md'
+										src='/static/images/add-button.svg'
+										alt='Upload Proof of delivery'
+									/>
+								</div>
+							) : (
+								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
+									<Image
+										width={60}
+										height={60}
+										radius='md'
+										src='/static/images/add-button.svg'
+										alt='Upload Proof of delivery'
+									/>
+								</div>
+							)}
+							<Text weight='bold'>{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}</Text>
 						</Group>
 					</Paper>
 				</form>

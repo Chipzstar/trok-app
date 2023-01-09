@@ -133,7 +133,7 @@ const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loa
 				<Title order={2} weight={500}>
 					<span>Send Payment</span>
 				</Title>
-				<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4' onClick={() => console.log(typeof form.values.interval_execution_day)}>
+				<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4'>
 					<SegmentedControl
 						value={section}
 						onChange={(value: 'topup' | 'account') => setSection(value)}

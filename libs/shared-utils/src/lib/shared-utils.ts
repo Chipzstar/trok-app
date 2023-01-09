@@ -7,6 +7,7 @@ import Prisma from '@prisma/client';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { TRANSACTION_STATUS } from './shared-types';
+import orderId from 'order-id';
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
@@ -151,4 +152,8 @@ export function calcPercentageChange(original: number, current: number): number 
 	const percentage_change = (difference / original) * 100
 	console.log(percentage_change)
 	return percentage_change;
+}
+
+export function genInvoiceId() : string {
+	return orderId('invoice').generate()
 }

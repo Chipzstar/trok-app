@@ -1,8 +1,13 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { FormEvent, useCallback, useMemo, useRef, useState } from 'react';
 import { Button, createStyles, Drawer, Image, Group, Space, Stack, Text, Title, SimpleGrid } from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
+import { IconCloudUpload, IconUpload, IconX, IconCheck } from '@tabler/icons';
 import { TEN_MB } from '../../utils/constants';
+import { notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { uploadFile } from '../../utils/functions';
+import { trpc } from '../../utils/clients';
+import { useSession } from 'next-auth/react';
+import { UseFormReturnType } from '@mantine/form';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -34,10 +39,46 @@ function Preview(props: { file: FileWithPath }) {
 	) : null;
 }
 
-const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => {
+interface PODUploadFormProps {
+	opened: boolean,
+	onClose: () => void;
+	goBack: () => void;
+	form: UseFormReturnType<{pod: boolean, invoice: boolean}>;
+	invoiceId: string
+}
+
+const PODUploadForm = ({ opened, onClose, goBack, form, invoiceId }: PODUploadFormProps) => {
+	const { data: session } = useSession();
+	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
+	const { data: account } = trpc.getAccount.useQuery(
+		{
+			id: session?.id,
+			stripe_account_id: session?.stripe?.account_id
+		},
+		{ enabled: !!session }
+	);
+
+	const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setLoading(true);
+		try {
+			if (!file) throw new Error('Please upload a proof of delivery photo before submitting.');
+			const filename = encodeURIComponent(file.name);
+			const filepath = `${account.business.business_crn}/INVOICES/${invoiceId}/POD/${filename}`;
+			await uploadFile(file, filename, filepath);
+			setLoading(false);
+			form.setFieldValue('pod', true)
+			notifySuccess('upload-image-success', 'Proof of delivery uploaded successfully.', <IconCheck size={20} />);
+			goBack()
+		} catch (err) {
+			console.error(err);
+			setLoading(false);
+			notifyError('upload-image-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, [file, account, form]);
 
 	return (
 		<Drawer
@@ -52,8 +93,8 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
-			<form className="flex flex-col" onSubmit={onSubmit}>
-				<Title order={2} weight={500} mb="lg">
+			<form className='flex flex-col' onSubmit={handleSubmit}>
+				<Title order={2} weight={500} mb='lg'>
 					<span>Upload Proof of Delivery</span>
 				</Title>
 				<div className={classes.wrapper}>
@@ -62,7 +103,11 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 						onDrop={file => {
 							setFile(file[0]);
 						}}
-						onReject={files => console.log('rejected files', files)}
+						onReject={file => {
+							console.log('rejected files', file)
+							notifyError('upload-pod-failed', `The file ${file} could not be uploaded. Please make sure your image is < 10Mb`, <IconX size={20}/>)
+
+						}}
 						maxSize={TEN_MB}
 						className={classes.dropzone}
 						accept={IMAGE_MIME_TYPE}
@@ -97,7 +142,8 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 							<Dropzone.Idle>Upload Image</Dropzone.Idle>
 						</Text>
 						<Text align='center' size='sm' mt='xs' color='dimmed'>
-							Drag&apos;n&apos;drop files here to upload. We can accept only <i>.png</i> and <i>.jpg</i>{' '}
+							Drag&apos;n&apos;drop files here to upload. We can accept
+							only <i>.png</i> and <i>.jpg</i>{' '}
 							files that are less than 10mb in size.
 						</Text>
 					</Dropzone>
@@ -105,17 +151,17 @@ const PODUploadForm = ({ opened, onClose, form, onSubmit, loading, goBack }) => 
 						Select file
 					</Button>
 				</div>
-				<SimpleGrid py="xl" cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
-					<div/>
+				<SimpleGrid py='xl' cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+					<div />
 					<Preview file={file} />
-					<div/>
+					<div />
 				</SimpleGrid>
 				<Space h='xl' />
 				<Group position='right'>
 					<Button type='button' variant='white' size='md' onClick={goBack}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
-					<Button type='submit' size='md' onClick={onSubmit} disabled={!file}>
+					<Button type='submit' size='md' disabled={!file} loading={loading}>
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>

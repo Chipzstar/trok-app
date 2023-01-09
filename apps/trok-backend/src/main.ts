@@ -130,10 +130,8 @@ const runApp = async () => {
 	app.use('/server/auth', jsonParser, authRoutes);
 	app.get('/server/gcp/upload', async (req, res, next) => {
 		try {
-			const { filename, crn, type } = req.query;
-			console.table({ filename, crn, type });
-			const filepath = `${crn}/${type}/${filename}`;
-			const file = BUCKET.file(filepath);
+			const { filename, filepath } = req.query;
+			const file = BUCKET.file(String(filepath));
 			console.log(file);
 			console.log(`${filename} uploaded to ${process.env.GCS_BUCKET_NAME}`);
 			const options = {

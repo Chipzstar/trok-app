@@ -26,11 +26,9 @@ export function uniqueSimpleArray(array: SelectInput[]) {
 	return [...new Set(values)];
 }
 
-export async function uploadFile(file, crn, documentType) {
+export async function uploadFile(file, filename, filepath) {
 	try {
-		console.table({ file, crn, documentType });
-		const filename = encodeURIComponent(file.name);
-		const res = (await apiClient.get(`/server/gcp/upload?crn=${crn}&filename=${filename}&type=${documentType}`))
+		const res = (await apiClient.get(`/server/gcp/upload?filename=${filename}&filepath=${filepath}`))
 			.data;
 		const { url, fields } = res;
 		const formData = new FormData();

@@ -270,8 +270,6 @@ const CreateInvoice = ({ session_id }) => {
 		[session_id]
 	);
 
-	useEffect(() => console.log(subtotal), [subtotal]);
-
 	const fields = form.values.line_items.map((item, index) => (
 		<Draggable key={index} index={index} draggableId={index.toString()}>
 			{provided => (
