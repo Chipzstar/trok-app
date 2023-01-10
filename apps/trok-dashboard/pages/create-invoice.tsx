@@ -46,7 +46,7 @@ import {
 } from '@tabler/icons';
 import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
-import { isNotEmpty, TransformedValues, useForm } from '@mantine/form';
+import { TransformedValues, useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { GBP, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
@@ -57,6 +57,7 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import NewTaxRateForm, { TaxRateFormValues } from '../modals/invoices/NewTaxRateForm';
 import { useWindowScroll } from '@mantine/hooks';
+import prisma from '../prisma';
 
 interface CreateInvoiceForm {
 	customer: string;
