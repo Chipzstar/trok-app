@@ -155,11 +155,13 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				<Space py='md' />
 				<Tabs
 					value={activeTab}
+					orientation="horizontal"
 					onTabChange={setActiveTab}
 					defaultValue='all'
 					classNames={{
-						root: 'flex flex-col grow',
+						root: '',
 						tabsList: '',
+						tab: 'mx-4'
 					}}
 				>
 					<Tabs.List>

@@ -15,8 +15,8 @@ const Cards = ({ testMode, session_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id }, { placeholderData: []});
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: [] });
 	const mutation = trpc.createCard.useMutation({
 		onSuccess: function (input) {
 			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
@@ -25,9 +25,7 @@ const Cards = ({ testMode, session_id }) => {
 
 	const data = testMode
 		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
-		: cardsQuery.data
-		? cardsQuery?.data.filter(c => activeTab === 'all' || c.status === activeTab)
-		: [];
+		: cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab);
 
 	const form = useForm({
 		initialValues: {
@@ -162,7 +160,7 @@ const Cards = ({ testMode, session_id }) => {
 					onTabChange={setActiveTab}
 					defaultValue='all'
 					classNames={{
-						root: 'flex flex-col grow',
+						root: '',
 						tabsList: '',
 						tab: 'mx-4'
 					}}

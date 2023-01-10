@@ -34,20 +34,19 @@ const Transactions = ({ testMode, session_id }) => {
 	const transactionsQuery = trpc.getTransactions.useQuery(
 		{ userId: session_id },
 		{
+			placeholderData: [],
 			refetchInterval: 3000,
 			trpc: {
 				ssr: true,
 			}
 		}
 	);
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
-	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: [] });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id }, { placeholderData: [] });
 
 	const data = testMode
 		? SAMPLE_TRANSACTIONS
-		: transactionsQuery?.data
-		? transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab)
-		: [];
+		: transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab);
 
 	const form = useForm<ExportForm>({
 		initialValues: {
@@ -206,7 +205,7 @@ const Transactions = ({ testMode, session_id }) => {
 					value={activeTab}
 					onTabChange={(val: TransactionStatus) => setActiveTab(val)}
 					classNames={{
-						root: 'flex flex-col grow',
+						root: '',
 						tabsList: '',
 						tab: 'mx-4'
 					}}

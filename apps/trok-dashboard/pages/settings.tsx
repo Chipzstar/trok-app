@@ -84,7 +84,7 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 					onTabChange={setActiveTab}
 					defaultValue='personal'
 					classNames={{
-						root: 'flex flex-col grow',
+						root: '',
 						tabsList: '',
 						tab: 'mr-8'
 					}}
