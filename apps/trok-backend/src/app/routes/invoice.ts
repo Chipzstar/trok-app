@@ -3,6 +3,23 @@ import { z } from 'zod';
 import { AddressSchema } from '../utils/schemas';
 import { TRPCError } from '@trpc/server';
 
+const LineItemSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+    quantity: z.number(),
+	price: z.number(),
+	unit: z.string().optional(),
+	description: z.string().optional()
+})
+
+const TaxRateSchema = z.object({
+	id: z.string(),
+    name: z.string(),
+    percentage: z.number(),
+	description: z.string(),
+	calculation: z.enum(['inclusive', 'exclusive'])
+})
+
 const invoiceRouter = t.router({
 	getCustomers: t.procedure
 		.input(
@@ -184,7 +201,28 @@ const invoiceRouter = t.router({
 				//@ts-ignore
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err.message });
 			}
-		})
+		}),
+	createInvoice: t.procedure.input(z.object({
+		userId: z.string(),
+		customer: z.string(),
+		invoice_date: z.union([z.string(), z.date()]),
+		due_date: z.union([z.string(), z.date()]),
+		invoice_id: z.string(),
+		invoice_number: z.string(),
+		line_items: LineItemSchema,
+		tax_rate: TaxRateSchema,
+		subtotal: z.number(),
+		total: z.number()
+	})).mutation(async ({input, ctx}) => {
+		try {
+			console.log(input)
+			return input;
+		} catch (err) {
+			console.error(err);
+			//@ts-ignore
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err.message });
+		}
+	})
 });
 
 export default invoiceRouter;

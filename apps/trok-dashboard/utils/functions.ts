@@ -1,9 +1,10 @@
 import { apiClient, griffinClient } from './clients';
 import dayjs from 'dayjs';
-import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS, SelectInput } from './types';
+import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS } from './types';
 import { isCI, isDev, isProd, requirements } from './constants';
 import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
+import { SelectItem } from '@mantine/core';
 
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
@@ -17,11 +18,11 @@ export function getStrength(password: string) {
 	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 
-export function uniqueArray(array: SelectInput[], key) {
+export function uniqueArray(array: SelectItem[], key) {
 	return [...new Map(array.map(item => [item[key], item])).values()];
 }
 
-export function uniqueSimpleArray(array: SelectInput[]) {
+export function uniqueSimpleArray(array: SelectItem[]) {
 	const values = array.map(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value));
 	return [...new Set(values)];
 }

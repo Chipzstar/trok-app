@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Card, Group, Loader, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Card, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { INDUSTRY_TYPES } from '../../utils/constants';
 import { useForm } from '@mantine/form';
 import { trpc } from '../../utils/clients';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
+import { DynamicInputFieldProps } from '../../utils/types';
 
 const DynamicInputField = ({
 	editMode,
@@ -15,7 +16,7 @@ const DynamicInputField = ({
 	onBlur,
 	is_merchant_code = false,
 	is_business_type = false
-}) => {
+}: DynamicInputFieldProps) => {
 	if (editMode && is_merchant_code) {
 		return (
 			<Select
@@ -74,7 +75,7 @@ const Company = ({ user_id, stripe, business }) => {
 			business_crn: business?.business_crn,
 			num_vehicles: business?.num_vehicles,
 			business_url: business?.business_url
-		}
+		},
 	});
 
 	const handleSubmit = useCallback(

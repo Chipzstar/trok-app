@@ -13,6 +13,7 @@ model Invoice {
     invoice_date Int @db.Long
     due_date Int @db.Long
     tax_rate TaxRate?
+    subtotal Int @db.Long
     amount_due Int @db.Long
     total_amount Int @db.Long
     status String

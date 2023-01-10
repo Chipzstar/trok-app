@@ -1,13 +1,9 @@
+import React, { FocusEventHandler } from 'react';
+
 export type TableHeadings = {
 	label: string;
 	key: string | null;
 };
-
-export interface SelectInput {
-	value: string | number;
-	label: string;
-	group?: string
-}
 
 export interface LineItem {
 	id: string;
@@ -29,4 +25,17 @@ export enum GRIFFIN_RISK_RATING {
 	HIGH="high-risk",
 	MEDIUM="medium-risk",
     LOW="low-risk"
+}
+
+export interface DynamicInputFieldProps {
+	editMode: boolean;
+	disabled?: boolean;
+	value: any;
+	onChange: (event: string | null | React.ChangeEvent<HTMLInputElement>) => void;
+	error?: string;
+	onFocus?: FocusEventHandler<HTMLInputElement>;
+	onBlur?: FocusEventHandler<HTMLInputElement>;
+	is_merchant_code?: boolean;
+	is_business_type?: boolean;
+	isPassword?: boolean
 }

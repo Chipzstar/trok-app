@@ -10,14 +10,14 @@ import {
 	Stack,
 	Text,
 	TextInput,
-	Title
+	Title,
+	SelectItem
 } from '@mantine/core';
 import SortCodeInput from '../components/SortCodeInput';
 import { UseFormReturnType } from '@mantine/form';
 import dayjs from 'dayjs';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import weekday from 'dayjs/plugin/weekday';
-import { SelectInput } from '../utils/types';
 import { DatePicker } from '@mantine/dates';
 import { IconCalendar } from '@tabler/icons';
 import { capitalize } from '@trok-app/shared-utils';
@@ -89,28 +89,28 @@ interface PaymentFormProps {
 const PaymentForm = ({ opened, onClose, onSubmit, form, section, setSection, loading }: PaymentFormProps) => {
 	const is_weekly = useMemo(() => form.values?.interval === 'WEEKLY', [form.values?.interval]);
 	const execution_days = useMemo(() => {
-		let values: SelectInput[];
+		let values: SelectItem[];
 		if (form.values.interval === 'WEEKLY') {
 			values = [...Array(7).keys()].map(item => ({
 				label: dayjs().weekday(item).format('dddd'),
-				value: item + 1 // +1 Because interval_execution_day should be an integer from 1 (Monday) to 7 (Sunday).
+				value: String(item + 1) // +1 Because interval_execution_day should be an integer from 1 (Monday) to 7 (Sunday).
 			}));
 		} else {
 			values = [...Array(28).keys()].map(item => ({
 				label: dayjs()
 					.date(item + 1)
 					.format('D'), // +1 because date of the month accepts numbers from 1 to 28
-				value: item + 1,
+				value: String(item + 1),
 				group: 'Specific date'
 			}));
 			values.shift();
 			values.unshift({
 				label: 'First day of the month',
-				value: 1,
+				value: String(1),
 				group: 'Common'
 			}, {
 				label: 'Last day of the month',
-				value: -1,
+				value: String(-1),
 				group: 'Common'
 			});
 		}

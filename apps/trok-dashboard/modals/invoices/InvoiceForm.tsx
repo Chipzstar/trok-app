@@ -77,7 +77,7 @@ const InvoiceForm = ({
 							withBorder
 							onClick={() => {
 								setVisible(true);
-								router.push(PATHS.CREATE_INVOICE).then(() => setVisible(false));
+								router.push(`${PATHS.CREATE_INVOICE}?invoiceId=${invoiceId}`).then(() => setVisible(false));
 							}}
 						>
 							<Group spacing='xl'>

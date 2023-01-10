@@ -1,11 +1,34 @@
-import { Button, Card, Group, Text, Stack, Loader } from '@mantine/core';
+import { Button, Card, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import React, { useCallback, useState } from 'react';
-import DynamicInputField from '../../components/DynamicInputField';
 import { trpc } from '../../utils/clients';
 import { getE164Number, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
+import { DynamicInputFieldProps } from '../../utils/types';
 
+const DynamicInputField = ({
+	editMode,
+	onFocus,
+	onBlur,
+	value,
+	onChange,
+	error,
+	disabled = false,
+	isPassword = false
+}: DynamicInputFieldProps) => {
+	return editMode ? (
+		<TextInput
+			disabled={disabled}
+			value={value}
+			onChange={onChange}
+			error={error}
+			onBlur={onBlur}
+			onFocus={onFocus}
+		/>
+	) : (
+		<span className='font-semibold'>{isPassword ? '***********' : value}</span>
+	);
+};
 const Personal = ({ stripe, account }) => {
 	const [loading, setLoading] = useState(false);
 	const [editMode, setEditMode] = useState(false);

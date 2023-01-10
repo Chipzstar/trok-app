@@ -8,12 +8,7 @@ import currency from 'currency.js';
 import dayjs from 'dayjs';
 import { TRANSACTION_STATUS } from './shared-types';
 import orderId from 'order-id';
-export function capitalize(str: string): string {
-	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-export function sanitize(str: string): string {
-	return str.replace(/[_-]/g, ' ').toLowerCase();
-}
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true, precision: 2 });
 
@@ -23,6 +18,14 @@ export const GBP = (value: number) => currency(value, { symbol: '£', separator:
  * @param value
  */
 export const isNumber = (value : any ) : boolean => !(value === null || !isNaN(value))
+
+export function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function sanitize(str: string): string {
+	return str.replace(/[_-]/g, ' ').toLowerCase();
+}
 
 export function notifySuccess(id: string, message: string, icon: JSX.Element) {
 	showNotification({

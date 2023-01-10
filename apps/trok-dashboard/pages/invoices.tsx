@@ -22,7 +22,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
 
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
+	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: []});
 
 	const form = useForm<{pod: boolean, invoice: boolean}>({
 		initialValues: {
@@ -115,7 +115,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Approved Invoices</span>
-							{!testMode && transactionsQuery.isLoading ? (
+							{!testMode && invoicesQuery.isLoading ? (
 								<Loader size='sm' />
 							) : (
 								<span className='heading-1'>
@@ -128,7 +128,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Unapproved Invoices</span>
-							{!testMode && transactionsQuery.isLoading ? (
+							{!testMode && invoicesQuery.isLoading ? (
 								<Loader size='sm' />
 							) : (
 								<span className='heading-1'>
@@ -141,7 +141,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='md' spacing='xs'>
 							<span className='text-base'>Unpaid Invoices</span>
-							{!testMode && transactionsQuery.isLoading ? (
+							{!testMode && invoicesQuery.isLoading ? (
 								<Loader size='sm' />
 							) : (
 								<span className='heading-1'>

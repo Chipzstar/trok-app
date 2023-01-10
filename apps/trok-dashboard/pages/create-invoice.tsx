@@ -1,7 +1,8 @@
-import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
+	Affix,
 	Anchor,
 	Avatar,
 	Breadcrumbs,
@@ -22,12 +23,16 @@ import {
 	Table,
 	Text,
 	Textarea,
-	TextInput
+	TextInput,
+	Tooltip,
+	Transition,
+	useMantineTheme
 } from '@mantine/core';
 import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
 import {
+	IconArrowUp,
 	IconCalendar,
 	IconCheck,
 	IconCirclePlus,
@@ -36,20 +41,22 @@ import {
 	IconSearch,
 	IconTrash,
 	IconUserPlus,
+	IconWand,
 	IconX
 } from '@tabler/icons';
 import Prisma from '@prisma/client';
 import dayjs from 'dayjs';
-import { useForm } from '@mantine/form';
+import { isNotEmpty, TransformedValues, useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { GBP, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { GBP, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
 import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
 import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineItemForm';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import NewTaxRateForm, { TaxRateFormValues } from '../modals/invoices/NewTaxRateForm';
+import { useWindowScroll } from '@mantine/hooks';
 
 interface CreateInvoiceForm {
 	customer: string;
@@ -58,6 +65,8 @@ interface CreateInvoiceForm {
 	invoice_number: string;
 	line_items: LineItem[];
 	tax_rate: Prisma.TaxRate;
+	subtotal: number;
+	total: number;
 }
 
 interface ItemProps extends SelectItemProps {
@@ -79,7 +88,7 @@ const AutoCompleteItem = forwardRef<HTMLDivElement, ItemProps>(
 					}}
 				/>
 				<div>
-					<Text>{value}</Text>
+					<Text>{label}</Text>
 					<Text size='xs' color='dimmed'>
 						{company}
 					</Text>
@@ -91,6 +100,9 @@ const AutoCompleteItem = forwardRef<HTMLDivElement, ItemProps>(
 
 AutoCompleteItem.displayName = 'AuoCompleteItem';
 
+/**
+ * Styles copied from Mantine docs
+ */
 const useStyles = createStyles(theme => ({
 	header: {
 		position: 'sticky',
@@ -122,12 +134,14 @@ const default_line_item: LineItem = {
 	editing: true
 };
 
-const CreateInvoice = ({ session_id }) => {
+const CreateInvoice = ({ session_id, num_invoices }) => {
 	const router = useRouter();
 	const { classes, cx } = useStyles();
+	const theme = useMantineTheme();
+	const [scroll, scrollTo] = useWindowScroll();
+	const submit_btn_ref = useRef(null);
 	const [loading, setLoading] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
-	const [opened, setOpened] = useState(false);
 	const [visible, setVisible] = useState(false);
 	const [newCustomer, showNewCustomerForm] = useState({ query: '', show: false });
 	const [newItem, showNewItemForm] = useState({ query: '', show: false });
@@ -189,9 +203,52 @@ const CreateInvoice = ({ session_id }) => {
 			due_date: '',
 			invoice_number: '',
 			line_items: [default_line_item],
-			tax_rate: null
-		}
+			tax_rate: null,
+			subtotal: 0,
+			total: 0
+		},
+		validate: {
+			customer: value => (!value ? 'Please provide a customer' : null),
+			invoice_date: value => (!value ? 'Required' : null),
+			due_date: (value, values) =>
+				!value
+					? 'Required'
+					: dayjs(value).isBefore(dayjs(values.invoice_date))
+					? 'Due date must be at least 3 days after the invoice date'
+					: null,
+			invoice_number: value => (!value ? 'Required' : null),
+			line_items: {
+				name: value => (!value ? 'Required' : null)
+			}
+		},
+		transformValues: values => ({
+			...values,
+			line_items: values.line_items.map(item => ({ ...item, editing: undefined }))
+		})
 	});
+
+	// @ts-ignore
+	type Transformed = TransformedValues<typeof useForm>;
+
+	const handleSubmit = useCallback(async (values: Transformed) => {
+		// alert(JSON.stringify(values, null, 2));
+		setLoading(true);
+		try {
+			await sleep(3000);
+			setLoading(false);
+			notifySuccess(
+				'invoice-creation-success',
+				'Invoice has been created successfully and saved as a draft',
+				<IconCheck size={20} />
+			);
+		} catch (err) {
+			console.error(err);
+			setLoading(false);
+			notifyError('invoice-creation-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, []);
+
+	useEffect(() => console.log(form.errors), [form.errors]);
 
 	const total = useMemo(() => {
 		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
@@ -339,7 +396,7 @@ const CreateInvoice = ({ session_id }) => {
 										index
 									);
 								}}
-								error={form.errors.line_items}
+								error={form.errors[`line_items.${index}.name`]}
 							/>
 						) : (
 							<div className='flex flex-col'>
@@ -400,296 +457,336 @@ const CreateInvoice = ({ session_id }) => {
 	));
 
 	return (
-		<Page.Container
-			classNames='h-screen flex flex-col overflow-x-hidden'
-			header={
-				<Page.Header>
-					<span className='text-2xl font-medium'>Create Invoice</span>
-					<Button className='' onClick={() => setOpened(true)}>
-						<span className='text-base font-normal'>Save Invoice</span>
-					</Button>
-				</Page.Header>
-			}
-		>
-			<NewCustomerForm
-				opened={newCustomer.show}
-				onClose={() => showNewCustomerForm(prevState => ({ show: false, query: '' }))}
-				loading={loading}
-				onSubmit={createNewCustomer}
-				query={newCustomer.query}
-			/>
-			<NewLineItemForm
-				opened={newItem.show}
-				onClose={() => showNewItemForm(prevState => ({ show: false, query: '' }))}
-				loading={loading}
-				onSubmit={createNewItem}
-				query={newItem.query}
-			/>
-			<NewTaxRateForm
-				opened={newTax}
-				onClose={() => showNewTaxForm(false)}
-				loading={loading}
-				onSubmit={createNewTax}
-			/>
-			<Page.Body extraClassNames=''>
-				<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
-				<form action=''>
-					<SimpleGrid
-						cols={2}
-						breakpoints={[
-							{ maxWidth: 755, cols: 2, spacing: 'sm' },
-							{ maxWidth: 600, cols: 1, spacing: 'sm' }
-						]}
-					>
-						{!visible ? (
-							<Card withBorder py='xs' radius='xs'>
-								<Stack
-									justify='center'
-									align='center'
-									className='h-full'
-									role='button'
-									onClick={() => setVisible(true)}
+		<>
+			<Page.Container
+				classNames='h-screen flex flex-col overflow-x-hidden'
+				header={
+					<Page.Header>
+						<span className='text-2xl font-medium'>Create Invoice</span>
+						<Button className='' onClick={() => submit_btn_ref.current.click()} loading={loading}>
+							<span className='text-base font-normal'>Save Invoice</span>
+						</Button>
+					</Page.Header>
+				}
+			>
+				<NewCustomerForm
+					opened={newCustomer.show}
+					onClose={() => showNewCustomerForm(prevState => ({ show: false, query: '' }))}
+					loading={loading}
+					onSubmit={createNewCustomer}
+					query={newCustomer.query}
+				/>
+				<NewLineItemForm
+					opened={newItem.show}
+					onClose={() => showNewItemForm(prevState => ({ show: false, query: '' }))}
+					loading={loading}
+					onSubmit={createNewItem}
+					query={newItem.query}
+				/>
+				<NewTaxRateForm
+					opened={newTax}
+					onClose={() => showNewTaxForm(false)}
+					loading={loading}
+					onSubmit={createNewTax}
+				/>
+				<Page.Body extraClassNames=''>
+					<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
+					<form onSubmit={form.onSubmit(handleSubmit)}>
+						<SimpleGrid
+							cols={2}
+							breakpoints={[
+								{ maxWidth: 755, cols: 2, spacing: 'sm' },
+								{ maxWidth: 600, cols: 1, spacing: 'sm' }
+							]}
+						>
+							{!visible ? (
+								<Card
+									withBorder
+									py='xs'
+									radius='xs'
+									sx={{
+										borderColor: form.errors.customer ? theme.colors.red[5] : theme.colors.gray[3]
+									}}
 								>
-									<Group>
-										<Avatar
-											size={40}
-											radius={40}
-											classNames={{
-												placeholder: 'bg-transparent'
-											}}
-										/>
-										<Text weight={500} size='xl'>
-											Add Customer
-										</Text>
-									</Group>
+									<Stack
+										justify='center'
+										align='center'
+										className='h-full'
+										role='button'
+										onClick={() => setVisible(true)}
+									>
+										<Group>
+											<Avatar
+												size={40}
+												radius={40}
+												classNames={{
+													placeholder: 'bg-transparent'
+												}}
+											/>
+											<Text weight={500} size='xl'>
+												Add Customer
+											</Text>
+										</Group>
+									</Stack>
+								</Card>
+							) : (
+								<Stack align='center' className='h-full'>
+									<Select
+										withAsterisk
+										label='Add customer'
+										dropdownPosition='bottom'
+										maxDropdownHeight={1000}
+										searchable
+										creatable
+										radius='sm'
+										placeholder='Search'
+										withinPortal={false}
+										icon={<IconSearch size={14} stroke={1.5} />}
+										getCreateLabel={query => `+ Create ${query}`}
+										onCreate={query => {
+											showNewCustomerForm(prevState => ({ show: true, query }));
+											return null;
+										}}
+										classNames={{
+											root: 'w-full'
+										}}
+										itemComponent={AutoCompleteItem}
+										data={customerQuery.data.map(cus => ({
+											value: cus.id,
+											label: cus.display_name,
+											name: cus.display_name,
+											company: cus.company
+										}))}
+										filter={(value, item) =>
+											item.name.toLowerCase().includes(value.toLowerCase().trim()) ||
+											item.company.toLowerCase().includes(value.toLowerCase().trim())
+										}
+										{...form.getInputProps('customer')}
+									/>
+									<Button
+										variant='outline'
+										mt='sm'
+										leftIcon={<IconUserPlus size={24} />}
+										size='lg'
+										fullWidth
+										onClick={() => showNewCustomerForm(prevState => ({ show: true, query: '' }))}
+									>
+										Create Customer
+									</Button>
 								</Stack>
-							</Card>
-						) : (
-							<Stack align='center' className='h-full'>
-								<Select
+							)}
+							<Stack>
+								<Group position='center' grow>
+									<DatePicker
+										withAsterisk
+										label='Invoice Date'
+										inputFormat='DD-MM-YYYY'
+										placeholder='Pick a date'
+										icon={<IconCalendar size={16} />}
+										value={
+											dayjs(form.values.invoice_date).isValid()
+												? dayjs(form.values.invoice_date).toDate()
+												: null
+										}
+										onChange={date => form.setFieldValue('invoice_date', date)}
+										error={form.errors.invoice_date}
+										allowLevelChange={false}
+									/>
+									<DatePicker
+										withAsterisk
+										label='Due Date'
+										placeholder='Pick a date'
+										icon={<IconCalendar size={16} />}
+										value={
+											dayjs(form.values.due_date).isValid()
+												? dayjs(form.values.due_date).toDate()
+												: null
+										}
+										onChange={date => form.setFieldValue('due_date', date)}
+										error={form.errors.due_date}
+										inputFormat='DD-MM-YYYY'
+										allowLevelChange={false}
+										minDate={dayjs(form.values.invoice_date).add(1, 'd').toDate()}
+									/>
+								</Group>
+								<TextInput
 									withAsterisk
-									label='Add customer'
-									dropdownPosition='bottom'
-									maxDropdownHeight={1000}
-									searchable
-									creatable
-									radius='sm'
-									placeholder='Search'
-									withinPortal={false}
-									icon={<IconSearch size={14} stroke={1.5} />}
-									getCreateLabel={query => `+ Create ${query}`}
-									onCreate={query => {
-										showNewCustomerForm(prevState => ({ show: true, query }));
-										return null;
-									}}
-									classNames={{
-										root: 'w-full'
-									}}
-									itemComponent={AutoCompleteItem}
-									data={customerQuery?.data?.map(cus => ({
-										value: cus.display_name,
-										label: cus.display_name,
-										name: cus.display_name,
-										company: cus.company
-									}))}
-									filter={(value, item) =>
-										item.value.toLowerCase().includes(value.toLowerCase().trim()) ||
-										item.company.toLowerCase().includes(value.toLowerCase().trim())
+									label='Invoice Number'
+									placeholder='INV-##########'
+									rightSection={
+										<Tooltip label='Generate invoice number'>
+											<ActionIcon
+												variant='transparent'
+												onClick={() =>
+													form.setFieldValue(
+														'invoice_number',
+														`INV-${String(num_invoices + 1).padStart(6, '0')}`
+													)
+												}
+											>
+												<IconWand size={18} />
+											</ActionIcon>
+										</Tooltip>
 									}
+									{...form.getInputProps('invoice_number')}
 								/>
+							</Stack>
+						</SimpleGrid>
+						<Space py='sm' />
+						<SimpleGrid cols={1}>
+							<Table
+								id='new-invoice-table'
+								withBorder
+								withColumnBorders={false}
+								horizontalSpacing='xl'
+								verticalSpacing='sm'
+								fontSize='md'
+							>
+								<thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
+									<tr>
+										<th></th>
+										<th>Items</th>
+										<th>Quantity</th>
+										<th>Price</th>
+										<th>Amount</th>
+										<th></th>
+									</tr>
+								</thead>
+								<DragDropContext
+									onDragEnd={({ destination, source }) =>
+										form.reorderListItem('line_items', {
+											from: source.index,
+											to: destination.index
+										})
+									}
+								>
+									<Droppable droppableId='dnd-list' direction='vertical'>
+										{provided => (
+											<tbody {...provided.droppableProps} ref={provided.innerRef}>
+												{fields}
+											</tbody>
+										)}
+									</Droppable>
+								</DragDropContext>
+							</Table>
+							<Group position='right'>
 								<Button
 									variant='outline'
-									mt='sm'
-									leftIcon={<IconUserPlus size={24} />}
-									size='lg'
-									fullWidth
-									onClick={() => showNewCustomerForm(prevState => ({ show: true, query: '' }))}
+									color='green'
+									leftIcon={<IconCirclePlus size={18} />}
+									onClick={() => form.insertListItem('line_items', default_line_item)}
 								>
-									Create Customer
+									Add Item
 								</Button>
-							</Stack>
-						)}
-						<Stack>
-							<Group position='center' grow>
-								<DatePicker
-									withAsterisk
-									label='Invoice Date'
-									inputFormat='DD-MM-YYYY'
-									placeholder='Pick a date'
-									icon={<IconCalendar size={16} />}
-									value={
-										dayjs(form.values.invoice_date).isValid()
-											? dayjs(form.values.invoice_date).toDate()
-											: null
-									}
-									onChange={date => form.setFieldValue('invoice_date', date)}
-									error={form.errors.invoice_date}
-									allowLevelChange={false}
-								/>
-								<DatePicker
-									withAsterisk
-									label='Due Date'
-									placeholder='Pick a date'
-									icon={<IconCalendar size={16} />}
-									value={
-										dayjs(form.values.due_date).isValid()
-											? dayjs(form.values.due_date).toDate()
-											: null
-									}
-									onChange={date => form.setFieldValue('due_date', date)}
-									error={form.errors.due_date}
-									inputFormat='DD-MM-YYYY'
-									allowLevelChange={false}
-								/>
+								<Button
+									variant='outline'
+									leftIcon={<IconCirclePlus size={18} />}
+									onClick={() => showNewItemForm(prevState => ({ show: true, query: '' }))}
+								>
+									Create New Item
+								</Button>
 							</Group>
-							<TextInput
-								withAsterisk
-								label='Invoice Number'
-								placeholder='INV-##########'
-								{...form.getInputProps('invoice_number')}
-							/>
-						</Stack>
-					</SimpleGrid>
-					<Space py='sm' />
-					<SimpleGrid cols={1}>
-						<Table
-							id='new-invoice-table'
-							withBorder
-							withColumnBorders={false}
-							horizontalSpacing='xl'
-							verticalSpacing='sm'
-							fontSize='md'
-						>
-							<thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
-								<tr>
-									<th></th>
-									<th>Items</th>
-									<th>Quantity</th>
-									<th>Price</th>
-									<th>Amount</th>
-									<th></th>
-								</tr>
-							</thead>
-							<DragDropContext
-								onDragEnd={({ destination, source }) =>
-									form.reorderListItem('line_items', {
-										from: source.index,
-										to: destination.index
-									})
-								}
-							>
-								<Droppable droppableId='dnd-list' direction='vertical'>
-									{provided => (
-										<tbody {...provided.droppableProps} ref={provided.innerRef}>
-											{fields}
-										</tbody>
-									)}
-								</Droppable>
-							</DragDropContext>
-						</Table>
-						<Group position='right'>
-							<Button
-								variant='outline'
-								color='green'
-								leftIcon={<IconCirclePlus size={18} />}
-								onClick={() => form.insertListItem('line_items', default_line_item)}
-							>
-								Add Item
-							</Button>
-							<Button
-								variant='outline'
-								leftIcon={<IconCirclePlus size={18} />}
-								onClick={() => showNewItemForm(prevState => ({ show: true, query: '' }))}
-							>
-								Create New Item
-							</Button>
-						</Group>
-					</SimpleGrid>
-					<Space py='sm' />
-					<Group position='apart' pb='md' grow align='start'>
-						<Textarea placeholder='Invoice Notes' minRows={5} size='lg' />
-						<Card withBorder py='md' radius='xs'>
-							<SimpleGrid cols={2} spacing='xl'>
-								<div>
-									<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-										Sub Total
-									</Text>
-								</div>
-								<div>
-									<Text size='md'>{GBP(subtotal).format()}</Text>
-								</div>
-								{form.values.tax_rate && (
-									<>
-										<div className="flex flex-wrap">
-											<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-												{form.values.tax_rate.name} ({form.values.tax_rate.percentage}%){' '}
-												<Text size='xs' color='dimmed' transform="lowercase">
-													{form.values.tax_rate.calculation === 'inclusive'
-														? 'incl.'
-														: 'excl.'}
-												</Text>
-											</Text>
-										</div>
-										<Group>
-											<Text size='md' transform='uppercase'>
-												{GBP((form.values.tax_rate.percentage / 100) * subtotal).format()}
-											</Text>
-											<ActionIcon
-												color='red'
-												onClick={() => form.setFieldValue('tax_rate', null)}
-											>
-												<IconTrash size={16} stroke={1.5} />
-											</ActionIcon>
-										</Group>
-									</>
-								)}
-								<div />
-								<Menu shadow='md' width={200} withinPortal position='bottom'>
+						</SimpleGrid>
+						<Space py='sm' />
+						<Group position='apart' pb='md' grow align='start'>
+							<Textarea placeholder='Invoice Notes' minRows={5} size='lg' />
+							<Card withBorder py='md' radius='xs'>
+								<SimpleGrid cols={2} spacing='xl'>
 									<div>
-										<Menu.Target>
-											<Anchor
-												component='button'
-												type='button'
-												color={form.values.tax_rate ? 'dimmed' : undefined}
-												disabled={!!form.values.tax_rate}
-											>
-												+ Add Tax
-											</Anchor>
-										</Menu.Target>
+										<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
+											Sub Total
+										</Text>
 									</div>
-									<Menu.Dropdown>
-										<Menu.Label>Tax Rates</Menu.Label>
-										{taxItemQuery.data.map((tax, index) => (
+									<div>
+										<Text size='md'>{GBP(subtotal).format()}</Text>
+									</div>
+									{form.values.tax_rate && (
+										<>
+											<div className='flex flex-wrap'>
+												<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
+													{form.values.tax_rate.name} ({form.values.tax_rate.percentage}%){' '}
+													<Text size='xs' color='dimmed' transform='lowercase'>
+														{form.values.tax_rate.calculation === 'inclusive'
+															? 'incl.'
+															: 'excl.'}
+													</Text>
+												</Text>
+											</div>
+											<Group>
+												<Text size='md' transform='uppercase'>
+													{GBP((form.values.tax_rate.percentage / 100) * subtotal).format()}
+												</Text>
+												<ActionIcon
+													color='red'
+													onClick={() => form.setFieldValue('tax_rate', null)}
+												>
+													<IconTrash size={16} stroke={1.5} />
+												</ActionIcon>
+											</Group>
+										</>
+									)}
+									<div />
+									<Menu shadow='md' width={200} withinPortal position='bottom'>
+										<div>
+											<Menu.Target>
+												<Anchor
+													component='button'
+													type='button'
+													color={form.values.tax_rate ? 'dimmed' : undefined}
+													disabled={!!form.values.tax_rate}
+												>
+													+ Add Tax
+												</Anchor>
+											</Menu.Target>
+										</div>
+										<Menu.Dropdown>
+											<Menu.Label>Tax Rates</Menu.Label>
+											{taxItemQuery.data.map((tax, index) => (
+												<Menu.Item
+													key={index}
+													rightSection={<Text>{tax.percentage} %</Text>}
+													onClick={() => form.setFieldValue('tax_rate', tax)}
+												>
+													{tax.name}
+												</Menu.Item>
+											))}
+											<Menu.Divider />
 											<Menu.Item
-												key={index}
-												rightSection={<Text>{tax.percentage} %</Text>}
-												onClick={() => form.setFieldValue('tax_rate', tax)}
+												icon={<IconCirclePlus size={16} />}
+												onClick={() => showNewTaxForm(true)}
 											>
-												{tax.name}
+												Create New Tax
 											</Menu.Item>
-										))}
-										<Menu.Divider />
-										<Menu.Item
-											icon={<IconCirclePlus size={16} />}
-											onClick={() => showNewTaxForm(true)}
-										>
-											Create New Tax
-										</Menu.Item>
-									</Menu.Dropdown>
-								</Menu>
-							</SimpleGrid>
-							<Divider size='md' my='xs' />
-							<SimpleGrid cols={2} spacing='xl'>
-								<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
-									Total Amount
-								</Text>
-								<Text size='md'>{GBP(total).format()}</Text>
-							</SimpleGrid>
-						</Card>
-					</Group>
-				</form>
-			</Page.Body>
-		</Page.Container>
+										</Menu.Dropdown>
+									</Menu>
+								</SimpleGrid>
+								<Divider size='md' my='xs' />
+								<SimpleGrid cols={2} spacing='xl'>
+									<Text size='md' weight='bold' color='dimmed' transform='uppercase'>
+										Total Amount
+									</Text>
+									<Text size='md'>{GBP(total).format()}</Text>
+								</SimpleGrid>
+							</Card>
+						</Group>
+						<button type='submit' ref={submit_btn_ref} className='hidden' />
+					</form>
+				</Page.Body>
+			</Page.Container>
+			<Affix position={{ bottom: 20, right: 20 }}>
+				<Transition transition='slide-up' mounted={scroll.y > 0}>
+					{transitionStyles => (
+						<Button
+							leftIcon={<IconArrowUp size={16} />}
+							style={transitionStyles}
+							onClick={() => scrollTo({ y: 0 })}
+						>
+							Scroll to top
+						</Button>
+					)}
+				</Transition>
+			</Affix>
+		</>
 	);
 };
 
@@ -704,9 +801,17 @@ export async function getServerSideProps({ req, res }) {
 			}
 		};
 	}
+	const num_invoices = (
+		await prisma.invoice.findMany({
+			where: {
+				id: session.id
+			}
+		})
+	).length;
 	return {
 		props: {
-			session_id: session.id
+			session_id: session.id,
+			num_invoices
 		}
 	};
 }

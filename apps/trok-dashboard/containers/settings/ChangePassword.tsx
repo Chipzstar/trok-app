@@ -48,15 +48,15 @@ const ChangePassword = ({ user_id }) => {
 				<Stack>
 					<div className='flex flex-col'>
 						<span>Current password</span>
-						<PasswordInput {...form.getInputProps('curr_password')} isPassword />
+						<PasswordInput {...form.getInputProps('curr_password')} />
 					</div>
 					<div className='flex flex-col'>
 						<span>New password</span>
-						<PasswordInput {...form.getInputProps('new_password')} isPassword />
+						<PasswordInput {...form.getInputProps('new_password')} />
 					</div>
 					<div className='flex flex-col'>
 						<span>Confirm new password</span>
-						<PasswordInput {...form.getInputProps('confirm_password')} isPassword />
+						<PasswordInput {...form.getInputProps('confirm_password')} />
 					</div>
 					<Group py='xl'>
 						<Button type="submit" loading={loading}>

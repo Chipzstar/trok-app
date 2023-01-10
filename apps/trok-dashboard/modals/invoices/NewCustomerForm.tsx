@@ -33,7 +33,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 	});
 
 	useEffect(() => {
-		form.reset()
+		form.setFieldValue('display_name', query)
 	}, [query]);
 
 	return (
