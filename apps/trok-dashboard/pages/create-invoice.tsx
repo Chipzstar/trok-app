@@ -235,16 +235,17 @@ const CreateInvoice = ({ session_id }) => {
 
 	const createNewItem = useCallback(
 		async (values: LineItemFormValues) => {
-			values.price *= 100;
 			setLoading(true);
 			try {
 				await createLineItemMutation.mutateAsync({
 					userId: session_id,
-					...values
+					name: values.name,
+					description: values.description,
+					price: values.price * 100
 				});
 				setLoading(false);
 				showNewItemForm(prevState => ({ ...prevState, show: false }));
-				notifySuccess('create-line-item-success', 'New invoice item created', <IconCheck size={20} />);
+				notifySuccess('create-line-item-success', 'New item created', <IconCheck size={20} />);
 			} catch (err) {
 				console.error(err);
 				setLoading(false);
@@ -656,7 +657,6 @@ const CreateInvoice = ({ session_id }) => {
 											</Anchor>
 										</Menu.Target>
 									</div>
-
 									<Menu.Dropdown>
 										<Menu.Label>Tax Rates</Menu.Label>
 										{taxItemQuery.data.map((tax, index) => (
