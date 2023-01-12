@@ -3,11 +3,18 @@ import classNames from 'classnames';
 import { capitalize, GBP, PAYMENT_STATUS, sanitize } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
 import { ActionIcon, Group, LoadingOverlay } from '@mantine/core';
-import { IconChevronRight, IconRotateClockwise2 } from '@tabler/icons';
+import { IconChevronRight } from '@tabler/icons';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
+import { Prisma } from '@prisma/client';
 
-const InvoiceTable = ({ loading, data, setOpened, selectInvoice }) => {
+interface InvoiceTableProps {
+	loading: boolean;
+	data: Prisma.InvoiceUncheckedCreateInput[];
+	setOpened: (val: boolean) => void;
+	selectInvoice: (i: Prisma.InvoiceUncheckedCreateInput) => void;
+}
+const InvoiceTable = ({ loading, data, setOpened, selectInvoice } : InvoiceTableProps) => {
 	const [activePage, setPage] = useState(1);
 	const rows = data.map((i, index) => {
 		const statusClass = classNames({
@@ -38,19 +45,19 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }) => {
 				}}
 			>
 				<td colSpan={1}>
-					<span>{i.invoice_id}</span>
+					<span>{i.invoice_number}</span>
 				</td>
 				<td colSpan={1}>
 					<span>{capitalize(sanitize(i.customer_name))}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{GBP(i.amount).format()}</span>
+					<span>{GBP(i.total_amount).format()}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{dayjs(i.created_at).format('MMM DD')}</span>
+					<span>{dayjs.unix(i.invoice_date).format('MMM DD')}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{dayjs(i.due_at).format('MMM DD')}</span>
+					<span>{dayjs.unix(i.due_date).format('MMM DD')}</span>
 				</td>
 				<td colSpan={1}>
 					<Group align='center'>
@@ -67,7 +74,6 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }) => {
 								{capitalize(sanitize(i?.status))}
 							</span>
 						</div>
-						{i.recurring && <IconRotateClockwise2 size={20} />}
 					</Group>
 				</td>
 				<td
@@ -112,9 +118,9 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }) => {
 				<Empty
 					message={
 						<span className='text-center text-2xl'>
-							You have no payments
+							You have no invoices
 							<br />
-							{"Click the 'Send Payment' button to top-up your driver's card"}
+							{"Click the 'New Invoice' button to create your first invoice"}
 						</span>
 					}
 				/>

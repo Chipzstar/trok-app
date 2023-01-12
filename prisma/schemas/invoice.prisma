@@ -6,8 +6,10 @@ model Invoice {
     userId String @db.ObjectId
     customer Customer @relation(fields: [customerId], references: [id])
     customerId String @db.ObjectId
-    lineItemIds String[] @db.ObjectId
-    line_items LineItem[] @relation(fields: [lineItemIds], references: [id])
+    customer_name String
+    ItemIds String[] @db.ObjectId
+    items Item[] @relation(fields: [ItemIds], references: [id])
+    line_items InvoiceLineItem[]
     invoice_id String @unique
     invoice_number String
     invoice_date Int @db.Long

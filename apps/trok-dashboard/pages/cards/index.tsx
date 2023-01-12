@@ -83,6 +83,7 @@ const Cards = ({ testMode, session_id }) => {
 
 	return (
 		<Page.Container
+			extraClassNames="overflow-hidden"
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Cards</span>
@@ -160,9 +161,10 @@ const Cards = ({ testMode, session_id }) => {
 					onTabChange={setActiveTab}
 					defaultValue='all'
 					classNames={{
-						root: '',
+						root: 'h-full',
 						tabsList: '',
-						tab: 'mx-4'
+						tab: 'mx-4',
+						panel: 'h-full'
 					}}
 				>
 					<Tabs.List>

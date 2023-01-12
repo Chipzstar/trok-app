@@ -89,3 +89,12 @@ type MerchantCodeInfo {
     codes String[]
     enabled Boolean
 }
+
+type InvoiceLineItem {
+    id String @db.ObjectId
+    name String
+    description String?
+    unit String?
+    price Int
+    quantity Int
+}

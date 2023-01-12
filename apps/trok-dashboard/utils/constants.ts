@@ -14,15 +14,15 @@ export const requirements = [
 	{ re: /[0-9]/, label: 'Includes number' },
 	{ re: /[a-z]/, label: 'Includes lowercase letter' },
 	{ re: /[A-Z]/, label: 'Includes uppercase letter' },
-	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' },
+	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' }
 ];
 export const ONE_GB = 1073741824; // in bytes units
-export const FIVE_MB = 5242880 // in bytes units
-export const TEN_MB = 2 * FIVE_MB // in bytes units
-export const FIVE_HUNDRED_POUNDS = 50000
+export const FIVE_MB = 5242880; // in bytes units
+export const TEN_MB = 2 * FIVE_MB; // in bytes units
+export const FIVE_HUNDRED_POUNDS = 50000;
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 export const DEFAULT_HEADER_HEIGHT = 75;
-export const BANNER_HEIGHT = 65
+export const BANNER_HEIGHT = 65;
 export const STORAGE_KEYS = {
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
@@ -55,7 +55,14 @@ export const PATHS = {
 	RESET_PASSWORD: '/reset-password'
 };
 
-export const AUTH_ROUTES = [PATHS.LOGIN, PATHS.SIGNUP, PATHS.ONBOARDING, PATHS.VERIFY_EMAIL, PATHS.FORGOT_PASSWORD, PATHS.RESET_PASSWORD]
+export const AUTH_ROUTES = [
+	PATHS.LOGIN,
+	PATHS.SIGNUP,
+	PATHS.ONBOARDING,
+	PATHS.VERIFY_EMAIL,
+	PATHS.FORGOT_PASSWORD,
+	PATHS.RESET_PASSWORD
+];
 
 export const SAMPLE_DRIVERS = [
 	{
@@ -144,7 +151,7 @@ export const SAMPLE_DRIVERS = [
 	}
 ];
 
-export const SAMPLE_CARDS : Prisma.Card[] = [
+export const SAMPLE_CARDS: Prisma.Card[] = [
 	{
 		id: uuidv4(),
 		card_id: 'card_0001',
@@ -158,8 +165,8 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		exp_month: 9,
 		exp_year: 2026,
 		cvc: '123',
-		currency: "gbp",
-        card_type: 'physical',
+		currency: 'gbp',
+		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '2912',
 		cardholder_name: 'Joel Cambridge',
@@ -187,7 +194,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		exp_month: 9,
 		exp_year: 2026,
 		cvc: '123',
-		currency: "gbp",
+		currency: 'gbp',
 		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '2681',
@@ -216,7 +223,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		exp_month: 9,
 		exp_year: 2026,
 		cvc: '123',
-		currency: "gbp",
+		currency: 'gbp',
 		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '5410',
@@ -237,7 +244,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		card_id: 'card_0004',
 		created_at: dayjs().toDate(),
 		updated_at: dayjs().toDate(),
-		card_name: 	'card_0004',
+		card_name: 'card_0004',
 		current_balance: 4679995,
 		userId: numericId(),
 		driverId: numericId(),
@@ -246,7 +253,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		exp_month: 9,
 		exp_year: 2026,
 		cvc: '123',
-		currency: "gbp",
+		currency: 'gbp',
 		card_type: 'physical',
 		status: CARD_STATUS.ACTIVE,
 		last4: '7341',
@@ -274,7 +281,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 		exp_month: 9,
 		exp_year: 2026,
 		cvc: '123',
-		currency: "gbp",
+		currency: 'gbp',
 		card_type: 'physical',
 		status: CARD_STATUS.INACTIVE,
 		last4: '9127',
@@ -292,7 +299,7 @@ export const SAMPLE_CARDS : Prisma.Card[] = [
 	}
 ];
 
-export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
+export const SAMPLE_PAYMENTS: Schema.PaymentUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		bankAccountId: uuidv4(),
@@ -300,14 +307,14 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_name: 'John Smith',
-		reference: "send to John Smith",
-		recurring: false,
+		reference: 'send to John Smith',
+		recurring: false
 	},
 	{
 		id: uuidv4(),
@@ -316,14 +323,14 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.IN_PROGRESS,
 		recipient_name: 'George Smith',
-		reference: "send to George Smith",
-		recurring: false,
+		reference: 'send to George Smith',
+		recurring: false
 	},
 	{
 		id: uuidv4(),
@@ -332,14 +339,14 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
 		status: PAYMENT_STATUS.COMPLETE,
 		recipient_name: 'Rayan Bannai',
-		reference: "send to Rayan Bannai",
-		recurring: false,
+		reference: 'send to Rayan Bannai',
+		recurring: false
 	},
 	{
 		id: uuidv4(),
@@ -348,7 +355,7 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
@@ -364,7 +371,7 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
@@ -380,7 +387,7 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 		userId: uuidv4(),
 		plaid_payment_id: uuidv4(),
 		plaid_recipient_id: uuidv4(),
-		plaid_payment_status: "PAYMENT_STATUS_COMPLETED",
+		plaid_payment_status: 'PAYMENT_STATUS_COMPLETED',
 		plaid_link_token: numericId(),
 		payment_type: 'Bank Transfer',
 		amount: 650000,
@@ -391,7 +398,7 @@ export const SAMPLE_PAYMENTS : Schema.PaymentUncheckedCreateInput[] = [
 	}
 ];
 
-export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
+export const SAMPLE_TRANSACTIONS: Schema.TransactionUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		created_at: dayjs().format(),
@@ -416,7 +423,7 @@ export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 		transaction_amount: 468000,
 		status: 'approved',
 		transaction_id: uuidv4(),
-		transaction_type: 'capture',
+		transaction_type: 'capture'
 	},
 	{
 		id: uuidv4(),
@@ -442,7 +449,7 @@ export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 		transaction_amount: 468000,
 		status: 'approved',
 		transaction_id: uuidv4(),
-		transaction_type: 'capture',
+		transaction_type: 'capture'
 	},
 	{
 		id: uuidv4(),
@@ -468,7 +475,7 @@ export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 		transaction_amount: 468000,
 		status: 'approved',
 		transaction_id: uuidv4(),
-		transaction_type: 'capture',
+		transaction_type: 'capture'
 	},
 	{
 		id: uuidv4(),
@@ -494,7 +501,7 @@ export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 		transaction_amount: 468000,
 		status: 'approved',
 		transaction_id: uuidv4(),
-		transaction_type: 'capture',
+		transaction_type: 'capture'
 	},
 	{
 		id: uuidv4(),
@@ -520,7 +527,7 @@ export const SAMPLE_TRANSACTIONS : Schema.TransactionUncheckedCreateInput[] = [
 		transaction_amount: 468000,
 		status: 'approved',
 		transaction_id: uuidv4(),
-		transaction_type: 'capture',
+		transaction_type: 'capture'
 	}
 ];
 
@@ -533,28 +540,28 @@ export const SAMPLE_STATEMENTS = [
 		total_balance: 468000
 	},
 	{
-		created_at: dayjs().add(1, "M").format(),
+		created_at: dayjs().add(1, 'M').format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		created_at: dayjs().add(2, "M").format(),
+		created_at: dayjs().add(2, 'M').format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		created_at: dayjs().add(3, "M").format(),
+		created_at: dayjs().add(3, 'M').format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
 		total_balance: 468000
 	},
 	{
-		created_at: dayjs().add(4, "M").format(),
+		created_at: dayjs().add(4, 'M').format(),
 		period_start: 1665421245,
 		period_end: 1665421245,
 		due_at: 1665421245,
@@ -562,7 +569,7 @@ export const SAMPLE_STATEMENTS = [
 	}
 ];
 
-export const SAMPLE_BANK_ACCOUNTS : Schema.BankAccountUncheckedCreateInput[] = [
+export const SAMPLE_BANK_ACCOUNTS: Schema.BankAccountUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
 		userId: uuidv4(),
@@ -571,10 +578,10 @@ export const SAMPLE_BANK_ACCOUNTS : Schema.BankAccountUncheckedCreateInput[] = [
 		bank_name: 'Barclays Business',
 		institution_id: 'ins_117181',
 		account_holder_name: 'Ola Oladapo',
-		account_number: "12345678",
+		account_number: '12345678',
 		sort_code: '09-12-90',
 		is_default: true,
-		status: 'active',
+		status: 'active'
 	},
 	{
 		id: uuidv4(),
@@ -584,141 +591,293 @@ export const SAMPLE_BANK_ACCOUNTS : Schema.BankAccountUncheckedCreateInput[] = [
 		bank_name: 'Barclays Business',
 		institution_id: 'ins_117181',
 		account_holder_name: 'Chisom Oguibe',
-		account_number: "87654321",
+		account_number: '87654321',
 		sort_code: '89-21-21',
 		is_default: false,
 		status: 'active'
 	}
 ];
 
-export const SAMPLE_INVOICES = [
+export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-        currency: 'GBP',
-		status: 'in_progress',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'unpaid',
+		status: 'in_progress'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'paid',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'unpaid',
+		status: 'paid'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'paid',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'unpaid',
+		status: 'paid'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'in_progress',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'unpaid',
+		status: 'in_progress'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'paid',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'unpaid',
+		status: 'paid'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'sent',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'paid',
+		status: 'sent'
 	},
 	{
 		id: uuidv4(),
-		invoice_id: `INV #${order_id.generate()}`,
-		created_at: dayjs().format(),
-		customer_id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
 		customer_name: faker.company.name(),
-		due_at: dayjs().add(7, "day").format(),
+		due_date: dayjs().add(7, 'day').unix(),
 		line_items: [
 			{
-				quantity: 1,
+				id: uuidv4(),
 				name: faker.commerce.productName(),
-				price: faker.commerce.price()
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
+			},
+			{
+				id: uuidv4(),
+				name: faker.commerce.productName(),
+				quantity: 1,
+				price: Number(faker.commerce.price()),
+				description: '',
+				unit: ''
 			}
 		],
-		amount: 468000,
-		currency: 'GBP',
-		status: 'sent',
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'paid',
+		status: 'sent'
 	}
-]
+];
 
 export const SAMPLE_CUSTOMERS = [
 	{
@@ -751,14 +910,14 @@ export const SAMPLE_CUSTOMERS = [
 		email: faker.internet.email(),
 		company: faker.company.name()
 	}
-]
+];
 
 export const SAMPLE_LINE_ITEMS = [
 	{
 		id: uuidv4(),
 		name: faker.commerce.productName(),
 		price: faker.commerce.price(),
-        quantity: faker.random.numeric()
+		quantity: faker.random.numeric()
 	},
 	{
 		id: uuidv4(),
@@ -790,7 +949,7 @@ export const SAMPLE_LINE_ITEMS = [
 		price: faker.commerce.price(),
 		quantity: faker.random.numeric()
 	}
-]
+];
 
 export const INDUSTRY_TYPES = [
 	{

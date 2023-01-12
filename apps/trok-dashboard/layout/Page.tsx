@@ -5,6 +5,7 @@ interface PageContainerProps {
 	children: JSX.Element | JSX.Element[];
 	header?: JSX.Element;
 	classNames?: string;
+	extraClassNames?: string;
 	data_cy? : string;
 }
 
@@ -12,9 +13,9 @@ const Page = ({children}) => {
 	return ({children})
 }
 
-const Container = ({ children, header = null, classNames = 'h-screen flex flex-col', data_cy=null }: PageContainerProps) => {
+const Container = ({ children, header = null, classNames = 'h-screen flex flex-col', extraClassNames="", data_cy=null }: PageContainerProps) => {
 	return (
-		<div className={classNames} data-cy={data_cy}>
+		<div className={`${classNames} ${extraClassNames}`} data-cy={data_cy}>
 			{header}
 			{children}
 		</div>

@@ -22,9 +22,11 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
 
-	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: []});
+	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: [] });
 
-	const form = useForm<{pod: boolean, invoice: boolean}>({
+	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data;
+
+	const form = useForm<{ pod: boolean; invoice: boolean }>({
 		initialValues: {
 			pod: false,
 			invoice: false
@@ -61,6 +63,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 	return (
 		<Page.Container
+			extraClassNames="overflow-hidden"
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
@@ -79,12 +82,12 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				section={section}
 				setSection={setSection}
 				showPODUploadForm={() => {
-					setNewInvoiceOpened(false)
-					setTimeout(() => setPODOpened(true), 100)
+					setNewInvoiceOpened(false);
+					setTimeout(() => setPODOpened(true), 100);
 				}}
 				showInvUploadForm={() => {
-					setNewInvoiceOpened(false)
-					setTimeout(() => setInvUploadOpened(true), 100)
+					setNewInvoiceOpened(false);
+					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
 				invoiceId={invoice_id}
 			/>
@@ -92,8 +95,8 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				opened={podOpened}
 				onClose={() => setPODOpened(false)}
 				goBack={() => {
-					setPODOpened(false)
-					setTimeout(() => setNewInvoiceOpened(true), 100)
+					setPODOpened(false);
+					setTimeout(() => setNewInvoiceOpened(true), 100);
 				}}
 				form={form}
 				invoiceId={invoice_id}
@@ -105,8 +108,8 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				onSubmit={handleSubmit}
 				loading={loading}
 				goBack={() => {
-					setInvUploadOpened(false)
-					setTimeout(() => setNewInvoiceOpened(true), 100)
+					setInvUploadOpened(false);
+					setTimeout(() => setNewInvoiceOpened(true), 100);
 				}}
 				invoiceId={invoice_id}
 			/>
@@ -153,37 +156,60 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					</Card>
 				</SimpleGrid>
 				<Space py='md' />
-				<Tabs
-					value={activeTab}
-					orientation="horizontal"
-					onTabChange={setActiveTab}
-					defaultValue='all'
-					classNames={{
-						root: '',
-						tabsList: '',
-						tab: 'mx-4'
-					}}
-				>
-					<Tabs.List>
-						<Tabs.Tab value='all'>All Invoices</Tabs.Tab>
-						<Tabs.Tab value='awaiting'>Awaiting Payments</Tabs.Tab>
-						<Tabs.Tab value='approval'>Needs Approval</Tabs.Tab>
-						<Tabs.Tab value='paid'>Paid</Tabs.Tab>
-					</Tabs.List>
+				<div className="h-full">
+					<Tabs
+						value={activeTab}
+						orientation='horizontal'
+						onTabChange={setActiveTab}
+						defaultValue='all'
+						classNames={{
+							root: 'h-full',
+							tabsList: '',
+							tab: 'mx-4',
+							panel: 'h-full'
+						}}
+					>
+						<Tabs.List>
+							<Tabs.Tab value='all'>All Invoices</Tabs.Tab>
+							<Tabs.Tab value='awaiting'>Awaiting Payments</Tabs.Tab>
+							<Tabs.Tab value='approval'>Needs Approval</Tabs.Tab>
+							<Tabs.Tab value='paid'>Paid</Tabs.Tab>
+						</Tabs.List>
 
-					<Tabs.Panel value='all' className='h-full'>
-						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
-					</Tabs.Panel>
-					<Tabs.Panel value='awaiting' className='h-full'>
-						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
-					</Tabs.Panel>
-					<Tabs.Panel value='approval' className='h-full'>
-						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
-					</Tabs.Panel>
-					<Tabs.Panel value='paid' className='h-full'>
-						<InvoiceTable data={SAMPLE_INVOICES} loading={loading} setOpened={setOpened} selectInvoice={setSelectedInvoice}/>
-					</Tabs.Panel>
-				</Tabs>
+						<Tabs.Panel value='all'>
+							<InvoiceTable
+								data={data}
+								loading={loading}
+								setOpened={setOpened}
+								selectInvoice={setSelectedInvoice}
+							/>
+						</Tabs.Panel>
+						<Tabs.Panel value='awaiting'>
+							<InvoiceTable
+								data={data}
+								loading={loading}
+								setOpened={setOpened}
+								selectInvoice={setSelectedInvoice}
+							/>
+						</Tabs.Panel>
+						<Tabs.Panel value='approval'>
+							<InvoiceTable
+								data={data}
+								loading={loading}
+								setOpened={setOpened}
+								selectInvoice={setSelectedInvoice}
+							/>
+						</Tabs.Panel>
+						<Tabs.Panel value='paid'>
+							<InvoiceTable
+								data={data}
+								loading={loading}
+								setOpened={setOpened}
+								selectInvoice={setSelectedInvoice}
+							/>
+						</Tabs.Panel>
+					</Tabs>
+				</div>
 			</Page.Body>
 		</Page.Container>
 	);
@@ -200,11 +226,11 @@ export async function getServerSideProps({ req, res }) {
 			}
 		};
 	}
-	const invoice_id = genInvoiceId()
+	const invoice_id = genInvoiceId();
 	return {
 		props: {
 			session_id: session.id,
-			invoice_id,
+			invoice_id
 		}
 	};
 }

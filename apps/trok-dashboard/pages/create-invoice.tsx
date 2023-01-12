@@ -49,7 +49,7 @@ import dayjs from 'dayjs';
 import { TransformedValues, useForm } from '@mantine/form';
 import { LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { GBP, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
+import { GBP, genInvoiceId, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
 import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
 import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineItemForm';
 import { trpc } from '../utils/clients';
@@ -61,13 +61,12 @@ import prisma from '../prisma';
 
 interface CreateInvoiceForm {
 	customer: string;
-	invoice_date: string | Date;
-	due_date: string | Date;
+	invoice_date: string | Date | number;
+	due_date: string | Date | number;
 	invoice_number: string;
 	line_items: LineItem[];
 	tax_rate: Prisma.TaxRate;
-	subtotal: number;
-	total: number;
+	notes?: string;
 }
 
 interface ItemProps extends SelectItemProps {
@@ -135,7 +134,13 @@ const default_line_item: LineItem = {
 	editing: true
 };
 
-const CreateInvoice = ({ session_id, num_invoices }) => {
+interface CreateInvoiceProps {
+	session_id: string | null,
+	num_invoices: number;
+	invoice_numbers: string[]
+}
+
+const CreateInvoice = ({ session_id, num_invoices, invoice_numbers } : CreateInvoiceProps) => {
 	const router = useRouter();
 	const { classes, cx } = useStyles();
 	const theme = useMantineTheme();
@@ -165,7 +170,7 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 			placeholderData: []
 		}
 	);
-	const lineItemQuery = trpc.getLineItems.useQuery(
+	const lineItemQuery = trpc.getItems.useQuery(
 		{
 			userId: session_id
 		},
@@ -186,14 +191,19 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 			utils.getCustomers.invalidate({ userId: session_id });
 		}
 	});
-	const createLineItemMutation = trpc.createLineItem.useMutation({
+	const createLineItemMutation = trpc.createItem.useMutation({
 		onSuccess: function (input) {
-			utils.getLineItems.invalidate({ userId: session_id });
+			utils.getItems.invalidate({ userId: session_id });
 		}
 	});
 	const createTaxRateMutation = trpc.createTaxRate.useMutation({
 		onSuccess: function (input) {
 			utils.getTaxRates.invalidate({ userId: session_id });
+		}
+	});
+	const createInvoiceMutation = trpc.createInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.getInvoices.invalidate({ userId: session_id });
 		}
 	});
 
@@ -205,8 +215,7 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 			invoice_number: '',
 			line_items: [default_line_item],
 			tax_rate: null,
-			subtotal: 0,
-			total: 0
+			notes: ''
 		},
 		validate: {
 			customer: value => (!value ? 'Please provide a customer' : null),
@@ -214,42 +223,23 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 			due_date: (value, values) =>
 				!value
 					? 'Required'
-					: dayjs(value).isBefore(dayjs(values.invoice_date))
+					: dayjs(value).diff(dayjs(values.invoice_date), "d") < 3
 					? 'Due date must be at least 3 days after the invoice date'
 					: null,
-			invoice_number: value => (!value ? 'Required' : null),
+			invoice_number: value => (!value ? 'Required' : invoice_numbers.includes(value) ? "Invoice number has already been used" : null),
 			line_items: {
 				name: value => (!value ? 'Required' : null)
 			}
 		},
 		transformValues: values => ({
 			...values,
-			line_items: values.line_items.map(item => ({ ...item, editing: undefined }))
+			invoice_date: dayjs(values.invoice_date).unix(),
+			due_date: dayjs(values.due_date).unix(),
+			line_items: values.line_items.map(item => ({ ...item, price: item.price * 100, editing: undefined }))
 		})
 	});
 
-	// @ts-ignore
-	type Transformed = TransformedValues<typeof useForm>;
-
-	const handleSubmit = useCallback(async (values: Transformed) => {
-		// alert(JSON.stringify(values, null, 2));
-		setLoading(true);
-		try {
-			await sleep(3000);
-			setLoading(false);
-			notifySuccess(
-				'invoice-creation-success',
-				'Invoice has been created successfully and saved as a draft',
-				<IconCheck size={20} />
-			);
-		} catch (err) {
-			console.error(err);
-			setLoading(false);
-			notifyError('invoice-creation-failed', err?.error?.message ?? err.message, <IconX size={20} />);
-		}
-	}, []);
-
-	useEffect(() => console.log(form.errors), [form.errors]);
+	type Transformed = TransformedValues<typeof form>;
 
 	const total = useMemo(() => {
 		const sum = form.values.line_items.reduce((prev, curr) => prev + curr.quantity * curr.price * 100, 0);
@@ -270,6 +260,41 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 		}
 		return sum;
 	}, [form.values.line_items, form.values.tax_rate]);
+
+	const handleSubmit = useCallback(async (values: Transformed) => {
+		// alert(JSON.stringify(values, null, 2));
+		setLoading(true);
+		// check that the url has a valid invoice_id query param
+		const url = new URL(window.location.href);
+        let invoice_id = url.searchParams.get('invoiceId');
+		if (!invoice_id) invoice_id = genInvoiceId();
+		try {
+			await createInvoiceMutation.mutateAsync({
+				userId: session_id,
+				invoice_date: Number(values.invoice_date),
+				due_date: Number(values.due_date),
+				invoice_id,
+				invoice_number: values.invoice_number,
+				customer: values.customer,
+				subtotal,
+				total,
+				notes: values.notes,
+				tax_rate: values.tax_rate,
+				line_items: values.line_items
+			});
+			setLoading(false);
+			notifySuccess(
+				'invoice-creation-success',
+				'Invoice has been created successfully and saved as a draft',
+				<IconCheck size={20} />
+			);
+			await router.replace(PATHS.INVOICES);
+		} catch (err) {
+			console.error(err);
+			setLoading(false);
+			notifyError('invoice-creation-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, [session_id, subtotal, total]);
 
 	const createNewCustomer = useCallback(
 		async (values: CustomerFormValues) => {
@@ -447,9 +472,9 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 							>
 								<IconPencil size={16} stroke={1.5} />
 							</ActionIcon>
-							<ActionIcon color='red' onClick={() => form.removeListItem('line_items', index)}>
+							{form.values.line_items.length > 1 && <ActionIcon color='red' onClick={() => form.removeListItem('line_items', index)}>
 								<IconTrash size={16} stroke={1.5} />
-							</ActionIcon>
+							</ActionIcon>}
 						</div>
 					</td>
 				</tr>
@@ -460,7 +485,7 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 	return (
 		<>
 			<Page.Container
-				classNames='h-screen flex flex-col overflow-x-hidden'
+				extraClassNames='overflow-x-hidden'
 				header={
 					<Page.Header>
 						<span className='text-2xl font-medium'>Create Invoice</span>
@@ -523,8 +548,9 @@ const CreateInvoice = ({ session_id, num_invoices }) => {
 												classNames={{
 													placeholder: 'bg-transparent'
 												}}
+												color={form.errors.customer ? 'red' : undefined}
 											/>
-											<Text weight={500} size='xl'>
+											<Text weight={500} size='xl' color={form.errors.customer ? 'red' : theme.colors.dark[5]}>
 												Add Customer
 											</Text>
 										</Group>
@@ -802,17 +828,22 @@ export async function getServerSideProps({ req, res }) {
 			}
 		};
 	}
-	const num_invoices = (
+	const invoices = (
 		await prisma.invoice.findMany({
 			where: {
-				id: session.id
+				userId: session.id
+			},
+			select:{
+				invoice_number: true
 			}
 		})
-	).length;
+	);
+	console.log(invoices)
 	return {
 		props: {
 			session_id: session.id,
-			num_invoices
+			num_invoices: invoices.length,
+			invoice_numbers: invoices.map(item => item.invoice_number)
 		}
 	};
 }

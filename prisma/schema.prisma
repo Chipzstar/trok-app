@@ -240,8 +240,10 @@ model Invoice {
   userId         String            @db.ObjectId
   customer       Customer          @relation(fields: [customerId], references: [id])
   customerId     String            @db.ObjectId
-  lineItemIds    String[]          @db.ObjectId
-  line_items     LineItem[]        @relation(fields: [lineItemIds], references: [id])
+  customer_name  String
+  ItemIds        String[]          @db.ObjectId
+  items          Item[]            @relation(fields: [ItemIds], references: [id])
+  line_items     InvoiceLineItem[]
   invoice_id     String            @unique
   invoice_number String
   invoice_date   Int               @db.Long
@@ -255,7 +257,7 @@ model Invoice {
   notes          String?
   taxRateId      String?           @db.ObjectId
 }
-model LineItem {
+model Item {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
@@ -445,6 +447,15 @@ type MerchantCodeInfo {
   codes   String[]
   enabled Boolean
 }
+
+type InvoiceLineItem {
+  id          String  @db.ObjectId
+  name        String
+  description String?
+  unit        String?
+  price       Int
+  quantity    Int
+}
 model User {
   id                 String        @id @default(auto()) @map("_id") @db.ObjectId
   created_at         DateTime      @default(now())
@@ -480,6 +491,6 @@ model User {
   accounts           Account[]
   sessions           Session[]
   Customer           Customer[]
-  LineItem           LineItem[]
+  Item               Item[]
   TaxRate            TaxRate[]
 }

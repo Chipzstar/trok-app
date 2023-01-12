@@ -98,6 +98,7 @@ const Transactions = ({ testMode, session_id }) => {
 
 	return (
 		<Page.Container
+			extraClassNames="overflow-hidden"
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Transactions</span>
@@ -205,9 +206,10 @@ const Transactions = ({ testMode, session_id }) => {
 					value={activeTab}
 					onTabChange={(val: TransactionStatus) => setActiveTab(val)}
 					classNames={{
-						root: '',
+						root: 'h-full',
 						tabsList: '',
-						tab: 'mx-4'
+						tab: 'mx-4',
+						panel: 'h-full'
 					}}
 				>
 					<Tabs.List>
@@ -216,15 +218,15 @@ const Transactions = ({ testMode, session_id }) => {
 						<Tabs.Tab value='declined'>Declined</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value='all' className='h-full'>
+					<Tabs.Panel value='all'>
 						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value='approved' className='h-full'>
+					<Tabs.Panel value='approved'>
 						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 
-					<Tabs.Panel value='declined' className='h-full'>
+					<Tabs.Panel value='declined'>
 						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
 					</Tabs.Panel>
 				</Tabs>

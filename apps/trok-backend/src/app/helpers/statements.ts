@@ -1,11 +1,11 @@
 import redisClient from '../redis';
-import { BUCKET, IS_DEVELOPMENT, STATEMENT_REDIS_SORTED_SET_ID } from '../utils/constants';
+import { IS_DEVELOPMENT, STATEMENT_REDIS_SORTED_SET_ID } from '../utils/constants';
 import dayjs from 'dayjs';
 import prisma from '../db';
 import path from 'path';
 import Prisma from '@prisma/client';
 import orderId from 'order-id';
-import { generateDownloadUrl } from './gcp';
+import { generateDownloadUrl, uploadPDF } from './gcp';
 import PDFDocument from 'pdfkit';
 import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 
@@ -102,7 +102,7 @@ async function generateStatement(statement_id: string, user: Prisma.User, transa
 	doc.end();
 
 	const filepath = `${user.business.business_crn}/STATEMENTS/${statement_id}.pdf`;
-	const uploadResult = await upload(doc, statement_id, filepath);
+	const uploadResult = await uploadPDF(doc, statement_id, filepath);
 	console.log(uploadResult);
 	return await generateDownloadUrl(filepath);
 }
@@ -213,16 +213,3 @@ function generateInvoiceTable(doc: PDFKit.PDFDocument, total: number, transactio
 	doc.font('Helvetica');
 }
 
-const upload = (doc: PDFKit.PDFDocument, filename: string, filepath: string) => {
-	return new Promise((resolve, reject) => {
-		const file = BUCKET.file(filepath);
-		doc.pipe(file.createWriteStream())
-			.on('finish', () => {
-				resolve(`${filename} uploaded successfully`);
-			})
-			.on('error', err => {
-				console.error(err);
-				reject(err);
-			});
-	});
-};

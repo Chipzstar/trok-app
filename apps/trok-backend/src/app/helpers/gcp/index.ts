@@ -1,4 +1,5 @@
 import { storage } from '../../utils/clients';
+import { BUCKET } from '../../utils/constants';
 
 export const generateDownloadUrl = async (filepath: string) => {
 	try {
@@ -14,4 +15,17 @@ export const generateDownloadUrl = async (filepath: string) => {
 		console.error(err);
 		throw err;
 	}
+};
+export const uploadPDF = (doc: PDFKit.PDFDocument, filename: string, filepath: string) => {
+	return new Promise((resolve, reject) => {
+		const file = BUCKET.file(filepath);
+		doc.pipe(file.createWriteStream())
+			.on('finish', () => {
+				resolve(`${filename} uploaded successfully`);
+			})
+			.on('error', err => {
+				console.error(err);
+				reject(err);
+			});
+	});
 };

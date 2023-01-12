@@ -24,6 +24,8 @@ const NewLineItemForm = ({opened, onClose, onSubmit, loading, query=""} : NewLin
 		}
 	});
 
+	useEffect(() => form.reset(), [query]);
+
 	return (
 		<Modal
 			opened={opened}

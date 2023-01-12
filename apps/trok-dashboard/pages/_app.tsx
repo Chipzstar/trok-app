@@ -88,7 +88,7 @@ function CustomApp({ Component, pageProps: { session, ...pageProps } }: AppProps
 					>
 						<RouterTransition />
 						<ModalsProvider>
-							<NotificationsProvider position='top-right'>
+							<NotificationsProvider position='top-right' limit={5}>
 								<Layout>
 									<Head>
 										<Favicon />
