@@ -4,15 +4,15 @@ import { AddressSchema } from '../utils/schemas';
 import { TRPCError } from '@trpc/server';
 import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
-import Prisma from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 const LineItemSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	quantity: z.number(),
 	price: z.number(),
-	unit: z.string().optional(),
-	description: z.string().optional()
+	unit: z.string().nullable().optional(),
+	description: z.string().nullable().optional()
 });
 
 export const TaxRateSchema = z.object({
@@ -267,7 +267,7 @@ const invoiceRouter = t.router({
 						amount_due: input.total,
 						total_amount: input.total,
 						ItemIds: original_items,
-						line_items: input.line_items as Prisma.InvoiceLineItem[],
+						line_items: input.line_items as Prisma.InvoiceLineItemCreateInput[],
 						status: INVOICE_STATUS.DRAFT,
 						paid_status: 'unpaid',
 						...(input.tax_rate && {taxRateId: input.tax_rate.id}),
