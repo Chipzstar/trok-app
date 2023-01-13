@@ -45,8 +45,6 @@ function generateHr(doc: PDFKit.PDFDocument, y: number) {
 
 function generateCustomerInformation(doc: PDFKit.PDFDocument, user: Prisma.User, customer: Prisma.Customer, invoice: Prisma.Invoice) {
 	const shipping: Prisma.Address = user.shipping_address;
-	const business: Prisma.BusinessInfo = user.business;
-	const total_spent = GBP(invoice.total_amount).format();
 
 	doc.fillColor('#444444').fontSize(20).text('Invoice', 50, 160);
 
@@ -61,13 +59,13 @@ function generateCustomerInformation(doc: PDFKit.PDFDocument, user: Prisma.User,
 		.font('Helvetica')
 		.text('Invoice Date:', 50, customerInformationTop + 15)
 		.text(dayjs.unix(invoice.invoice_date).format('DD/MM/YYYY'), 150, customerInformationTop + 15)
-		.text('Total Spent:', 50, customerInformationTop + 30)
-		.text(total_spent, 150, customerInformationTop + 30)
+		.text('Due Date:', 50, customerInformationTop + 30)
+		.text(dayjs.unix(invoice.due_date).format("DD/MM/YYYY"), 150, customerInformationTop + 30)
 		.font('Helvetica-Bold')
 		.text(customer.company, 300, customerInformationTop)
 		.font('Helvetica')
-		.text(`${shipping.line1} ${shipping?.line2}`, 300, customerInformationTop + 15)
-		.text(shipping.city + ', ' + shipping.postcode + ', ' + shipping.country, 300, customerInformationTop + 30)
+		.text(`${customer.billing_address.line1} ${customer.billing_address?.line2 ?? ""}`, 300, customerInformationTop + 15)
+		.text(customer.billing_address.city + ', ' + customer.billing_address.postcode + ', ' + customer.billing_address.country, 300, customerInformationTop + 30)
 		.moveDown();
 
 	generateHr(doc, 252);
@@ -84,9 +82,9 @@ function generateTableRow(
 ) {
 	doc.fontSize(10)
 		.text(c1, 50, y)
-		.text(c2, 150, y)
-		.text(c3, 280, y, { width: 90, align: 'right' })
-		.text(c4, 370, y, { width: 90, align: 'right' })
+		.text(c2, 80, y)
+		.text(c3, 210, y, { width: 90, align: 'right' })
+		.text(c4, 300, y, { width: 90, align: 'right' })
 		.text(c5, 0, y, { align: 'right' });
 }
 

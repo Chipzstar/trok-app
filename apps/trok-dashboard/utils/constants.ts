@@ -32,7 +32,8 @@ export const STORAGE_KEYS = {
 	LOCATION_FORM: 'location-form',
 	ONBOARDING_STEP: 'onboarding-step',
 	TEST_MODE: 'test-mode',
-	GRIFFIN: 'griffin'
+	GRIFFIN: 'griffin',
+	INVOICE_FORM: 'invoice-form',
 };
 export const PATHS = {
 	HOME: '/',

@@ -28,7 +28,7 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack, invoiceId }) => {
+const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack }) => {
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);

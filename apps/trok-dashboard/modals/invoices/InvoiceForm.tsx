@@ -1,22 +1,33 @@
 import React from 'react';
-import { Drawer, SegmentedControl, Image, Stack, Title, Text, Paper, Group, LoadingOverlay } from '@mantine/core';
+import {
+	Drawer,
+	SegmentedControl,
+	Image,
+	Stack,
+	Title,
+	Text,
+	Paper,
+	Group,
+	LoadingOverlay,
+	Button
+} from '@mantine/core';
 import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 import { UseFormReturnType } from '@mantine/form';
+import { InvoiceFormValues } from '../../utils/types';
 
 export type SectionState = 'create' | 'upload';
 
 interface InvoiceFormProps {
 	opened: boolean;
 	onClose: () => void;
-	form: UseFormReturnType<{ pod: boolean; invoice: boolean }>;
-	onSubmit: (values: { pod: boolean; invoice: boolean }) => void;
+	form: UseFormReturnType<InvoiceFormValues>;
+	onSubmit: (values: InvoiceFormValues) => void;
 	loading: boolean;
 	section: SectionState;
 	setSection: (val: SectionState) => void;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
-	invoiceId: string;
 }
 
 const InvoiceForm = ({
@@ -28,8 +39,7 @@ const InvoiceForm = ({
 	section,
 	setSection,
 	showPODUploadForm,
-	showInvUploadForm,
-	invoiceId
+	showInvUploadForm
 }: InvoiceFormProps) => {
 	const router = useRouter();
 	const [visible, setVisible] = React.useState(false);
@@ -41,24 +51,25 @@ const InvoiceForm = ({
 			size='xl'
 			position='right'
 			classNames={{
-				drawer: 'flex h-full'
+				drawer: 'flex h-full',
+				body: 'flex h-full'
 			}}
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
 			<LoadingOverlay visible={visible} overlayBlur={2} />
-			<Stack>
-				<Title order={2} weight={500}>
-					<span>Add New Invoice</span>
-				</Title>
-				<Text size='md'>
-					Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit
-					to us.
-				</Text>
-				<Text size='xs' color='dark'>
-					Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
-				</Text>
-				<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4'>
+			<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col justify-between space-y-4 h-full pb-6'>
+				<Stack>
+					<Title order={2} weight={500}>
+						<span>Add New Invoice</span>
+					</Title>
+					<Text size='md'>
+						Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you
+						submit to us.
+					</Text>
+					<Text size='xs' color='dark'>
+						Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
+					</Text>
 					<SegmentedControl
 						value={section}
 						onChange={(value: 'create' | 'upload') => setSection(value)}
@@ -77,7 +88,7 @@ const InvoiceForm = ({
 							withBorder
 							onClick={() => {
 								setVisible(true);
-								router.push(`${PATHS.CREATE_INVOICE}?invoiceId=${invoiceId}`).then(() => setVisible(false));
+								router.push(PATHS.CREATE_INVOICE).then(() => setVisible(false));
 							}}
 						>
 							<Group spacing='xl'>
@@ -123,7 +134,17 @@ const InvoiceForm = ({
 							</Group>
 						</Paper>
 					)}
-					<Paper component='button' shadow='xs' p='lg' withBorder onClick={showPODUploadForm}>
+					<Paper
+						component='button'
+						shadow='xs'
+						p='lg'
+						withBorder
+						onClick={showPODUploadForm}
+						disabled={!form.values.invoice}
+						sx={{
+							backgroundColor: !form.values.invoice ? 'rgba(200,200,200, 0.4)' : undefined
+						}}
+					>
 						<Group spacing='xl'>
 							{form.values.pod ? (
 								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
@@ -146,11 +167,26 @@ const InvoiceForm = ({
 									/>
 								</div>
 							)}
-							<Text weight='bold'>{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}</Text>
+							<Text weight='bold' color={!form.values.invoice ? 'dimmed' : undefined}>
+								{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}
+							</Text>
 						</Group>
 					</Paper>
-				</form>
-			</Stack>
+				</Stack>
+				<Group py="xl" position="right">
+					<Button
+						type='submit'
+						styles={{
+							root: {
+								width: 150
+							}
+						}}
+						loading={loading}
+					>
+						<Text weight={500}>Add</Text>
+					</Button>
+				</Group>
+			</form>
 		</Drawer>
 	);
 };

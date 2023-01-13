@@ -10,6 +10,7 @@ model Customer {
     email String?
     phone String?
     website String?
-    billing_address Address?
+    billing_address Address
+    shipping_address Address?
     invoices Invoice[]
 }

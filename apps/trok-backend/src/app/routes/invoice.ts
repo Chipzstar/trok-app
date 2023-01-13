@@ -22,7 +22,7 @@ export const TaxRateSchema = z.object({
 	description: z.string().nullable().optional(),
 	// calculation: z.union([z.literal("inclusive"), z.literal("exclusive")])
 	calculation: z.enum(['inclusive', 'exclusive'])
-})
+});
 
 const invoiceRouter = t.router({
 	getCustomers: t.procedure
@@ -102,6 +102,9 @@ const invoiceRouter = t.router({
 				return await ctx.prisma.invoice.findMany({
 					where: {
 						userId: input.userId
+					},
+					orderBy: {
+						created_at: 'desc'
 					}
 				});
 			} catch (err) {
@@ -120,6 +123,7 @@ const invoiceRouter = t.router({
 				email: z.union([z.string().email().optional(), z.literal('')]),
 				phone: z.string().optional(),
 				billing_address: AddressSchema,
+				shipping_address: AddressSchema.nullable().optional(),
 				website: z.union([z.string().url().optional(), z.literal('')])
 			})
 		)
@@ -136,12 +140,22 @@ const invoiceRouter = t.router({
 						website: input?.website ?? undefined,
 						billing_address: {
 							line1: input.billing_address.line1,
-							...(input.billing_address.line2 && {line2: input.billing_address.line2}),
+							...(input.billing_address.line2 && { line2: input.billing_address.line2 }),
 							city: input.billing_address.city,
 							postcode: input.billing_address.postcode,
 							region: input.billing_address.region,
 							country: input.billing_address.country
-						}
+						},
+						...(input?.shipping_address && {
+							shipping_address: {
+								line1: input.shipping_address.line1,
+								...(input.shipping_address.line2 && { line2: input.shipping_address.line2 }),
+								city: input.shipping_address.city,
+								postcode: input.shipping_address.postcode,
+								region: input.shipping_address.region,
+								country: input.shipping_address.country
+							}
+						})
 					}
 				});
 			} catch (err) {
@@ -225,25 +239,27 @@ const invoiceRouter = t.router({
 				console.table(input);
 				// fetch the user (business) who created the invoice
 				const user = await ctx.prisma.user.findUniqueOrThrow({
-                    where: {
-                        id: input.userId
-                    }
-                });
-				// fetch the original items used in the invoice
-				const original_items = (await ctx.prisma.item.findMany({
-                    where: {
-						id: { in: input.line_items.map(item => item.id) }
-                    },
-					select: {
-						id: true
+					where: {
+						id: input.userId
 					}
-                })).map(item => item.id);
+				});
+				// fetch the original items used in the invoice
+				const original_items = (
+					await ctx.prisma.item.findMany({
+						where: {
+							id: { in: input.line_items.map(item => item.id) }
+						},
+						select: {
+							id: true
+						}
+					})
+				).map(item => item.id);
 				// fetch the customer used in the invoice
 				const customer = await ctx.prisma.customer.findUniqueOrThrow({
 					where: {
 						id: input.customer
 					}
-				})
+				});
 				// if there is tax fetch the tax rate used in the invoice
 				let tax_rate = null;
 				if (input.tax_rate) {
@@ -251,13 +267,13 @@ const invoiceRouter = t.router({
 						where: {
 							id: input.tax_rate.id
 						}
-					})
+					});
 				}
-                // create the invoice
+				// create the invoice
 				const invoice = await ctx.prisma.invoice.create({
 					data: {
 						userId: input.userId,
-                        customerId: input.customer,
+						customerId: input.customer,
 						customer_name: customer.display_name,
 						invoice_id: input.invoice_id,
 						invoice_number: input.invoice_number,
@@ -267,19 +283,19 @@ const invoiceRouter = t.router({
 						amount_due: input.total,
 						total_amount: input.total,
 						ItemIds: original_items,
-						line_items: input.line_items as Prisma.InvoiceLineItemCreateInput[],
+						line_items: <Prisma.InvoiceLineItemCreateInput[]>input.line_items,
 						status: INVOICE_STATUS.DRAFT,
 						paid_status: 'unpaid',
-						...(input.tax_rate && {taxRateId: input.tax_rate.id}),
+						...(input.tax_rate && { taxRateId: input.tax_rate.id }),
 						notes: input.notes
 					}
-				})
+				});
 				console.log('************************************************');
 				console.log(JSON.stringify(invoice, null, 2));
 				console.log('************************************************');
 				generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate)
-					.then((invoice) => console.log("Successfully created invoice " + invoice))
-					.catch((err) => console.log(err));
+					.then(invoice => console.log('Successfully created invoice ' + invoice))
+					.catch(err => console.log(err));
 				return invoice;
 			} catch (err) {
 				console.error(err);

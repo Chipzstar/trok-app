@@ -97,19 +97,20 @@ model Card {
   transactions                Transaction[]
 }
 model Customer {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  user            User      @relation(fields: [userId], references: [id])
-  userId          String    @db.ObjectId
-  display_name    String
-  primary_contact String
-  company         String
-  email           String?
-  phone           String?
-  website         String?
-  billing_address Address?
-  invoices        Invoice[]
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String    @db.ObjectId
+  display_name     String
+  primary_contact  String
+  company          String
+  email            String?
+  phone            String?
+  website          String?
+  billing_address  Address
+  shipping_address Address?
+  invoices         Invoice[]
 }
 model Driver {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId

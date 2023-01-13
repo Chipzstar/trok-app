@@ -1,16 +1,17 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
 import InvoiceForm, { SectionState } from '../modals/invoices/InvoiceForm';
 import { useForm } from '@mantine/form';
-import { GBP, genInvoiceId } from '@trok-app/shared-utils';
+import { GBP } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
-import { PATHS, SAMPLE_INVOICES } from '../utils/constants';
+import { PATHS, SAMPLE_INVOICES, STORAGE_KEYS } from '../utils/constants';
 import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
+import { InvoiceFormValues } from '../utils/types';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
@@ -26,10 +27,10 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data;
 
-	const form = useForm<{ pod: boolean; invoice: boolean }>({
+	const form = useForm<InvoiceFormValues>({
 		initialValues: {
-			pod: false,
-			invoice: false
+			pod: null,
+			invoice: null
 		}
 	});
 
@@ -61,9 +62,31 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		}
 	}, [testMode]);
 
+	/**
+	 * On page mount, grab existing values in local storage and update invoice form
+	 */
+	useEffect(() => {
+		const storedValue = window.localStorage.getItem(STORAGE_KEYS.INVOICE_FORM);
+		if (storedValue) {
+			try {
+				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.INVOICE_FORM)));
+			} catch (e) {
+				console.log('Failed to parse stored value');
+			}
+		}
+	}, []);
+
+	/**
+	 * Sync Form changes with local storage form
+	 */
+	useEffect(() => {
+		form.values.invoice && setNewInvoiceOpened(true);
+		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(form.values));
+	}, [form.values]);
+
 	return (
 		<Page.Container
-			extraClassNames="overflow-hidden"
+			extraClassNames='overflow-hidden'
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
@@ -89,7 +112,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setNewInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
-				invoiceId={invoice_id}
 			/>
 			<PODUploadForm
 				opened={podOpened}
@@ -99,7 +121,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setTimeout(() => setNewInvoiceOpened(true), 100);
 				}}
 				form={form}
-				invoiceId={invoice_id}
 			/>
 			<InvoiceUploadForm
 				opened={invUploadOpened}
@@ -111,7 +132,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setInvUploadOpened(false);
 					setTimeout(() => setNewInvoiceOpened(true), 100);
 				}}
-				invoiceId={invoice_id}
 			/>
 			<Page.Body extraClassNames=''>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -156,7 +176,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					</Card>
 				</SimpleGrid>
 				<Space py='md' />
-				<div className="h-full">
+				<div className='h-full'>
 					<Tabs
 						value={activeTab}
 						orientation='horizontal'
@@ -215,8 +235,9 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	);
 };
 
-export async function getServerSideProps({ req, res }) {
+export async function getServerSideProps({ req, res, query }) {
 	const session = await unstable_getServerSession(req, res, authOptions);
+	console.log(query)
 	// check if the user is authenticated, it not, redirect back to login page
 	if (!session) {
 		return {
@@ -226,11 +247,10 @@ export async function getServerSideProps({ req, res }) {
 			}
 		};
 	}
-	const invoice_id = genInvoiceId();
 	return {
 		props: {
 			session_id: session.id,
-			invoice_id
+			invoice_id: query['invoice-id'] ?? ""
 		}
 	};
 }

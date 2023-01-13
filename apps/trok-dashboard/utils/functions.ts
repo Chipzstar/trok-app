@@ -27,7 +27,7 @@ export function uniqueSimpleArray(array: SelectItem[]) {
 	return [...new Set(values)];
 }
 
-export async function uploadFile(file, filename, filepath) {
+export async function uploadFile(file, filename, filepath) : Promise<string> {
 	try {
 		const res = (await apiClient.get(`/server/gcp/upload?filename=${filename}&filepath=${filepath}`))
 			.data;
@@ -47,10 +47,10 @@ export async function uploadFile(file, filename, filepath) {
 		if (upload.ok) {
 			console.log('Uploaded successfully!');
 			console.log(upload);
-			return upload;
+			return url;
 		} else {
 			console.error('Upload failed.', upload.status);
-			return upload;
+			return url;
 		}
 	} catch (error) {
 		console.error(error);

@@ -8,6 +8,7 @@ import { uploadFile } from '../../utils/functions';
 import { trpc } from '../../utils/clients';
 import { useSession } from 'next-auth/react';
 import { UseFormReturnType } from '@mantine/form';
+import { InvoiceFormValues } from '../../utils/types';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -43,11 +44,10 @@ interface PODUploadFormProps {
 	opened: boolean,
 	onClose: () => void;
 	goBack: () => void;
-	form: UseFormReturnType<{pod: boolean, invoice: boolean}>;
-	invoiceId: string
+	form: UseFormReturnType<InvoiceFormValues>;
 }
 
-const PODUploadForm = ({ opened, onClose, goBack, form, invoiceId }: PODUploadFormProps) => {
+const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) => {
 	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<FileWithPath>(null);
@@ -67,10 +67,10 @@ const PODUploadForm = ({ opened, onClose, goBack, form, invoiceId }: PODUploadFo
 		try {
 			if (!file) throw new Error('Please upload a proof of delivery photo before submitting.');
 			const filename = encodeURIComponent(file.name);
-			const filepath = `${account.business.business_crn}/INVOICES/${invoiceId}/POD/${filename}`;
-			await uploadFile(file, filename, filepath);
+			const filepath = `${account.business.business_crn}/INVOICES/${form.values.invoice}/POD/${filename}`;
+			const url = await uploadFile(file, filename, filepath);
 			setLoading(false);
-			form.setFieldValue('pod', true)
+			form.setFieldValue('pod', url)
 			notifySuccess('upload-image-success', 'Proof of delivery uploaded successfully.', <IconCheck size={20} />);
 			goBack()
 		} catch (err) {
