@@ -90,7 +90,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 		>
 			<form onSubmit={form.onSubmit(onSubmit, onValidate)} className='flex flex-col space-y-4'>
 				<Tabs value={activeTab} onTabChange={setActiveTab}>
-					<Tabs.List>
+					<Tabs.List grow>
 						<Tabs.Tab value="basic" icon={<IconUser size={14} />}>Basic Info</Tabs.Tab>
 						<Tabs.Tab value="billing" icon={<IconAddressBook size={14} />}>Billing Address</Tabs.Tab>
 						<Tabs.Tab value="shipping" icon={<IconTruckDelivery size={14} />}>Shipping Address</Tabs.Tab>

@@ -20,5 +20,7 @@ model Invoice {
     total_amount Int @db.Long
     status String
     paid_status InvoicePaidStatus
+    approved Boolean @default(false)
+    download_url String
     notes String?
 }

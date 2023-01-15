@@ -287,6 +287,7 @@ const invoiceRouter = t.router({
 						status: INVOICE_STATUS.DRAFT,
 						paid_status: 'unpaid',
 						...(input.tax_rate && { taxRateId: input.tax_rate.id }),
+						download_url: 'https://trok.co',
 						notes: input.notes
 					}
 				});
@@ -294,7 +295,14 @@ const invoiceRouter = t.router({
 				console.log(JSON.stringify(invoice, null, 2));
 				console.log('************************************************');
 				generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate)
-					.then(invoice => console.log('Successfully created invoice ' + invoice))
+					.then(invoice_url => ctx.prisma.invoice.update({
+						where: {
+                            id: invoice.id
+                        },
+						data: {
+                            download_url: invoice_url
+                        }
+					}))
 					.catch(err => console.log(err));
 				return invoice;
 			} catch (err) {

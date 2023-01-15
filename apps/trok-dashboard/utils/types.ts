@@ -40,7 +40,10 @@ export interface DynamicInputFieldProps {
 	isPassword?: boolean;
 }
 
+export type InvoiceSectionState = 'create' | 'upload';
+
 export interface InvoiceFormValues {
+	type: InvoiceSectionState
 	pod: string | null;
 	invoice: string | null;
 }

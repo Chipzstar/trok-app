@@ -35,7 +35,15 @@ export enum PAYMENT_STATUS {
 export enum INVOICE_STATUS {
 	APPROVED = 'approved',
 	UNAPPROVED = 'unapproved',
-	DRAFT = 'draft'
+	DRAFT = 'draft',
+	COMPLETE = 'complete',
+	SENT = 'sent',
+}
+
+export enum INVOICE_PAID_STATUS {
+	PAID = 'paid',
+    UNPAID = 'unpaid',
+	PARTIAL = 'partially_paid',
 }
 
 export const intervals = ["per_authorization", "daily", "weekly", "monthly", "yearly", "all_time"] as const;

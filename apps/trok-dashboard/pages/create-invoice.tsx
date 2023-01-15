@@ -144,6 +144,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 	const [invoiceForm, setInvoiceForm] = useLocalStorage<InvoiceFormValues>({
 		key: STORAGE_KEYS.INVOICE_FORM,
 		defaultValue: {
+			type: 'create',
 			invoice: null,
 			pod: null
 		}
@@ -730,7 +731,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 							</Group>
 						</SimpleGrid>
 						<Space py='sm' />
-						<Group position='apart' pb='md' grow align='start'>
+						<Group position='apart' pb='md' grow align='end'>
 							<Textarea placeholder='Invoice Notes' minRows={5} size='lg' {...form.getInputProps('notes')} />
 							<Card withBorder py='md' radius='xs'>
 								<SimpleGrid cols={2} spacing='xl'>

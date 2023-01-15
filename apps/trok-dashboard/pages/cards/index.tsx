@@ -15,8 +15,8 @@ const Cards = ({ testMode, session_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id }, { placeholderData: []});
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: [] });
+	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const mutation = trpc.createCard.useMutation({
 		onSuccess: function (input) {
 			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
@@ -25,7 +25,7 @@ const Cards = ({ testMode, session_id }) => {
 
 	const data = testMode
 		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
-		: cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab);
+		: cardsQuery.data ? cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab) : [];
 
 	const form = useForm({
 		initialValues: {
@@ -161,10 +161,10 @@ const Cards = ({ testMode, session_id }) => {
 					onTabChange={setActiveTab}
 					defaultValue='all'
 					classNames={{
-						root: 'h-full',
+						root: 'grow',
 						tabsList: '',
 						tab: 'mx-4',
-						panel: 'h-full'
+						panel: ''
 					}}
 				>
 					<Tabs.List>
@@ -173,15 +173,15 @@ const Cards = ({ testMode, session_id }) => {
 						<Tabs.Tab value='inactive'>Inactive</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value='all' className='h-full'>
+					<Tabs.Panel value='all'>
 						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='active' className='h-full'>
+					<Tabs.Panel value='active'>
 						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 
-					<Tabs.Panel value='inactive' className='h-full'>
+					<Tabs.Panel value='inactive'>
 						<CardsTable loading={!testMode && cardsQuery.isLoading} data={data} />
 					</Tabs.Panel>
 				</Tabs>

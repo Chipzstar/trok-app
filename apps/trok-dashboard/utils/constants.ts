@@ -640,7 +640,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'unpaid',
-		status: 'in_progress'
+		status: 'in_progress',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -682,7 +684,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'unpaid',
-		status: 'paid'
+		status: 'paid',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -724,7 +728,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'unpaid',
-		status: 'paid'
+		status: 'paid',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -766,7 +772,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'unpaid',
-		status: 'in_progress'
+		status: 'in_progress',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -808,7 +816,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'unpaid',
-		status: 'paid'
+		status: 'paid',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -842,7 +852,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'paid',
-		status: 'sent'
+		status: 'sent',
+		download_url: '',
+		approved: false
 	},
 	{
 		id: uuidv4(),
@@ -876,7 +888,9 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		amount_due: 468000,
 		ItemIds: [],
 		paid_status: 'paid',
-		status: 'sent'
+		status: 'sent',
+		download_url: '',
+		approved: false
 	}
 ];
 

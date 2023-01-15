@@ -26,9 +26,9 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		dayjs().startOf('week').toDate(),
 		dayjs().endOf('week').toDate()
 	]);
-	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: [] });
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id }, { placeholderData: []});
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: []});
+	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id });
+	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
+	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
 	const balanceQuery = trpc.getIssuingBalance.useQuery({ userId: session_id, stripeId: stripe_account_id });
 
 	const week_spend = useMemo(() => {
@@ -46,7 +46,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		if (testMode) {
 			return GBP(testMode ? 726436 : 0).format();
 		} else {
-			const value = transactionsQuery?.data
+			const value = transactionsQuery.data
 				?.filter(t => dayjs(t.created_at).isBetween(range[0], range[1], 'h'))
 				.reduce((prev, curr) => prev + 41 * 120, 0);
 			return GBP(value).format();
@@ -54,13 +54,13 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 	}, [testMode, transactionsQuery, range]);
 	const approved_invoices = useMemo(() => {
 		if (testMode) {
-			return SAMPLE_INVOICES.filter(i => i.status === INVOICE_STATUS.APPROVED).length;
+			return SAMPLE_INVOICES.filter(i => i.approved).length;
 		} else {
-			return invoicesQuery.data.filter(i => i.status === 'approved').length;
+			return invoicesQuery.data?.filter(i => i.approved).length ?? "N/A";
 		}
 	}, [testMode, invoicesQuery]);
 	const num_cards = useMemo(
-		() => (testMode ? SAMPLE_CARDS.length : cardsQuery?.data?.length),
+		() => (testMode ? SAMPLE_CARDS.length : cardsQuery.data?.length ?? "N/A"),
 		[testMode, cardsQuery]
 	);
 	const current_balance = useMemo(() => (testMode ? 0 : balanceQuery?.data?.amount), [testMode, balanceQuery]);

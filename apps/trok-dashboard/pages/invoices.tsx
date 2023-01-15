@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
-import InvoiceForm, { SectionState } from '../modals/invoices/InvoiceForm';
+import InvoiceForm from '../modals/invoices/InvoiceForm';
 import { useForm } from '@mantine/form';
 import { GBP } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
@@ -11,7 +11,7 @@ import { PATHS, SAMPLE_INVOICES, STORAGE_KEYS } from '../utils/constants';
 import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
-import { InvoiceFormValues } from '../utils/types';
+import { InvoiceFormValues, InvoiceSectionState } from '../utils/types';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
@@ -20,15 +20,15 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
 	const [newInvoiceOpened, setNewInvoiceOpened] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
-	const [section, setSection] = useState<SectionState>('create');
 	const [loading, setLoading] = useState(false);
 
-	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id }, { placeholderData: [] });
+	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id });
 
-	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data;
+	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data : [];
 
 	const form = useForm<InvoiceFormValues>({
 		initialValues: {
+			type: 'create',
 			pod: null,
 			invoice: null
 		}
@@ -86,7 +86,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 	return (
 		<Page.Container
-			extraClassNames='overflow-hidden'
+			extraClassNames=''
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
@@ -102,8 +102,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				form={form}
 				onSubmit={handleSubmit}
 				loading={loading}
-				section={section}
-				setSection={setSection}
 				showPODUploadForm={() => {
 					setNewInvoiceOpened(false);
 					setTimeout(() => setPODOpened(true), 100);
@@ -133,7 +131,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setTimeout(() => setNewInvoiceOpened(true), 100);
 				}}
 			/>
-			<Page.Body extraClassNames=''>
+			<Page.Body>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
 					<Card shadow='sm' py={0} radius='xs'>
 						<Stack px='md' py='md' spacing='xs'>
@@ -176,17 +174,17 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					</Card>
 				</SimpleGrid>
 				<Space py='md' />
-				<div className='h-full'>
+				<div className='h-full flex flex-col'>
 					<Tabs
 						value={activeTab}
 						orientation='horizontal'
 						onTabChange={setActiveTab}
 						defaultValue='all'
 						classNames={{
-							root: 'h-full',
+							root: 'grow',
 							tabsList: '',
 							tab: 'mx-4',
-							panel: 'h-full'
+							panel: ''
 						}}
 					>
 						<Tabs.List>

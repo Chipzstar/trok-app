@@ -72,7 +72,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			setLoading(false);
 			form.setFieldValue('pod', url)
 			notifySuccess('upload-image-success', 'Proof of delivery uploaded successfully.', <IconCheck size={20} />);
-			goBack()
+			setTimeout(goBack, 1000)
 		} catch (err) {
 			console.error(err);
 			setLoading(false);

@@ -1,22 +1,20 @@
 import React from 'react';
 import {
+	Button,
 	Drawer,
-	SegmentedControl,
-	Image,
-	Stack,
-	Title,
-	Text,
-	Paper,
 	Group,
+	Image,
 	LoadingOverlay,
-	Button
+	Paper,
+	SegmentedControl,
+	Stack,
+	Text,
+	Title
 } from '@mantine/core';
 import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 import { UseFormReturnType } from '@mantine/form';
-import { InvoiceFormValues } from '../../utils/types';
-
-export type SectionState = 'create' | 'upload';
+import { InvoiceFormValues, InvoiceSectionState } from '../../utils/types';
 
 interface InvoiceFormProps {
 	opened: boolean;
@@ -24,8 +22,6 @@ interface InvoiceFormProps {
 	form: UseFormReturnType<InvoiceFormValues>;
 	onSubmit: (values: InvoiceFormValues) => void;
 	loading: boolean;
-	section: SectionState;
-	setSection: (val: SectionState) => void;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
 }
@@ -36,8 +32,6 @@ const InvoiceForm = ({
 	form,
 	onSubmit,
 	loading,
-	section,
-	setSection,
 	showPODUploadForm,
 	showInvUploadForm
 }: InvoiceFormProps) => {
@@ -58,21 +52,23 @@ const InvoiceForm = ({
 			transitionTimingFunction='ease'
 		>
 			<LoadingOverlay visible={visible} overlayBlur={2} />
-			<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col justify-between space-y-4 h-full pb-6'>
+			<form onSubmit={form.onSubmit(onSubmit)} className='flex h-full flex-col justify-between space-y-4 pb-6'>
 				<Stack>
 					<Title order={2} weight={500}>
-						<span>Add New Invoice</span>
+						<span>{form.values.invoice ? 'Get paid now' : 'Add New Invoice'}</span>
 					</Title>
 					<Text size='md'>
-						Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you
-						submit to us.
+						{form.values.invoice
+							? 'Invoicing takes up to one business day. Upload your proof of delivery to receive you money now and improve your cash flow.'
+							: 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.'}
 					</Text>
 					<Text size='xs' color='dark'>
 						Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
 					</Text>
 					<SegmentedControl
-						value={section}
-						onChange={(value: 'create' | 'upload') => setSection(value)}
+						disabled={!!form.values.invoice}
+						value={form.values.type}
+						onChange={(value: InvoiceSectionState) => form.setFieldValue("type", value)}
 						transitionTimingFunction='ease'
 						fullWidth
 						data={[
@@ -80,7 +76,7 @@ const InvoiceForm = ({
 							{ label: 'Upload Invoice', value: 'upload' }
 						]}
 					/>
-					{section === 'create' ? (
+					{form.values.type === 'create' ? (
 						<Paper
 							component='button'
 							shadow='xs'
@@ -173,8 +169,9 @@ const InvoiceForm = ({
 						</Group>
 					</Paper>
 				</Stack>
-				<Group py="xl" position="right">
+				<Group py='xl' position='right'>
 					<Button
+						disabled={!form.values.invoice || !form.values.pod}
 						type='submit'
 						styles={{
 							root: {

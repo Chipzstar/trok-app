@@ -34,10 +34,9 @@ const Transactions = ({ testMode, session_id }) => {
 	const transactionsQuery = trpc.getTransactions.useQuery(
 		{ userId: session_id },
 		{
-			placeholderData: [],
 			refetchInterval: 3000,
 			trpc: {
-				ssr: true,
+				ssr: true
 			}
 		}
 	);
@@ -46,7 +45,9 @@ const Transactions = ({ testMode, session_id }) => {
 
 	const data = testMode
 		? SAMPLE_TRANSACTIONS
-		: transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab);
+		: transactionsQuery.data
+		? transactionsQuery.data.filter(t => activeTab === 'all' || t.status === activeTab)
+		: [];
 
 	const form = useForm<ExportForm>({
 		initialValues: {
@@ -98,7 +99,7 @@ const Transactions = ({ testMode, session_id }) => {
 
 	return (
 		<Page.Container
-			extraClassNames="overflow-hidden"
+			extraClassNames='overflow-hidden'
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Transactions</span>
@@ -209,7 +210,7 @@ const Transactions = ({ testMode, session_id }) => {
 						root: 'h-full',
 						tabsList: '',
 						tab: 'mx-4',
-						panel: 'h-full'
+						panel: ''
 					}}
 				>
 					<Tabs.List>
@@ -219,15 +220,33 @@ const Transactions = ({ testMode, session_id }) => {
 					</Tabs.List>
 
 					<Tabs.Panel value='all'>
-						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable
+							loading={!testMode && transactionsQuery.isLoading}
+							data={data}
+							setOpened={setOpened}
+							selectTransaction={setSelectedTransaction}
+							expandable
+						/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='approved'>
-						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable
+							loading={!testMode && transactionsQuery.isLoading}
+							data={data}
+							setOpened={setOpened}
+							selectTransaction={setSelectedTransaction}
+							expandable
+						/>
 					</Tabs.Panel>
 
 					<Tabs.Panel value='declined'>
-						<TransactionTable loading={!testMode && transactionsQuery.isLoading} data={data} setOpened={setOpened} selectTransaction={setSelectedTransaction} expandable/>
+						<TransactionTable
+							loading={!testMode && transactionsQuery.isLoading}
+							data={data}
+							setOpened={setOpened}
+							selectTransaction={setSelectedTransaction}
+							expandable
+						/>
 					</Tabs.Panel>
 				</Tabs>
 			</Page.Body>
