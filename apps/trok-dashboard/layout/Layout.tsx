@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AppShell, Header } from '@mantine/core';
 import Sidebar from './Sidebar';
 import { useRouter } from 'next/router';
 import VerifyBanner from '../components/VerifyBanner';
-import { AUTH_ROUTES, BANNER_HEIGHT, DEFAULT_HEADER_HEIGHT, PATHS } from '../utils/constants';
+import { AUTH_ROUTES, DEFAULT_HEADER_HEIGHT } from '../utils/constants';
 import { useSession } from 'next-auth/react';
 import { trpc } from '../utils/clients';
 import { useIdle } from '@mantine/hooks';

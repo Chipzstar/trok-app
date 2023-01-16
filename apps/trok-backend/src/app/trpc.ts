@@ -3,6 +3,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import prisma from './db';
 import redisClient from './redis';
 import { TRPCError } from '@trpc/server';
+import { TRPCPanelMeta } from 'trpc-panel/lib/src/meta';
 
 export const createContext = async ({ req, res }: trpcExpress.CreateExpressContextOptions) => {
 	console.log(req.headers?.authorization)
@@ -27,7 +28,7 @@ export const createContext = async ({ req, res }: trpcExpress.CreateExpressConte
 };
 
 export type Context = trpc.inferAsyncReturnType<typeof createContext>;
-export const t = trpc.initTRPC.context<Context>().create();
+export const t = trpc.initTRPC.meta<TRPCPanelMeta>().context<Context>().create();
 
 const isAdmin = t.middleware(({ next, ctx }) => {
 	if (!ctx.user?.admin) {
