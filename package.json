@@ -5,6 +5,10 @@
 	"cacheDirectories": [
 		"/apps/trok-dashboard/.next/cache"
 	],
+	"engines" : {
+		"npm" : ">=8.0.0 <9.0.0",
+		"node" : ">=16.0.0 <17.0.0"
+	},
 	"scripts": {
 		"start": "nx serve",
 		"build": "nx build",
