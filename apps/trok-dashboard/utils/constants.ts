@@ -609,32 +609,14 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(4).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -642,7 +624,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'in_progress',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	},
 	{
 		id: uuidv4(),
@@ -653,32 +636,41 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(3).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
+		total_amount: 468000,
+		subtotal: 404320,
+		amount_due: 468000,
+		ItemIds: [],
+		paid_status: 'paid',
+		status: 'paid',
+		download_url: '',
+		approved: false,
+		pod: false
+	},
+	{
+		id: uuidv4(),
+		userId: uuidv4(),
+		invoice_id: order_id.generate(),
+		invoice_number: `INV-#${numericId()}`,
+		invoice_date: dayjs().unix(),
+		customerId: uuidv4(),
+		customer_name: faker.company.name(),
+		due_date: dayjs().add(7, 'day').unix(),
+		line_items: Array(3).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -686,7 +678,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'paid',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	},
 	{
 		id: uuidv4(),
@@ -697,76 +690,14 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
-		total_amount: 468000,
-		subtotal: 404320,
-		amount_due: 468000,
-		ItemIds: [],
-		paid_status: 'unpaid',
-		status: 'paid',
-		download_url: '',
-		approved: false
-	},
-	{
-		id: uuidv4(),
-		userId: uuidv4(),
-		invoice_id: order_id.generate(),
-		invoice_number: `INV-#${numericId()}`,
-		invoice_date: dayjs().unix(),
-		customerId: uuidv4(),
-		customer_name: faker.company.name(),
-		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(2).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -774,7 +705,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'in_progress',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	},
 	{
 		id: uuidv4(),
@@ -785,32 +717,14 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(3).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -818,7 +732,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'paid',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	},
 	{
 		id: uuidv4(),
@@ -829,24 +744,14 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(2).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -854,7 +759,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'sent',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	},
 	{
 		id: uuidv4(),
@@ -865,24 +771,14 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
 		due_date: dayjs().add(7, 'day').unix(),
-		line_items: [
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			},
-			{
-				id: uuidv4(),
-				name: faker.commerce.productName(),
-				quantity: 1,
-				price: Number(faker.commerce.price()),
-				description: '',
-				unit: ''
-			}
-		],
+		line_items: Array(2).fill({
+			id: uuidv4(),
+			name: faker.commerce.productName(),
+			quantity: 1,
+			price: Number(faker.commerce.price()),
+			description: '',
+			unit: ''
+		}),
 		total_amount: 468000,
 		subtotal: 404320,
 		amount_due: 468000,
@@ -890,7 +786,8 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'sent',
 		download_url: '',
-		approved: false
+		approved: false,
+		pod: false
 	}
 ];
 

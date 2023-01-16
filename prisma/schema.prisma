@@ -250,14 +250,16 @@ model Invoice {
   invoice_date   Int               @db.Long
   due_date       Int               @db.Long
   tax_rate       TaxRate?          @relation(fields: [taxRateId], references: [id])
-  subtotal       Int               @db.Long
-  amount_due     Int               @db.Long
-  total_amount   Int               @db.Long
+  subtotal       Float
+  amount_due     Float
+  total_amount   Float
   status         String
   paid_status    InvoicePaidStatus
   approved       Boolean           @default(false)
   download_url   String
   notes          String?
+  pod            Boolean           @default(false)
+  deleted        Boolean           @default(false)
   taxRateId      String?           @db.ObjectId
 }
 model Item {

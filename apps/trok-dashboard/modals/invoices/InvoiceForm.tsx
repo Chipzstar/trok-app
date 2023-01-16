@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
 	Button,
 	Drawer,
@@ -15,6 +15,7 @@ import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 import { UseFormReturnType } from '@mantine/form';
 import { InvoiceFormValues, InvoiceSectionState } from '../../utils/types';
+import Prisma from '@prisma/client';
 
 interface InvoiceFormProps {
 	opened: boolean;
@@ -24,6 +25,7 @@ interface InvoiceFormProps {
 	loading: boolean;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
+	selectedInvoice?: Prisma.Invoice | null;
 }
 
 const InvoiceForm = ({
@@ -33,10 +35,31 @@ const InvoiceForm = ({
 	onSubmit,
 	loading,
 	showPODUploadForm,
-	showInvUploadForm
+	showInvUploadForm,
+	selectedInvoice = null
 }: InvoiceFormProps) => {
 	const router = useRouter();
 	const [visible, setVisible] = React.useState(false);
+
+	const title = useMemo(
+		() => (selectedInvoice ? 'We are on it' : form.values.invoice ? 'Get paid now' : 'Add New Invoice'),
+		[selectedInvoice, form.values]
+	);
+
+	const subtitle = useMemo(
+		() =>
+			selectedInvoice
+				? "We are currently verifying your documents to ensure they are eligible for factoring. We'll notify you when the payment has been made"
+				: form.values.invoice
+				? 'Invoicing takes up to one business day. Upload your proof of delivery to receive your money now and improve your cash flow.'
+				: 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.',
+		[selectedInvoice, form.values]
+	);
+	
+	const pod_visible = useMemo(() => {
+		return form.values.invoice || form.values.type === 'upload'
+	}, [form.values])
+
 	return (
 		<Drawer
 			opened={opened}
@@ -55,20 +78,16 @@ const InvoiceForm = ({
 			<form onSubmit={form.onSubmit(onSubmit)} className='flex h-full flex-col justify-between space-y-4 pb-6'>
 				<Stack>
 					<Title order={2} weight={500}>
-						<span>{form.values.invoice ? 'Get paid now' : 'Add New Invoice'}</span>
+						<span>{title}</span>
 					</Title>
-					<Text size='md'>
-						{form.values.invoice
-							? 'Invoicing takes up to one business day. Upload your proof of delivery to receive you money now and improve your cash flow.'
-							: 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.'}
-					</Text>
+					<Text size='md'>{subtitle}</Text>
 					<Text size='xs' color='dark'>
 						Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
 					</Text>
 					<SegmentedControl
 						disabled={!!form.values.invoice}
 						value={form.values.type}
-						onChange={(value: InvoiceSectionState) => form.setFieldValue("type", value)}
+						onChange={(value: InvoiceSectionState) => form.setFieldValue('type', value)}
 						transitionTimingFunction='ease'
 						fullWidth
 						data={[
@@ -130,46 +149,44 @@ const InvoiceForm = ({
 							</Group>
 						</Paper>
 					)}
-					<Paper
-						component='button'
-						shadow='xs'
-						p='lg'
-						withBorder
-						onClick={showPODUploadForm}
-						disabled={!form.values.invoice}
-						sx={{
-							backgroundColor: !form.values.invoice ? 'rgba(200,200,200, 0.4)' : undefined
-						}}
-					>
-						<Group spacing='xl'>
-							{form.values.pod ? (
-								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
-									<Image
-										width={60}
-										height={60}
-										radius='md'
-										src='/static/images/add-button.svg'
-										alt='Upload Proof of delivery'
-									/>
-								</div>
-							) : (
-								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
-									<Image
-										width={60}
-										height={60}
-										radius='md'
-										src='/static/images/add-button.svg'
-										alt='Upload Proof of delivery'
-									/>
-								</div>
-							)}
-							<Text weight='bold' color={!form.values.invoice ? 'dimmed' : undefined}>
-								{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}
-							</Text>
-						</Group>
-					</Paper>
+					{pod_visible && (
+						<Paper
+							component='button'
+							shadow='xs'
+							p='lg'
+							withBorder
+							onClick={showPODUploadForm}
+						>
+							<Group spacing='xl'>
+								{form.values.pod ? (
+									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
+										<Image
+											width={60}
+											height={60}
+											radius='md'
+											src='/static/images/add-button.svg'
+											alt='Upload Proof of delivery'
+										/>
+									</div>
+								) : (
+									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
+										<Image
+											width={60}
+											height={60}
+											radius='md'
+											src='/static/images/add-button.svg'
+											alt='Upload Proof of delivery'
+										/>
+									</div>
+								)}
+								<Text weight='bold'>
+									{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}
+								</Text>
+							</Group>
+						</Paper>
+					)}
 				</Stack>
-				<Group py='xl' position='right'>
+				{!selectedInvoice && <Group py='xl' position='right'>
 					<Button
 						disabled={!form.values.invoice || !form.values.pod}
 						type='submit'
@@ -180,9 +197,9 @@ const InvoiceForm = ({
 						}}
 						loading={loading}
 					>
-						<Text weight={500}>Add</Text>
+						<Text weight={500}>{form.values.invoice ? 'Get Paid' : 'Add'}</Text>
 					</Button>
-				</Group>
+				</Group>}
 			</form>
 		</Drawer>
 	);

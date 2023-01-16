@@ -5,6 +5,7 @@ import { TRPCError } from '@trpc/server';
 import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
+import { prettyPrint, prettyPrintResponse } from '../utils/helpers';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -291,19 +292,68 @@ const invoiceRouter = t.router({
 						notes: input.notes
 					}
 				});
-				console.log('************************************************');
-				console.log(JSON.stringify(invoice, null, 2));
-				console.log('************************************************');
-				generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate)
-					.then(invoice_url => ctx.prisma.invoice.update({
-						where: {
-                            id: invoice.id
-                        },
-						data: {
-                            download_url: invoice_url
-                        }
-					}))
-					.catch(err => console.log(err));
+				const invoice_url = await generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate);
+				await ctx.prisma.invoice.update({
+					where: {
+						id: invoice.id
+					},
+					data: {
+						download_url: invoice_url
+					}
+				});
+				prettyPrint(invoice)
+				return invoice;
+			} catch (err) {
+				console.error(err);
+				//@ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err.message });
+			}
+		}),
+	updateInvoice: t.procedure
+		.input(
+			z.object({
+				invoice_id: z.string(),
+				userId: z.string(),
+				pod: z.boolean(),
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const invoice = await ctx.prisma.invoice.update({
+					where: {
+						invoice_id: input.invoice_id,
+						userId: input.userId
+                    },
+					data: {
+						pod: input?.pod ?? undefined
+					}
+				})
+				prettyPrint(invoice)
+				return invoice;
+			} catch (err) {
+				console.error(err);
+				//@ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err.message });
+			}
+		}),
+	deleteInvoice: t.procedure
+		.input(
+			z.object({
+				userId: z.string(),
+				id: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const invoice = await ctx.prisma.invoice.update({
+					where: {
+						id: input.id,
+						userId: input.userId
+					},
+					data: {
+						deleted: true
+					}
+				});
 				return invoice;
 			} catch (err) {
 				console.error(err);

@@ -1,30 +1,51 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { capitalize, GBP, INVOICE_PAID_STATUS, INVOICE_STATUS, PAYMENT_STATUS, sanitize } from '@trok-app/shared-utils';
+import {
+	capitalize,
+	GBP,
+	INVOICE_PAID_STATUS,
+	INVOICE_STATUS,
+	notifyError,
+	notifySuccess,
+	sanitize
+} from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
-import { ActionIcon, Group, LoadingOverlay, Menu } from '@mantine/core';
+import { ActionIcon, Group, LoadingOverlay, Menu, Text } from '@mantine/core';
 import {
 	IconCheck,
 	IconChevronRight,
 	IconCircleCheck,
-	IconDots, IconEye,
-	IconReceipt,
+	IconDots,
+	IconEye,
+	IconPhoto,
 	IconSend,
-	IconTrash
+	IconTrash,
+	IconX
 } from '@tabler/icons';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
 import { Prisma } from '@prisma/client';
+import { trpc } from '../utils/clients';
+import { useSession } from 'next-auth/react';
+import { openConfirmModal } from '@mantine/modals';
 
 interface InvoiceTableProps {
 	loading: boolean;
 	data: Prisma.InvoiceUncheckedCreateInput[];
 	setOpened: (val: boolean) => void;
 	selectInvoice: (i: Prisma.InvoiceUncheckedCreateInput) => void;
+	showPODUpload: (val: boolean) => void;
 }
 
-const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableProps) => {
+const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }: InvoiceTableProps) => {
+	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
+	const utils = trpc.useContext();
+	const deleteMutation = trpc.deleteInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.getInvoices.invalidate({ userId: session.id }).then(r => console.log(input, 'Invoices refetched'));
+		}
+	});
 	const rows = data.map((i, index) => {
 		const statusClass = classNames({
 			'py-1': true,
@@ -42,7 +63,7 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableP
 			'bg-violet-500/25': i.status === INVOICE_STATUS.DRAFT,
 			'bg-success/25': i.status === INVOICE_STATUS.COMPLETE,
 			'bg-warning/25': i.status === INVOICE_STATUS.SENT,
-			'bg-danger/25': i.status === INVOICE_STATUS.UNAPPROVED,
+			'bg-danger/25': i.status === INVOICE_STATUS.UNAPPROVED
 		});
 		const paidStatusClass = classNames({
 			'py-1': true,
@@ -58,7 +79,7 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableP
 			'text-yellow-500': i.paid_status === INVOICE_PAID_STATUS.UNPAID,
 			'bg-success/25': i.paid_status === INVOICE_PAID_STATUS.PAID,
 			'bg-warning/25': i.paid_status === INVOICE_PAID_STATUS.PARTIAL,
-			'bg-yellow-500/25': i.paid_status === INVOICE_PAID_STATUS.UNPAID,
+			'bg-yellow-500/25': i.paid_status === INVOICE_PAID_STATUS.UNPAID
 		});
 		return (
 			<tr
@@ -82,8 +103,8 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableP
 					</div>
 				</td>
 				<td colSpan={1}>
-					<Group align="center">
-						<span className="w-18">{GBP(i.total_amount).format()}</span>
+					<Group align='center'>
+						<span className='w-18'>{GBP(i.total_amount).format()}</span>
 						<div className={paidStatusClass}>
 							<span>{sanitize(i?.paid_status)}</span>
 						</div>
@@ -92,25 +113,42 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableP
 				<td colSpan={1}>
 					<span>{dayjs.unix(i.due_date).format('MMM DD')}</span>
 				</td>
-				<td
-					role='button'
-					onClick={() => {
-						selectInvoice(i);
-						setOpened(true);
-					}}
-				>
-					<Group align="center">
-						<Menu transition="pop" withArrow position="bottom-end">
+				<td>
+					<Group align='center'>
+						<ActionIcon
+							size='sm'
+							onClick={() => {
+								selectInvoice(i);
+								setOpened(true);
+							}}
+						>
+							<IconChevronRight />
+						</ActionIcon>
+						<Menu transition='pop' withArrow position='bottom-end'>
 							<Menu.Target>
-								<ActionIcon size="sm">
-									<IconDots size={16} stroke={1.5} />
+								<ActionIcon size='sm'>
+									<IconDots size={16} />
 								</ActionIcon>
 							</Menu.Target>
 							<Menu.Dropdown>
-								<Menu.Item icon={<IconEye size={16} stroke={1.5} />} onClick={() => window.open(i.download_url, '_blank').focus()}>View Invoice</Menu.Item>
+								<Menu.Item
+									icon={<IconEye size={16} stroke={1.5} />}
+									onClick={() => window.open(i.download_url, '_blank').focus()}
+								>
+									View Invoice
+								</Menu.Item>
+								{!i.pod && (
+									<Menu.Item icon={<IconPhoto size={16} stroke={1.5} />} onClick={() => showPODUpload(true)}>
+										Add Proof of Delivery
+									</Menu.Item>
+								)}
 								<Menu.Item icon={<IconSend size={16} stroke={1.5} />}>Send Invoice</Menu.Item>
 								<Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />}>Mark as Sent</Menu.Item>
-								<Menu.Item icon={<IconTrash size={16} stroke={1.5} />} color="red">
+								<Menu.Item
+									icon={<IconTrash size={16} stroke={1.5} />}
+									color='red'
+									onClick={() => openModal(i)}
+								>
 									Delete
 								</Menu.Item>
 							</Menu.Dropdown>
@@ -120,6 +158,41 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice }: InvoiceTableP
 			</tr>
 		);
 	});
+
+	const openModal = (invoice: Prisma.InvoiceUncheckedCreateInput) =>
+		openConfirmModal({
+			title: `Deleting Invoice: ${invoice.invoice_number}\n`,
+			children: (
+				<Text size='sm'>
+					Please confirm that you'd like to archive this invoice?
+					<br />
+					<strong>This action cannot be reversed!</strong>
+				</Text>
+			),
+			centered: true,
+			labels: { confirm: 'Delete', cancel: 'Cancel' },
+			confirmProps: {
+				color: 'red'
+			},
+			onCancel: () => console.log('Cancel'),
+			onConfirm: async () => {
+				try {
+					const res = await deleteMutation.mutateAsync({
+						userId: session.id,
+						id: invoice.id
+					});
+					console.log(res);
+					notifySuccess(
+						'invoice-deleted-success',
+						'Invoice has been successfully archived!',
+						<IconCheck size={20} />
+					);
+				} catch (err) {
+					console.error(err);
+					notifyError('invoice-deleted-failed', err.message, <IconX size={20} />);
+				}
+			}
+		});
 
 	return loading ? (
 		<div className='relative h-full'>

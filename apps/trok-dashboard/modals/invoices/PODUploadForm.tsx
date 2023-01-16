@@ -53,6 +53,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
+	const utils = trpc.useContext()
 	const { data: account } = trpc.getAccount.useQuery(
 		{
 			id: session?.id,
@@ -60,6 +61,11 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 		},
 		{ enabled: !!session }
 	);
+	const update = trpc.updateInvoice.useMutation({
+		onSuccess(input) {
+			utils.getInvoices.invalidate({userId: session.id}).then(r => console.log(input, 'Invoices refetched'));
+		}
+	})
 
 	const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -68,7 +74,14 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			if (!file) throw new Error('Please upload a proof of delivery photo before submitting.');
 			const filename = encodeURIComponent(file.name);
 			const filepath = `${account.business.business_crn}/INVOICES/${form.values.invoice}/POD/${filename}`;
+			// upload the file to GCP bucket
 			const url = await uploadFile(file, filename, filepath);
+			// update the "pod" flag of the invoice to "true"
+			const invoice = await update.mutateAsync({
+				invoice_id: form.values.invoice,
+				userId: session.id,
+				pod: true
+			})
 			setLoading(false);
 			form.setFieldValue('pod', url)
 			notifySuccess('upload-image-success', 'Proof of delivery uploaded successfully.', <IconCheck size={20} />);
@@ -78,7 +91,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			setLoading(false);
 			notifyError('upload-image-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 		}
-	}, [file, account, form]);
+	}, [file, account, form, session]);
 
 	return (
 		<Drawer

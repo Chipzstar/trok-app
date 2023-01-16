@@ -9,6 +9,12 @@ export const prettyPrintResponse = (response: { data: any }) => {
 	console.log(util.inspect(response.data, { colors: true, depth: 4 }));
 };
 
+export const prettyPrint = (data: any) => {
+	console.log('************************************************');
+	console.log(JSON.stringify(data, null, 2));
+	console.log('************************************************');
+}
+
 export const validateReferralCode = async (code: any): Promise<boolean> => {
 	try {
 		const user = await prisma.user.findFirst({

@@ -15,16 +15,15 @@ import { InvoiceFormValues, InvoiceSectionState } from '../utils/types';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
-	const [opened, setOpened] = useState(false);
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
-	const [newInvoiceOpened, setNewInvoiceOpened] = useState(false);
+	const [invoiceOpened, setInvoiceOpened] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [loading, setLoading] = useState(false);
 
 	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id });
 
-	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data : [];
+	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
 
 	const form = useForm<InvoiceFormValues>({
 		initialValues: {
@@ -80,7 +79,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	 * Sync Form changes with local storage form
 	 */
 	useEffect(() => {
-		form.values.invoice && setNewInvoiceOpened(true);
+		form.values.invoice && setInvoiceOpened(true);
 		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(form.values));
 	}, [form.values]);
 
@@ -90,33 +89,34 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
-					<Button className='' onClick={() => setNewInvoiceOpened(true)}>
+					<Button className='' onClick={() => setInvoiceOpened(true)}>
 						<span className='text-base font-normal'>New Invoice</span>
 					</Button>
 				</Page.Header>
 			}
 		>
 			<InvoiceForm
-				opened={newInvoiceOpened}
-				onClose={() => setNewInvoiceOpened(false)}
+				opened={invoiceOpened}
+				onClose={() => setInvoiceOpened(false)}
 				form={form}
 				onSubmit={handleSubmit}
 				loading={loading}
 				showPODUploadForm={() => {
-					setNewInvoiceOpened(false);
+					setInvoiceOpened(false);
 					setTimeout(() => setPODOpened(true), 100);
 				}}
 				showInvUploadForm={() => {
-					setNewInvoiceOpened(false);
+					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
+				selectedInvoice={selectedInvoice}
 			/>
 			<PODUploadForm
 				opened={podOpened}
 				onClose={() => setPODOpened(false)}
 				goBack={() => {
 					setPODOpened(false);
-					setTimeout(() => setNewInvoiceOpened(true), 100);
+					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
 				form={form}
 			/>
@@ -128,7 +128,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
-					setTimeout(() => setNewInvoiceOpened(true), 100);
+					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
 			/>
 			<Page.Body>
@@ -196,33 +196,37 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 						<Tabs.Panel value='all'>
 							<InvoiceTable
+								showPODUpload={setPODOpened}
 								data={data}
 								loading={loading}
-								setOpened={setOpened}
+								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='awaiting'>
 							<InvoiceTable
+								showPODUpload={setPODOpened}
 								data={data}
 								loading={loading}
-								setOpened={setOpened}
+								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='approval'>
 							<InvoiceTable
+								showPODUpload={setPODOpened}
 								data={data}
 								loading={loading}
-								setOpened={setOpened}
+								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='paid'>
 							<InvoiceTable
+								showPODUpload={setPODOpened}
 								data={data}
 								loading={loading}
-								setOpened={setOpened}
+								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>

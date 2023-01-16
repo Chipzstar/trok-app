@@ -64,7 +64,11 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				</Text>
 			),
 			labels: { confirm: 'Confirm', cancel: 'Cancel' },
+			centered: true,
 			onCancel: () => console.log('Cancel'),
+			confirmProps: {
+				color: 'red'
+			},
 			onConfirm: async () => {
 				try {
 					await deleteMutation.mutateAsync({
