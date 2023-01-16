@@ -110,8 +110,8 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const { open, ready } = usePlaidLink(config);
 	const data = testMode
 		? SAMPLE_PAYMENTS
-		: !query?.isLoading
-		? query?.data?.filter(p => {
+		: query.data
+		? query.data.filter(p => {
 				let in_range = true;
 				if (range.every(r => r instanceof Date)) {
 					in_range = dayjs(p.created_at).isBetween(dayjs(range[0]), dayjs(range[1]).endOf('d'), 'h');

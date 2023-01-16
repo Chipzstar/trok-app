@@ -3,10 +3,13 @@ import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
 import { LoadingOverlay } from '@mantine/core';
 
-const DriversTable = ({rows, loading}) => {
-	const [activePage, setPage] = useState(1)
-	return (
-		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> :
+const DriversTable = ({ rows, loading }) => {
+	const [activePage, setPage] = useState(1);
+	return loading ? (
+		<div className='relative h-full'>
+			<LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} />
+		</div>
+	) : (
 		<DataGrid
 			rows={rows}
 			activePage={activePage}
@@ -25,10 +28,10 @@ const DriversTable = ({rows, loading}) => {
 				<Empty
 					message={
 						<span className='text-center text-2xl'>
-								You have no drivers
-								<br />
+							You have no drivers
+							<br />
 							{"Click the 'Add Driver' button to add one"}
-							</span>
+						</span>
 					}
 				/>
 			}

@@ -18,18 +18,13 @@ import { checkPastDueStatements } from './app/helpers/statements';
 import { BUCKET, ENVIRONMENT, HttpCode, IS_DEVELOPMENT, SENTRY_DSN } from './app/utils/constants';
 import { ONE_HOUR, THIRTY_MINUTES } from '@trok-app/shared-utils';
 import { checkCardDeliveredStatus } from './app/helpers/cards';
+import { renderTrpcPanel } from 'trpc-panel';
 import 'express-async-errors';
 import './app/process';
-import { renderTrpcPanel } from 'trpc-panel';
 
 const runApp = async () => {
 	const app = express();
 	app.use(expressStatusMonitor());
-	IS_DEVELOPMENT && app.use("/panel", (_, res) => {
-		return res.send(
-			renderTrpcPanel(appRouter, { url: `http://localhost:${process.env.PORT || "3333"}/trpc` })
-		);
-	});
 	Sentry.init({
 		dsn: SENTRY_DSN,
 		integrations: [
@@ -70,7 +65,13 @@ const runApp = async () => {
 	app.disable('x-powered-by');
 	const trpcApiEndpoint = '/server/trpc';
 	const playgroundEndpoint = '/server/trpc-playground';
-
+	if (IS_DEVELOPMENT) {
+		app.use("/panel", (_, res) => {
+			return res.send(
+				renderTrpcPanel(appRouter, { url: `http://localhost:${process.env.PORT || "3333"}/trpc` })
+			);
+		});
+	}
 	// TRPC ROUTES
 	app.use(
 		trpcApiEndpoint,
