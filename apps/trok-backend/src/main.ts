@@ -25,7 +25,7 @@ import { renderTrpcPanel } from 'trpc-panel';
 const runApp = async () => {
 	const app = express();
 	app.use(expressStatusMonitor());
-	app.use("/panel", (_, res) => {
+	IS_DEVELOPMENT && app.use("/panel", (_, res) => {
 		return res.send(
 			renderTrpcPanel(appRouter, { url: `http://localhost:${process.env.PORT || "3333"}/trpc` })
 		);
