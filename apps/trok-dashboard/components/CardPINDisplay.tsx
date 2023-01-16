@@ -43,7 +43,7 @@ const CardPINDisplay = ({ card_id, nonce, ephemeral_key_secret }) => {
 	const [loading, setLoading] = useState(false);
 	const [passwordDialog, showPasswordDialog] = useState(false);
 	const { data: session } = useSession();
-	const { data: user } = trpc.getAccount.useQuery({ id: session?.id }, { enabled: !!session?.id });
+	const { data: user } = trpc.user.getAccount.useQuery({ id: session?.id }, { enabled: !!session?.id });
 	const stripe = useStripe();
 	const pinRef = useRef(null);
 	const [pinElement, setPinElement] = useState(null);

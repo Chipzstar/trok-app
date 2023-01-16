@@ -20,10 +20,16 @@ import { ONE_HOUR, THIRTY_MINUTES } from '@trok-app/shared-utils';
 import { checkCardDeliveredStatus } from './app/helpers/cards';
 import 'express-async-errors';
 import './app/process';
+import { renderTrpcPanel } from 'trpc-panel';
 
 const runApp = async () => {
 	const app = express();
 	app.use(expressStatusMonitor());
+	app.use("/panel", (_, res) => {
+		return res.send(
+			renderTrpcPanel(appRouter, { url: `http://localhost:${process.env.PORT || "3333"}/trpc` })
+		);
+	});
 	Sentry.init({
 		dsn: SENTRY_DSN,
 		integrations: [

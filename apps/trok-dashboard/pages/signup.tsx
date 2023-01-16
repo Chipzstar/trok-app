@@ -57,7 +57,7 @@ export function Signup({ secret, emails }: { secret: string; emails: string[] })
 	const [popoverOpened, setPopoverOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [newAccount, setNewAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
-	const mutation = trpc.signup.useMutation();
+	const mutation = trpc.auth.signup.useMutation();
 	const [userForm, setUserForm] = useLocalStorage<Partial<SignupInfo>>({
 		key: STORAGE_KEYS.SIGNUP_FORM,
 		defaultValue: {

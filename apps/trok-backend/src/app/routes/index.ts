@@ -1,4 +1,6 @@
 import { t } from '../trpc';
+import { authRouter } from './auth';
+import adminRouter from './admin';
 import driverRouter from './driver';
 import cardRouter from './card';
 import transactionsRouter from './transaction';
@@ -8,21 +10,19 @@ import paymentRouter from './payment';
 import balanceRouter from './balance';
 import statementRouter from './statement';
 import invoiceRouter from './invoice';
-import { authRouter } from './auth';
-import { adminRouter } from './admin';
 
-export const appRouter = t.mergeRouters(
-	adminRouter,
-	authRouter,
-	accountRouter,
-	driverRouter,
-	cardRouter,
-	transactionsRouter,
-	bankAccountRouter,
-	paymentRouter,
-	balanceRouter,
-	statementRouter,
-	invoiceRouter
-);
+export const appRouter = t.router({
+	admin: adminRouter,
+	auth: authRouter,
+	user: accountRouter,
+	driver: driverRouter,
+	card: cardRouter,
+	transaction: transactionsRouter,
+	bank: bankAccountRouter,
+	payment: paymentRouter,
+	balance: balanceRouter,
+	statement: statementRouter,
+	invoice: invoiceRouter
+});
 
 export type AppRouter = typeof appRouter;

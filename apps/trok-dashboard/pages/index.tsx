@@ -26,10 +26,10 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		dayjs().startOf('week').toDate(),
 		dayjs().endOf('week').toDate()
 	]);
-	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id });
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: session_id });
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
-	const balanceQuery = trpc.getIssuingBalance.useQuery({ userId: session_id, stripeId: stripe_account_id });
+	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
+	const transactionsQuery = trpc.transaction.getTransactions.useQuery({ userId: session_id });
+	const cardsQuery = trpc.card.getCards.useQuery({ userId: session_id });
+	const balanceQuery = trpc.balance.getIssuingBalance.useQuery({ userId: session_id, stripeId: stripe_account_id });
 
 	const week_spend = useMemo(() => {
 		if (testMode) {

@@ -7,7 +7,7 @@ import { getToken } from 'next-auth/jwt';
 import { trpc } from '../utils/clients';
 
 const Referral = ({ referral_code, session_id }) => {
-	const { data: account } = trpc.getAccount.useQuery({ id: session_id }, { enabled: !!session_id });
+	const { data: account } = trpc.user.getAccount.useQuery({ id: session_id }, { enabled: !!session_id });
 
 	return (
 		<Page.Container

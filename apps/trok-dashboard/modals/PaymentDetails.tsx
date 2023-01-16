@@ -16,7 +16,7 @@ interface PaymentDetailsProps {
 }
 
 const PaymentDetails = ({ opened, setOpened, payment }: PaymentDetailsProps) => {
-	const { data: bankAccount } = trpc.getSingleBankAccount.useQuery(payment?.bankAccountId, {
+	const { data: bankAccount } = trpc.bank.getSingleBankAccount.useQuery(payment?.bankAccountId, {
 		enabled: !!payment?.bankAccountId
 	});
 	return (

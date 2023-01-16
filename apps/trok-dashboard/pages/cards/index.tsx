@@ -15,11 +15,11 @@ const Cards = ({ testMode, session_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id });
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
-	const mutation = trpc.createCard.useMutation({
+	const driversQuery = trpc.driver.getDrivers.useQuery({ userId: session_id });
+	const cardsQuery = trpc.card.getCards.useQuery({ userId: session_id });
+	const mutation = trpc.card.createCard.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+			utils.card.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
 

@@ -11,9 +11,9 @@ const BankAccountsTable = ({ loading, data }) => {
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
 	const utils = trpc.useContext();
-	const setDefaultMutation = trpc.setDefaultAccount.useMutation({
+	const setDefaultMutation = trpc.bank.setDefaultAccount.useMutation({
 		onSuccess: function (input) {
-			utils.getBankAccounts.invalidate({ userId: session.id }).then(r => console.log(input, 'Bank Accounts refetched'));
+			utils.bank.getBankAccounts.invalidate({ userId: session.id }).then(r => console.log(input, 'Bank Accounts refetched'));
 		}
 	});
 

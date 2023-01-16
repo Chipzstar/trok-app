@@ -12,7 +12,7 @@ import { IconCheck, IconX } from '@tabler/icons';
 const ForgotPassword = () => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const sendResetEmail = trpc.sendResetEmail.useMutation()
+	const sendResetEmail = trpc.auth.sendResetEmail.useMutation()
 	const form = useForm({
 		initialValues: {
 			email: ''

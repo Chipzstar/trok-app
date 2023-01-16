@@ -31,7 +31,7 @@ const Transactions = ({ testMode, session_id }) => {
 	const [opened, setOpened] = useState(false);
 	const [exportOpened, setExportOpened] = useState(false);
 	const [selectedTransaction, setSelectedTransaction] = useState(null);
-	const transactionsQuery = trpc.getTransactions.useQuery(
+	const transactionsQuery = trpc.transaction.getTransactions.useQuery(
 		{ userId: session_id },
 		{
 			refetchInterval: 3000,
@@ -40,8 +40,8 @@ const Transactions = ({ testMode, session_id }) => {
 			}
 		}
 	);
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id }, { placeholderData: [] });
-	const driversQuery = trpc.getDrivers.useQuery({ userId: session_id }, { placeholderData: [] });
+	const cardsQuery = trpc.card.getCards.useQuery({ userId: session_id }, { placeholderData: [] });
+	const driversQuery = trpc.driver.getDrivers.useQuery({ userId: session_id }, { placeholderData: [] });
 
 	const data = testMode
 		? SAMPLE_TRANSACTIONS

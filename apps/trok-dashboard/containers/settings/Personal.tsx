@@ -33,7 +33,7 @@ const Personal = ({ stripe, account }) => {
 	const [loading, setLoading] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const toggleEditMode = () => setEditMode(!editMode);
-	const mutation = trpc.updatePersonalInfo.useMutation();
+	const mutation = trpc.user.updatePersonalInfo.useMutation();
 
 	const form = useForm({
 		initialValues: {

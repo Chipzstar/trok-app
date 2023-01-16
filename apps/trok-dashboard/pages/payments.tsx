@@ -39,25 +39,25 @@ const Payments = ({ testMode, session_id, stripe_account_id }) => {
 	const [section, setSection] = useState<SectionState>('topup');
 	const [search, setSearch] = useDebouncedState('', 250);
 	const utils = trpc.useContext();
-	const query = trpc.getPayments.useQuery({ userId: session_id });
-	const topUpMutation = trpc.topUpBalance.useMutation({
+	const query = trpc.payment.getPayments.useQuery({ userId: session_id });
+	const topUpMutation = trpc.payment.topUpBalance.useMutation({
 		onSuccess(input) {
-			utils.getPayments.invalidate({ userId: session_id });
+			utils.payment.getPayments.invalidate({ userId: session_id });
 		}
 	});
-	const payAccountMutation = trpc.payExternalAccount.useMutation({
+	const payAccountMutation = trpc.payment.payExternalAccount.useMutation({
 		onSuccess(input) {
-			utils.getPayments.invalidate({ userId: session_id });
+			utils.payment.getPayments.invalidate({ userId: session_id });
 		}
 	});
-	const linkSessionMutation = trpc.updateLinkSession.useMutation({
+	const linkSessionMutation = trpc.payment.updateLinkSession.useMutation({
 		onSuccess(input) {
-			utils.getPayments.invalidate({ userId: session_id });
+			utils.payment.getPayments.invalidate({ userId: session_id });
 		}
 	});
-	const cancelPaymentMutation = trpc.cancelPayment.useMutation({
+	const cancelPaymentMutation = trpc.payment.cancelPayment.useMutation({
 		onSuccess(input) {
-			utils.getPayments.invalidate({ userId: session_id });
+			utils.payment.getPayments.invalidate({ userId: session_id });
 		}
 	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>((public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {

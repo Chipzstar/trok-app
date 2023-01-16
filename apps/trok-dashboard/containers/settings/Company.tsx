@@ -63,7 +63,7 @@ const Company = ({ user_id, stripe, business }) => {
 	const [loading, setLoading] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const toggleEditMode = () => setEditMode(!editMode);
-	const mutation = trpc.updateCompanyInfo.useMutation();
+	const mutation = trpc.user.updateCompanyInfo.useMutation();
 
 	const form = useForm({
 		initialValues: {

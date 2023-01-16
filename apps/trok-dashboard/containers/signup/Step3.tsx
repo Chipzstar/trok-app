@@ -33,8 +33,8 @@ const Step3 = ({ prevStep, nextStep }) => {
 		}
 	});
 	const utils = trpc.useContext();
-	const linkSessionMutation = trpc.linkBusinessBankAccount.useMutation();
-	const { data: plaid_access_token } = trpc.checkAccountLinked.useQuery(account.email, {
+	const linkSessionMutation = trpc.auth.linkBusinessBankAccount.useMutation();
+	const { data: plaid_access_token } = trpc.auth.checkAccountLinked.useQuery(account.email, {
 		enabled: !!account?.email
 	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>(
@@ -48,7 +48,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 				})
 				.then(({ data }) => {
 					console.log(data);
-					utils.checkAccountLinked.invalidate(account.email);
+					utils.auth.checkAccountLinked.invalidate(account.email);
 				})
 				.catch(err => console.error(err));
 		},

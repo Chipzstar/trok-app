@@ -54,16 +54,16 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
 	const utils = trpc.useContext()
-	const { data: account } = trpc.getAccount.useQuery(
+	const { data: account } = trpc.user.getAccount.useQuery(
 		{
 			id: session?.id,
 			stripe_account_id: session?.stripe?.account_id
 		},
 		{ enabled: !!session }
 	);
-	const update = trpc.updateInvoice.useMutation({
+	const update = trpc.invoice.updateInvoice.useMutation({
 		onSuccess(input) {
-			utils.getInvoices.invalidate({userId: session.id}).then(r => console.log(input, 'Invoices refetched'));
+			utils.invoice.getInvoices.invalidate({userId: session.id}).then(r => console.log(input, 'Invoices refetched'));
 		}
 	})
 

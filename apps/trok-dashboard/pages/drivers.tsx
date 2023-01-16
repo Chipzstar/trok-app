@@ -37,20 +37,20 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
-	const query = trpc.getDrivers.useQuery({ userId: session_id });
-	const createMutation = trpc.createDriver.useMutation({
+	const query = trpc.driver.getDrivers.useQuery({ userId: session_id });
+	const createMutation = trpc.driver.createDriver.useMutation({
 		onSuccess: function (input) {
-			utils.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
-	const updateMutation = trpc.updateDriver.useMutation({
+	const updateMutation = trpc.driver.updateDriver.useMutation({
 		onSuccess: function (input) {
-			utils.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
-	const deleteMutation = trpc.deleteDriver.useMutation({
+	const deleteMutation = trpc.driver.deleteDriver.useMutation({
 		onSuccess: function (input) {
-			utils.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
 

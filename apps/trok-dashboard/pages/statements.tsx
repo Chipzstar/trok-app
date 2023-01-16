@@ -11,7 +11,7 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { GBP } from '@trok-app/shared-utils';
 
 const Statements = ({ testMode, session_id }) => {
-	const query = trpc.getStatements.useQuery({ userId: session_id });
+	const query = trpc.statement.getStatements.useQuery({ userId: session_id });
 
 	const rows = testMode
 		? SAMPLE_STATEMENTS.map((element, index) => {

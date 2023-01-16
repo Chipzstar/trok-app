@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
 
-export const adminRouter = t.router({
+const adminRouter = t.router({
 	removeRedisSignup: adminProcedure
 		.input(
 			z.object({
@@ -57,3 +57,5 @@ export const adminRouter = t.router({
 			}
 		})
 });
+
+export default adminRouter;

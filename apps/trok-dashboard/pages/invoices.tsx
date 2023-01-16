@@ -21,7 +21,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [loading, setLoading] = useState(false);
 
-	const invoicesQuery = trpc.getInvoices.useQuery({ userId: session_id });
+	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
 

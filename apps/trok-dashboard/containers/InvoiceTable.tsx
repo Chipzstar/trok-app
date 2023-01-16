@@ -41,9 +41,9 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
 	const utils = trpc.useContext();
-	const deleteMutation = trpc.deleteInvoice.useMutation({
+	const deleteMutation = trpc.invoice.deleteInvoice.useMutation({
 		onSuccess: function (input) {
-			utils.getInvoices.invalidate({ userId: session.id }).then(r => console.log(input, 'Invoices refetched'));
+			utils.invoice.getInvoices.invalidate({ userId: session.id }).then(r => console.log(input, 'Invoices refetched'));
 		}
 	});
 	const rows = data.map((i, index) => {

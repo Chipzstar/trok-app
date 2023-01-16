@@ -51,20 +51,20 @@ const CardPaymentButton = ({ cardId, cardShippingStatus, cardStatus, stripeId })
 	const [opened, setOpened] = useState(false);
 	const { data: session } = useSession();
 	const utils = trpc.useContext();
-	const shipMutation = trpc.shipCard.useMutation({
+	const shipMutation = trpc.card.shipCard.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.card.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const deliverMutation = trpc.deliverCard.useMutation({
+	const deliverMutation = trpc.card.deliverCard.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.card.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const paymentMutation = trpc.createTestPayment.useMutation({
+	const paymentMutation = trpc.card.createTestPayment.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
-			utils.getCardTransactions.invalidate({ card_id: cardId }).then(r => console.log(input, 'Card Transactions refetched'));
+			utils.card.getCards.invalidate({ userId: session.id }).then(r => console.log(input, 'Cards refetched'));
+			utils.transaction.getCardTransactions.invalidate({ card_id: cardId }).then(r => console.log(input, 'Card Transactions refetched'));
 		}
 	});
 

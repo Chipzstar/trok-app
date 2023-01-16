@@ -39,7 +39,7 @@ const passwordResetSchema = z
 	});
 const ResetPassword = () => {
 	const router = useRouter();
-	const resetPassword = trpc.resetPassword.useMutation();
+	const resetPassword = trpc.auth.resetPassword.useMutation();
 	const [loading, setLoading] = useState(false);
 	const [popoverOpened, setPopoverOpened] = useState(false);
 	const form = useForm({

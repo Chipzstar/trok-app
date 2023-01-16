@@ -14,7 +14,7 @@ const ChangePassword = ({ user_id }) => {
 			confirm_password: ''
 		}
 	});
-	const mutation = trpc.changePassword.useMutation()
+	const mutation = trpc.user.changePassword.useMutation()
 
 	const handleSubmit = useCallback(
 		async (values) => {

@@ -53,23 +53,23 @@ const CardDetails = ({ testMode, session_id, stripe_account_id }) => {
 	const [limitsOpened, setLimitsOpened] = useState(false);
 	const [categoriesOpened, setCategoriesOpened] = useState(false);
 	const utils = trpc.useContext();
-	const cardsQuery = trpc.getCards.useQuery({ userId: session_id });
-	const cardStatusMutation = trpc.toggleCardStatus.useMutation({
+	const cardsQuery = trpc.card.getCards.useQuery({ userId: session_id });
+	const cardStatusMutation = trpc.card.toggleCardStatus.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
+			utils.card.getCards.invalidate({ userId: session_id }).then(r => console.log(input, 'Cards refetched'));
 		}
 	});
-	const spendingLimitMutation = trpc.updateSpendingLimits.useMutation({
+	const spendingLimitMutation = trpc.card.updateSpendingLimits.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session_id }).then(r => spendingLimitForm.reset());
+			utils.card.getCards.invalidate({ userId: session_id }).then(r => spendingLimitForm.reset());
 		}
 	});
-	const allowedCategoriesMutation = trpc.updateAllowedCategories.useMutation({
+	const allowedCategoriesMutation = trpc.card.updateAllowedCategories.useMutation({
 		onSuccess: function (input) {
-			utils.getCards.invalidate({ userId: session_id }).then(r => allowedCategoriesForm.reset());
+			utils.card.getCards.invalidate({ userId: session_id }).then(r => allowedCategoriesForm.reset());
 		}
 	});
-	const transactionsQuery = trpc.getCardTransactions.useQuery({ card_id: String(cardID) });
+	const transactionsQuery = trpc.transaction.getCardTransactions.useQuery({ card_id: String(cardID) });
 
 	const card = useMemo<Prisma.Card | undefined>(
 		() =>

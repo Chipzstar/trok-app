@@ -92,7 +92,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 const Sidebar = () => {
 	const router = useRouter();
 	const { data: session } = useSession()
-	const { data, isLoading, isError } = trpc.checkAccountApproved.useQuery(
+	const { data, isLoading, isError } = trpc.user.checkAccountApproved.useQuery(
 		{
 			id: session?.id
 		},

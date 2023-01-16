@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
 	const [timeout, setTimeout] = useState(false)
 	const idle = useIdle(ONE_HOUR, { initialState: false });
 	const { data: session } = useSession()
-	const { data: approved } = trpc.checkAccountApproved.useQuery(
+	const { data: approved } = trpc.user.checkAccountApproved.useQuery(
 		{
 			id: session?.id
 		},

@@ -72,7 +72,7 @@ const SignUpComplete = () => {
 	const [account, setAccount] = useLocalStorage({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const router = useRouter();
 	const { classes } = useStyles();
-	const mutation = trpc.verifyEmail.useMutation();
+	const mutation = trpc.auth.verifyEmail.useMutation();
 
 	useEffect(() => {
 		(async () => {

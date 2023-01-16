@@ -18,7 +18,7 @@ dayjs.extend(isBetween);
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
 const SpendAnalysis = ({sessionId, dateRange}) => {
-	const { data: approved, isLoading, isError } = trpc.checkAccountApproved.useQuery(
+	const { data: approved, isLoading, isError } = trpc.user.checkAccountApproved.useQuery(
 		{
 			id: sessionId
 		},
@@ -27,7 +27,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 			enabled: !!sessionId
 		}
 	);
-	const transactionsQuery = trpc.getTransactions.useQuery({ userId: sessionId });
+	const transactionsQuery = trpc.transaction.getTransactions.useQuery({ userId: sessionId });
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { height } = useWindowSize()
 

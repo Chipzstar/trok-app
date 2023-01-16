@@ -170,7 +170,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 		</Anchor>
 	));
 	const utils = trpc.useContext();
-	const customerQuery = trpc.getCustomers.useQuery(
+	const customerQuery = trpc.invoice.getCustomers.useQuery(
 		{
 			userId: session_id
 		},
@@ -178,7 +178,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			placeholderData: []
 		}
 	);
-	const lineItemQuery = trpc.getItems.useQuery(
+	const lineItemQuery = trpc.invoice.getItems.useQuery(
 		{
 			userId: session_id
 		},
@@ -186,7 +186,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			placeholderData: []
 		}
 	);
-	const taxItemQuery = trpc.getTaxRates.useQuery(
+	const taxItemQuery = trpc.invoice.getTaxRates.useQuery(
 		{
 			userId: session_id
 		},
@@ -194,24 +194,24 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			placeholderData: []
 		}
 	);
-	const createCustomerMutation = trpc.createCustomer.useMutation({
+	const createCustomerMutation = trpc.invoice.createCustomer.useMutation({
 		onSuccess: function (input) {
-			utils.getCustomers.invalidate({ userId: session_id });
+			utils.invoice.getCustomers.invalidate({ userId: session_id });
 		}
 	});
-	const createLineItemMutation = trpc.createItem.useMutation({
+	const createLineItemMutation = trpc.invoice.createItem.useMutation({
 		onSuccess: function (input) {
-			utils.getItems.invalidate({ userId: session_id });
+			utils.invoice.getItems.invalidate({ userId: session_id });
 		}
 	});
-	const createTaxRateMutation = trpc.createTaxRate.useMutation({
+	const createTaxRateMutation = trpc.invoice.createTaxRate.useMutation({
 		onSuccess: function (input) {
-			utils.getTaxRates.invalidate({ userId: session_id });
+			utils.invoice.getTaxRates.invalidate({ userId: session_id });
 		}
 	});
-	const createInvoiceMutation = trpc.createInvoice.useMutation({
+	const createInvoiceMutation = trpc.invoice.createInvoice.useMutation({
 		onSuccess: function (input) {
-			utils.getInvoices.invalidate({ userId: session_id });
+			utils.invoice.getInvoices.invalidate({ userId: session_id });
 		}
 	});
 
