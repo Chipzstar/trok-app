@@ -17,6 +17,7 @@ import {
 	IconCircleCheck,
 	IconDots,
 	IconEye,
+	IconFileCertificate,
 	IconPhoto,
 	IconSend,
 	IconTrash,
@@ -28,6 +29,8 @@ import { Prisma } from '@prisma/client';
 import { trpc } from '../utils/clients';
 import { useSession } from 'next-auth/react';
 import { openConfirmModal } from '@mantine/modals';
+import { useLocalStorage } from '@mantine/hooks';
+import { STORAGE_KEYS } from '../utils/constants';
 
 interface InvoiceTableProps {
 	loading: boolean;
@@ -38,12 +41,22 @@ interface InvoiceTableProps {
 }
 
 const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }: InvoiceTableProps) => {
+	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
 	const utils = trpc.useContext();
+	const updateMutation = trpc.invoice.updateInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.invoice.getInvoices
+				.invalidate({ userId: session.id })
+				.then(r => console.log(input, 'Invoices refetched'));
+		}
+	});
 	const deleteMutation = trpc.invoice.deleteInvoice.useMutation({
 		onSuccess: function (input) {
-			utils.invoice.getInvoices.invalidate({ userId: session.id }).then(r => console.log(input, 'Invoices refetched'));
+			utils.invoice.getInvoices
+				.invalidate({ userId: session.id })
+				.then(r => console.log(input, 'Invoices refetched'));
 		}
 	});
 	const rows = data.map((i, index) => {
@@ -56,11 +69,13 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 			'text-xs': true,
 			'tracking-wide': true,
 			'font-semibold': true,
-			'text-violet-500': i.status === INVOICE_STATUS.DRAFT,
+			'text-gray-500': i.status === INVOICE_STATUS.DRAFT,
+			'text-violet-500': i.status === INVOICE_STATUS.PROCESSING,
 			'text-success': i.status === INVOICE_STATUS.COMPLETE,
 			'text-warning': i.status === INVOICE_STATUS.SENT,
 			'text-danger': i.status === INVOICE_STATUS.UNAPPROVED,
-			'bg-violet-500/25': i.status === INVOICE_STATUS.DRAFT,
+			'bg-gray-500/25': i.status === INVOICE_STATUS.DRAFT,
+			'bg-violet-500/25': i.status === INVOICE_STATUS.PROCESSING,
 			'bg-success/25': i.status === INVOICE_STATUS.COMPLETE,
 			'bg-warning/25': i.status === INVOICE_STATUS.SENT,
 			'bg-danger/25': i.status === INVOICE_STATUS.UNAPPROVED
@@ -98,9 +113,12 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 					<span>{capitalize(sanitize(i.customer_name))}</span>
 				</td>
 				<td colSpan={1}>
-					<div className={statusClass}>
-						<span>{sanitize(i?.status)}</span>
-					</div>
+					<Group align='center'>
+						<div className={statusClass}>
+							<span>{sanitize(i?.status)}</span>
+						</div>
+						{i.approved && <IconCircleCheck color='#00C737' />}
+					</Group>
 				</td>
 				<td colSpan={1}>
 					<Group align='center'>
@@ -131,17 +149,38 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 								</ActionIcon>
 							</Menu.Target>
 							<Menu.Dropdown>
+								{i.status === INVOICE_STATUS.DRAFT &&
+									(!i.pod ? (
+										<Menu.Item
+											icon={<IconPhoto size={16} stroke={1.5} />}
+											onClick={() => showPODUpload(true)}
+										>
+											Add Proof of Delivery
+										</Menu.Item>
+									) : (
+										<Menu.Item
+											icon={<IconFileCertificate size={16} stroke={1.5} />}
+											onClick={() => {
+												if (!testMode) {
+													updateMutation.mutateAsync({
+														invoice_id: i.invoice_id,
+														userId: session.id,
+														status: INVOICE_STATUS.PROCESSING
+													})
+														.then(res => notifySuccess('approval-request-success', "Approval request has been sent! We will let you know shortly once this invoice has been approved", <IconCheck size={20} />))
+														.catch(err => notifyError('approval-request-error', err.message, <IconX size={20} />))
+												}
+											}}
+										>
+											Request Approval
+										</Menu.Item>
+									))}
 								<Menu.Item
 									icon={<IconEye size={16} stroke={1.5} />}
 									onClick={() => window.open(i.download_url, '_blank').focus()}
 								>
 									View Invoice
 								</Menu.Item>
-								{!i.pod && (
-									<Menu.Item icon={<IconPhoto size={16} stroke={1.5} />} onClick={() => showPODUpload(true)}>
-										Add Proof of Delivery
-									</Menu.Item>
-								)}
 								<Menu.Item icon={<IconSend size={16} stroke={1.5} />}>Send Invoice</Menu.Item>
 								<Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />}>Mark as Sent</Menu.Item>
 								<Menu.Item

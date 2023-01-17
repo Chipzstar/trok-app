@@ -301,7 +301,7 @@ const invoiceRouter = t.router({
 						download_url: invoice_url
 					}
 				});
-				prettyPrint(invoice)
+				prettyPrint(invoice);
 				return invoice;
 			} catch (err) {
 				console.error(err);
@@ -314,7 +314,9 @@ const invoiceRouter = t.router({
 			z.object({
 				invoice_id: z.string(),
 				userId: z.string(),
-				pod: z.boolean(),
+				pod: z.boolean().optional(),
+				status: z.string().optional(),
+				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')])
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -323,12 +325,14 @@ const invoiceRouter = t.router({
 					where: {
 						invoice_id: input.invoice_id,
 						userId: input.userId
-                    },
+					},
 					data: {
-						pod: input?.pod ?? undefined
+						...(input.pod && { pod: input.pod }),
+						...(input.status && { status: input.status}),
+						...(input.paid_status && { paid_status: input.paid_status })
 					}
-				})
-				prettyPrint(invoice)
+				});
+				prettyPrint(invoice);
 				return invoice;
 			} catch (err) {
 				console.error(err);

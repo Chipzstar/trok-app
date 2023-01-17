@@ -10,7 +10,7 @@ import { TRANSACTION_STATUS } from './shared-types';
 import orderId from 'order-id';
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export const GBP = (value: number) => currency(value, { symbol: '£', separator: ',', fromCents: true, precision: 2 });
+export const GBP = (value: number, cents = true) => currency(value, { symbol: '£', separator: ',', fromCents: cents, precision: 2 });
 
 /**
  * Checks if the value is a valid number.

@@ -38,6 +38,7 @@ export enum INVOICE_STATUS {
 	DRAFT = 'draft',
 	COMPLETE = 'complete',
 	SENT = 'sent',
+	PROCESSING='processing',
 }
 
 export enum INVOICE_PAID_STATUS {

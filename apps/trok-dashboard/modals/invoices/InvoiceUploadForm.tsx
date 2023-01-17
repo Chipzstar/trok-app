@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { FormEvent, useCallback, useRef, useState } from 'react';
 import { Dropzone, FileWithPath, MS_WORD_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { Button, Center, createStyles, Drawer, Group, Space, Stack, Text, Title } from '@mantine/core';
 import { TEN_MB } from '../../utils/constants';
 import { IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
 import DocumentInfo from '../../components/DocumentInfo';
+import { UseFormReturnType } from '@mantine/form';
+import { InvoiceFormValues } from '../../utils/types';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -28,10 +30,22 @@ const useStyles = createStyles(theme => ({
 	}
 }));
 
-const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack }) => {
+interface Props {
+	opened: boolean;
+	onClose: () => void;
+	form: UseFormReturnType<InvoiceFormValues>;
+	loading: boolean;
+	goBack: () => void;
+}
+
+const InvoiceUploadForm = ({ opened, onClose, form, loading, goBack } : Props) => {
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
+
+	const handleSubmit = useCallback(async () => {
+		// TODO - Omar complete logic for uploading invoice
+	}, [])
 
 	return (
 		<Drawer
@@ -46,16 +60,14 @@ const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack })
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
-			<Stack>
+			<form className='flex flex-col' onSubmit={handleSubmit}>
 				<Title order={2} weight={500}>
 					<span>Upload Invoice</span>
 				</Title>
 				<div className={classes.wrapper}>
 					<Dropzone
 						openRef={openRef}
-						onDrop={file => {
-							setFile(file[0]);
-						}}
+						onDrop={file => setFile(file[0])}
 						onReject={files => console.log('rejected files', files)}
 						maxSize={TEN_MB}
 						className={classes.dropzone}
@@ -105,11 +117,11 @@ const InvoiceUploadForm = ({ opened, onClose, form, loading, onSubmit, goBack })
 					<Button type='button' variant='white' size='md' onClick={goBack}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
-					<Button type='submit' size='md' onClick={onSubmit} disabled={!file}>
+					<Button type='submit' size='md' disabled={!file}>
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>
-			</Stack>
+			</form>
 		</Drawer>
 	);
 };

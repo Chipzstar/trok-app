@@ -65,6 +65,7 @@ const runApp = async () => {
 	app.disable('x-powered-by');
 	const trpcApiEndpoint = '/server/trpc';
 	const playgroundEndpoint = '/server/trpc-playground';
+	// TRPC PANEL
 	if (IS_DEVELOPMENT) {
 		app.use("/panel", (_, res) => {
 			return res.send(

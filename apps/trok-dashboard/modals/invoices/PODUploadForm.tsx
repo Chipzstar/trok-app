@@ -89,7 +89,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 		} catch (err) {
 			console.error(err);
 			setLoading(false);
-			notifyError('upload-image-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+			notifyError('upload-image-failed', err.message, <IconX size={20} />);
 		}
 	}, [file, account, form, session]);
 

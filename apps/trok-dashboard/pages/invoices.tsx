@@ -27,39 +27,67 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 	const form = useForm<InvoiceFormValues>({
 		initialValues: {
+			// indicator on whether the invoice was created using the form or was uploaded by the user
 			type: 'create',
+			// stores the storage url of proof of delivery of photo(s)
 			pod: null,
+			// represents the invoice_id of a created / uploaded invoice
 			invoice: null
 		}
 	});
 
+	/*
+	 * TODO - Omar ignore this handler, this handler will be for sending a notification to the team that a new invoice
+	 *  has been submitted (for uploaded and created invoices). The one you have to complete is inside the InvoiceUploadForm.tsx file
+	 */
 	const handleSubmit = useCallback(async values => {
-		// TODO - Omar complete logic for uploading invoice
+		console.log(values)
 	}, []);
 
 	const unpaid_approved_invoices = useMemo(() => {
 		if (testMode) {
 			return GBP(1256576).format();
 		} else {
-			return GBP(0).format();
+			const sum = invoicesQuery.data.reduce((prev, curr) => {
+				if (curr.paid_status === "unpaid" && curr.approved) {
+					return prev + curr.amount_due
+				} else {
+					return prev
+				}
+			}, 0)
+			return GBP(sum).format();
 		}
-	}, [testMode]);
+	}, [invoicesQuery.data, testMode]);
 
 	const unpaid_unapproved_invoices = useMemo(() => {
 		if (testMode) {
 			return GBP(256576).format();
 		} else {
-			return GBP(0).format();
+			const sum = invoicesQuery.data.reduce((prev, curr) => {
+				if (curr.paid_status === "unpaid" && !curr.approved) {
+					return prev + curr.amount_due
+				} else {
+					return prev
+				}
+			}, 0)
+			return GBP(sum).format();
 		}
-	}, [testMode]);
+	}, [invoicesQuery.data, testMode]);
 
 	const unpaid_invoices = useMemo(() => {
 		if (testMode) {
 			return GBP(1256576 + 256576).format();
 		} else {
-			return GBP(0).format();
+			const sum = invoicesQuery.data.reduce((prev, curr) => {
+				if (curr.paid_status === "unpaid") {
+					return prev + curr.amount_due
+				} else {
+					return prev
+				}
+			}, 0)
+			return GBP(sum).format();
 		}
-	}, [testMode]);
+	}, [invoicesQuery.data, testMode]);
 
 	/**
 	 * On page mount, grab existing values in local storage and update invoice form
@@ -124,7 +152,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
 				form={form}
-				onSubmit={handleSubmit}
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
@@ -189,8 +216,8 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					>
 						<Tabs.List>
 							<Tabs.Tab value='all'>All Invoices</Tabs.Tab>
-							<Tabs.Tab value='awaiting'>Awaiting Payments</Tabs.Tab>
 							<Tabs.Tab value='approval'>Needs Approval</Tabs.Tab>
+							<Tabs.Tab value='awaiting'>Awaiting Payments</Tabs.Tab>
 							<Tabs.Tab value='paid'>Paid</Tabs.Tab>
 						</Tabs.List>
 
@@ -203,7 +230,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
-						<Tabs.Panel value='awaiting'>
+						<Tabs.Panel value='approval'>
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
@@ -212,7 +239,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
-						<Tabs.Panel value='approval'>
+						<Tabs.Panel value='awaiting'>
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
@@ -239,7 +266,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 
 export async function getServerSideProps({ req, res, query }) {
 	const session = await unstable_getServerSession(req, res, authOptions);
-	console.log(query)
 	// check if the user is authenticated, it not, redirect back to login page
 	if (!session) {
 		return {
