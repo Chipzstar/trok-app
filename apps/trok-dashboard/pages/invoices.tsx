@@ -34,7 +34,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	});
 
 	const handleSubmit = useCallback(async values => {
-		console.log(values);
+		// TODO - Omar complete logic for uploading invoice
 	}, []);
 
 	const unpaid_approved_invoices = useMemo(() => {
