@@ -18,6 +18,7 @@ import { DEFAULT_HEADER_HEIGHT, isProd, PATHS, STORAGE_KEYS } from '../utils/con
 import { useLocalStorage } from '@mantine/hooks';
 import { signOut, useSession } from 'next-auth/react';
 import { trpc } from '../utils/clients';
+import { InvoiceFormValues } from '../utils/types';
 
 const useStyles = createStyles((theme, _params, getRef) => {
 	const icon = getRef('icon');
@@ -78,7 +79,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 			'&, &:hover': {
 				color: theme.colors.gray[5],
 				[`& .${icon}`]: {
-					color: theme.colors.gray[5],
+					color: theme.colors.gray[5]
 				}
 			}
 		},
@@ -90,8 +91,16 @@ const useStyles = createStyles((theme, _params, getRef) => {
 });
 
 const Sidebar = () => {
+	const [invoiceForm, setInvoiceForm] = useLocalStorage<InvoiceFormValues>({
+		key: STORAGE_KEYS.INVOICE_FORM,
+		defaultValue: {
+			type: 'create',
+			invoice: null,
+			pod: null
+		}
+	});
 	const router = useRouter();
-	const { data: session } = useSession()
+	const { data: session } = useSession();
 	const { data, isLoading, isError } = trpc.user.checkAccountApproved.useQuery(
 		{
 			id: session?.id
@@ -163,7 +172,7 @@ const Sidebar = () => {
 			role='button'
 			className={cx(classes.link, {
 				[classes.linkDisabled]: item.disabled,
-				[classes.linkActive]: item.isActive,
+				[classes.linkActive]: item.isActive
 			})}
 			key={index}
 			onClick={() => !item.disabled && router.push(item.link)}
@@ -176,7 +185,7 @@ const Sidebar = () => {
 	return (
 		<Navbar width={{ base: 250 }} p='xs'>
 			<Navbar.Section className={classes.header}>
-				<Group spacing='xs' role="button" onClick={() => router.push(PATHS.HOME)}>
+				<Group spacing='xs' role='button' onClick={() => router.push(PATHS.HOME)}>
 					<Image src='/static/images/logo-with-text.svg' width={100} height={35} />
 				</Group>
 			</Navbar.Section>
@@ -191,10 +200,18 @@ const Sidebar = () => {
 					<span>Settings</span>
 				</div>
 				<div
-					data-cy="logout-button"
+					data-cy='logout-button'
 					role='button'
 					className={classes.link}
-					onClick={() => signOut().then(r => console.log('Sign Out Success!'))}
+					onClick={() =>
+						signOut().then(r =>
+							setInvoiceForm({
+								type: 'create',
+								invoice: null,
+								pod: null
+							})
+						)
+					}
 				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>
 				</div>
