@@ -39,11 +39,10 @@ interface InvoiceTableProps {
 	data: Prisma.InvoiceUncheckedCreateInput[];
 	form: UseFormReturnType<InvoiceFormValues>
 	setOpened: (val: boolean) => void;
-	selectInvoice: (i: Prisma.InvoiceUncheckedCreateInput) => void;
 	showPODUpload: (val: boolean) => void;
 }
 
-const InvoiceTable = ({ loading, data, form, setOpened, selectInvoice, showPODUpload }: InvoiceTableProps) => {
+const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: InvoiceTableProps) => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
@@ -169,7 +168,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, selectInvoice, showPODUp
 							<ActionIcon
 								size='sm'
 								onClick={() => {
-									selectInvoice(i);
+									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}));
 									setOpened(true);
 								}}
 							>
@@ -188,8 +187,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, selectInvoice, showPODUp
 										<Menu.Item
 											icon={<IconPhoto size={16} stroke={1.5} />}
 											onClick={() => {
-												selectInvoice(i)
-												form.setFieldValue('invoice', i.invoice_id)
+												form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}));
 												showPODUpload(true)
 											}}
 										>

@@ -1,4 +1,5 @@
 import React, { FocusEventHandler } from 'react';
+import Prisma, { Prisma as Schema } from '@prisma/client';
 
 export type TableHeadings = {
 	label: string;
@@ -45,5 +46,7 @@ export type InvoiceSectionState = 'create' | 'upload';
 export interface InvoiceFormValues {
 	type: InvoiceSectionState
 	pod: string | null;
-	invoice: string | null;
+	invoice_id: string | null;
+	invoice?: Prisma.Invoice | Schema.InvoiceUncheckedCreateInput | null;
+	new: boolean
 }

@@ -73,13 +73,13 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 		try {
 			if (!file) throw new Error('Please upload a proof of delivery photo before submitting.');
 			const filename = encodeURIComponent(file.name);
-			const filepath = `${account.business.business_crn}/INVOICES/${form.values.invoice}/POD/${filename}`;
+			const filepath = `${account.business.business_crn}/INVOICES/${form.values.invoice_id}/POD/${filename}`;
 			// upload the file to GCP bucket
 			const url = await uploadFile(file, filename, filepath);
 			// update the "pod" flag of the invoice to "true"
 			console.log(form.values)
-			const invoice = await update.mutateAsync({
-				invoice_id: form.values.invoice,
+			await update.mutateAsync({
+				invoice_id: form.values.invoice_id,
 				userId: session.id,
 				pod: true
 			})

@@ -11,19 +11,14 @@ import { PATHS, SAMPLE_INVOICES, STORAGE_KEYS } from '../utils/constants';
 import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
-import { InvoiceFormValues, InvoiceSectionState } from '../utils/types';
+import { InvoiceFormValues } from '../utils/types';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
-	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [loading, setLoading] = useState(false);
-	const showPODUploadForm = () => {
-		setInvoiceOpened(false);
-		setTimeout(() => setPODOpened(true), 100);
-	}
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
@@ -33,10 +28,14 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		initialValues: {
 			// indicator on whether the invoice was created using the form or was uploaded by the user
 			type: 'create',
+			// represents the invoice_id of a created / uploaded invoice
+			invoice_id: null,
 			// stores the storage url of proof of delivery of photo(s)
 			pod: null,
-			// represents the invoice_id of a created / uploaded invoice
-			invoice: null
+			// represents the current invoice object stored in the backend,
+			invoice: null,
+			// indicates that the user clicked the "New Invoice" button and is not expanding an existing invoice
+			new: true
 		}
 	});
 
@@ -111,10 +110,15 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	 * Sync Form changes with local storage form
 	 */
 	useEffect(() => {
-		// Only "auto-opens" the invoice form after user has created a fresh new invoice
-		if (!selectedInvoice && form.values.invoice) setInvoiceOpened(true);
 		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(form.values));
-	}, [form.values, selectedInvoice]);
+	}, [form.values]);
+
+	/**
+	 * "Auto-opens" the invoice form after user has created a fresh new invoice from the create-invoice page
+	 */
+	useEffect(() => {
+		if (form.values.new && form.values.invoice_id) setInvoiceOpened(true);
+	}, [form.values.invoice_id, form.values.new]);
 
 	return (
 		<Page.Container
@@ -123,7 +127,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
 					<Button className='' onClick={() => {
-						setSelectedInvoice(null);
+						form.reset()
 						setInvoiceOpened(true)
 					}}>
 						<span className='text-base font-normal'>New Invoice</span>
@@ -137,12 +141,14 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				form={form}
 				onSubmit={handleSubmit}
 				loading={loading}
-				showPODUploadForm={showPODUploadForm}
+				showPODUploadForm={() => {
+					setInvoiceOpened(false);
+					setTimeout(() => setPODOpened(true), 100);
+				}}
 				showInvUploadForm={() => {
 					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
-				selectedInvoice={selectedInvoice}
 			/>
 			<PODUploadForm
 				opened={podOpened}
@@ -233,7 +239,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
-								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='approval'>
@@ -243,7 +248,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
-								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='awaiting'>
@@ -253,7 +257,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
-								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='paid'>
@@ -263,7 +266,6 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
-								selectInvoice={setSelectedInvoice}
 							/>
 						</Tabs.Panel>
 					</Tabs>

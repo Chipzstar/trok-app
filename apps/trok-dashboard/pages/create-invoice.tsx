@@ -28,7 +28,7 @@ import {
 	Transition,
 	useMantineTheme
 } from '@mantine/core';
-import { PATHS, STORAGE_KEYS } from '../utils/constants';
+import { default_invoice_form_values, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { DatePicker } from '@mantine/dates';
 import {
@@ -143,11 +143,7 @@ interface CreateInvoiceProps {
 const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvoiceProps) => {
 	const [invoiceForm, setInvoiceForm] = useLocalStorage<InvoiceFormValues>({
 		key: STORAGE_KEYS.INVOICE_FORM,
-		defaultValue: {
-			type: 'create',
-			invoice: null,
-			pod: null
-		}
+		defaultValue: default_invoice_form_values
 	});
 	const router = useRouter();
 	const { classes, cx } = useStyles();
@@ -276,7 +272,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			setLoading(true);
 			const invoice_id = genInvoiceId();
 			try {
-				await createInvoiceMutation.mutateAsync({
+				const invoice = await createInvoiceMutation.mutateAsync({
 					userId: session_id,
 					invoice_date: Number(values.invoice_date),
 					due_date: Number(values.due_date),
@@ -295,8 +291,9 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 					'Invoice has been created successfully and saved as a draft',
 					<IconCheck size={20} />
 				);
-				setInvoiceForm(curr => ({...curr, invoice: invoice_id}))
-				await router.replace(`${PATHS.INVOICES}?invoice-id=${invoice_id}`);
+				// updates the global invoice form state stored in browser local storage
+				setInvoiceForm(curr => ({...curr, invoice, invoice_id, new: true}))
+				sleep(1000).then(() => router.replace(`${PATHS.INVOICES}?invoice-id=${invoice_id}`));
 			} catch (err) {
 				console.error(err);
 				setLoading(false);

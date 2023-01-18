@@ -14,7 +14,7 @@ import {
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { DEFAULT_HEADER_HEIGHT, isProd, PATHS, STORAGE_KEYS } from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, default_invoice_form_values, isProd, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { signOut, useSession } from 'next-auth/react';
 import { trpc } from '../utils/clients';
@@ -93,11 +93,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 const Sidebar = () => {
 	const [invoiceForm, setInvoiceForm] = useLocalStorage<InvoiceFormValues>({
 		key: STORAGE_KEYS.INVOICE_FORM,
-		defaultValue: {
-			type: 'create',
-			invoice: null,
-			pod: null
-		}
+		defaultValue: default_invoice_form_values
 	});
 	const router = useRouter();
 	const { data: session } = useSession();
@@ -203,15 +199,7 @@ const Sidebar = () => {
 					data-cy='logout-button'
 					role='button'
 					className={classes.link}
-					onClick={() =>
-						signOut().then(r =>
-							setInvoiceForm({
-								type: 'create',
-								invoice: null,
-								pod: null
-							})
-						)
-					}
+					onClick={() => signOut().then(r =>setInvoiceForm(default_invoice_form_values))}
 				>
 					<IconLogout className={classes.linkIcon} stroke={1.5} /> <span>Logout</span>
 				</div>

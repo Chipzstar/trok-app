@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Prisma, { Prisma as Schema } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import orderId from 'order-id';
+import { InvoiceFormValues } from './types';
 
 const order_id = orderId(String(process.env.ENC_SECRET));
 
@@ -871,3 +872,11 @@ export const INDUSTRY_TYPES = [
 	{ label: 'Transportation - Motor Freight, Carriers & Trucking', value: '4214' },
 	{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
 ];
+
+export const default_invoice_form_values : InvoiceFormValues = {
+	type: 'create',
+	invoice_id: null,
+	pod: null,
+	invoice: null,
+	new: true
+}

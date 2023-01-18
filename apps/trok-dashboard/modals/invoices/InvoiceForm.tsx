@@ -29,7 +29,6 @@ interface InvoiceFormProps {
 	loading: boolean;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
-	selectedInvoice?: Prisma.Invoice | null;
 }
 
 const InvoiceForm = ({
@@ -40,7 +39,6 @@ const InvoiceForm = ({
 	loading,
 	showPODUploadForm,
 	showInvUploadForm,
-	selectedInvoice = null
 }: InvoiceFormProps) => {
 	const router = useRouter();
 	const { data: session } = useSession();
@@ -55,32 +53,36 @@ const InvoiceForm = ({
 	});
 
 	const title = useMemo(() => {
-		if (selectedInvoice?.status === INVOICE_STATUS.PROCESSING) {
+		if (form.values.invoice?.status === INVOICE_STATUS.PROCESSING) {
 			return 'We are on it';
-		} else if (form.values.invoice) {
+		} else if (form.values.invoice_id) {
 			return 'Get paid now';
 		}
 		return 'Add New Invoice';
-	}, [selectedInvoice, form.values]);
+	}, [form.values]);
 
 	const subtitle = useMemo(() => {
-		if (selectedInvoice?.status === INVOICE_STATUS.PROCESSING) {
+		if (form.values.invoice?.status === INVOICE_STATUS.PROCESSING) {
 			return "We are currently verifying your documents to ensure they are eligible for factoring. We'll notify you when the payment has been made";
-		} else if (form.values.invoice) {
+		} else if (form.values.invoice_id) {
 			return 'Invoicing takes up to one business day. Upload your proof of delivery to receive your money now and improve your cash flow.';
 		}
 		return 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.';
-	}, [selectedInvoice, form.values]);
-
-	const pod_visible = useMemo(() => {
-		return form.values.invoice || form.values.type === 'upload';
 	}, [form.values]);
 
+	const pod_visible = useMemo(() => {
+		return form.values.invoice_id || form.values.type === 'upload';
+	}, [form.values]);
+
+	const get_paid_visible = useMemo(() => {
+		return form.values.new || form.values.invoice?.status === INVOICE_STATUS.DRAFT && form.values.pod;
+	}, [form.values])
+
 	const requestApproval = useCallback(
-		async (invoice: Prisma.Invoice) => {
+		async (invoice_id: string) => {
 			try {
 				const result = updateMutation.mutateAsync({
-					invoice_id: invoice.invoice_id,
+					invoice_id: invoice_id,
 					userId: session.id,
 					status: INVOICE_STATUS.PROCESSING
 				});
@@ -122,7 +124,7 @@ const InvoiceForm = ({
 						Accepted file formats are .jpg, .jpeg, .png & .pdf. Files must be smaller than 25 MB
 					</Text>
 					<SegmentedControl
-						disabled={!!form.values.invoice}
+						disabled={!!form.values.invoice_id}
 						value={form.values.type}
 						onChange={(value: InvoiceSectionState) => form.setFieldValue('type', value)}
 						transitionTimingFunction='ease'
@@ -134,7 +136,7 @@ const InvoiceForm = ({
 					/>
 					{form.values.type === 'create' ? (
 						<Paper
-							disabled={!!form.values.invoice}
+							disabled={!!form.values.invoice_id}
 							component='button'
 							shadow='xs'
 							p='lg'
@@ -145,7 +147,7 @@ const InvoiceForm = ({
 							}}
 						>
 							<Group spacing='xl'>
-								{form.values.invoice ? (
+								{form.values.invoice_id ? (
 									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
 										<Image
 											width={60}
@@ -167,7 +169,7 @@ const InvoiceForm = ({
 									</div>
 								)}
 								<Text weight='bold'>
-									{form.values.invoice ? 'Invoice submitted' : 'Create Invoice'}
+									{form.values.invoice_id ? 'Invoice submitted' : 'Create Invoice'}
 								</Text>
 							</Group>
 						</Paper>
@@ -190,7 +192,7 @@ const InvoiceForm = ({
 					{pod_visible && (
 						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showPODUploadForm}>
 							<Group spacing='xl'>
-								{form.values.pod ? (
+								{form.values.pod || form.values.invoice?.pod ? (
 									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
 										<Image
 											width={60}
@@ -212,7 +214,7 @@ const InvoiceForm = ({
 									</div>
 								)}
 								<Text weight='bold'>
-									{form.values.pod || selectedInvoice?.pod
+									{form.values.pod || form.values.invoice?.pod
 										? 'POD Submitted'
 										: 'Upload proof of delivery'}
 								</Text>
@@ -220,13 +222,11 @@ const InvoiceForm = ({
 						</Paper>
 					)}
 				</Stack>
-				{!selectedInvoice && (
+				{get_paid_visible && (
 					<Group py='xl' position='right'>
 						<Button
-							onClick={() => {
-								if (selectedInvoice) requestApproval(selectedInvoice).then(() => form.reset());
-							}}
-							disabled={!form.values.invoice || !form.values.pod}
+							onClick={() => requestApproval(form.values.invoice_id).then(() => form.reset())}
+							disabled={!form.values.invoice_id || !form.values.pod}
 							type='submit'
 							styles={{
 								root: {
@@ -235,7 +235,7 @@ const InvoiceForm = ({
 							}}
 							loading={loading}
 						>
-							<Text weight={500}>{form.values.invoice ? 'Get Paid' : 'Add'}</Text>
+							<Text weight={500}>{form.values.invoice_id ? 'Get Paid' : 'Add'}</Text>
 						</Button>
 					</Group>
 				)}
