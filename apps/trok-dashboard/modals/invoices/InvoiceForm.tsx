@@ -54,20 +54,23 @@ const InvoiceForm = ({
 		}
 	});
 
-	const title = useMemo(
-		() => (selectedInvoice ? 'We are on it' : form.values.invoice ? 'Get paid now' : 'Add New Invoice'),
-		[selectedInvoice, form.values]
-	);
+	const title = useMemo(() => {
+		if (selectedInvoice?.status === INVOICE_STATUS.PROCESSING) {
+			return 'We are on it';
+		} else if (form.values.invoice) {
+			return 'Get paid now';
+		}
+		return 'Add New Invoice';
+	}, [selectedInvoice, form.values]);
 
-	const subtitle = useMemo(
-		() =>
-			selectedInvoice
-				? "We are currently verifying your documents to ensure they are eligible for factoring. We'll notify you when the payment has been made"
-				: form.values.invoice
-				? 'Invoicing takes up to one business day. Upload your proof of delivery to receive your money now and improve your cash flow.'
-				: 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.',
-		[selectedInvoice, form.values]
-	);
+	const subtitle = useMemo(() => {
+		if (selectedInvoice?.status === INVOICE_STATUS.PROCESSING) {
+			return "We are currently verifying your documents to ensure they are eligible for factoring. We'll notify you when the payment has been made";
+		} else if (form.values.invoice) {
+			return 'Invoicing takes up to one business day. Upload your proof of delivery to receive your money now and improve your cash flow.';
+		}
+		return 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.';
+	}, [selectedInvoice, form.values]);
 
 	const pod_visible = useMemo(() => {
 		return form.values.invoice || form.values.type === 'upload';

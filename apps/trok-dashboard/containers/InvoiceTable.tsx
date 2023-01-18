@@ -31,16 +31,19 @@ import { useSession } from 'next-auth/react';
 import { openConfirmModal } from '@mantine/modals';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../utils/constants';
+import { UseFormReturnType } from '@mantine/form';
+import { InvoiceFormValues } from '../utils/types';
 
 interface InvoiceTableProps {
 	loading: boolean;
 	data: Prisma.InvoiceUncheckedCreateInput[];
+	form: UseFormReturnType<InvoiceFormValues>
 	setOpened: (val: boolean) => void;
 	selectInvoice: (i: Prisma.InvoiceUncheckedCreateInput) => void;
 	showPODUpload: (val: boolean) => void;
 }
 
-const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }: InvoiceTableProps) => {
+const InvoiceTable = ({ loading, data, form, setOpened, selectInvoice, showPODUpload }: InvoiceTableProps) => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
@@ -184,7 +187,11 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 									(!i.pod ? (
 										<Menu.Item
 											icon={<IconPhoto size={16} stroke={1.5} />}
-											onClick={() => showPODUpload(true)}
+											onClick={() => {
+												selectInvoice(i)
+												form.setFieldValue('invoice', i.invoice_id)
+												showPODUpload(true)
+											}}
 										>
 											Add Proof of Delivery
 										</Menu.Item>

@@ -20,6 +20,10 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
 	const [selectedInvoice, setSelectedInvoice] = useState(null);
 	const [loading, setLoading] = useState(false);
+	const showPODUploadForm = () => {
+		setInvoiceOpened(false);
+		setTimeout(() => setPODOpened(true), 100);
+	}
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
@@ -107,9 +111,10 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	 * Sync Form changes with local storage form
 	 */
 	useEffect(() => {
-		form.values.invoice && setInvoiceOpened(true);
+		// Only "auto-opens" the invoice form after user has created a fresh new invoice
+		if (!selectedInvoice && form.values.invoice) setInvoiceOpened(true);
 		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(form.values));
-	}, [form.values]);
+	}, [form.values, selectedInvoice]);
 
 	return (
 		<Page.Container
@@ -132,10 +137,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 				form={form}
 				onSubmit={handleSubmit}
 				loading={loading}
-				showPODUploadForm={() => {
-					setInvoiceOpened(false);
-					setTimeout(() => setPODOpened(true), 100);
-				}}
+				showPODUploadForm={showPODUploadForm}
 				showInvUploadForm={() => {
 					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
@@ -228,6 +230,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
+								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
@@ -237,6 +240,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
+								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
@@ -246,6 +250,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
+								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
@@ -255,6 +260,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
+								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								selectInvoice={setSelectedInvoice}
