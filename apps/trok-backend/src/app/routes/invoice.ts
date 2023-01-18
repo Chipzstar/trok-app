@@ -316,11 +316,12 @@ const invoiceRouter = t.router({
 				userId: z.string(),
 				pod: z.boolean().optional(),
 				status: z.string().optional(),
-				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')])
+				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
+				console.table(input)
 				const invoice = await ctx.prisma.invoice.update({
 					where: {
 						invoice_id: input.invoice_id,

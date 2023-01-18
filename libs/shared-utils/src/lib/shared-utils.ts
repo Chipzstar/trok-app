@@ -17,7 +17,9 @@ export const GBP = (value: number, cents = true) => currency(value, { symbol: 'Â
  * Takes "null" values into account which isNaN does not
  * @param value
  */
-export const isNumber = (value : any ) : boolean => !(value === null || !isNaN(value))
+export function getRndInteger(min: number, max: number, offset=1) {
+	return Math.floor(Math.random() * (max - min + offset)) + min;
+}
 
 export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

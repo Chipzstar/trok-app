@@ -7,7 +7,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
 import { BANNER_HEIGHT, STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
-import { filterByTimeRange } from '@trok-app/shared-utils';
+import { filterByTimeRange, getRndInteger } from '@trok-app/shared-utils';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -56,7 +56,7 @@ const SpendAnalysis = ({sessionId, dateRange}) => {
 		if (testMode) {
 			data = Array(7)
 				.fill(0)
-				.map(val => Math.floor(Math.random() * (100 - 5 + 1) + 5));
+				.map(val => getRndInteger(500, 10000));
 		} else {
 			data = generateDataPoints(values);
 		}

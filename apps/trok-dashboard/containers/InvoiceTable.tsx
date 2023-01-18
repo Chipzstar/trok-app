@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import {
 	capitalize,
@@ -10,7 +10,7 @@ import {
 	sanitize
 } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
-import { ActionIcon, Group, LoadingOverlay, Menu, Text } from '@mantine/core';
+import { ActionIcon, Button, Group, LoadingOverlay, Menu, Text } from '@mantine/core';
 import {
 	IconCheck,
 	IconChevronRight,
@@ -59,6 +59,25 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 				.then(r => console.log(input, 'Invoices refetched'));
 		}
 	});
+	const requestApproval = useCallback(
+		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
+			updateMutation
+				.mutateAsync({
+					invoice_id: invoice.invoice_id,
+					userId: session.id,
+					status: INVOICE_STATUS.PROCESSING
+				})
+				.then(res =>
+					notifySuccess(
+						'approval-request-success',
+						'Approval request has been sent! We will let you know shortly once this invoice has been approved',
+						<IconCheck size={20} />
+					)
+				)
+				.catch(err => notifyError('approval-request-error', err.message, <IconX size={20} />));
+		},
+		[session]
+	);
 	const rows = data.map((i, index) => {
 		const statusClass = classNames({
 			'py-1': true,
@@ -96,6 +115,7 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 			'bg-warning/25': i.paid_status === INVOICE_PAID_STATUS.PARTIAL,
 			'bg-yellow-500/25': i.paid_status === INVOICE_PAID_STATUS.UNPAID
 		});
+		const can_get_paid = i.status === INVOICE_STATUS.DRAFT && i.pod;
 		return (
 			<tr
 				key={index}
@@ -133,15 +153,26 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 				</td>
 				<td>
 					<Group align='center'>
-						<ActionIcon
-							size='sm'
-							onClick={() => {
-								selectInvoice(i);
-								setOpened(true);
-							}}
-						>
-							<IconChevronRight />
-						</ActionIcon>
+						{can_get_paid ? (
+							<Button
+								size='xs'
+								onClick={() => {
+									if (!testMode) requestApproval(i);
+								}}
+							>
+								<Text weight='normal'>Get Paid</Text>
+							</Button>
+						) : (
+							<ActionIcon
+								size='sm'
+								onClick={() => {
+									selectInvoice(i);
+									setOpened(true);
+								}}
+							>
+								<IconChevronRight />
+							</ActionIcon>
+						)}
 						<Menu transition='pop' withArrow position='bottom-end'>
 							<Menu.Target>
 								<ActionIcon size='sm'>
@@ -161,15 +192,7 @@ const InvoiceTable = ({ loading, data, setOpened, selectInvoice, showPODUpload }
 										<Menu.Item
 											icon={<IconFileCertificate size={16} stroke={1.5} />}
 											onClick={() => {
-												if (!testMode) {
-													updateMutation.mutateAsync({
-														invoice_id: i.invoice_id,
-														userId: session.id,
-														status: INVOICE_STATUS.PROCESSING
-													})
-														.then(res => notifySuccess('approval-request-success', "Approval request has been sent! We will let you know shortly once this invoice has been approved", <IconCheck size={20} />))
-														.catch(err => notifyError('approval-request-error', err.message, <IconX size={20} />))
-												}
+												if (!testMode) requestApproval(i);
 											}}
 										>
 											Request Approval

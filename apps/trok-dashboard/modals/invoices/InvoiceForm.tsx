@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
 	Button,
 	Drawer,
@@ -16,6 +16,10 @@ import { useRouter } from 'next/router';
 import { UseFormReturnType } from '@mantine/form';
 import { InvoiceFormValues, InvoiceSectionState } from '../../utils/types';
 import Prisma from '@prisma/client';
+import { INVOICE_STATUS, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { IconCheck, IconX } from '@tabler/icons';
+import { useSession } from 'next-auth/react';
+import { trpc } from '../../utils/clients';
 
 interface InvoiceFormProps {
 	opened: boolean;
@@ -39,7 +43,16 @@ const InvoiceForm = ({
 	selectedInvoice = null
 }: InvoiceFormProps) => {
 	const router = useRouter();
+	const { data: session } = useSession();
 	const [visible, setVisible] = React.useState(false);
+	const utils = trpc.useContext();
+	const updateMutation = trpc.invoice.updateInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.invoice.getInvoices
+				.invalidate({ userId: session.id })
+				.then(r => console.log(input, 'Invoices refetched'));
+		}
+	});
 
 	const title = useMemo(
 		() => (selectedInvoice ? 'We are on it' : form.values.invoice ? 'Get paid now' : 'Add New Invoice'),
@@ -59,6 +72,29 @@ const InvoiceForm = ({
 	const pod_visible = useMemo(() => {
 		return form.values.invoice || form.values.type === 'upload'
 	}, [form.values])
+
+	const requestApproval = useCallback((invoice: Prisma.Invoice) => {
+		updateMutation
+			.mutateAsync({
+				invoice_id: invoice.invoice_id,
+				userId: session.id,
+				status: INVOICE_STATUS.PROCESSING
+			})
+			.then(res =>
+				notifySuccess(
+					'approval-request-success',
+					'Approval request has been sent! We will let you know shortly once this invoice has been approved',
+					<IconCheck size={20} />
+				)
+			)
+			.catch(err =>
+				notifyError(
+					'approval-request-error',
+					err.message,
+					<IconX size={20} />
+				)
+			);
+	}, [session])
 
 	return (
 		<Drawer
@@ -97,6 +133,7 @@ const InvoiceForm = ({
 					/>
 					{form.values.type === 'create' ? (
 						<Paper
+							disabled={!!form.values.invoice}
 							component='button'
 							shadow='xs'
 							p='lg'
@@ -180,7 +217,7 @@ const InvoiceForm = ({
 									</div>
 								)}
 								<Text weight='bold'>
-									{form.values.pod ? 'POD Submitted' : 'Upload proof of delivery'}
+									{form.values.pod || selectedInvoice?.pod ? 'POD Submitted' : 'Upload proof of delivery'}
 								</Text>
 							</Group>
 						</Paper>
@@ -188,6 +225,7 @@ const InvoiceForm = ({
 				</Stack>
 				{!selectedInvoice && <Group py='xl' position='right'>
 					<Button
+						onClick={() => selectedInvoice && requestApproval(selectedInvoice)}
 						disabled={!form.values.invoice || !form.values.pod}
 						type='submit'
 						styles={{

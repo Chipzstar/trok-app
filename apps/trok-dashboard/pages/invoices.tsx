@@ -48,7 +48,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		if (testMode) {
 			return GBP(1256576).format();
 		} else {
-			const sum = invoicesQuery.data.reduce((prev, curr) => {
+			const sum = invoicesQuery.data?.reduce((prev, curr) => {
 				if (curr.paid_status === "unpaid" && curr.approved) {
 					return prev + curr.amount_due
 				} else {
@@ -63,7 +63,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		if (testMode) {
 			return GBP(256576).format();
 		} else {
-			const sum = invoicesQuery.data.reduce((prev, curr) => {
+			const sum = invoicesQuery.data?.reduce((prev, curr) => {
 				if (curr.paid_status === "unpaid" && !curr.approved) {
 					return prev + curr.amount_due
 				} else {
@@ -78,7 +78,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		if (testMode) {
 			return GBP(1256576 + 256576).format();
 		} else {
-			const sum = invoicesQuery.data.reduce((prev, curr) => {
+			const sum = invoicesQuery.data?.reduce((prev, curr) => {
 				if (curr.paid_status === "unpaid") {
 					return prev + curr.amount_due
 				} else {
@@ -117,7 +117,10 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
-					<Button className='' onClick={() => setInvoiceOpened(true)}>
+					<Button className='' onClick={() => {
+						setSelectedInvoice(null);
+						setInvoiceOpened(true)
+					}}>
 						<span className='text-base font-normal'>New Invoice</span>
 					</Button>
 				</Page.Header>

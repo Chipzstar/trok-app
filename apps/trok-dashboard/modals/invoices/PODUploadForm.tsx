@@ -77,6 +77,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			// upload the file to GCP bucket
 			const url = await uploadFile(file, filename, filepath);
 			// update the "pod" flag of the invoice to "true"
+			console.log(form.values)
 			const invoice = await update.mutateAsync({
 				invoice_id: form.values.invoice,
 				userId: session.id,
@@ -91,7 +92,7 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			setLoading(false);
 			notifyError('upload-image-failed', err.message, <IconX size={20} />);
 		}
-	}, [file, account, form, session]);
+	}, [file, account, form.values, session]);
 
 	return (
 		<Drawer
