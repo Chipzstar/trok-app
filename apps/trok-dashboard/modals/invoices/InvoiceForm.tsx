@@ -68,33 +68,31 @@ const InvoiceForm = ({
 				: 'Add your documents and we’ll transcribe, verify and send your invoice on your behalf when you submit to us.',
 		[selectedInvoice, form.values]
 	);
-	
-	const pod_visible = useMemo(() => {
-		return form.values.invoice || form.values.type === 'upload'
-	}, [form.values])
 
-	const requestApproval = useCallback((invoice: Prisma.Invoice) => {
-		updateMutation
-			.mutateAsync({
-				invoice_id: invoice.invoice_id,
-				userId: session.id,
-				status: INVOICE_STATUS.PROCESSING
-			})
-			.then(res =>
+	const pod_visible = useMemo(() => {
+		return form.values.invoice || form.values.type === 'upload';
+	}, [form.values]);
+
+	const requestApproval = useCallback(
+		async (invoice: Prisma.Invoice) => {
+			try {
+				const result = updateMutation.mutateAsync({
+					invoice_id: invoice.invoice_id,
+					userId: session.id,
+					status: INVOICE_STATUS.PROCESSING
+				});
 				notifySuccess(
 					'approval-request-success',
 					'Approval request has been sent! We will let you know shortly once this invoice has been approved',
 					<IconCheck size={20} />
-				)
-			)
-			.catch(err =>
-				notifyError(
-					'approval-request-error',
-					err.message,
-					<IconX size={20} />
-				)
-			);
-	}, [session])
+				);
+				return result;
+			} catch (err) {
+				notifyError('approval-request-error', err.message, <IconX size={20} />);
+			}
+		},
+		[session]
+	);
 
 	return (
 		<Drawer
@@ -187,13 +185,7 @@ const InvoiceForm = ({
 						</Paper>
 					)}
 					{pod_visible && (
-						<Paper
-							component='button'
-							shadow='xs'
-							p='lg'
-							withBorder
-							onClick={showPODUploadForm}
-						>
+						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showPODUploadForm}>
 							<Group spacing='xl'>
 								{form.values.pod ? (
 									<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-success/25'>
@@ -217,27 +209,33 @@ const InvoiceForm = ({
 									</div>
 								)}
 								<Text weight='bold'>
-									{form.values.pod || selectedInvoice?.pod ? 'POD Submitted' : 'Upload proof of delivery'}
+									{form.values.pod || selectedInvoice?.pod
+										? 'POD Submitted'
+										: 'Upload proof of delivery'}
 								</Text>
 							</Group>
 						</Paper>
 					)}
 				</Stack>
-				{!selectedInvoice && <Group py='xl' position='right'>
-					<Button
-						onClick={() => selectedInvoice && requestApproval(selectedInvoice)}
-						disabled={!form.values.invoice || !form.values.pod}
-						type='submit'
-						styles={{
-							root: {
-								width: 150
-							}
-						}}
-						loading={loading}
-					>
-						<Text weight={500}>{form.values.invoice ? 'Get Paid' : 'Add'}</Text>
-					</Button>
-				</Group>}
+				{!selectedInvoice && (
+					<Group py='xl' position='right'>
+						<Button
+							onClick={() => {
+								if (selectedInvoice) requestApproval(selectedInvoice).then(() => form.reset());
+							}}
+							disabled={!form.values.invoice || !form.values.pod}
+							type='submit'
+							styles={{
+								root: {
+									width: 150
+								}
+							}}
+							loading={loading}
+						>
+							<Text weight={500}>{form.values.invoice ? 'Get Paid' : 'Add'}</Text>
+						</Button>
+					</Group>
+				)}
 			</form>
 		</Drawer>
 	);
