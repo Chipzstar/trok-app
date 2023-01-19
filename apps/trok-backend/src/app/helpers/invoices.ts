@@ -110,12 +110,12 @@ function generateInvoiceTable(doc: PDFKit.PDFDocument, invoice: Prisma.Invoice, 
 	}
 	const subtotalPosition = invoiceTableTop + (i + 1) * 30;
 	let totalPosition;
-	const sub_total_text = !tax ? "" : tax.calculation === "inclusive" ? `Subtotal inc. ${tax.name}` : `Subtotal exc. ${tax.name}`;
+	const sub_total_text = !tax ? "" : tax.calculation === "inclusive" ? `Subtotal inc. ${tax.type}` : `Subtotal exc. ${tax.type}`;
 	generateTableRow(doc, subtotalPosition, '', '', sub_total_text, '', GBP(invoice.subtotal).format());
 	if (tax) {
 		const taxPosition = subtotalPosition + 20;
 		const tax_amount = invoice.total_amount - invoice.subtotal;
-		generateTableRow(doc, taxPosition, '', '', `${tax.name} (${tax.percentage}%)`, '', GBP(tax_amount).format());
+		generateTableRow(doc, taxPosition, '', '', `${tax.type} (${tax.percentage}%)`, '', GBP(tax_amount).format());
 		totalPosition = taxPosition + 25;
 	} else {
 		totalPosition = subtotalPosition + 25;

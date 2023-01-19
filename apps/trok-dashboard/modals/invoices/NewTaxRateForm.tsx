@@ -5,7 +5,7 @@ import {
 	Group,
 	Modal,
 	NumberInput,
-	Radio,
+	Radio, Select,
 	Stack,
 	Text,
 	Textarea,
@@ -17,6 +17,7 @@ import { IconInfoCircle } from '@tabler/icons';
 
 export interface TaxRateFormValues {
 	name: string;
+	type: "VAT" | "GST";
 	percentage: number;
 	description?: string;
 	calculation: 'inclusive' | 'exclusive';
@@ -33,6 +34,7 @@ const NewTaxRateForm = ({ opened, onClose, onSubmit, loading }: NewTaxRateFormPr
 	const form = useForm<TaxRateFormValues>({
 		initialValues: {
 			name: '',
+			type: 'VAT',
 			percentage: 0,
 			description: '',
 			calculation: 'inclusive'
@@ -61,6 +63,12 @@ const NewTaxRateForm = ({ opened, onClose, onSubmit, loading }: NewTaxRateFormPr
 			<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4'>
 				<Stack>
 					<TextInput label='Name' required {...form.getInputProps('name')} />
+					<Select
+						label="Type"
+						required
+						data={['VAT', 'GST']}
+						{...form.getInputProps('type')}
+					/>
 					<NumberInput
 						required
 						withAsterisk

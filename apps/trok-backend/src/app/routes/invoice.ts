@@ -5,7 +5,7 @@ import { TRPCError } from '@trpc/server';
 import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
-import { prettyPrint, prettyPrintResponse } from '../utils/helpers';
+import { prettyPrint } from '../utils/helpers';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -78,14 +78,23 @@ const invoiceRouter = t.router({
 		)
 		.query(async ({ input, ctx }) => {
 			try {
-				return await ctx.prisma.taxRate.findMany({
+				// fetch default tax rates
+				const default_rates = await ctx.prisma.taxRate.findMany({
 					where: {
-						userId: input.userId
+                        is_default: true
+                    }
+				})
+				// fetch user's custom tax rates
+				const custom_rates = await ctx.prisma.taxRate.findMany({
+					where: {
+						userId: input.userId,
+						is_default: false
 					},
 					orderBy: {
 						created_at: 'desc'
 					}
 				});
+				return [...default_rates, ...custom_rates ]
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
@@ -197,6 +206,7 @@ const invoiceRouter = t.router({
 			z.object({
 				userId: z.string(),
 				name: z.string(),
+				type: z.enum(['VAT', 'GST']),
 				percentage: z.number(),
 				description: z.string().optional(),
 				calculation: z.enum(['inclusive', 'exclusive'])
@@ -208,6 +218,7 @@ const invoiceRouter = t.router({
 					data: {
 						userId: input.userId,
 						name: input.name,
+						type: input.type,
 						percentage: input.percentage,
 						description: input?.description,
 						calculation: input.calculation
@@ -248,7 +259,8 @@ const invoiceRouter = t.router({
 				const original_items = (
 					await ctx.prisma.item.findMany({
 						where: {
-							id: { in: input.line_items.map(item => item.id) }
+							id: { in: input.line_items.map(item => item.id) },
+							userId: input.userId
 						},
 						select: {
 							id: true
@@ -258,17 +270,29 @@ const invoiceRouter = t.router({
 				// fetch the customer used in the invoice
 				const customer = await ctx.prisma.customer.findUniqueOrThrow({
 					where: {
-						id: input.customer
+						id: input.customer,
+						userId: input.userId
 					}
 				});
 				// if there is tax fetch the tax rate used in the invoice
 				let tax_rate = null;
 				if (input.tax_rate) {
+					// first check if the tax rate is a default one
 					tax_rate = await ctx.prisma.taxRate.findUnique({
 						where: {
-							id: input.tax_rate.id
+							id: input.tax_rate.id,
+							is_default: true
 						}
 					});
+					if (!tax_rate) {
+						// if not, check if it is a custom tax created by the user
+						tax_rate = await ctx.prisma.taxRate.findUnique({
+							where: {
+								id: input.tax_rate.id,
+								userId: input.userId
+							}
+						});
+					}
 				}
 				// create the invoice
 				const invoice = await ctx.prisma.invoice.create({
@@ -321,7 +345,7 @@ const invoiceRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				console.table(input)
+				console.table(input);
 				const invoice = await ctx.prisma.invoice.update({
 					where: {
 						invoice_id: input.invoice_id,
@@ -329,7 +353,7 @@ const invoiceRouter = t.router({
 					},
 					data: {
 						...(input.pod && { pod: input.pod }),
-						...(input.status && { status: input.status}),
+						...(input.status && { status: input.status }),
 						...(input.paid_status && { paid_status: input.paid_status })
 					}
 				});

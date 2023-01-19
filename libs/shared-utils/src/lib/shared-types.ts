@@ -142,3 +142,12 @@ export interface CreateUser extends SignupInfo {
 	shipping_address?: AddressInfo;
 	stripe?: StripeInfo;
 }
+
+export interface DefaultTaxRate {
+	id: string;
+	type: 'GST' | 'VAT'
+	name: string;
+    percentage: number;
+	description?: string;
+    calculation: "inclusive" | "exclusive";
+}

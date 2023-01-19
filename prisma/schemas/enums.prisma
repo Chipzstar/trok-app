@@ -95,7 +95,12 @@ enum InvoicePaidStatus {
     partially_paid
 }
 
-enum TaxType {
+enum TaxCalculation {
     inclusive
     exclusive
+}
+
+enum TaxType {
+    VAT
+    GST
 }

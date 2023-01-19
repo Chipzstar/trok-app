@@ -49,7 +49,13 @@ import dayjs from 'dayjs';
 import { TransformedValues, useForm } from '@mantine/form';
 import { InvoiceFormValues, LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { GBP, genInvoiceId, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
+import {
+	GBP,
+	genInvoiceId,
+	notifyError,
+	notifySuccess,
+	sleep
+} from '@trok-app/shared-utils';
 import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
 import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineItemForm';
 import { trpc } from '../utils/clients';
@@ -65,7 +71,7 @@ interface CreateInvoiceForm {
 	due_date: string | Date | number;
 	invoice_number: string;
 	line_items: LineItem[];
-	tax_rate: Prisma.TaxRate;
+	tax_rate: Prisma.TaxRate | null;
 	notes?: string;
 }
 
@@ -352,6 +358,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 				await createTaxRateMutation.mutateAsync({
 					userId: session_id,
 					name: values.name,
+					type: values.type,
 					description: values.description,
 					percentage: values.percentage,
 					calculation: values.calculation
