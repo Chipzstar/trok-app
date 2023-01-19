@@ -13,7 +13,7 @@ import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 import { InvoiceFormValues } from '../utils/types';
 
-const Invoices = ({ testMode, session_id, invoice_id }) => {
+const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
@@ -23,7 +23,10 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
-
+	const allInvoiceNumber = SAMPLE_INVOICES.map((invoice) => {
+		return invoice.invoice_number
+	})
+	
 	const form = useForm<InvoiceFormValues>({
 		initialValues: {
 			// indicator on whether the invoice was created using the form or was uploaded by the user
@@ -162,12 +165,13 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			<InvoiceUploadForm
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
-				form={form}
+				// form={form}
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
 					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
+				invoiceNumberList={allInvoiceNumber}
 			/>
 			<Page.Body>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -286,10 +290,21 @@ export async function getServerSideProps({ req, res, query }) {
 			}
 		};
 	}
+
+	const invoices = await prisma.invoice.findMany({
+		where: {
+			userId: session.id
+		},
+		select: {
+			invoice_number: true
+		}
+	});
+
 	return {
 		props: {
 			session_id: session.id,
-			invoice_id: query['invoice-id'] ?? ""
+			invoice_id: query['invoice-id'] ?? "",
+			num_invoices: invoices.length
 		}
 	};
 }

@@ -5,6 +5,8 @@ import { isCI, isDev, isProd, requirements } from './constants';
 import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 import { SelectItem } from '@mantine/core';
+import {v4 as uuidv4} from 'uuid';
+
 
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
@@ -55,7 +57,19 @@ export async function uploadFile(file, filename, filepath) : Promise<string> {
 	} catch (error) {
 		console.error(error);
 		throw error;
-	}
+	}	
+}
+
+export async function uploadInvoice(file, filename, invoiceNumber) : Promise<string> {
+	// create unique invoice Id 
+	const invoiceId = uuidv4();
+	return 'cool'
+	// If no need for logic then use original upload function
+	
+	
+
+
+
 }
 
 export function compareCompanyAddress(address1, address2: AddressInfo | null): boolean {
