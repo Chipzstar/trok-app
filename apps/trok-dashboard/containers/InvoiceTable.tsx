@@ -40,9 +40,10 @@ interface InvoiceTableProps {
 	form: UseFormReturnType<InvoiceFormValues>
 	setOpened: (val: boolean) => void;
 	showPODUpload: (val: boolean) => void;
+	showSendInvoice: (val: boolean) => void;
 }
 
-const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: InvoiceTableProps) => {
+const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendInvoice }: InvoiceTableProps) => {
 	const [testMode, setTestMode] = useLocalStorage({ key: STORAGE_KEYS.TEST_MODE, defaultValue: false });
 	const { data: session } = useSession();
 	const [activePage, setPage] = useState(1);
@@ -209,7 +210,10 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: Invoice
 								>
 									View Invoice
 								</Menu.Item>
-								<Menu.Item icon={<IconSend size={16} stroke={1.5} />}>Send Invoice</Menu.Item>
+								<Menu.Item icon={<IconSend size={16} stroke={1.5} />} onClick={() => {
+									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}))
+									showSendInvoice(true)
+								}}>Send Invoice</Menu.Item>
 								<Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />}>Mark as Sent</Menu.Item>
 								<Menu.Item
 									icon={<IconTrash size={16} stroke={1.5} />}

@@ -47,6 +47,6 @@ export interface InvoiceFormValues {
 	type: InvoiceSectionState
 	pod: string | null;
 	invoice_id: string | null;
-	invoice?: Prisma.Invoice | Schema.InvoiceUncheckedCreateInput | null;
+	invoice: Prisma.Invoice | Schema.InvoiceUncheckedCreateInput | null;
 	new: boolean
 }

@@ -114,6 +114,7 @@ const callbacks = {
 			person_id: token.user.personId
 		};
 		session.user.name = token.user.firstname + ' ' + token.user.lastname;
+		session.user.company = token.user.business?.legal_name
 		return session;
 	}
 };

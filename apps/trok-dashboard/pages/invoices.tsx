@@ -12,12 +12,14 @@ import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 import { InvoiceFormValues } from '../utils/types';
+import SendInvoiceForm from '../modals/invoices/SendInvoiceForm';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
+	const [invSendOpened, setInvSendOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
@@ -169,6 +171,11 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
 			/>
+			<SendInvoiceForm
+				opened={invSendOpened}
+				onClose={() => setInvSendOpened(false)}
+                FORM={form}
+			/>
 			<Page.Body>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
 					<Card shadow='sm' py={0} radius='xs'>
@@ -239,6 +246,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
+								showSendInvoice={setInvSendOpened}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='approval'>
@@ -248,6 +256,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
+								showSendInvoice={setInvSendOpened}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='awaiting'>
@@ -257,6 +266,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
+								showSendInvoice={setInvSendOpened}
 							/>
 						</Tabs.Panel>
 						<Tabs.Panel value='paid'>
@@ -266,6 +276,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 								form={form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
+								showSendInvoice={setInvSendOpened}
 							/>
 						</Tabs.Panel>
 					</Tabs>

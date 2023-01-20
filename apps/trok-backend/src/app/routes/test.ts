@@ -1,5 +1,5 @@
 import express from 'express';
-import { EmailParams, Recipient } from 'mailer-send-ts';
+import { EmailParams, Recipient } from 'mailersend';
 import { mailerSend, sentFrom } from '../utils/clients';
 
 const router = express.Router();

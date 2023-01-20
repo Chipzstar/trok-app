@@ -1,8 +1,7 @@
 import Stripe from 'stripe';
-import { MailerSend, Sender } from 'mailer-send-ts';
+import { MailerSend, Sender } from 'mailersend';
 import { Storage } from '@google-cloud/storage';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
-// @ts-ignore
 
 export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
 	apiVersion: '2022-08-01'

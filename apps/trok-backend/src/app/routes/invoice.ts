@@ -6,6 +6,9 @@ import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { prettyPrint } from '../utils/helpers';
+import { validateSenderIdentity } from '../helpers/email';
+import { mailerSend } from '../utils/clients';
+import { EmailParams, Recipient, Sender } from 'mailersend';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -81,9 +84,9 @@ const invoiceRouter = t.router({
 				// fetch default tax rates
 				const default_rates = await ctx.prisma.taxRate.findMany({
 					where: {
-                        is_default: true
-                    }
-				})
+						is_default: true
+					}
+				});
 				// fetch user's custom tax rates
 				const custom_rates = await ctx.prisma.taxRate.findMany({
 					where: {
@@ -94,7 +97,7 @@ const invoiceRouter = t.router({
 						created_at: 'desc'
 					}
 				});
-				return [...default_rates, ...custom_rates ]
+				return [...default_rates, ...custom_rates];
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore
@@ -221,7 +224,8 @@ const invoiceRouter = t.router({
 						type: input.type,
 						percentage: input.percentage,
 						description: input?.description,
-						calculation: input.calculation
+						calculation: input.calculation,
+						is_default: false
 					}
 				});
 			} catch (err) {
@@ -384,6 +388,60 @@ const invoiceRouter = t.router({
 					}
 				});
 				return invoice;
+			} catch (err) {
+				console.error(err);
+				//@ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err.message });
+			}
+		}),
+	sendInvoice: t.procedure
+		.input(
+			z.object({
+				userId: z.string(),
+				invoice_id: z.string(),
+				to: z.string(),
+				from: z.string(),
+				subject: z.string(),
+				bodyText: z.string(),
+				bodyHTML: z.string()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				console.table({ to: input.to, from: input.from, subject: input.subject, text: input.bodyText });
+				console.log(input.bodyHTML);
+				// find the corresponding user based on the auth session
+				const user = await ctx.prisma.user.findUniqueOrThrow({
+					where: {
+						id: input.userId
+					}
+				});
+				console.log('-----------------------------------------------');
+				console.log(user)
+				// find the invoice to be sent using the invoice id
+				const invoice = await ctx.prisma.invoice.findUniqueOrThrow({
+                    where: {
+                        invoice_id: input.invoice_id
+                    }
+                });
+				console.log('-----------------------------------------------');
+				console.log(invoice)
+				const fullHTML = `${input.bodyHTML}<br/><a href='${invoice.download_url}'>${invoice.invoice_number}</a>`
+				// find the corresponding customer based on the auth session
+				const sentFrom = new Sender("hello@trok.co", "Trok");
+				const replyTo = new Sender(user.email, user.full_name)
+				const recipients = [new Recipient(input.to, invoice.customer_name)];
+				const emailParams = new EmailParams()
+					.setFrom(sentFrom)
+					.setTo(recipients)
+					.setReplyTo(replyTo)
+					.setSubject(input.subject)
+					.setHtml(fullHTML)
+					.setText(input.bodyText);
+				const result = await mailerSend.email.send(emailParams);
+				console.log('************************************************');
+				console.log(result);
+				return result;
 			} catch (err) {
 				console.error(err);
 				//@ts-ignore

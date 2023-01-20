@@ -13,9 +13,9 @@ declare module "next-auth" {
 			person_id: string;
 		},
 		user: {
-			/** The user's postal address. */
 			name: string;
-			email: string
+			email: string;
+			company: string;
 		} & DefaultSession["user"]
 	}
 }

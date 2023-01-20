@@ -1,5 +1,7 @@
-import { EmailParams, Recipient } from 'mailer-send-ts';
+import { EmailParams, Recipient } from 'mailersend';
 import { mailerSend, sentFrom } from '../../utils/clients';
+import axios from 'axios';
+import Prisma from '@prisma/client';
 
 export async function sendVerificationLink(email: string, full_name: string, token: string) {
 	try {
@@ -84,5 +86,29 @@ export async function sendNewSignupEmail(email: string, full_name: string){
 	} catch (err) {
 	    console.error(err);
 		throw err;
+	}
+}
+
+export async function validateSenderIdentity(email: string, user: Prisma.User) {
+	try {
+		// check if sender identity with requested email already exists
+		const identities = (await axios.get('https://api.mailersend.com/v1/identities', {
+			headers: {
+				Authorization: `Bearer ${process.env.MAILERSEND_API_KEY}`
+			}
+		})).data
+		console.log(identities.data)
+
+		const payload = {
+			domain_id: "",
+			email,
+			name: user.full_name,
+			personal_note: "Hi, I’m adding this email address to our sender identities in our MailerSend account so it can be shown as the From address in our emails. Can you click on the confirmation link, so that I can complete the process?"
+		}
+		//await axios.post('https://api.mailersend.com/v1/identities', payload)
+		return identities.data;
+	} catch (err) {
+	    console.error(err)
+		throw err
 	}
 }

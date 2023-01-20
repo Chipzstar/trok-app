@@ -787,8 +787,19 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 											</Menu.Target>
 										</div>
 										<Menu.Dropdown>
-											<Menu.Label>Tax Rates</Menu.Label>
-											{taxItemQuery.data.map((tax, index) => (
+											<Menu.Label>Default Tax Rates</Menu.Label>
+											{taxItemQuery.data.filter(tax => tax.is_default).map((tax, index) => (
+												<Menu.Item
+													key={index}
+													rightSection={<Text>{tax.percentage} %</Text>}
+													onClick={() => form.setFieldValue('tax_rate', tax)}
+												>
+													{tax.name}
+												</Menu.Item>
+											))}
+											<Menu.Divider />
+											<Menu.Label>Your Tax Rates</Menu.Label>
+											{taxItemQuery.data.filter(tax => !tax.is_default).map((tax, index) => (
 												<Menu.Item
 													key={index}
 													rightSection={<Text>{tax.percentage} %</Text>}

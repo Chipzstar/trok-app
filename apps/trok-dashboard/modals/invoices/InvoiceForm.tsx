@@ -78,6 +78,10 @@ const InvoiceForm = ({
 		return form.values.new || form.values.invoice?.status === INVOICE_STATUS.DRAFT && form.values.pod;
 	}, [form.values])
 
+	/**
+	 * Updates the status of an invoice from "draft" to "processing". In future this function will also send a notification e.g. sms or slack
+	 * to the trok team letting them know a new invoice is ready to be checked.
+	 */
 	const requestApproval = useCallback(
 		async (invoice_id: string) => {
 			try {
