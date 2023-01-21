@@ -194,6 +194,7 @@ const SendInvoiceForm = ({ opened, onClose, FORM }: Props) => {
 					</Button>
 					<Button
 						disabled
+						color="orange"
 						type='submit'
 						loading={loading}
 						styles={{

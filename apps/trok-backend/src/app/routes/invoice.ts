@@ -6,9 +6,10 @@ import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { prettyPrint } from '../utils/helpers';
-import { validateSenderIdentity } from '../helpers/email';
+import * as fs from 'node:fs';
 import { mailerSend } from '../utils/clients';
-import { EmailParams, Recipient, Sender } from 'mailersend';
+import { Attachment, EmailParams, Recipient, Sender } from 'mailersend';
+import { downloadPDF } from '../helpers/gcp';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -316,17 +317,25 @@ const invoiceRouter = t.router({
 						status: INVOICE_STATUS.DRAFT,
 						paid_status: 'unpaid',
 						...(input.tax_rate && { taxRateId: input.tax_rate.id }),
-						download_url: 'https://trok.co',
+						download_url: '',
+						filepath: '',
 						notes: input.notes
 					}
 				});
-				const invoice_url = await generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate);
+				const { download_url, filepath } = await generateInvoice(
+					invoice.invoice_number,
+					user,
+					invoice,
+					customer,
+					tax_rate
+				);
 				await ctx.prisma.invoice.update({
 					where: {
 						id: invoice.id
 					},
 					data: {
-						download_url: invoice_url
+						filepath,
+						download_url
 					}
 				});
 				prettyPrint(invoice);
@@ -426,22 +435,30 @@ const invoiceRouter = t.router({
                 });
 				console.log('-----------------------------------------------');
 				console.log(invoice)
-				const fullHTML = `${input.bodyHTML}<br/><a href='${invoice.download_url}'>${invoice.invoice_number}</a>`
-				// find the corresponding customer based on the auth session
+				const file_content = await downloadPDF(invoice.filepath);
 				const sentFrom = new Sender("hello@trok.co", "Trok");
 				const replyTo = new Sender(user.email, user.full_name)
 				const recipients = [new Recipient(input.to, invoice.customer_name)];
+				const attachments = [
+					new Attachment(
+						file_content,
+						`${invoice.invoice_number}.pdf`,
+						'attachment'
+					)
+				]
 				const emailParams = new EmailParams()
 					.setFrom(sentFrom)
 					.setTo(recipients)
 					.setReplyTo(replyTo)
+					.setAttachments(attachments)
 					.setSubject(input.subject)
-					.setHtml(fullHTML)
+					.setHtml(input.bodyHTML)
 					.setText(input.bodyText);
 				const result = await mailerSend.email.send(emailParams);
 				console.log('************************************************');
 				console.log(result);
 				return result;
+				return true;
 			} catch (err) {
 				console.error(err);
 				//@ts-ignore

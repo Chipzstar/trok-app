@@ -34,7 +34,7 @@ export const STORAGE_KEYS = {
 	ONBOARDING_STEP: 'onboarding-step',
 	TEST_MODE: 'test-mode',
 	GRIFFIN: 'griffin',
-	INVOICE_FORM: 'invoice-form',
+	INVOICE_FORM: 'invoice-form'
 };
 export const PATHS = {
 	HOME: '/',
@@ -625,6 +625,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'processing',
 		download_url: '',
+		filepath: '',
 		approved: false,
 		pod: false
 	},
@@ -652,6 +653,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'complete',
 		download_url: '',
+		filepath: '',
 		approved: true,
 		pod: true
 	},
@@ -679,6 +681,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'complete',
 		download_url: '',
+		filepath: '',
 		approved: true,
 		pod: true
 	},
@@ -706,6 +709,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'draft',
 		download_url: '',
+		filepath: '',
 		approved: false,
 		pod: true
 	},
@@ -733,6 +737,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'unpaid',
 		status: 'draft',
 		download_url: '',
+		filepath: '',
 		approved: false,
 		pod: false
 	},
@@ -760,6 +765,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'sent',
 		download_url: '',
+		filepath: '',
 		approved: true,
 		pod: true
 	},
@@ -787,6 +793,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		paid_status: 'paid',
 		status: 'sent',
 		download_url: '',
+		filepath: '',
 		approved: true,
 		pod: true
 	}
@@ -873,10 +880,10 @@ export const INDUSTRY_TYPES = [
 	{ label: 'Motor Vehicle Supplies and New Parts', value: '5013' }
 ];
 
-export const default_invoice_form_values : InvoiceFormValues = {
+export const default_invoice_form_values: InvoiceFormValues = {
 	type: 'create',
 	invoice_id: null,
 	pod: null,
 	invoice: null,
 	new: true
-}
+};

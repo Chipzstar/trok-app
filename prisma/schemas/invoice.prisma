@@ -21,7 +21,8 @@ model Invoice {
     status String
     paid_status InvoicePaidStatus
     approved Boolean @default(false)
-    download_url String
+    filepath String @default("")
+    download_url String @default("")
     notes String?
     pod Boolean @default(false)
     deleted Boolean @default(false)

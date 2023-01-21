@@ -13,8 +13,10 @@ import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 import { InvoiceFormValues } from '../utils/types';
 import SendInvoiceForm from '../modals/invoices/SendInvoiceForm';
+import useWindowSize from '../hooks/useWindowSize';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
+	const { height } = useWindowSize();
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
@@ -229,7 +231,11 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							root: 'grow',
 							tabsList: '',
 							tab: 'mx-4',
-							panel: ''
+						}}
+						styles={{
+							panel: {
+								height: height - 256,
+							}
 						}}
 					>
 						<Tabs.List>

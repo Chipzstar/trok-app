@@ -29,3 +29,20 @@ export const uploadPDF = (doc: PDFKit.PDFDocument, filename: string, filepath: s
 			});
 	});
 };
+/**
+ * Downloads a file from Google Cloud Storage and returns the content as a base64 encoded string.
+ * @param filepath
+ */
+export const downloadPDF = async (filepath: string) : Promise<string> => {
+    return new Promise((resolve, reject) => {
+		const file = BUCKET.file(filepath)
+		file.download().then(function(data) {
+			const contents = data[0];
+			const base64 = contents.toString('base64');
+			resolve(base64)
+		}).catch(err => {
+			console.error()
+			reject(err)
+		})
+	});
+}

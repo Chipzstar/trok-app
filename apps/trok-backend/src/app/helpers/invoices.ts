@@ -16,7 +16,8 @@ export async function generateInvoice(invoice_number: string, user: Prisma.User,
 	const filepath = `${user.business.business_crn}/INVOICES/${invoice.invoice_id}/${invoice_number}.pdf`;
 	const uploadResult = await uploadPDF(doc, invoice_number, filepath);
 	console.log(uploadResult);
-	return await generateDownloadUrl(filepath);
+	const download_url = await generateDownloadUrl(filepath);
+	return { download_url, filepath }
 }
 
 function generateHeader(doc: PDFKit.PDFDocument, user: Prisma.User) {
