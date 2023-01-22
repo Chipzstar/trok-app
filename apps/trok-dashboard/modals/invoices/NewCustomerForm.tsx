@@ -29,7 +29,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 			display_name: query,
 			primary_contact: '',
 			company: '',
-			email: undefined,
+			email: '',
 			phone: undefined,
 			website: undefined,
 			billing_address: {
@@ -46,6 +46,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 			display_name: value => !value ? "Required" : null,
 		    primary_contact: value => !value ? "Required": null,
 			company: value => !value ? "Required" : null,
+			email: value =>!value? "Required" : null,
 			billing_address: {
 				line1: value => !value ? "Required": null,
 				city: value =>!value? "Required" : null,
@@ -115,6 +116,7 @@ const NewCustomerForm = ({opened, onClose, onSubmit, loading, query=""} : NewCus
 							<TextInput
 								label="Email"
 								type="email"
+								withAsterisk
 								{...form.getInputProps('email')}
 							/>
 							<Group grow>

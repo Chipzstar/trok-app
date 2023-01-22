@@ -6,7 +6,6 @@ import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { prettyPrint } from '../utils/helpers';
-import * as fs from 'node:fs';
 import { mailerSend } from '../utils/clients';
 import { Attachment, EmailParams, Recipient, Sender } from 'mailersend';
 import { downloadPDF } from '../helpers/gcp';
@@ -30,6 +29,27 @@ export const TaxRateSchema = z.object({
 });
 
 const invoiceRouter = t.router({
+	getSingleCustomer: t.procedure
+		.input(
+			z.object({
+				id: z.string(),
+				userId: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.customer.findUniqueOrThrow({
+					where: {
+						id: input.id,
+						userId: input.userId
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				//@ts-ignore
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Customer not found' });
+			}
+		}),
 	getCustomers: t.procedure
 		.input(
 			z.object({
@@ -134,7 +154,7 @@ const invoiceRouter = t.router({
 				display_name: z.string(),
 				primary_contact: z.string(),
 				company: z.string(),
-				email: z.union([z.string().email().optional(), z.literal('')]),
+				email: z.string().email(),
 				phone: z.string().optional(),
 				billing_address: AddressSchema,
 				shipping_address: AddressSchema.nullable().optional(),
@@ -149,7 +169,7 @@ const invoiceRouter = t.router({
 						company: input.company,
 						display_name: input.display_name,
 						primary_contact: input.primary_contact,
-						email: input?.email ?? undefined,
+						email: input.email,
 						phone: input?.phone ?? undefined,
 						website: input?.website ?? undefined,
 						billing_address: {
@@ -426,26 +446,20 @@ const invoiceRouter = t.router({
 					}
 				});
 				console.log('-----------------------------------------------');
-				console.log(user)
+				console.log(user);
 				// find the invoice to be sent using the invoice id
 				const invoice = await ctx.prisma.invoice.findUniqueOrThrow({
-                    where: {
-                        invoice_id: input.invoice_id
-                    }
-                });
+					where: {
+						invoice_id: input.invoice_id
+					}
+				});
 				console.log('-----------------------------------------------');
-				console.log(invoice)
+				console.log(invoice);
 				const file_content = await downloadPDF(invoice.filepath);
-				const sentFrom = new Sender("hello@trok.co", "Trok");
-				const replyTo = new Sender(user.email, user.full_name)
+				const sentFrom = new Sender('hello@trok.co', 'Trok');
+				const replyTo = new Sender(user.email, user.full_name);
 				const recipients = [new Recipient(input.to, invoice.customer_name)];
-				const attachments = [
-					new Attachment(
-						file_content,
-						`${invoice.invoice_number}.pdf`,
-						'attachment'
-					)
-				]
+				const attachments = [new Attachment(file_content, `${invoice.invoice_number}.pdf`, 'attachment')];
 				const emailParams = new EmailParams()
 					.setFrom(sentFrom)
 					.setTo(recipients)

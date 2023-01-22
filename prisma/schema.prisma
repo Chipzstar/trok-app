@@ -105,7 +105,7 @@ model Customer {
   display_name     String
   primary_contact  String
   company          String
-  email            String?
+  email            String
   phone            String?
   website          String?
   billing_address  Address

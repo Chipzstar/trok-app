@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import Page from '../layout/Page';
 import {
 	ActionIcon,
@@ -49,13 +49,7 @@ import dayjs from 'dayjs';
 import { TransformedValues, useForm } from '@mantine/form';
 import { InvoiceFormValues, LineItem } from '../utils/types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import {
-	GBP,
-	genInvoiceId,
-	notifyError,
-	notifySuccess,
-	sleep
-} from '@trok-app/shared-utils';
+import { GBP, genInvoiceId, notifyError, notifySuccess, sleep } from '@trok-app/shared-utils';
 import NewCustomerForm, { CustomerFormValues } from '../modals/invoices/NewCustomerForm';
 import NewLineItemForm, { LineItemFormValues } from '../modals/invoices/NewLineItemForm';
 import { trpc } from '../utils/clients';
@@ -196,22 +190,22 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			placeholderData: []
 		}
 	);
-	const createCustomerMutation = trpc.invoice.createCustomer.useMutation({
+	const customerMutation = trpc.invoice.createCustomer.useMutation({
 		onSuccess: function (input) {
 			utils.invoice.getCustomers.invalidate({ userId: session_id });
 		}
 	});
-	const createLineItemMutation = trpc.invoice.createItem.useMutation({
+	const lineItemMutation = trpc.invoice.createItem.useMutation({
 		onSuccess: function (input) {
 			utils.invoice.getItems.invalidate({ userId: session_id });
 		}
 	});
-	const createTaxRateMutation = trpc.invoice.createTaxRate.useMutation({
+	const taxRateMutation = trpc.invoice.createTaxRate.useMutation({
 		onSuccess: function (input) {
 			utils.invoice.getTaxRates.invalidate({ userId: session_id });
 		}
 	});
-	const createInvoiceMutation = trpc.invoice.createInvoice.useMutation({
+	const invoiceMutation = trpc.invoice.createInvoice.useMutation({
 		onSuccess: function (input) {
 			utils.invoice.getInvoices.invalidate({ userId: session_id });
 		}
@@ -278,7 +272,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 			setLoading(true);
 			const invoice_id = genInvoiceId();
 			try {
-				const invoice = await createInvoiceMutation.mutateAsync({
+				const invoice = await invoiceMutation.mutateAsync({
 					userId: session_id,
 					invoice_date: Number(values.invoice_date),
 					due_date: Number(values.due_date),
@@ -313,7 +307,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 		async (values: CustomerFormValues) => {
 			setLoading(true);
 			try {
-				await createCustomerMutation.mutateAsync({
+				await customerMutation.mutateAsync({
 					userId: session_id,
 					...values
 				});
@@ -333,7 +327,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 		async (values: LineItemFormValues) => {
 			setLoading(true);
 			try {
-				await createLineItemMutation.mutateAsync({
+				await lineItemMutation.mutateAsync({
 					userId: session_id,
 					name: values.name,
 					description: values.description,
@@ -355,7 +349,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 		async (values: TaxRateFormValues) => {
 			setLoading(true);
 			try {
-				await createTaxRateMutation.mutateAsync({
+				await taxRateMutation.mutateAsync({
 					userId: session_id,
 					name: values.name,
 					type: values.type,

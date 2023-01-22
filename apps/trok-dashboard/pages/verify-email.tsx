@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, createStyles, Text, Title } from '@mantine/core';
+import { Button, createStyles, Image, Space, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import { STORAGE_KEYS } from '../utils/constants';
@@ -107,6 +107,8 @@ const SignUpComplete = () => {
 	return (
 		<div className='flex h-screen w-full items-center justify-center'>
 			<div className='w-2/5 space-y-5'>
+				<Image src="/static/images/logo-with-text.svg" width={250}/>
+				<Space h="xs"/>
 				<Title weight={500} order={2} mb={5}>
 					Thank you for submitting your application
 				</Title>

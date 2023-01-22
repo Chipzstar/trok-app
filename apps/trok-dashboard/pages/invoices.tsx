@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
 import InvoiceForm from '../modals/invoices/InvoiceForm';
-import { useForm } from '@mantine/form';
+import { isEmail, useForm } from '@mantine/form';
 import { GBP } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
@@ -12,8 +12,9 @@ import InvoiceTable from '../containers/InvoiceTable';
 import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 import { InvoiceFormValues } from '../utils/types';
-import SendInvoiceForm from '../modals/invoices/SendInvoiceForm';
+import SendInvoiceForm, { SendInvoiceFormValues } from '../modals/invoices/SendInvoiceForm';
 import useWindowSize from '../hooks/useWindowSize';
+import PreviewInvoice from '../modals/invoices/PreviewInvoice';
 
 const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const { height } = useWindowSize();
@@ -22,13 +23,14 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
 	const [invSendOpened, setInvSendOpened] = useState(false);
+	const [invoicePreviewOpened, setInvoicePreviewOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
 
-	const form = useForm<InvoiceFormValues>({
+	const invoice_form = useForm<InvoiceFormValues>({
 		initialValues: {
 			// indicator on whether the invoice was created using the form or was uploaded by the user
 			type: 'create',
@@ -43,12 +45,31 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		}
 	});
 
+	const send_invoice_form = useForm<SendInvoiceFormValues>({
+		initialValues: {
+			to: '',
+			from: '',
+			subject: '',
+			bodyText: '',
+			bodyHTML:
+				`<p>Hello [recipient name],</p><p>We hope that you are well. The invoice for [your product/service] is attached. ` +
+				"If you have any comments or questions, please feel free to contact us when it's more convenient for you at:" +
+				'</p><p>[your contact information]</p><p>We really appreciate choosing to do business with us at [your business name]' +
+				'</p><p>Best regards,</p><p>[Your name]</p><p>[Your title]</p><p>[Your business name]</p>'
+		},
+		validate: {
+			to: isEmail('Invalid email'),
+			from: isEmail('Invalid email'),
+			subject: value => (!value ? 'Required' : null)
+		}
+	});
+
 	/*
 	 * TODO - Omar ignore this handler, this handler will be for sending a notification to the team that a new invoice
 	 *  has been submitted (for uploaded and created invoices). The one you have to complete is inside the InvoiceUploadForm.tsx file
 	 */
 	const handleSubmit = useCallback(async values => {
-		console.log(values)
+		console.log(values);
 	}, []);
 
 	const unpaid_approved_invoices = useMemo(() => {
@@ -56,12 +77,12 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			return GBP(1256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid" && curr.approved) {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid' && curr.approved) {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -71,12 +92,12 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			return GBP(256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid" && !curr.approved) {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid' && !curr.approved) {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -86,12 +107,12 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			return GBP(1256576 + 256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid") {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid') {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -103,7 +124,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.INVOICE_FORM);
 		if (storedValue) {
 			try {
-				form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.INVOICE_FORM)));
+				invoice_form.setValues(JSON.parse(window.localStorage.getItem(STORAGE_KEYS.INVOICE_FORM)));
 			} catch (e) {
 				console.log('Failed to parse stored value');
 			}
@@ -114,15 +135,15 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	 * Sync Form changes with local storage form
 	 */
 	useEffect(() => {
-		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(form.values));
-	}, [form.values]);
+		window.localStorage.setItem(STORAGE_KEYS.INVOICE_FORM, JSON.stringify(invoice_form.values));
+	}, [invoice_form.values]);
 
 	/**
 	 * "Auto-opens" the invoice form after user has created a fresh new invoice from the create-invoice page
 	 */
 	useEffect(() => {
-		if (form.values.new && form.values.invoice_id) setInvoiceOpened(true);
-	}, [form.values.invoice_id, form.values.new]);
+		if (invoice_form.values.new && invoice_form.values.invoice_id) setInvoiceOpened(true);
+	}, [invoice_form.values.invoice_id, invoice_form.values.new]);
 
 	return (
 		<Page.Container
@@ -130,10 +151,13 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
-					<Button className='' onClick={() => {
-						form.reset()
-						setInvoiceOpened(true)
-					}}>
+					<Button
+						className=''
+						onClick={() => {
+							invoice_form.reset();
+							setInvoiceOpened(true);
+						}}
+					>
 						<span className='text-base font-normal'>New Invoice</span>
 					</Button>
 				</Page.Header>
@@ -142,7 +166,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			<InvoiceForm
 				opened={invoiceOpened}
 				onClose={() => setInvoiceOpened(false)}
-				form={form}
+				form={invoice_form}
 				onSubmit={handleSubmit}
 				loading={loading}
 				showPODUploadForm={() => {
@@ -161,12 +185,12 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setPODOpened(false);
 					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
-				form={form}
+				form={invoice_form}
 			/>
 			<InvoiceUploadForm
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
-				form={form}
+				form={invoice_form}
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
@@ -176,7 +200,14 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			<SendInvoiceForm
 				opened={invSendOpened}
 				onClose={() => setInvSendOpened(false)}
-                FORM={form}
+				form={send_invoice_form}
+				FORM={invoice_form}
+			/>
+			<PreviewInvoice
+				opened={invoicePreviewOpened}
+				onClose={() => setInvoicePreviewOpened(false)}
+				form={send_invoice_form}
+				FORM={invoice_form}
 			/>
 			<Page.Body>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -221,7 +252,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					</Card>
 				</SimpleGrid>
 				<Space py='md' />
-				<div className='h-full flex flex-col'>
+				<div className='flex h-full flex-col'>
 					<Tabs
 						value={activeTab}
 						orientation='horizontal'
@@ -230,11 +261,11 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 						classNames={{
 							root: 'grow',
 							tabsList: '',
-							tab: 'mx-4',
+							tab: 'mx-4'
 						}}
 						styles={{
 							panel: {
-								height: height - 256,
+								height: height - 256
 							}
 						}}
 					>
@@ -249,7 +280,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
-								form={form}
+								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								showSendInvoice={setInvSendOpened}
@@ -259,7 +290,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
-								form={form}
+								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								showSendInvoice={setInvSendOpened}
@@ -269,7 +300,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
-								form={form}
+								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								showSendInvoice={setInvSendOpened}
@@ -279,7 +310,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 							<InvoiceTable
 								showPODUpload={setPODOpened}
 								data={data}
-								form={form}
+								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
 								showSendInvoice={setInvSendOpened}

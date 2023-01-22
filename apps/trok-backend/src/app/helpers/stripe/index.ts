@@ -1,24 +1,16 @@
 import qs from 'qs';
 import Stripe from 'stripe';
-import { plaid, stripe } from '../../utils/clients';
+import { stripe } from '../../utils/clients';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { prettyPrintResponse } from '../../utils/helpers';
 import prisma from '../../db';
 import redisClient from '../../redis';
 import {
 	CARD_REDIS_SORTED_SET_ID,
-	IS_DEVELOPMENT,
-	STATEMENT_REDIS_SORTED_SET_ID, STRIPE_AUTHORISATION_STATUS,
-	STRIPE_TEST_MODE
+	STATEMENT_REDIS_SORTED_SET_ID,
+	STRIPE_AUTHORISATION_STATUS
 } from '../../utils/constants';
-import {
-	CARD_SHIPPING_STATUS,
-	FuelMerchantCategoryCodes,
-	getDeclineReason,
-	TRANSACTION_STATUS,
-	TransactionStatus
-} from '@trok-app/shared-utils';
+import { CARD_SHIPPING_STATUS, getDeclineReason, TRANSACTION_STATUS, TransactionStatus } from '@trok-app/shared-utils';
 import Prisma from '@prisma/client';
 
 export const handleAuthorizationRequest = async (auth: Stripe.Issuing.Authorization) => {

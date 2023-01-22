@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Group, Input, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { isEmail, useForm, UseFormReturnType } from '@mantine/form';
+import { UseFormReturnType } from '@mantine/form';
 import { InvoiceFormValues } from '../../utils/types';
 import { Link, RichTextEditor } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
@@ -24,37 +24,30 @@ export interface SendInvoiceFormValues {
 interface Props {
 	opened: boolean;
 	onClose: () => void;
+	form: UseFormReturnType<SendInvoiceFormValues>;
 	FORM: UseFormReturnType<InvoiceFormValues>;
 }
 
-const SendInvoiceForm = ({ opened, onClose, FORM }: Props) => {
+const SendInvoiceForm = ({ opened, onClose, form, FORM }: Props) => {
 	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const sendInvoiceMutation = trpc.invoice.sendInvoice.useMutation();
-
-	const form = useForm<SendInvoiceFormValues>({
-		initialValues: {
-			to: '',
-			from: '',
-			subject: '',
-			bodyText: '',
-			bodyHTML:
-				`<p>Hello [recipient name],</p><p>We hope that you are well. The invoice for [your product/service] is attached. ` +
-				"If you have any comments or questions, please feel free to contact us when it's more convenient for you at:" +
-				"</p><p>[your contact information]</p><p>We really appreciate choosing to do business with us at [your business name]" +
-				"</p><p>Best regards,</p><p>[Your name]</p><p>[Your title]</p><p>[Your business name]</p>"
+	const customerQuery = trpc.invoice.getSingleCustomer.useQuery(
+		{
+			id: FORM.values.invoice?.customerId,
+			userId: session?.id
 		},
-		validate: {
-			to: isEmail('Invalid email'),
-			from: isEmail('Invalid email'),
-			subject: value => (!value ? 'Required' : null)
+		{
+			enabled: Boolean(FORM.values.invoice?.customerId && session?.id),
+			onSuccess: (data) => {
+				form.setFieldValue('to', data.email)
+			}
 		}
-	});
+	);
 
 	const handleSubmit = useCallback(
 		async values => {
 			setLoading(true);
-			console.log(values);
 			try {
 				await sendInvoiceMutation.mutateAsync({
 					userId: session?.id,
@@ -81,8 +74,6 @@ const SendInvoiceForm = ({ opened, onClose, FORM }: Props) => {
 		extensions: [StarterKit, Underline, Link, TextAlign.configure({ types: ['heading', 'paragraph'] })],
 		content: form.values.bodyHTML,
 		onUpdate: e => {
-			console.log(e.editor.getText());
-			console.log(e.editor.getHTML());
 			form.setFieldValue('bodyText', e.editor.getText());
 			form.setFieldValue('bodyHTML', e.editor.getHTML());
 		}
@@ -194,7 +185,7 @@ const SendInvoiceForm = ({ opened, onClose, FORM }: Props) => {
 					</Button>
 					<Button
 						disabled
-						color="orange"
+						color='orange'
 						type='submit'
 						loading={loading}
 						styles={{
