@@ -64,7 +64,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: Invoice
 	const requestApproval = useCallback(
 		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
 			updateMutation
-				.mutateAsync({
+			.mutateAsync({
 					invoice_id: invoice.invoice_id,
 					userId: session.id,
 					status: INVOICE_STATUS.PROCESSING
@@ -126,13 +126,13 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: Invoice
 				}}
 			>
 				<td colSpan={1}>
-					<span>{dayjs.unix(i.invoice_date).format('DD/MM/YYYY')}</span>
+					<span>{i.invoice_date != 0 ? dayjs.unix(i.invoice_date).format('DD/MM/YYYY') : '-'}</span>
 				</td>
 				<td colSpan={1}>
 					<span>{i.invoice_number}</span>
 				</td>
 				<td colSpan={1}>
-					<span>{capitalize(sanitize(i.customer_name))}</span>
+					<span>{i.customer_name ? capitalize(sanitize(i.customer_name)) : '-'}</span>
 				</td>
 				<td colSpan={1}>
 					<Group align='center'>
@@ -144,14 +144,14 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload }: Invoice
 				</td>
 				<td colSpan={1}>
 					<Group align='center'>
-						<span className='w-18'>{GBP(i.total_amount).format()}</span>
+						<span className='w-18'>{i.total_amount !== 0 ? GBP(i.total_amount).format() : '-'}</span>
 						<div className={paidStatusClass}>
 							<span>{sanitize(i?.paid_status)}</span>
 						</div>
 					</Group>
 				</td>
 				<td colSpan={1}>
-					<span>{dayjs.unix(i.due_date).format('MMM DD')}</span>
+					<span>{i.due_date ? dayjs.unix(i.due_date).format('MMM DD') : '-'}</span>
 				</td>
 				<td>
 					<Group align='center'>

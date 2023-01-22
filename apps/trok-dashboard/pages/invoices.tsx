@@ -13,26 +13,27 @@ import PODUploadForm from '../modals/invoices/PODUploadForm';
 import InvoiceUploadForm from '../modals/invoices/InvoiceUploadForm';
 import { InvoiceFormValues } from '../utils/types';
 
-const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
+const Invoices = ({ testMode, session_id, invoice_id, num_invoices, business_CRN }) => {
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
 	const [invoiceOpened, setInvoiceOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [invUploadSubmitted, setInvUploadSubmitted] = useState(false);
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
-	const allInvoiceNumber = SAMPLE_INVOICES.map((invoice) => {
-		return invoice.invoice_number
-	})
-	
+	const allInvoiceNumber = data.map(invoice => {
+		return invoice.invoice_number;
+	});
+
 	const form = useForm<InvoiceFormValues>({
 		initialValues: {
 			// indicator on whether the invoice was created using the form or was uploaded by the user
 			type: 'create',
 			// represents the invoice_id of a created / uploaded invoice
-			invoice_id: null,
+			invoice_id: null, // update invoice here
 			// stores the storage url of proof of delivery of photo(s)
 			pod: null,
 			// represents the current invoice object stored in the backend,
@@ -47,20 +48,22 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 	 *  has been submitted (for uploaded and created invoices). The one you have to complete is inside the InvoiceUploadForm.tsx file
 	 */
 	const handleSubmit = useCallback(async values => {
-		console.log(values)
+		console.log(values);
 	}, []);
+
+
 
 	const unpaid_approved_invoices = useMemo(() => {
 		if (testMode) {
 			return GBP(1256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid" && curr.approved) {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid' && curr.approved) {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -70,12 +73,12 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 			return GBP(256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid" && !curr.approved) {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid' && !curr.approved) {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -85,12 +88,12 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 			return GBP(1256576 + 256576).format();
 		} else {
 			const sum = invoicesQuery.data?.reduce((prev, curr) => {
-				if (curr.paid_status === "unpaid") {
-					return prev + curr.amount_due
+				if (curr.paid_status === 'unpaid') {
+					return prev + curr.amount_due;
 				} else {
-					return prev
+					return prev;
 				}
-			}, 0)
+			}, 0);
 			return GBP(sum).format();
 		}
 	}, [invoicesQuery.data, testMode]);
@@ -129,10 +132,13 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Invoices</span>
-					<Button className='' onClick={() => {
-						form.reset()
-						setInvoiceOpened(true)
-					}}>
+					<Button
+						className=''
+						onClick={() => {
+							form.reset();
+							setInvoiceOpened(true);
+						}}
+					>
 						<span className='text-base font-normal'>New Invoice</span>
 					</Button>
 				</Page.Header>
@@ -152,6 +158,7 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
+				handleInvoicePDFUpload={invUploadSubmitted}
 			/>
 			<PODUploadForm
 				opened={podOpened}
@@ -165,13 +172,15 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 			<InvoiceUploadForm
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
-				// form={form}
+				globalForm={form}
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
 					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
 				invoiceNumberList={allInvoiceNumber}
+				crn={business_CRN}
+				sessionId={session_id}
 			/>
 			<Page.Body>
 				<SimpleGrid cols={3} spacing='lg' breakpoints={[{ maxWidth: 600, cols: 1, spacing: 'sm' }]}>
@@ -216,7 +225,7 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices }) => {
 					</Card>
 				</SimpleGrid>
 				<Space py='md' />
-				<div className='h-full flex flex-col'>
+				<div className='flex h-full flex-col'>
 					<Tabs
 						value={activeTab}
 						orientation='horizontal'
@@ -300,11 +309,18 @@ export async function getServerSideProps({ req, res, query }) {
 		}
 	});
 
+	const userCRN = await prisma.user.findFirst({
+		where: {
+			id: session.id
+		}
+	});
+
 	return {
 		props: {
 			session_id: session.id,
-			invoice_id: query['invoice-id'] ?? "",
-			num_invoices: invoices.length
+			invoice_id: query['invoice-id'] ?? '',
+			num_invoices: invoices.length,
+			business_CRN: userCRN.business.business_crn
 		}
 	};
 }

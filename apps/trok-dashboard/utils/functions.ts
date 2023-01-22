@@ -60,18 +60,6 @@ export async function uploadFile(file, filename, filepath) : Promise<string> {
 	}	
 }
 
-export async function uploadInvoice(file, filename, invoiceNumber) : Promise<string> {
-	// create unique invoice Id 
-	const invoiceId = uuidv4();
-	return 'cool'
-	// If no need for logic then use original upload function
-	
-	
-
-
-
-}
-
 export function compareCompanyAddress(address1, address2: AddressInfo | null): boolean {
 	// if no input address was provided, return true by default
 	let is_valid = true;

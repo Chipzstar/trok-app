@@ -18,9 +18,12 @@ import { UNDER_TWENTYFIVE_MB } from '../../utils/constants';
 import { IconCloudUpload, IconUpload, IconWand, IconX } from '@tabler/icons';
 import DocumentInfo from '../../components/DocumentInfo';
 import { UseFormReturnType, useForm } from '@mantine/form';
-import { InvoiceFormValues } from '../../utils/types';
-import { uploadInvoice } from '../../utils/functions';
+import { uploadFile } from '../../utils/functions';
 import { uuid4 } from '@sentry/utils';
+import { InvoiceFormValues } from '../../utils/types';
+import { trpc } from '../../utils/clients';
+import { INVOICE_STATUS } from '../../../../libs/shared-utils/src';
+import { generateDownloadUrl } from '../../../trok-backend/src/app/helpers/gcp';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -53,75 +56,107 @@ const useStyles = createStyles(theme => ({
 interface Props {
 	opened: boolean;
 	onClose: () => void;
-	// form: UseFormReturnType<InvoiceFormValues>;
 	loading: boolean;
 	goBack: () => void;
 	invoiceNumberList: string[];
+	crn: string;
+	globalForm: UseFormReturnType<InvoiceFormValues>;
+	sessionId: string;
 }
 
-const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList }: Props) => {
+const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList, crn, globalForm, sessionId }: Props) => {
 	const [file, setFile] = useState<FileWithPath>(null);
-	const [invNumber, setInvNumber] = useState(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
-	
+	const utils = trpc.useContext()
+
 	console.log('upload comp', invoiceNumberList);
 
+	const createInvoiceMutation = trpc.invoice.createInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.invoice.getInvoices.invalidate({ userId: sessionId });
+		}
+	});
+
+	const updateMutation = trpc.invoice.updateInvoice.useMutation({
+		onSuccess: function (input) {
+			utils.invoice.getInvoices
+				.invalidate({ userId: sessionId })
+				.then(r => console.log(input, 'Invoices refetched'));
+		}
+	});
+
 	const form = useForm({
-		initialValues: { 
+		initialValues: {
 			invNumber: ''
-
 		},
-	
-		// functions will be used to validate values at corresponding key
+
 		validate: {
-			invNumber: (value) => checkInvoiceNumberExits(value) ? 'This invoice number already exists' : null,
-		},
-	  });
-	
+			invNumber: value => (checkInvoiceNumberExits(value) ? 'This invoice number already exists' : null)
+		}
+	});
 
-	const handleSubmit = useCallback(
-		async (formValues: string) => {
-			alert(formValues)
-			const invocieId = uuid4();
-			// TODO - Omar complete logic for uploading invoice
-			try {
-				const invoiceUploaded = await uploadInvoice(file, file.name, invNumber);
+	const handleSubmit = useCallback(async () => {
+		const invocieId = uuid4();
+		// TODO - Omar complete logic for uploading invoice
+		try {
+			const filename = form.values.invNumber;
+			const filepath = `${crn}/INVOICES/${filename}`;
+			const invoiceUploaded = await uploadFile(file, filename, filepath);
 
-				if (invoiceUploaded) {
-					goBack;
-				}
-			} catch (error) {
-				throw new Error('Error uploading file');
+			if (invoiceUploaded) {
+				await createInvoiceMutation.mutateAsync({
+					userId: sessionId,
+					invoice_id: '-',
+					invoice_number: form.values.invNumber,
+					invoice_date: 0,
+					due_date: 0,
+					line_items: [],
+					notes: '-',
+					subtotal: 0,
+					total: 0,
+				})
+				
+				globalForm.setFieldValue('invoice_id', invocieId)
+				updateMutation.mutateAsync({
+					invoice_id: invocieId,
+					userId: sessionId,
+					status: INVOICE_STATUS.PROCESSING
+				})
+				goBack();
 			}
-		},
-		[file]
-	);
-	
+		} catch (error) {
+			throw new Error('Error uploading file');
+		}
+	}, [file, sessionId]);
+
 	const checkInvoiceNumberExits = (invNumber: string) => {
 		return invoiceNumberList.includes(invNumber);
-	}
+	};
 
 	const generateUniqueInvoiceNumber = () => {
 		const numInvoices = invoiceNumberList.length;
 		if (invoiceNumberList.length == 0) {
-			return `INV-${String(numInvoices + 1).padStart(6, '0')}`
+			form.setFieldValue(
+				'invNumber',
+				`INV-${String(numInvoices + 1).padStart(6, '0')}`
+			)
+			return `INV-${String(numInvoices + 1).padStart(6, '0')}`;
 		} else {
 			let count = 1;
-			let generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`
+			let generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`;
 			while (checkInvoiceNumberExits(generatedInvoiceNum)) {
-				count++
-				generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`
+				count++;
+				generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`;
 			}
 
-			setInvNumber(generatedInvoiceNum);
+			form.setFieldValue(
+				'invNumber',
+				`INV-${String(numInvoices + 1).padStart(6, '0')}`
+			)
 		}
-	}
+	};
 
-	
-
-	
-	
 	return (
 		<Drawer
 			opened={opened}
@@ -135,7 +170,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
-			<form className='flex flex-col' onSubmit={form.onSubmit(values => handleSubmit(values.invNumber))}>
+			<form className='flex flex-col' onSubmit={form.onSubmit(values => handleSubmit())}>
 				<Title order={2} weight={500}>
 					<span>Upload Invoice</span>
 				</Title>
@@ -144,7 +179,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 					<TextInput
 						{...form.getInputProps('invNumber')}
 						withAsterisk
-						value={invNumber}
+						// value={invNumber}
 						label='Invoice Number'
 						placeholder='INV-##########'
 						rightSection={
@@ -218,7 +253,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 					<Button type='button' variant='white' size='md' onClick={goBack}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
-					<Button type='submit' size='md' disabled={!file && !invNumber}>
+					<Button type='submit' size='md' disabled={!file || (form.values.invNumber == '')}>
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>

@@ -29,6 +29,7 @@ interface InvoiceFormProps {
 	loading: boolean;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
+	handleInvoicePDFUpload: boolean;
 }
 
 const InvoiceForm = ({
@@ -38,7 +39,8 @@ const InvoiceForm = ({
 	onSubmit,
 	loading,
 	showPODUploadForm,
-	showInvUploadForm,
+	handleInvoicePDFUpload,
+	showInvUploadForm
 }: InvoiceFormProps) => {
 	const router = useRouter();
 	const { data: session } = useSession();
@@ -75,8 +77,8 @@ const InvoiceForm = ({
 	}, [form.values]);
 
 	const get_paid_visible = useMemo(() => {
-		return form.values.new || form.values.invoice?.status === INVOICE_STATUS.DRAFT && form.values.pod;
-	}, [form.values])
+		return form.values.new || (form.values.invoice?.status === INVOICE_STATUS.DRAFT && form.values.pod);
+	}, [form.values]);
 
 	const requestApproval = useCallback(
 		async (invoice_id: string) => {
@@ -174,9 +176,9 @@ const InvoiceForm = ({
 							</Group>
 						</Paper>
 					) : (
-						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showInvUploadForm}>
+						<Paper component='button' shadow='xs' p='lg' withBorder onClick={showInvUploadForm} disabled={!!form.values.invoice_id}>
 							<Group spacing='xl'>
-								<div className='flex flex h-20 w-20 items-center justify-center rounded-xl bg-primary/25'>
+								<div className={`flex flex h-20 w-20 items-center justify-center rounded-xl ${form.values.invoice_id ? 'bg-success-100' : 'bg-primary/25'}`}>
 									<Image
 										width={60}
 										height={60}
@@ -185,7 +187,11 @@ const InvoiceForm = ({
 										alt='Add invoice rate'
 									/>
 								</div>
-								<Text weight='bold'>Add invoice rate confirmation</Text>
+								{form.values.invoice_id ? (
+									<Text weight='bold'>Invoice submitted</Text>
+								) : (
+									<Text weight='bold'>Add invoice rate confirmation</Text>
+								)}
 							</Group>
 						</Paper>
 					)}
