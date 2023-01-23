@@ -485,8 +485,16 @@ const invoiceRouter = t.router({
 				const result = await mailerSend.email.send(emailParams);
 				console.log('************************************************');
 				console.log(result);
+				// update status of the invoice to "sent"
+				await ctx.prisma.invoice.update({
+					where: {
+						invoice_id: input.invoice_id
+					},
+					data: {
+						status: INVOICE_STATUS.SENT
+					}
+				});
 				return result;
-				return true;
 			} catch (err) {
 				console.error(err);
 				//@ts-ignore

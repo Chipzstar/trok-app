@@ -81,6 +81,25 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 		},
 		[session]
 	);
+	const markAsSent = useCallback(
+		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
+			updateMutation
+				.mutateAsync({
+					invoice_id: invoice.invoice_id,
+					userId: session.id,
+					status: INVOICE_STATUS.SENT
+				})
+				.then(res =>
+					notifySuccess(
+						'marked-as-sent-success',
+						`Invoice ${invoice.invoice_number} has been marked as sent.`,
+						<IconCheck size={20} />
+					)
+				)
+				.catch(err => notifyError('approval-request-error', err.message, <IconX size={20} />));
+		},
+		[session]
+	);
 	const rows = data.map((i, index) => {
 		const statusClass = classNames({
 			'py-1': true,
@@ -214,7 +233,9 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}))
 									showSendInvoice(true)
 								}}>Send Invoice</Menu.Item>
-								<Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />}>Mark as Sent</Menu.Item>
+								{![INVOICE_STATUS.COMPLETE, INVOICE_STATUS.SENT].includes(i.status) && <Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />} onClick={() => {
+									if(!testMode) markAsSent(i)}
+								}>Mark as Sent</Menu.Item>}
 								<Menu.Item
 									icon={<IconTrash size={16} stroke={1.5} />}
 									color='red'
