@@ -107,7 +107,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 			if (invoiceUploaded) {
 				await createInvoiceMutation.mutateAsync({
 					userId: sessionId,
-					invoice_id: '-',
+					invoice_id: invocieId,
 					invoice_number: form.values.invNumber,
 					invoice_date: 0,
 					due_date: 0,
@@ -115,6 +115,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 					notes: '-',
 					subtotal: 0,
 					total: 0,
+					invoice_Upload_Filepath: filepath
 				})
 				
 				globalForm.setFieldValue('invoice_id', invocieId)

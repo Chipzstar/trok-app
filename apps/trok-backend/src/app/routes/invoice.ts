@@ -6,6 +6,7 @@ import { generateInvoice } from '../helpers/invoices';
 import { INVOICE_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';
 import { prettyPrint, prettyPrintResponse } from '../utils/helpers';
+import { generateDownloadUrl } from '../helpers/gcp';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -232,7 +233,8 @@ const invoiceRouter = t.router({
 				tax_rate: TaxRateSchema.nullable().optional(),
 				subtotal: z.number(),
 				total: z.number(),
-				notes: z.string().optional()
+				notes: z.string().optional(),
+				invoice_Upload_Filepath: z.string().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -308,6 +310,17 @@ const invoiceRouter = t.router({
 							download_url: invoice_url
 						}
 					});
+				} else if (input.invoice_Upload_Filepath) {
+					const invoice_url = await generateDownloadUrl(input.invoice_Upload_Filepath);
+					await ctx.prisma.invoice.update({
+						where: {
+							id: invoice.id
+						},
+						data: {
+							download_url: invoice_url
+						}
+					});
+					
 				}
 				prettyPrint(invoice);
 				return invoice;
@@ -324,7 +337,8 @@ const invoiceRouter = t.router({
 				userId: z.string(),
 				pod: z.boolean().optional(),
 				status: z.string().optional(),
-				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional()
+				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional(),
+				download_url: z.string().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
