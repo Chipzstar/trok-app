@@ -20,6 +20,7 @@ export const requirements = [
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_MB = 5242880; // in bytes units
 export const TEN_MB = 2 * FIVE_MB; // in bytes units
+export const UNDER_TWENTYFIVE_MB = 24900000 // 24.9 MB
 export const FIVE_HUNDRED_POUNDS = 50000;
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 export const DEFAULT_HEADER_HEIGHT = 75;

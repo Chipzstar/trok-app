@@ -16,7 +16,7 @@ import SendInvoiceForm, { SendInvoiceFormValues } from '../modals/invoices/SendI
 import useWindowSize from '../hooks/useWindowSize';
 import PreviewInvoice from '../modals/invoices/PreviewInvoice';
 
-const Invoices = ({ testMode, session_id, invoice_id }) => {
+const Invoices = ({ testMode, session_id, invoice_id, num_invoices, business_CRN }) => {
 	const { height } = useWindowSize();
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
@@ -25,10 +25,14 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 	const [invSendOpened, setInvSendOpened] = useState(false);
 	const [invoicePreviewOpened, setInvoicePreviewOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [invUploadSubmitted, setInvUploadSubmitted] = useState(false);
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
+	const allInvoiceNumber = data.map(invoice => {
+		return invoice.invoice_number;
+	});
 
 	const invoice_form = useForm<InvoiceFormValues>({
 		initialValues: {
@@ -177,6 +181,7 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
+				handleInvoicePDFUpload={invUploadSubmitted}
 			/>
 			<PODUploadForm
 				opened={podOpened}
@@ -190,12 +195,15 @@ const Invoices = ({ testMode, session_id, invoice_id }) => {
 			<InvoiceUploadForm
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
-				form={invoice_form}
+				globalForm={invoice_form}
 				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
 					setTimeout(() => setInvoiceOpened(true), 100);
 				}}
+				invoiceNumberList={allInvoiceNumber}
+				crn={business_CRN}
+				sessionId={session_id}
 			/>
 			<SendInvoiceForm
 				opened={invSendOpened}
@@ -334,10 +342,28 @@ export async function getServerSideProps({ req, res, query }) {
 			}
 		};
 	}
+
+	const invoices = await prisma.invoice.findMany({
+		where: {
+			userId: session.id
+		},
+		select: {
+			invoice_number: true
+		}
+	});
+
+	const userCRN = await prisma.user.findFirst({
+		where: {
+			id: session.id
+		}
+	});
+
 	return {
 		props: {
 			session_id: session.id,
-			invoice_id: query['invoice-id'] ?? ""
+			invoice_id: query['invoice-id'] ?? '',
+			num_invoices: invoices.length,
+			business_CRN: userCRN.business.business_crn
 		}
 	};
 }

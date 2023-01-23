@@ -8,7 +8,7 @@ import { Prisma } from '@prisma/client';
 import { prettyPrint } from '../utils/helpers';
 import { mailerSend } from '../utils/clients';
 import { Attachment, EmailParams, Recipient, Sender } from 'mailersend';
-import { downloadPDF } from '../helpers/gcp';
+import { downloadPDF, generateDownloadUrl } from '../helpers/gcp';
 
 const LineItemSchema = z.object({
 	id: z.string(),
@@ -259,7 +259,7 @@ const invoiceRouter = t.router({
 		.input(
 			z.object({
 				userId: z.string(),
-				customer: z.string(),
+				customer: z.string().optional(),
 				invoice_date: z.number(),
 				due_date: z.number(),
 				invoice_id: z.string(),
@@ -268,7 +268,8 @@ const invoiceRouter = t.router({
 				tax_rate: TaxRateSchema.nullable().optional(),
 				subtotal: z.number(),
 				total: z.number(),
-				notes: z.string().optional()
+				notes: z.string().optional(),
+				invoice_Upload_Filepath: z.string().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -293,12 +294,15 @@ const invoiceRouter = t.router({
 					})
 				).map(item => item.id);
 				// fetch the customer used in the invoice
-				const customer = await ctx.prisma.customer.findUniqueOrThrow({
-					where: {
-						id: input.customer,
-						userId: input.userId
-					}
-				});
+				let customer = null;
+				if (input.customer) {
+					customer = await ctx.prisma.customer.findUniqueOrThrow({
+						where: {
+							id: input.customer,
+							userId: input.userId
+						}
+					});
+				}
 				// if there is tax fetch the tax rate used in the invoice
 				let tax_rate = null;
 				if (input.tax_rate) {
@@ -324,7 +328,7 @@ const invoiceRouter = t.router({
 					data: {
 						userId: input.userId,
 						customerId: input.customer,
-						customer_name: customer.display_name,
+						customer_name: customer?.display_name,
 						invoice_id: input.invoice_id,
 						invoice_number: input.invoice_number,
 						invoice_date: input.invoice_date,
@@ -342,22 +346,31 @@ const invoiceRouter = t.router({
 						notes: input.notes
 					}
 				});
-				const { download_url, filepath } = await generateInvoice(
-					invoice.invoice_number,
-					user,
-					invoice,
-					customer,
-					tax_rate
-				);
-				await ctx.prisma.invoice.update({
-					where: {
-						id: invoice.id
-					},
-					data: {
-						filepath,
-						download_url
-					}
-				});
+				if (customer) {
+					const { download_url, filepath } = await generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate);
+
+					await ctx.prisma.invoice.update({
+						where: {
+							id: invoice.id
+						},
+						data: {
+							filepath,
+							download_url
+						}
+					});
+				} else if (input.invoice_Upload_Filepath) {
+					const invoice_url = await generateDownloadUrl(input.invoice_Upload_Filepath);
+					await ctx.prisma.invoice.update({
+						where: {
+							id: invoice.id
+						},
+						data: {
+							filepath: input.invoice_Upload_Filepath,
+							download_url: invoice_url
+						}
+					});
+
+				}
 				prettyPrint(invoice);
 				return invoice;
 			} catch (err) {
@@ -373,7 +386,8 @@ const invoiceRouter = t.router({
 				userId: z.string(),
 				pod: z.boolean().optional(),
 				status: z.string().optional(),
-				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional()
+				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional(),
+				download_url: z.string().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
