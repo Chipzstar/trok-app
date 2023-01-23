@@ -37,7 +37,7 @@ import { InvoiceFormValues } from '../utils/types';
 interface InvoiceTableProps {
 	loading: boolean;
 	data: Prisma.InvoiceUncheckedCreateInput[];
-	form: UseFormReturnType<InvoiceFormValues>
+	form: UseFormReturnType<InvoiceFormValues>;
 	setOpened: (val: boolean) => void;
 	showPODUpload: (val: boolean) => void;
 	showSendInvoice: (val: boolean) => void;
@@ -233,7 +233,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}))
 									showSendInvoice(true)
 								}}>Send Invoice</Menu.Item>
-								{![INVOICE_STATUS.COMPLETE, INVOICE_STATUS.SENT].includes(i.status) && <Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />} onClick={() => {
+								{![INVOICE_STATUS.COMPLETE, INVOICE_STATUS.SENT].includes(i.status as INVOICE_STATUS) && <Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />} onClick={() => {
 									if(!testMode) markAsSent(i)}
 								}>Mark as Sent</Menu.Item>}
 								<Menu.Item
