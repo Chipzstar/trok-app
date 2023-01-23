@@ -195,7 +195,6 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 				opened={invUploadOpened}
 				onClose={() => setInvUploadOpened(false)}
 				globalForm={invoice_form}
-				loading={loading}
 				goBack={() => {
 					setInvUploadOpened(false);
 					setTimeout(() => setInvoiceOpened(true), 100);

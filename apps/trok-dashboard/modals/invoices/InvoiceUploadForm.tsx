@@ -83,11 +83,11 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 		}
 	});
 
-	const handleSubmit = useCallback(async () => {
+	const handleSubmit = useCallback(async (values) => {
 		const invoice_id = genInvoiceId();
 		setLoading(true)
 		try {
-			const filename = form.values.invNumber;
+			const filename = values.invNumber;
 			const filepath = `${crn}/INVOICES/${invoice_id}/${filename}`;
 			const invoiceUploaded = await uploadFile(file, filename, filepath);
 
@@ -95,7 +95,7 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 				await createInvoiceMutation.mutateAsync({
 					userId: sessionId,
 					invoice_id,
-					invoice_number: form.values.invNumber,
+					invoice_number: values.invNumber,
 					invoice_date: 0,
 					due_date: 0,
 					line_items: [],
@@ -134,7 +134,7 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 			transitionDuration={250}
 			transitionTimingFunction='ease'
 		>
-			<form className='flex flex-col' onSubmit={form.onSubmit(values => handleSubmit())}>
+			<form className='flex flex-col' onSubmit={form.onSubmit(handleSubmit)}>
 				<Title order={2} weight={500}>
 					<span>Upload Invoice</span>
 				</Title>
