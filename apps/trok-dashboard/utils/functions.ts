@@ -1,11 +1,10 @@
 import { apiClient, griffinClient } from './clients';
 import dayjs from 'dayjs';
 import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS } from './types';
-import { isCI, isDev, isProd, requirements } from './constants';
+import { isCI, isDev, requirements } from './constants';
 import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 import { SelectItem } from '@mantine/core';
-import {v4 as uuidv4} from 'uuid';
 
 
 export function getStrength(password: string) {
@@ -20,9 +19,20 @@ export function getStrength(password: string) {
 	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 
-export function uniqueArray(array: SelectItem[], key) {
-	return [...new Map(array.map(item => [item[key], item])).values()];
-}
+export function generateUniqueInvoiceNumber(invoice_numbers: string[]){
+	const num_invoices = invoice_numbers.length;
+	if (invoice_numbers.length == 0) {
+		return `INV-${String(num_invoices + 1).padStart(6, '0')}`;
+	} else {
+		let count = 1;
+		let generated_invoice_num = `INV-${String(num_invoices + count).padStart(6, '0')}`;
+		while (invoice_numbers.includes(generated_invoice_num)) {
+			count++;
+			generated_invoice_num = `INV-${String(num_invoices + count).padStart(6, '0')}`;
+		}
+		return generated_invoice_num;
+	}
+};
 
 export function uniqueSimpleArray(array: SelectItem[]) {
 	const values = array.map(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value));

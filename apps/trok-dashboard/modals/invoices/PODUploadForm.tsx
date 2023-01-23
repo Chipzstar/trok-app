@@ -1,7 +1,7 @@
-import React, { FormEvent, useCallback, useMemo, useRef, useState } from 'react';
-import { Button, createStyles, Drawer, Image, Group, Space, Stack, Text, Title, SimpleGrid } from '@mantine/core';
+import React, { FormEvent, useCallback, useRef, useState } from 'react';
+import { Button, createStyles, Drawer, Group, Image, SimpleGrid, Space, Text, Title } from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { IconCloudUpload, IconUpload, IconX, IconCheck } from '@tabler/icons';
+import { IconCheck, IconCloudUpload, IconUpload, IconX } from '@tabler/icons';
 import { TEN_MB } from '../../utils/constants';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { uploadFile } from '../../utils/functions';
@@ -77,7 +77,6 @@ const PODUploadForm = ({ opened, onClose, goBack, form }: PODUploadFormProps) =>
 			// upload the file to GCP bucket
 			const url = await uploadFile(file, filename, filepath);
 			// update the "pod" flag of the invoice to "true"
-			console.log(form.values)
 			await update.mutateAsync({
 				invoice_id: form.values.invoice_id,
 				userId: session.id,

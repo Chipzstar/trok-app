@@ -15,8 +15,9 @@ import { InvoiceFormValues } from '../utils/types';
 import SendInvoiceForm, { SendInvoiceFormValues } from '../modals/invoices/SendInvoiceForm';
 import useWindowSize from '../hooks/useWindowSize';
 import PreviewInvoice from '../modals/invoices/PreviewInvoice';
+import prisma from '../prisma';
 
-const Invoices = ({ testMode, session_id, invoice_id, num_invoices, business_CRN }) => {
+const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 	const { height } = useWindowSize();
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
@@ -25,7 +26,6 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices, business_CRN
 	const [invSendOpened, setInvSendOpened] = useState(false);
 	const [invoicePreviewOpened, setInvoicePreviewOpened] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [invUploadSubmitted, setInvUploadSubmitted] = useState(false);
 
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
@@ -181,7 +181,6 @@ const Invoices = ({ testMode, session_id, invoice_id, num_invoices, business_CRN
 					setInvoiceOpened(false);
 					setTimeout(() => setInvUploadOpened(true), 100);
 				}}
-				handleInvoicePDFUpload={invUploadSubmitted}
 			/>
 			<PODUploadForm
 				opened={podOpened}
@@ -362,7 +361,6 @@ export async function getServerSideProps({ req, res, query }) {
 		props: {
 			session_id: session.id,
 			invoice_id: query['invoice-id'] ?? '',
-			num_invoices: invoices.length,
 			business_CRN: userCRN.business.business_crn
 		}
 	};

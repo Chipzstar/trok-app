@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Dropzone, FileWithPath, MS_WORD_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
 
 import {
@@ -14,16 +14,14 @@ import {
 	Title,
 	Tooltip
 } from '@mantine/core';
-import { UNDER_TWENTYFIVE_MB } from '../../utils/constants';
-import { IconCloudUpload, IconUpload, IconWand, IconX } from '@tabler/icons';
+import { UNDER_TWENTY_FIVE_MB } from '../../utils/constants';
+import { IconCheck, IconCloudUpload, IconUpload, IconWand, IconX } from '@tabler/icons';
 import DocumentInfo from '../../components/DocumentInfo';
-import { UseFormReturnType, useForm } from '@mantine/form';
-import { uploadFile } from '../../utils/functions';
-import { uuid4 } from '@sentry/utils';
+import { useForm, UseFormReturnType } from '@mantine/form';
+import { generateUniqueInvoiceNumber, uploadFile } from '../../utils/functions';
 import { InvoiceFormValues } from '../../utils/types';
 import { trpc } from '../../utils/clients';
-import { INVOICE_STATUS } from '../../../../libs/shared-utils/src';
-import { generateDownloadUrl } from '../../../trok-backend/src/app/helpers/gcp';
+import { genInvoiceId, notifyError, notifySuccess } from '@trok-app/shared-utils';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -56,7 +54,6 @@ const useStyles = createStyles(theme => ({
 interface Props {
 	opened: boolean;
 	onClose: () => void;
-	loading: boolean;
 	goBack: () => void;
 	invoiceNumberList: string[];
 	crn: string;
@@ -64,13 +61,12 @@ interface Props {
 	sessionId: string;
 }
 
-const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList, crn, globalForm, sessionId }: Props) => {
+const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, globalForm, sessionId }: Props) => {
+	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
 	const utils = trpc.useContext()
-
-	console.log('upload comp', invoiceNumberList);
 
 	const createInvoiceMutation = trpc.invoice.createInvoice.useMutation({
 		onSuccess: function (input) {
@@ -78,36 +74,27 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 		}
 	});
 
-	const updateMutation = trpc.invoice.updateInvoice.useMutation({
-		onSuccess: function (input) {
-			utils.invoice.getInvoices
-				.invalidate({ userId: sessionId })
-				.then(r => console.log(input, 'Invoices refetched'));
-		}
-	});
-
 	const form = useForm({
 		initialValues: {
 			invNumber: ''
 		},
-
 		validate: {
-			invNumber: value => (checkInvoiceNumberExits(value) ? 'This invoice number already exists' : null)
+			invNumber: value => (invoiceNumberList.includes(value) ? 'This invoice number already exists' : null)
 		}
 	});
 
 	const handleSubmit = useCallback(async () => {
-		const invocieId = uuid4();
-		// TODO - Omar complete logic for uploading invoice
+		const invoice_id = genInvoiceId();
+		setLoading(true)
 		try {
 			const filename = form.values.invNumber;
-			const filepath = `${crn}/INVOICES/${filename}`;
+			const filepath = `${crn}/INVOICES/${invoice_id}/${filename}`;
 			const invoiceUploaded = await uploadFile(file, filename, filepath);
 
 			if (invoiceUploaded) {
 				await createInvoiceMutation.mutateAsync({
 					userId: sessionId,
-					invoice_id: invocieId,
+					invoice_id,
 					invoice_number: form.values.invNumber,
 					invoice_date: 0,
 					due_date: 0,
@@ -117,46 +104,22 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 					total: 0,
 					invoice_Upload_Filepath: filepath
 				})
-				
-				globalForm.setFieldValue('invoice_id', invocieId)
-				updateMutation.mutateAsync({
-					invoice_id: invocieId,
-					userId: sessionId,
-					status: INVOICE_STATUS.PROCESSING
-				})
+				globalForm.setFieldValue('invoice_id', invoice_id)
+				setLoading(false);
+				notifySuccess(
+					'invoice-upload-success',
+					'Invoice has been uploaded successfully and saved as a draft',
+					<IconCheck size={20} />
+				);
 				goBack();
+			} else {
+				throw new Error('Error uploading file');
 			}
 		} catch (error) {
-			throw new Error('Error uploading file');
+			setLoading(false);
+			notifyError('invoice-upload-error', error.message, <IconX size={20}/>)
 		}
 	}, [file, sessionId]);
-
-	const checkInvoiceNumberExits = (invNumber: string) => {
-		return invoiceNumberList.includes(invNumber);
-	};
-
-	const generateUniqueInvoiceNumber = () => {
-		const numInvoices = invoiceNumberList.length;
-		if (invoiceNumberList.length == 0) {
-			form.setFieldValue(
-				'invNumber',
-				`INV-${String(numInvoices + 1).padStart(6, '0')}`
-			)
-			return `INV-${String(numInvoices + 1).padStart(6, '0')}`;
-		} else {
-			let count = 1;
-			let generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`;
-			while (checkInvoiceNumberExits(generatedInvoiceNum)) {
-				count++;
-				generatedInvoiceNum = `INV-${String(numInvoices + count).padStart(6, '0')}`;
-			}
-
-			form.setFieldValue(
-				'invNumber',
-				`INV-${String(numInvoices + 1).padStart(6, '0')}`
-			)
-		}
-	};
 
 	return (
 		<Drawer
@@ -188,7 +151,11 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 								<ActionIcon
 									variant='transparent'
 									onClick={() => {
-										generateUniqueInvoiceNumber()
+										const invoice_number = generateUniqueInvoiceNumber(invoiceNumberList)
+										form.setFieldValue(
+											'invNumber',
+											invoice_number
+										)
 									}}
 								>
 									<IconWand size={18} />
@@ -202,7 +169,7 @@ const InvoiceUploadForm = ({ opened, onClose, loading, goBack, invoiceNumberList
 						openRef={openRef}
 						onDrop={file => setFile(file[0])}
 						onReject={files => console.log('rejected files', files)}
-						maxSize={UNDER_TWENTYFIVE_MB}
+						maxSize={UNDER_TWENTY_FIVE_MB}
 						className={classes.dropzone}
 						accept={[...PDF_MIME_TYPE, ...MS_WORD_MIME_TYPE]}
 						loading={loading}

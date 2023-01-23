@@ -472,7 +472,7 @@ const invoiceRouter = t.router({
 				const file_content = await downloadPDF(invoice.filepath);
 				const sentFrom = new Sender('hello@trok.co', 'Trok');
 				const replyTo = new Sender(user.email, user.full_name);
-				const recipients = [new Recipient(input.to, invoice.customer_name)];
+				const recipients = [new Recipient(input.to, invoice?.customer_name ?? undefined)];
 				const attachments = [new Attachment(file_content, `${invoice.invoice_number}.pdf`, 'attachment')];
 				const emailParams = new EmailParams()
 					.setFrom(sentFrom)

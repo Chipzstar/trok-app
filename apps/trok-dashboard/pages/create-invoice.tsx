@@ -58,6 +58,7 @@ import { authOptions } from './api/auth/[...nextauth]';
 import NewTaxRateForm, { TaxRateFormValues } from '../modals/invoices/NewTaxRateForm';
 import { useLocalStorage, useWindowScroll } from '@mantine/hooks';
 import prisma from '../prisma';
+import { generateUniqueInvoiceNumber } from '../utils/functions';
 
 interface CreateInvoiceForm {
 	customer: string;
@@ -658,12 +659,13 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 										<Tooltip label='Generate invoice number'>
 											<ActionIcon
 												variant='transparent'
-												onClick={() =>
+												onClick={() => {
+													const invoice_number = generateUniqueInvoiceNumber(invoice_numbers)
 													form.setFieldValue(
 														'invoice_number',
-														`INV-${String(num_invoices + 1).padStart(6, '0')}`
+														invoice_number
 													)
-												}
+												}}
 											>
 												<IconWand size={18} />
 											</ActionIcon>

@@ -15,7 +15,6 @@ import { PATHS } from '../../utils/constants';
 import { useRouter } from 'next/router';
 import { UseFormReturnType } from '@mantine/form';
 import { InvoiceFormValues, InvoiceSectionState } from '../../utils/types';
-import Prisma from '@prisma/client';
 import { INVOICE_STATUS, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
 import { useSession } from 'next-auth/react';
@@ -29,7 +28,6 @@ interface InvoiceFormProps {
 	loading: boolean;
 	showPODUploadForm: () => void;
 	showInvUploadForm: () => void;
-	handleInvoicePDFUpload: boolean;
 }
 
 const InvoiceForm = ({
@@ -39,7 +37,6 @@ const InvoiceForm = ({
 	onSubmit,
 	loading,
 	showPODUploadForm,
-	handleInvoicePDFUpload,
 	showInvUploadForm
 }: InvoiceFormProps) => {
 	const router = useRouter();
