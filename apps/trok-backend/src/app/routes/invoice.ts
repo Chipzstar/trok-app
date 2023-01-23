@@ -343,12 +343,14 @@ const invoiceRouter = t.router({
 						...(input.tax_rate && { taxRateId: input.tax_rate.id }),
 						download_url: '',
 						filepath: '',
-						notes: input.notes
+						notes: input.notes,
+						approved: false,
+						approval_requested: false,
+						pod: false,
 					}
 				});
 				if (customer) {
 					const { download_url, filepath } = await generateInvoice(invoice.invoice_number, user, invoice, customer, tax_rate);
-
 					await ctx.prisma.invoice.update({
 						where: {
 							id: invoice.id
@@ -387,7 +389,7 @@ const invoiceRouter = t.router({
 				pod: z.boolean().optional(),
 				status: z.string().optional(),
 				paid_status: z.union([z.literal('paid'), z.literal('unpaid'), z.literal('partially_paid')]).optional(),
-				download_url: z.string().optional()
+				approval_requested: z.boolean().optional()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -401,7 +403,8 @@ const invoiceRouter = t.router({
 					data: {
 						...(input.pod && { pod: input.pod }),
 						...(input.status && { status: input.status }),
-						...(input.paid_status && { paid_status: input.paid_status })
+						...(input.paid_status && { paid_status: input.paid_status }),
+						...(input.approval_requested && { approval_requested: input.approval_requested })
 					}
 				});
 				prettyPrint(invoice);

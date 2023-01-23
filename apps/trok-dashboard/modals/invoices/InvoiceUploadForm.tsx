@@ -88,7 +88,7 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 		setLoading(true)
 		try {
 			const filename = values.invNumber;
-			const filepath = `${crn}/INVOICES/${invoice_id}/${filename}`;
+			const filepath = `${crn}/INVOICES/${invoice_id}/${filename}.pdf`;
 			const invoiceUploaded = await uploadFile(file, filename, filepath);
 
 			if (invoiceUploaded) {
@@ -143,7 +143,6 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 					<TextInput
 						{...form.getInputProps('invNumber')}
 						withAsterisk
-						// value={invNumber}
 						label='Invoice Number'
 						placeholder='INV-##########'
 						rightSection={

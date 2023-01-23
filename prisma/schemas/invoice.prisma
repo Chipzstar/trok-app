@@ -21,6 +21,7 @@ model Invoice {
     status String
     paid_status InvoicePaidStatus
     approved Boolean @default(false)
+    approval_requested Boolean @default(false)
     filepath String @default("")
     download_url String @default("")
     notes String?

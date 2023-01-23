@@ -30,6 +30,7 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 	const invoicesQuery = trpc.invoice.getInvoices.useQuery({ userId: session_id });
 
 	const data = testMode ? SAMPLE_INVOICES : invoicesQuery.data ? invoicesQuery.data.filter(i => !i.deleted) : [];
+
 	const allInvoiceNumber = data.map(invoice => {
 		return invoice.invoice_number;
 	});
@@ -340,16 +341,6 @@ export async function getServerSideProps({ req, res, query }) {
 			}
 		};
 	}
-
-	const invoices = await prisma.invoice.findMany({
-		where: {
-			userId: session.id
-		},
-		select: {
-			invoice_number: true
-		}
-	});
-
 	const userCRN = await prisma.user.findFirst({
 		where: {
 			id: session.id

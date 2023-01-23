@@ -49,14 +49,14 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 	const [activePage, setPage] = useState(1);
 	const utils = trpc.useContext();
 	const updateMutation = trpc.invoice.updateInvoice.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invoice.getInvoices
 				.invalidate({ userId: session.id })
 				.then(r => console.log(input, 'Invoices refetched'));
 		}
 	});
 	const deleteMutation = trpc.invoice.deleteInvoice.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invoice.getInvoices
 				.invalidate({ userId: session.id })
 				.then(r => console.log(input, 'Invoices refetched'));
@@ -65,10 +65,11 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 	const requestApproval = useCallback(
 		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
 			updateMutation
-			.mutateAsync({
+				.mutateAsync({
 					invoice_id: invoice.invoice_id,
 					userId: session.id,
-					status: INVOICE_STATUS.PROCESSING
+					status: INVOICE_STATUS.PROCESSING,
+					approval_requested: true
 				})
 				.then(res =>
 					notifySuccess(
@@ -137,7 +138,8 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 			'bg-warning/25': i.paid_status === INVOICE_PAID_STATUS.PARTIAL,
 			'bg-yellow-500/25': i.paid_status === INVOICE_PAID_STATUS.UNPAID
 		});
-		const can_get_paid = i.status === INVOICE_STATUS.DRAFT && i.pod;
+		const can_get_paid = !i.approval_requested && i.pod;
+		const can_mark_sent = ![INVOICE_STATUS.COMPLETE, INVOICE_STATUS.SENT].includes(i.status as INVOICE_STATUS)
 		return (
 			<tr
 				key={index}
@@ -188,7 +190,12 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 							<ActionIcon
 								size='sm'
 								onClick={() => {
-									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}));
+									form.setValues(prev => ({
+										...prev,
+										invoice: i,
+										invoice_id: i.invoice_id,
+										new: false
+									}));
 									setOpened(true);
 								}}
 							>
@@ -202,27 +209,32 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 								</ActionIcon>
 							</Menu.Target>
 							<Menu.Dropdown>
-								{i.status === INVOICE_STATUS.DRAFT &&
-									(!i.pod ? (
-										<Menu.Item
-											icon={<IconPhoto size={16} stroke={1.5} />}
-											onClick={() => {
-												form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}));
-												showPODUpload(true)
-											}}
-										>
-											Add Proof of Delivery
-										</Menu.Item>
-									) : (
-										<Menu.Item
-											icon={<IconFileCertificate size={16} stroke={1.5} />}
-											onClick={() => {
-												if (!testMode) requestApproval(i);
-											}}
-										>
-											Request Approval
-										</Menu.Item>
-									))}
+								{!i.pod && (
+									<Menu.Item
+										icon={<IconPhoto size={16} stroke={1.5} />}
+										onClick={() => {
+											form.setValues(prev => ({
+												...prev,
+												invoice: i,
+												invoice_id: i.invoice_id,
+												new: false
+											}));
+											showPODUpload(true);
+										}}
+									>
+										Add Proof of Delivery
+									</Menu.Item>
+								)}
+								{can_get_paid && (
+									<Menu.Item
+										icon={<IconFileCertificate size={16} stroke={1.5} />}
+										onClick={() => {
+											if (!testMode) requestApproval(i);
+										}}
+									>
+										Request Approval
+									</Menu.Item>
+								)}
 								<Menu.Item
 									icon={<IconEye size={16} stroke={1.5} />}
 									onClick={() => window.open(i.download_url, '_blank').focus()}
@@ -230,12 +242,19 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 									View Invoice
 								</Menu.Item>
 								<Menu.Item icon={<IconSend size={16} stroke={1.5} />} onClick={() => {
-									form.setValues(prev => ({...prev, invoice: i, invoice_id: i.invoice_id, new: false}))
-									showSendInvoice(true)
+									form.setValues(prev => ({
+										...prev,
+										invoice: i,
+										invoice_id: i.invoice_id,
+										new: false
+									}));
+									showSendInvoice(true);
 								}}>Send Invoice</Menu.Item>
-								{![INVOICE_STATUS.COMPLETE, INVOICE_STATUS.SENT].includes(i.status as INVOICE_STATUS) && <Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />} onClick={() => {
-									if(!testMode) markAsSent(i)}
-								}>Mark as Sent</Menu.Item>}
+								{can_mark_sent &&
+									<Menu.Item icon={<IconCircleCheck size={16} stroke={1.5} />} onClick={() => {
+										if (!testMode) markAsSent(i);
+									}
+									}>Mark as Sent</Menu.Item>}
 								<Menu.Item
 									icon={<IconTrash size={16} stroke={1.5} />}
 									color='red'
@@ -313,7 +332,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 						<span className='text-center text-2xl'>
 							You have no invoices
 							<br />
-							{"Click the 'New Invoice' button to create your first invoice"}
+							{'Click the \'New Invoice\' button to create your first invoice'}
 						</span>
 					}
 				/>
