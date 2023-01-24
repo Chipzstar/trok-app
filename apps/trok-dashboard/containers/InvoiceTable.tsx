@@ -25,7 +25,7 @@ import {
 } from '@tabler/icons';
 import DataGrid from '../components/DataGrid';
 import Empty from '../components/Empty';
-import { Prisma } from '@prisma/client';
+import Prisma from '@prisma/client';
 import { trpc } from '../utils/clients';
 import { useSession } from 'next-auth/react';
 import { openConfirmModal } from '@mantine/modals';
@@ -36,7 +36,7 @@ import { InvoiceFormValues } from '../utils/types';
 
 interface InvoiceTableProps {
 	loading: boolean;
-	data: Prisma.InvoiceUncheckedCreateInput[];
+	data: Prisma.Invoice [];
 	form: UseFormReturnType<InvoiceFormValues>;
 	setOpened: (val: boolean) => void;
 	showPODUpload: (val: boolean) => void;
@@ -63,7 +63,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 		}
 	});
 	const requestApproval = useCallback(
-		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
+		(invoice: Prisma.Invoice) => {
 			updateMutation
 				.mutateAsync({
 					invoice_id: invoice.invoice_id,
@@ -83,7 +83,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 		[session]
 	);
 	const markAsSent = useCallback(
-		(invoice: Prisma.InvoiceUncheckedCreateInput) => {
+		(invoice: Prisma.Invoice) => {
 			updateMutation
 				.mutateAsync({
 					invoice_id: invoice.invoice_id,
@@ -270,7 +270,7 @@ const InvoiceTable = ({ loading, data, form, setOpened, showPODUpload, showSendI
 		);
 	});
 
-	const openModal = (invoice: Prisma.InvoiceUncheckedCreateInput) =>
+	const openModal = (invoice: Prisma.Invoice) =>
 		openConfirmModal({
 			title: `Deleting Invoice: ${invoice.invoice_number}\n`,
 			children: (

@@ -601,7 +601,7 @@ export const SAMPLE_BANK_ACCOUNTS: Schema.BankAccountUncheckedCreateInput[] = [
 	}
 ];
 
-export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
+export const SAMPLE_INVOICES: Prisma.Invoice[] = [
 	{
 		id: uuidv4(),
 		userId: uuidv4(),
@@ -629,7 +629,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: false,
-		pod: false
+		pod: false,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -658,7 +664,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: true,
-		pod: true
+		pod: true,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -687,7 +699,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: true,
-		pod: true
+		pod: true,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -716,7 +734,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: false,
-		pod: true
+		pod: true,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -745,7 +769,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: false,
-		pod: false
+		pod: false,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -774,7 +804,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: true,
-		pod: true
+		pod: true,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	},
 	{
 		id: uuidv4(),
@@ -803,7 +839,13 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		download_url: '',
 		filepath: '',
 		approved: true,
-		pod: true
+		pod: true,
+		created_at: undefined,
+		updated_at: undefined,
+		taxRateId: undefined,
+		notes: '',
+		deleted: false,
+		approval_requested: false
 	}
 ];
 

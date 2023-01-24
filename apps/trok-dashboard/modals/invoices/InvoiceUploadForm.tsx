@@ -136,7 +136,7 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 						line_items: [],
 						notes: '-',
 						subtotal: 0,
-						total: 0,
+						total: values.total_amount,
 						invoice_Upload_Filepath: filepath
 					});
 					globalForm.setFieldValue('invoice_id', invoice_id);
