@@ -32,18 +32,6 @@ const SendInvoiceForm = ({ opened, onClose, form, FORM }: Props) => {
 	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const sendInvoiceMutation = trpc.invoice.sendInvoice.useMutation();
-	const customerQuery = trpc.invoice.getSingleCustomer.useQuery(
-		{
-			id: FORM.values.invoice?.customerId,
-			userId: session?.id
-		},
-		{
-			enabled: Boolean(FORM.values.invoice?.customerId && session?.id),
-			onSuccess: (data) => {
-				form.setFieldValue('to', data.email)
-			}
-		}
-	);
 
 	const handleSubmit = useCallback(
 		async values => {
@@ -81,6 +69,7 @@ const SendInvoiceForm = ({ opened, onClose, form, FORM }: Props) => {
 
 	useEffect(() => {
 		form.setFieldValue('from', session?.user?.email);
+		form.setFieldValue('to', FORM.values.invoice?.customer_email);
 		form.setFieldValue(
 			'subject',
 			`Invoice ${FORM.values.invoice?.invoice_number} for ${FORM.values.invoice?.customer_name} due ${dayjs

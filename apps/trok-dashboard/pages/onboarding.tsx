@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
 import { Anchor, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
-import Step1 from '../containers/signup/Step1';
 import Step3 from '../containers/signup/Step3';
 import Step4 from '../containers/signup/Step4';
 import { PATHS } from '../utils/constants';
@@ -9,6 +8,9 @@ import { useRouter } from 'next/router';
 import { authOptions } from './api/auth/[...nextauth]';
 import { unstable_getServerSession } from 'next-auth';
 import Step2 from '../containers/signup/Step2';
+import NewStep1 from '../containers/new-signup/NewStep1';
+import NewStep2 from '../containers/new-signup/NewStep2';
+import NewStep3 from '../containers/new-signup/NewStep3';
 
 const Onboarding = () => {
 	const router = useRouter();
@@ -79,7 +81,7 @@ const Onboarding = () => {
 				>
 					<Stepper.Step icon={<div />} label='First step' description='Company' allowStepSelect={active > 0}>
 						{customerSupportNumber}
-						<Step1 nextStep={nextStep} />
+						<NewStep1 nextStep={nextStep} />
 					</Stepper.Step>
 					<Stepper.Step
 						icon={<div />}
@@ -88,7 +90,7 @@ const Onboarding = () => {
 						allowStepSelect={active > 1}
 					>
 						{customerSupportNumber}
-						<Step2 prevStep={prevStep} nextStep={nextStep} />
+						<NewStep2 prevStep={prevStep} nextStep={nextStep} />
 					</Stepper.Step>
 					<Stepper.Step
 						icon={<div />}
@@ -97,7 +99,7 @@ const Onboarding = () => {
 						allowStepSelect={active > 2}
 					>
 						{customerSupportNumber}
-						<Step3 prevStep={prevStep} nextStep={nextStep} />
+						<NewStep3 prevStep={prevStep} nextStep={nextStep} />
 					</Stepper.Step>
 					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 3}>
 						{customerSupportNumber}

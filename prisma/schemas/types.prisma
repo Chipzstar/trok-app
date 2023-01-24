@@ -27,6 +27,7 @@ type Address {
 type BusinessInfo {
     legal_name String
     weekly_fuel_spend Int
+    num_monthly_invoices Int
     average_monthly_revenue Int
     business_type String
     business_crn String

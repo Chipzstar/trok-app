@@ -85,6 +85,16 @@ export interface OnboardingBusinessInfo {
 	num_vehicles: number;
 }
 
+export interface NewOnboardingBusinessInfo {
+	legal_name: string;
+	num_monthly_invoices: number;
+	business_type: TokenCreateParams.Account.Company.Structure;
+	business_crn: string;
+	merchant_category_code: string;
+	business_url: string;
+	num_vehicles: number;
+}
+
 export interface OnboardingDirectorInfo {
 	dob: string | Date;
 	email: string;
@@ -99,15 +109,45 @@ export interface OnboardingDirectorInfo {
 	country?: string;
 }
 
+export interface NewOnboardingRepresentativeInfo {
+	dob: string | Date;
+	email: string;
+	firstname: string;
+	lastname: string;
+	line1: string;
+	line2?: string;
+	city: string;
+	postcode: string;
+	region: string;
+	building_number?: number;
+	country?: string;
+	is_owner: boolean;
+	is_director: boolean;
+}
+
 export interface OnboardingFinancialInfo {
 	average_monthly_revenue: number | null;
 }
 
+export interface NewOnboardingOwnersInfo {
+	dob: string | Date;
+    email: string;
+	full_name: string;
+	firstname: string;
+    lastname: string;
+}
+
 export type OnboardingAccountStep1 = SignupInfo & Record<'business', OnboardingBusinessInfo>
+
+export type NewOnboardingAccountStep1 = SignupInfo & Record<'business', NewOnboardingBusinessInfo>
 
 export type OnboardingAccountStep2 = SignupInfo & Record<'business', OnboardingBusinessInfo> & Record<'director', OnboardingDirectorInfo>
 
+export type NewOnboardingAccountStep2 = SignupInfo & Record<'business', NewOnboardingBusinessInfo> & Record<'representative', NewOnboardingRepresentativeInfo>
+
 export type OnboardingAccountStep3 = SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo> & Record<'director', OnboardingDirectorInfo>
+
+export type NewOnboardingAccountStep3 = SignupInfo & Record<'business', OnboardingBusinessInfo> & Record<'representative', NewOnboardingRepresentativeInfo>
 export interface CardConfiguration {
 	card_business_name: string;
 	num_cards?: number;

@@ -29,6 +29,8 @@ export const STORAGE_KEYS = {
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
 	COMPANY_FORM: 'company-form',
+	REPRESENTATIVE_FORM: 'representative-form',
+	OWNERS_FORM: 'owners-form',
 	DIRECTORS_FORM: 'director-form',
 	FINANCIAL_FORM: 'financial-form',
 	LOCATION_FORM: 'location-form',
@@ -670,7 +672,7 @@ export const SAMPLE_INVOICES: Prisma.Invoice[] = [
 		taxRateId: undefined,
 		notes: '',
 		deleted: false,
-		approval_requested: false
+		approval_requested: true
 	},
 	{
 		id: uuidv4(),
@@ -705,7 +707,7 @@ export const SAMPLE_INVOICES: Prisma.Invoice[] = [
 		taxRateId: undefined,
 		notes: '',
 		deleted: false,
-		approval_requested: false
+		approval_requested: true
 	},
 	{
 		id: uuidv4(),
@@ -810,7 +812,7 @@ export const SAMPLE_INVOICES: Prisma.Invoice[] = [
 		taxRateId: undefined,
 		notes: '',
 		deleted: false,
-		approval_requested: false
+		approval_requested: true
 	},
 	{
 		id: uuidv4(),
@@ -845,7 +847,7 @@ export const SAMPLE_INVOICES: Prisma.Invoice[] = [
 		taxRateId: undefined,
 		notes: '',
 		deleted: false,
-		approval_requested: false
+		approval_requested: true
 	}
 ];
 
