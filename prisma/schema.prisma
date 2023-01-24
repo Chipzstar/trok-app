@@ -246,7 +246,8 @@ model Invoice {
   userId             String            @db.ObjectId
   customer           Customer?         @relation(fields: [customerId], references: [id])
   customerId         String?           @db.ObjectId
-  customer_name      String?
+  customer_name      String
+  customer_email     String
   ItemIds            String[]          @db.ObjectId
   items              Item[]            @relation(fields: [ItemIds], references: [id])
   line_items         InvoiceLineItem[]

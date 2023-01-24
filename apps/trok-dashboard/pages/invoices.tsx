@@ -3,7 +3,7 @@ import Page from '../layout/Page';
 import { Button, Card, Loader, SimpleGrid, Space, Stack, Tabs } from '@mantine/core';
 import InvoiceForm from '../modals/invoices/InvoiceForm';
 import { isEmail, useForm } from '@mantine/form';
-import { GBP } from '@trok-app/shared-utils';
+import { GBP, INVOICE_PAID_STATUS } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
@@ -296,7 +296,7 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 						<Tabs.Panel value='approval'>
 							<InvoiceTable
 								showPODUpload={setPODOpened}
-								data={data}
+								data={data.filter(i => !i.approval_requested)}
 								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
@@ -306,7 +306,7 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 						<Tabs.Panel value='awaiting'>
 							<InvoiceTable
 								showPODUpload={setPODOpened}
-								data={data}
+								data={data.filter(i => i.approval_requested && i.paid_status === INVOICE_PAID_STATUS.UNPAID)}
 								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}
@@ -316,7 +316,7 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 						<Tabs.Panel value='paid'>
 							<InvoiceTable
 								showPODUpload={setPODOpened}
-								data={data}
+								data={data.filter(i => i.paid_status === INVOICE_PAID_STATUS.PAID)}
 								form={invoice_form}
 								loading={loading}
 								setOpened={setInvoiceOpened}

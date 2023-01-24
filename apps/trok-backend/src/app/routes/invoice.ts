@@ -259,7 +259,9 @@ const invoiceRouter = t.router({
 		.input(
 			z.object({
 				userId: z.string(),
-				customer: z.string().optional(),
+				customer_id: z.string().optional(),
+				customer_name: z.string(),
+				customer_email: z.string().email(),
 				invoice_date: z.number(),
 				due_date: z.number(),
 				invoice_id: z.string(),
@@ -295,10 +297,10 @@ const invoiceRouter = t.router({
 				).map(item => item.id);
 				// fetch the customer used in the invoice
 				let customer = null;
-				if (input.customer) {
+				if (input.customer_id) {
 					customer = await ctx.prisma.customer.findUniqueOrThrow({
 						where: {
-							id: input.customer,
+							id: input.customer_id,
 							userId: input.userId
 						}
 					});
@@ -327,8 +329,9 @@ const invoiceRouter = t.router({
 				const invoice = await ctx.prisma.invoice.create({
 					data: {
 						userId: input.userId,
-						customerId: input.customer,
-						customer_name: customer?.display_name,
+						customerId: input.customer_id,
+						customer_name: customer?.display_name ?? input.customer_name,
+						customer_email: customer?.email ?? input.customer_email,
 						invoice_id: input.invoice_id,
 						invoice_number: input.invoice_number,
 						invoice_date: input.invoice_date,

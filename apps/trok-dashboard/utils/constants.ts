@@ -20,7 +20,7 @@ export const requirements = [
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_MB = 5242880; // in bytes units
 export const TEN_MB = 2 * FIVE_MB; // in bytes units
-export const UNDER_TWENTY_FIVE_MB = 24900000 // 24.9 MB
+export const UNDER_TWENTY_FIVE_MB = 24900000; // 24.9 MB
 export const FIVE_HUNDRED_POUNDS = 50000;
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 export const DEFAULT_HEADER_HEIGHT = 75;
@@ -610,6 +610,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(4).fill({
 			id: uuidv4(),
@@ -638,6 +639,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(3).fill({
 			id: uuidv4(),
@@ -666,6 +668,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(3).fill({
 			id: uuidv4(),
@@ -694,6 +697,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(2).fill({
 			id: uuidv4(),
@@ -722,6 +726,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(3).fill({
 			id: uuidv4(),
@@ -750,6 +755,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(2).fill({
 			id: uuidv4(),
@@ -778,6 +784,7 @@ export const SAMPLE_INVOICES: Schema.InvoiceUncheckedCreateInput[] = [
 		invoice_date: dayjs().unix(),
 		customerId: uuidv4(),
 		customer_name: faker.company.name(),
+		customer_email: faker.internet.email(),
 		due_date: dayjs().add(7, 'day').unix(),
 		line_items: Array(2).fill({
 			id: uuidv4(),

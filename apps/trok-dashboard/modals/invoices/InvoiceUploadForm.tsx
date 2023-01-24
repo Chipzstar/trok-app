@@ -7,7 +7,7 @@ import {
 	Center,
 	createStyles,
 	Drawer,
-	Group,
+	Group, NumberInput,
 	Space,
 	Text,
 	TextInput,
@@ -15,13 +15,15 @@ import {
 	Tooltip
 } from '@mantine/core';
 import { UNDER_TWENTY_FIVE_MB } from '../../utils/constants';
-import { IconCheck, IconCloudUpload, IconUpload, IconWand, IconX } from '@tabler/icons';
+import { IconCalendar, IconCheck, IconCloudUpload, IconUpload, IconWand, IconX } from '@tabler/icons';
 import DocumentInfo from '../../components/DocumentInfo';
-import { useForm, UseFormReturnType } from '@mantine/form';
+import { TransformedValues, useForm, UseFormReturnType } from '@mantine/form';
 import { generateUniqueInvoiceNumber, uploadFile } from '../../utils/functions';
 import { InvoiceFormValues } from '../../utils/types';
 import { trpc } from '../../utils/clients';
 import { genInvoiceId, notifyError, notifySuccess } from '@trok-app/shared-utils';
+import { DatePicker } from '@mantine/dates';
+import dayjs from 'dayjs';
 
 const useStyles = createStyles(theme => ({
 	wrapper: {
@@ -35,8 +37,11 @@ const useStyles = createStyles(theme => ({
 	},
 
 	invoiceInput: {
-		margin: '30px 0',
-		position: 'relative'
+		margin: '30px 20px',
+		position: 'relative',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center'
 	},
 
 	icon: {
@@ -50,6 +55,15 @@ const useStyles = createStyles(theme => ({
 		bottom: -20
 	}
 }));
+
+interface UploadFormValues {
+	inv_number: string;
+	invoice_date: string | Date | number;
+	due_date: string | Date | number;
+	customer_name: string;
+	customer_email: string;
+    total_amount: number;
+}
 
 interface Props {
 	opened: boolean;
@@ -66,60 +80,83 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 	const [file, setFile] = useState<FileWithPath>(null);
 	const { classes, theme } = useStyles();
 	const openRef = useRef<() => void>(null);
-	const utils = trpc.useContext()
+	const utils = trpc.useContext();
 
 	const createInvoiceMutation = trpc.invoice.createInvoice.useMutation({
-		onSuccess: function (input) {
+		onSuccess: function(input) {
 			utils.invoice.getInvoices.invalidate({ userId: sessionId });
 		}
 	});
 
-	const form = useForm({
+	const form = useForm<UploadFormValues>({
 		initialValues: {
-			invNumber: ''
+			inv_number: '',
+			invoice_date: '',
+			due_date: '',
+			customer_name: '',
+            customer_email: '',
+			total_amount: 0
 		},
 		validate: {
-			invNumber: value => (invoiceNumberList.includes(value) ? 'This invoice number already exists' : null)
-		}
+			inv_number: value => (invoiceNumberList.includes(value) ? 'This invoice number already exists' : null),
+			invoice_date: value => !value ? 'Required' : null,
+			due_date: value => !value ? 'Required' : null,
+			customer_email: value => !value ? 'Required' : null,
+			customer_name: value => !value ? 'Required' : null,
+			total_amount: value => !value ? 'Required' : null,
+		},
+		transformValues: values => ({
+			...values,
+			invoice_date: dayjs(values.invoice_date).unix(),
+			due_date: dayjs(values.due_date).unix(),
+		})
 	});
 
-	const handleSubmit = useCallback(async (values) => {
-		const invoice_id = genInvoiceId();
-		setLoading(true)
-		try {
-			const filename = values.invNumber;
-			const filepath = `${crn}/INVOICES/${invoice_id}/${filename}.pdf`;
-			const invoiceUploaded = await uploadFile(file, filename, filepath);
+	type Transformed = TransformedValues<typeof form>;
 
-			if (invoiceUploaded) {
-				await createInvoiceMutation.mutateAsync({
-					userId: sessionId,
-					invoice_id,
-					invoice_number: values.invNumber,
-					invoice_date: 0,
-					due_date: 0,
-					line_items: [],
-					notes: '-',
-					subtotal: 0,
-					total: 0,
-					invoice_Upload_Filepath: filepath
-				})
-				globalForm.setFieldValue('invoice_id', invoice_id)
+	const handleSubmit = useCallback(
+		async (values: Transformed) => {
+			const invoice_id = genInvoiceId();
+			console.log(values)
+			setLoading(true);
+			try {
+				const filename = values.inv_number;
+				const filepath = `${crn}/INVOICES/${invoice_id}/${filename}.pdf`;
+				const invoiceUploaded = await uploadFile(file, filename, filepath);
+
+				if (invoiceUploaded) {
+					await createInvoiceMutation.mutateAsync({
+						userId: sessionId,
+						invoice_id,
+						customer_name: values.customer_name,
+						customer_email: values.customer_email,
+						invoice_number: values.inv_number,
+						invoice_date: Number(values.invoice_date),
+						due_date: Number(values.due_date),
+						line_items: [],
+						notes: '-',
+						subtotal: 0,
+						total: 0,
+						invoice_Upload_Filepath: filepath
+					});
+					globalForm.setFieldValue('invoice_id', invoice_id);
+					setLoading(false);
+					notifySuccess(
+						'invoice-upload-success',
+						'Invoice has been uploaded successfully and saved as a draft',
+						<IconCheck size={20} />
+					);
+					goBack();
+				} else {
+					throw new Error('Error uploading file');
+				}
+			} catch (error) {
 				setLoading(false);
-				notifySuccess(
-					'invoice-upload-success',
-					'Invoice has been uploaded successfully and saved as a draft',
-					<IconCheck size={20} />
-				);
-				goBack();
-			} else {
-				throw new Error('Error uploading file');
+				notifyError('invoice-upload-error', error.message, <IconX size={20} />);
 			}
-		} catch (error) {
-			setLoading(false);
-			notifyError('invoice-upload-error', error.message, <IconX size={20}/>)
-		}
-	}, [file, sessionId]);
+		},
+		[file, sessionId]
+	);
 
 	return (
 		<Drawer
@@ -138,30 +175,86 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 				<Title order={2} weight={500}>
 					<span>Upload Invoice</span>
 				</Title>
+				<div className='relative flex flex-col my-6 space-y-4'>
+					<Group position='center' grow>
+						<TextInput
+							{...form.getInputProps('inv_number')}
+							withAsterisk
+							label='Invoice Number'
+							placeholder='INV-##########'
+							rightSection={
+								<Tooltip label='Generate invoice number'>
+									<ActionIcon
+										variant='transparent'
+										onClick={() => {
+											const invoice_number = generateUniqueInvoiceNumber(invoiceNumberList);
+											form.setFieldValue('inv_number', invoice_number);
+										}}
+									>
+										<IconWand size={18} />
+									</ActionIcon>
+								</Tooltip>
+							}
+						/>
+						<NumberInput
+							hideControls
+							precision={2}
+							withAsterisk
+							label="Amount Due"
+							min={0}
+							max={100000}
+							parser={value => value.replace(/£\s?|(,*)/g, '')}
+							formatter={value =>
+								!Number.isNaN(parseFloat(value))
+									? `£ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+									: '£ '
+							}
+							{...form.getInputProps('total_amount')}
+						/>
+					</Group>
+					<Group position='center' grow>
+						<DatePicker
+							withAsterisk
+							label='Invoice Date'
+							inputFormat='DD-MM-YYYY'
+							placeholder='Pick a date'
+							icon={<IconCalendar size={16} />}
+							value={
+								dayjs(form.values.invoice_date).isValid()
+									? dayjs(form.values.invoice_date).toDate()
+									: null
+							}
+							onChange={date => form.setFieldValue('invoice_date', date)}
+							error={form.errors.invoice_date}
+							allowLevelChange={false}
+						/>
+						<DatePicker
+							withAsterisk
+							label='Due Date'
+							placeholder='Pick a date'
+							icon={<IconCalendar size={16} />}
+							value={dayjs(form.values.due_date).isValid() ? dayjs(form.values.due_date).toDate() : null}
+							onChange={date => form.setFieldValue('due_date', date)}
+							error={form.errors.due_date}
+							inputFormat='DD-MM-YYYY'
+							allowLevelChange={false}
+							minDate={dayjs(form.values.invoice_date).add(1, 'd').toDate()}
+						/>
+					</Group>
 
-				<div className={classes.invoiceInput}>
-					<TextInput
-						{...form.getInputProps('invNumber')}
-						withAsterisk
-						label='Invoice Number'
-						placeholder='INV-##########'
-						rightSection={
-							<Tooltip label='Generate invoice number'>
-								<ActionIcon
-									variant='transparent'
-									onClick={() => {
-										const invoice_number = generateUniqueInvoiceNumber(invoiceNumberList)
-										form.setFieldValue(
-											'invNumber',
-											invoice_number
-										)
-									}}
-								>
-									<IconWand size={18} />
-								</ActionIcon>
-							</Tooltip>
-						}
-					/>
+					<Group position='center' grow>
+						<TextInput
+							withAsterisk
+							label='Customer Name'
+							{...form.getInputProps('customer_name')}
+						/>
+						<TextInput
+							withAsterisk
+							label='Customer Email'
+							type="email"
+							{...form.getInputProps('customer_email')}
+						/>
+					</Group>
 				</div>
 				<div className={classes.wrapper}>
 					<Dropzone
@@ -220,7 +313,7 @@ const InvoiceUploadForm = ({ opened, onClose, goBack, invoiceNumberList, crn, gl
 					<Button type='button' variant='white' size='md' onClick={goBack}>
 						<Text weight='normal'>Go Back</Text>
 					</Button>
-					<Button type='submit' size='md' disabled={!file || (form.values.invNumber == '')}>
+					<Button type='submit' size='md' disabled={!file || form.values.inv_number == ''}>
 						<Text weight='normal'>Upload</Text>
 					</Button>
 				</Group>

@@ -62,6 +62,8 @@ import { generateUniqueInvoiceNumber } from '../utils/functions';
 
 interface CreateInvoiceForm {
 	customer: string;
+	customer_name: string;
+	customer_email: string;
 	invoice_date: string | Date | number;
 	due_date: string | Date | number;
 	invoice_number: string;
@@ -215,6 +217,8 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 	const form = useForm<CreateInvoiceForm>({
 		initialValues: {
 			customer: '',
+			customer_name: '',
+			customer_email: '',
 			invoice_date: '',
 			due_date: '',
 			invoice_number: '',
@@ -239,6 +243,9 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 		},
 		transformValues: values => ({
 			...values,
+			customer_id: values.customer,
+			customer_name: customerQuery.data.find(c => c.id === values.customer)?.primary_contact ?? "",
+			customer_email: customerQuery.data.find(c => c.id === values.customer)?.email ?? "",
 			invoice_date: dayjs(values.invoice_date).unix(),
 			due_date: dayjs(values.due_date).unix(),
 			line_items: values.line_items.map(item => ({ ...item, price: item.price * 100, editing: undefined }))
@@ -269,7 +276,6 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 
 	const handleSubmit = useCallback(
 		async (values: Transformed) => {
-			// alert(JSON.stringify(values, null, 2));
 			setLoading(true);
 			const invoice_id = genInvoiceId();
 			try {
@@ -279,7 +285,9 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 					due_date: Number(values.due_date),
 					invoice_id,
 					invoice_number: values.invoice_number,
-					customer: values.customer,
+					customer_id: values.customer,
+					customer_name: values.customer_name,
+					customer_email: values.customer_email,
 					subtotal,
 					total,
 					notes: values.notes,
@@ -526,7 +534,7 @@ const CreateInvoice = ({ session_id, num_invoices, invoice_numbers }: CreateInvo
 					loading={loading}
 					onSubmit={createNewTax}
 				/>
-				<Page.Body extraClassNames=''>
+				<Page.Body>
 					<Breadcrumbs mb='lg'>{items}</Breadcrumbs>
 					<form onSubmit={form.onSubmit(handleSubmit)}>
 						<SimpleGrid
