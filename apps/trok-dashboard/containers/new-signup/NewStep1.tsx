@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Center, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
-import { IconCurrencyPound, IconInfoCircle, IconX } from '@tabler/icons';
+import { IconInfoCircle, IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
 import { notifyError, NewOnboardingAccountStep1, NewOnboardingBusinessInfo } from '@trok-app/shared-utils';

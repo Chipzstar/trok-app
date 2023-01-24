@@ -142,7 +142,7 @@ export async function validateCompanyInfo(
 ): Promise<{ is_valid: false; reason: string } | { is_valid: true; reason: null }> {
 	try {
 		// if in local development, always return true
-		if (!isDev && !isCI) return { is_valid: true, reason: null };
+		if (!isCI) return { is_valid: true, reason: null };
 		// lookup company profile using provided CRN
 		const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
 		console.log(company_profile);
@@ -154,7 +154,7 @@ export async function validateCompanyInfo(
 			};
 		}
 		return {
-			is_valid: !!company_profile,
+			is_valid: true,
 			reason: null
 		};
 	} catch (err) {
