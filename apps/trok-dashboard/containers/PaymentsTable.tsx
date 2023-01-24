@@ -4,7 +4,7 @@ import Empty from '../components/Empty';
 import classNames from 'classnames';
 import { capitalize, GBP, PAYMENT_STATUS, sanitize } from '@trok-app/shared-utils';
 import dayjs from 'dayjs';
-import { ActionIcon, Group, LoadingOverlay, MantineNumberSize } from '@mantine/core';
+import { ActionIcon, Group, LoadingOverlay } from '@mantine/core';
 import { IconChevronRight, IconRotateClockwise2 } from '@tabler/icons';
 import { Prisma } from '@prisma/client';
 

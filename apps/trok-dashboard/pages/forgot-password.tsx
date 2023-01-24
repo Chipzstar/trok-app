@@ -9,25 +9,30 @@ import { useRouter } from 'next/router';
 import { trpc } from '../utils/clients';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
+
 const ForgotPassword = () => {
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const sendResetEmail = trpc.auth.sendResetEmail.useMutation()
+	const sendResetEmail = trpc.auth.sendResetEmail.useMutation();
 	const form = useForm({
 		initialValues: {
 			email: ''
 		}
 	});
 	const handleSubmit = useCallback(async values => {
-		setLoading(true)
+		setLoading(true);
 		try {
-			const result = await sendResetEmail.mutateAsync(values.email)
-			setLoading(false)
-			notifySuccess('forgot-password-success', 'We sent you password reset email. Please check your email and click the link to reset your password', <IconCheck size={20}/>)
+			const result = await sendResetEmail.mutateAsync(values.email);
+			setLoading(false);
+			notifySuccess(
+				'forgot-password-success',
+				'We sent you password reset email. Please check your email and click the link to reset your password',
+				<IconCheck size={20} />
+			);
 		} catch (err) {
-		    console.error(err)
-			setLoading(false)
-			notifyError('reset-password-failure', err?.message, <IconX size={20}/>)
+			console.error(err);
+			setLoading(false);
+			notifyError('reset-password-failure', err?.message, <IconX size={20} />);
 		}
 	}, []);
 	return (
@@ -54,7 +59,7 @@ const ForgotPassword = () => {
 						<Title order={2}>Forgot your password?</Title>
 						<span>Enter your email below to reset your password</span>
 					</header>
-					<TextInput label='Email' type="email" {...form.getInputProps('email', { withError: true })} />
+					<TextInput label='Email' type='email' {...form.getInputProps('email', { withError: true })} />
 					<Group py='md'>
 						<Button type='submit' size='md' loading={loading} fullWidth>
 							<Text weight='normal'>Submit</Text>

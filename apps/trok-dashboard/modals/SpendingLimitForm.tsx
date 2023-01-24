@@ -1,10 +1,10 @@
 import React from 'react';
-import { Drawer, Group, NumberInput, Stack, Switch, Title, Button, Text } from '@mantine/core';
+import { Button, Drawer, Group, NumberInput, Stack, Switch, Text, Title } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 
 export interface Limit {
-	active: boolean
-	amount: number
+	active: boolean;
+	amount: number;
 }
 
 export interface SpendingLimitFormValues {

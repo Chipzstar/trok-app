@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button } from '@mantine/core';
+
 const Test = () => {
 	return (
-		<div className='container py-5 flex h-screen items-center justify-center'>
+		<div className='container flex h-screen items-center justify-center py-5'>
 			<Button
-				type="button"
+				type='button'
 				onClick={() => {
-					throw new Error("Sentry Frontend Error");
+					throw new Error('Sentry Frontend Error');
 				}}
 			>
 				Throw error

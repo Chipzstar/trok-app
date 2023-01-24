@@ -3,7 +3,7 @@ import { Button, Checkbox, Drawer, Group, Select, Stack, Text, TextInput, Title 
 import SortCodeInput from '../components/SortCodeInput';
 import { PLAID_INSTITUTIONS } from '@trok-app/shared-utils';
 
-const BankAccountForm = ({opened, onClose, form, onSubmit, loading, numBankAccounts}) => {
+const BankAccountForm = ({ opened, onClose, form, onSubmit, loading, numBankAccounts }) => {
 	return (
 		<Drawer
 			opened={opened}
@@ -20,11 +20,7 @@ const BankAccountForm = ({opened, onClose, form, onSubmit, loading, numBankAccou
 					<span>Add new bank account</span>
 				</Title>
 				<form onSubmit={form.onSubmit(onSubmit)} className='flex flex-col space-y-4'>
-					<TextInput
-						required
-						label='Business Account Name'
-						{...form.getInputProps('account_holder_name')}
-					/>
+					<TextInput required label='Business Account Name' {...form.getInputProps('account_holder_name')} />
 					<Group grow spacing='xl'>
 						<TextInput
 							type='number'
@@ -45,10 +41,14 @@ const BankAccountForm = ({opened, onClose, form, onSubmit, loading, numBankAccou
 					<Select
 						required
 						label='Institution'
-						data={process.env.NEXT_PUBLIC_ENVIRONMENT === "production" ? PLAID_INSTITUTIONS : PLAID_INSTITUTIONS.concat({
-							label: 'STRIPE TEST BANK',
-							value: "ins_117181",
-						})}
+						data={
+							process.env.NEXT_PUBLIC_ENVIRONMENT === 'production'
+								? PLAID_INSTITUTIONS
+								: PLAID_INSTITUTIONS.concat({
+										label: 'STRIPE TEST BANK',
+										value: 'ins_117181'
+								  })
+						}
 						{...form.getInputProps('institution_id')}
 					/>
 					{Boolean(numBankAccounts) && (

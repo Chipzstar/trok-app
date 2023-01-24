@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, Stack, Title, Text } from '@mantine/core';
+import { Dialog, Stack, Text, Title } from '@mantine/core';
 import useWindowSize from '../hooks/useWindowSize';
 import Image from 'next/image';
 
@@ -19,13 +19,17 @@ const ComingSoon = ({ opened, onClose }) => {
 				left: Number(width / 2.5)
 			}}
 		>
-			<Stack justify='center' spacing={0} px="md">
-				<Title align='center' weight={500}>Fuel Credit Coming Soon</Title>
-				<div className='flex grow items-center justify-center ml-4'>
-					<Image src='/static/images/coming-soon.svg' height={200} width={300} />
+			<Stack justify='center' spacing={0} px='md'>
+				<Title align='center' weight={500}>
+					Fuel Credit Coming Soon
+				</Title>
+				<div className='ml-4 flex grow items-center justify-center'>
+					<Image src='/static/images/coming-soon.svg' height={200} width={300} alt="coming-soon"/>
 				</div>
-				<Text align="center">No fees. No credit limit. No personal guarantee required.</Text>
-				<Text align="center"size="xs">We are currently seeking regulatory approval from the Financial Conduct Authority to offer credit.</Text>
+				<Text align='center'>No fees. No credit limit. No personal guarantee required.</Text>
+				<Text align='center' size='xs'>
+					We are currently seeking regulatory approval from the Financial Conduct Authority to offer credit.
+				</Text>
 			</Stack>
 		</Dialog>
 	);

@@ -12,7 +12,10 @@ import DocumentInfo from '../../components/DocumentInfo';
 const Step1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<File>(null);
-	const [account, setAccount] = useLocalStorage<Partial<OnboardingAccountStep1>>({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
+	const [account, setAccount] = useLocalStorage<Partial<OnboardingAccountStep1>>({
+		key: STORAGE_KEYS.ACCOUNT,
+		defaultValue: null
+	});
 	const [companyForm, setCompanyForm] = useLocalStorage<OnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
 		defaultValue: {
@@ -90,10 +93,19 @@ const Step1 = ({ nextStep }) => {
 	}, [form.values]);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-company-form">
+		<form
+			onSubmit={form.onSubmit(handleSubmit)}
+			className='flex h-full w-full flex-col'
+			data-cy='onboarding-company-form'
+		>
 			<h1 className='mb-4 text-2xl font-medium'>Your company</h1>
 			<Stack>
-				<TextInput required label='Company legal name' {...form.getInputProps('legal_name')} data-cy="onboarding-legal-name" />
+				<TextInput
+					required
+					label='Company legal name'
+					{...form.getInputProps('legal_name')}
+					data-cy='onboarding-legal-name'
+				/>
 				<NumberInput
 					type='number'
 					min={100}
@@ -103,7 +115,7 @@ const Step1 = ({ nextStep }) => {
 					label='Weekly fuel and maintenance spend'
 					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('weekly_fuel_spend')}
-					data-cy="onboarding-weekly-fuel-spend"
+					data-cy='onboarding-weekly-fuel-spend'
 				/>
 				<Group grow>
 					<Select
@@ -120,14 +132,14 @@ const Step1 = ({ nextStep }) => {
 							}
 						]}
 						{...form.getInputProps('business_type')}
-						data-cy="onboarding-business-type"
+						data-cy='onboarding-business-type'
 					/>
 					<Select
 						required
 						label='Type of industry'
 						data={INDUSTRY_TYPES}
 						{...form.getInputProps('merchant_category_code')}
-						data-cy="onboarding-merchant-category-code"
+						data-cy='onboarding-merchant-category-code'
 					/>
 				</Group>
 				<Group grow>
@@ -138,7 +150,7 @@ const Step1 = ({ nextStep }) => {
 						required
 						label='Company Reg No.'
 						{...form.getInputProps('business_crn')}
-						data-cy="onboarding-business-crn"
+						data-cy='onboarding-business-crn'
 					/>
 					<NumberInput
 						type='number'
@@ -147,7 +159,7 @@ const Step1 = ({ nextStep }) => {
 						max={100}
 						required
 						{...form.getInputProps('num_vehicles')}
-						data-cy="onboarding-num-vehicles"
+						data-cy='onboarding-num-vehicles'
 					/>
 				</Group>
 				<TextInput
@@ -156,10 +168,10 @@ const Step1 = ({ nextStep }) => {
 					label='Business URL'
 					description='If you do not have a website, please enter a short description of your business'
 					{...form.getInputProps('business_url')}
-					data-cy="onboarding-business-url"
+					data-cy='onboarding-business-url'
 				/>
 				<Stack spacing={5}>
-					<Group spacing="xs">
+					<Group spacing='xs'>
 						<Text size='md'>
 							Upload front of Driver's License
 							<span className='text-danger'>*</span>
@@ -180,7 +192,7 @@ const Step1 = ({ nextStep }) => {
 							</Text>
 						</Tooltip>
 					</Group>
-					<FileButton onChange={setFile} accept='image/png,image/jpeg' data-cy="onboarding-driving-license">
+					<FileButton onChange={setFile} accept='image/png,image/jpeg' data-cy='onboarding-driving-license'>
 						{props => (
 							<Button variant='outline' fullWidth {...props}>
 								Upload picture

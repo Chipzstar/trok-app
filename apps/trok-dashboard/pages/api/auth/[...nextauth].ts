@@ -21,7 +21,7 @@ export async function sendMagicLink({ identifier, url, provider, token, expires 
 			from: provider.from,
 			subject: `Trok - Verify your email`,
 			text: text({ url, full_name: user.full_name }),
-			html: html({url, full_name: user.full_name})
+			html: html({ url, full_name: user.full_name })
 		});
 		const failed = result.rejected.concat(result.pending).filter(Boolean);
 		if (failed.length) {

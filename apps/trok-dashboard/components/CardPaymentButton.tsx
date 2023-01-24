@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Modal, NumberInput, Stack, Text } from '@mantine/core';
+import { Button, Group, Modal, NumberInput, Stack, Text } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
 import { CARD_SHIPPING_STATUS, CARD_STATUS, notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { trpc } from '../utils/clients';
@@ -21,7 +21,7 @@ const PaymentModal = ({ opened, onClose, onSubmit, loading }) => {
 				}
 			}}
 		>
-			<Stack p="xs">
+			<Stack p='xs'>
 				<NumberInput
 					required
 					type='text'
@@ -36,7 +36,7 @@ const PaymentModal = ({ opened, onClose, onSubmit, loading }) => {
 					value={amount}
 					onChange={setAmount}
 				/>
-				<Group position="right">
+				<Group position='right'>
 					<Button onClick={() => onSubmit(amount)} loading={loading}>
 						<Text>Create Payment</Text>
 					</Button>

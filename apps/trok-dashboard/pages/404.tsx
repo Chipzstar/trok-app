@@ -1,4 +1,4 @@
-import { createStyles, Title, Text, Button, Container, Group } from '@mantine/core';
+import { Button, createStyles, Group, Text, Title } from '@mantine/core';
 import Link from 'next/link';
 import { PATHS } from '../utils/constants';
 import Page from '../layout/Page';

@@ -130,7 +130,11 @@ const Step3 = ({ prevStep, nextStep }) => {
 	}, [ready, open, link_token]);
 
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-finance-form">
+		<form
+			onSubmit={form.onSubmit(handleSubmit)}
+			className='flex h-full w-full flex-col'
+			data-cy='onboarding-finance-form'
+		>
 			<h1 className='mb-4 text-2xl font-medium'>Your finances</h1>
 			<Stack>
 				<NumberInput
@@ -141,7 +145,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 					step={100}
 					icon={<IconCurrencyPound size={16} />}
 					{...form.getInputProps('average_monthly_revenue')}
-					data-cy="onboarding-average-monthly-revenue"
+					data-cy='onboarding-average-monthly-revenue'
 				/>
 				<span>Get the best out of the credit limit by linking your business’s primary bank account</span>
 				{!isProd && (

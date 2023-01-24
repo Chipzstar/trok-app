@@ -6,7 +6,6 @@ import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/sh
 import '../utils/string.extensions';
 import { SelectItem } from '@mantine/core';
 
-
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
 
@@ -32,7 +31,7 @@ export function generateUniqueInvoiceNumber(invoice_numbers: string[]){
 		}
 		return generated_invoice_num;
 	}
-};
+}
 
 export function uniqueSimpleArray(array: SelectItem[]) {
 	const values = array.map(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value));

@@ -13,10 +13,10 @@
  *  - https://reactjs.org/docs/error-boundaries.html
  */
 
-import * as Sentry from "@sentry/nextjs";
-import type { NextPage } from "next";
-import type { ErrorProps } from "next/error";
-import NextErrorComponent from "next/error";
+import * as Sentry from '@sentry/nextjs';
+import type { NextPage } from 'next';
+import type { ErrorProps } from 'next/error';
+import NextErrorComponent from 'next/error';
 
 const CustomErrorComponent: NextPage<ErrorProps> = props => {
 	// If you're using a Nextjs version prior to 12.2.1, uncomment this to

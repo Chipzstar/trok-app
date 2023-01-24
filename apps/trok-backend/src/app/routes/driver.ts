@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { stripe } from '../utils/clients';
 import { TRPCError } from '@trpc/server';
 import { AddressSchema } from '../utils/schemas';
+import Stripe from 'stripe';
 
 const createDriverInput = z.object({
 	userId: z.string(),
@@ -43,11 +44,11 @@ const driverRouter = t.router({
 					id: true,
 					created_at: true
 				}
-			})
+			});
 		} catch (err) {
-			console.error(err)
+			console.error(err);
 			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message})
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
 	getDrivers: t.procedure
@@ -74,13 +75,13 @@ const driverRouter = t.router({
 		}),
 	getSingleDriver: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
 		try {
-		    return await ctx.prisma.driver.findUniqueOrThrow({
+			return await ctx.prisma.driver.findUniqueOrThrow({
 				where: {
-                    id: input
-                }
-			})
+					id: input
+				}
+			});
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 			// @ts-ignore
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
@@ -110,7 +111,7 @@ const driverRouter = t.router({
 					billing: {
 						address: {
 							line1: input.address.line1,
-							...(input.address.line2 && {line2: input.address.line2}),
+							...(input.address.line2 && { line2: input.address.line2 }),
 							city: input.address.city,
 							state: input.address.region,
 							postal_code: input.address.postcode,
@@ -131,7 +132,7 @@ const driverRouter = t.router({
 					phone: input.phone,
 					address: {
 						line1: input.address.line1,
-						...(input.address.line2 && {line2: input.address.line2}),
+						...(input.address.line2 && { line2: input.address.line2 }),
 						city: input.address.city,
 						state: input.address.region,
 						postal_code: input.address.postcode,
@@ -188,7 +189,7 @@ const driverRouter = t.router({
 					billing: {
 						address: {
 							line1: input.address.line1,
-							line2: input.address?.line2 ?? undefined,
+							...(input.address.line2 && { line2: input.address.line2 }),
 							city: input.address.city,
 							state: input.address.region,
 							postal_code: input.address.postcode,
@@ -196,8 +197,7 @@ const driverRouter = t.router({
 						}
 					},
 					spending_controls: {
-						// @ts-ignore
-						spending_limits: [input.spending_limit]
+						spending_limits: [input.spending_limit] as Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[],
 					}
 				},
 				{ stripeAccount: input.stripeId }
@@ -284,9 +284,13 @@ const driverRouter = t.router({
 					{ stripeAccount: input.stripeId }
 				);
 				// cancel any card owned by the cardholder
-				await stripe.issuing.cards.update(card.card_id, {
-					status: 'canceled'
-				}, { stripeAccount: input.stripeId });
+				await stripe.issuing.cards.update(
+					card.card_id,
+					{
+						status: 'canceled'
+					},
+					{ stripeAccount: input.stripeId }
+				);
 
 				return await ctx.prisma.driver.update({
 					where: {

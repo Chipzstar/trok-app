@@ -6,7 +6,7 @@ interface PageContainerProps {
 	header?: JSX.Element;
 	classNames?: string;
 	extraClassNames?: string;
-	data_cy? : string;
+	data_cy?: string;
 }
 
 const Page = ({children}) => {

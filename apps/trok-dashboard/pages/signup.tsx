@@ -6,9 +6,9 @@ import { useForm, zodResolver } from '@mantine/form';
 import { PATHS, requirements, STORAGE_KEYS } from '../utils/constants';
 import {
 	Anchor,
+	Box,
 	Button,
 	Checkbox,
-	Box,
 	Group,
 	PasswordInput,
 	Popover,

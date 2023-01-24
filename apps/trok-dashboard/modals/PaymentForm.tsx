@@ -7,11 +7,11 @@ import {
 	NumberInput,
 	SegmentedControl,
 	Select,
+	SelectItem,
 	Stack,
 	Text,
 	TextInput,
-	Title,
-	SelectItem
+	Title
 } from '@mantine/core';
 import SortCodeInput from '../components/SortCodeInput';
 import { UseFormReturnType } from '@mantine/form';

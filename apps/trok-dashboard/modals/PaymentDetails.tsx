@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, Drawer, Stack, Textarea, Text } from '@mantine/core';
+import { Divider, Drawer, Stack, Text, Textarea } from '@mantine/core';
 import dayjs from 'dayjs';
 import { IconPencil } from '@tabler/icons';
 import advancedFormat from 'dayjs/plugin/advancedFormat';

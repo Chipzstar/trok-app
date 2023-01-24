@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, Select, Stack, Switch, Title, Text, Button, Group } from '@mantine/core';
+import { Button, Drawer, Group, Stack, Switch, Text, Title } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import Prisma from '@prisma/client';
 

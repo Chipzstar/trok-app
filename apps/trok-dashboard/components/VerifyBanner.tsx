@@ -1,6 +1,4 @@
 import React from 'react';
-import { PATHS } from '../utils/constants';
-import { useRouter } from 'next/router';
 
 const VerifyBanner = () => {
 	return (
@@ -25,9 +23,9 @@ const VerifyBanner = () => {
 								/>
 							</svg>
 						</span>
-						<p className='ml-3 text-white w-2/3'>
+						<p className='ml-3 w-2/3 text-white'>
 							<span className='font-semibold'>Email verified!</span>
-							<span className='hidden text-sm font-normal md:inline inline-flex'>
+							<span className='inline-flex hidden text-sm font-normal md:inline'>
 								&nbsp;
 								{
 									'Thanks for creating your Trok account. Your application is currently being reviewed so you will not be able to use your portal yet. You will receive an approval email from us in less than 24 hours once your account has been verified.'

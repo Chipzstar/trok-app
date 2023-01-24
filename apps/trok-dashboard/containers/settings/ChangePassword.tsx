@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Card, Group, Loader, PasswordInput, Stack, Text } from '@mantine/core';
+import { Button, Card, Group, PasswordInput, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifyError, notifySuccess } from '@trok-app/shared-utils';
 import { IconCheck, IconX } from '@tabler/icons';
@@ -14,33 +14,26 @@ const ChangePassword = ({ user_id }) => {
 			confirm_password: ''
 		}
 	});
-	const mutation = trpc.user.changePassword.useMutation()
+	const mutation = trpc.user.changePassword.useMutation();
 
-	const handleSubmit = useCallback(
-		async (values) => {
-			setLoading(true)
-			try {
-				await mutation.mutateAsync({
-					id: user_id,
-					curr_password: values.curr_password,
-					new_password: values.new_password,
-					confirm_password: values.confirm_password
-				})
-				setLoading(false);
-				form.reset();
-				notifySuccess(
-					'update-password-success',
-					'Password changed successfully',
-					<IconCheck size={20} />
-				);
-			} catch (err) {
-				console.error(err);
-				setLoading(false);
-				notifyError('update-password-failed', err?.error?.message ?? err.message, <IconX size={20} />);
-			}
-		},
-		[]
-	);
+	const handleSubmit = useCallback(async values => {
+		setLoading(true);
+		try {
+			await mutation.mutateAsync({
+				id: user_id,
+				curr_password: values.curr_password,
+				new_password: values.new_password,
+				confirm_password: values.confirm_password
+			});
+			setLoading(false);
+			form.reset();
+			notifySuccess('update-password-success', 'Password changed successfully', <IconCheck size={20} />);
+		} catch (err) {
+			console.error(err);
+			setLoading(false);
+			notifyError('update-password-failed', err?.error?.message ?? err.message, <IconX size={20} />);
+		}
+	}, []);
 
 	return (
 		<form className='container py-5' onSubmit={form.onSubmit(handleSubmit)}>
@@ -59,7 +52,7 @@ const ChangePassword = ({ user_id }) => {
 						<PasswordInput {...form.getInputProps('confirm_password')} />
 					</div>
 					<Group py='xl'>
-						<Button type="submit" loading={loading}>
+						<Button type='submit' loading={loading}>
 							<Text weight='normal'>Save</Text>
 						</Button>
 					</Group>

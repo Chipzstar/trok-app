@@ -4,7 +4,7 @@ import { useForm } from '@mantine/form';
 import { AddressInfo } from '@trok-app/shared-utils';
 import { IconAddressBook, IconTruckDelivery, IconUser } from '@tabler/icons';
 
-const basic_info_keys = ['display_name', 'primary_contact', 'company', 'phone', 'email', 'website'] as const
+const basic_info_keys = ['display_name', 'primary_contact', 'company', 'phone', 'email', 'website'] as const;
 export type BasicInfoKey = typeof basic_info_keys[number];
 
 type BasicInfoForm = {

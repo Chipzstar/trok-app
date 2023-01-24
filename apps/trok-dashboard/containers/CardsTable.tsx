@@ -61,8 +61,12 @@ const CardsTable = ({ data, loading }) => {
 		);
 	});
 
-	return (
-		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> : <DataGrid
+	return loading ? (
+		<div className='relative h-full'>
+			<LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} />
+		</div>
+	) : (
+		<DataGrid
 			rows={rows}
 			activePage={activePage}
 			setPage={setPage}

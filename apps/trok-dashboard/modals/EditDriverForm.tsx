@@ -1,4 +1,4 @@
-import { Button, Checkbox, Group, Loader, Modal, NumberInput, Select, Text, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, Modal, NumberInput, Select, Text, TextInput } from '@mantine/core';
 import React, { useEffect } from 'react';
 import { useForm } from '@mantine/form';
 import { capitalize, intervals, sanitize } from '@trok-app/shared-utils';

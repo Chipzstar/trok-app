@@ -5,7 +5,7 @@ interface CustomPaginationProps {
 	page: number;
 	onChange: (value: number) => void;
 	numPages: number;
-	total: number
+	total: number;
 	start?: number;
 	end?: number;
 	position?: GroupPosition;

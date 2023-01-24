@@ -5,8 +5,12 @@ import { LoadingOverlay } from '@mantine/core';
 
 const StatementsTable = ({ loading, rows }) => {
 	const [activePage, setPage] = useState(1);
-	return (
-		loading ? <div className='relative h-full'><LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} /></div> : <DataGrid
+	return loading ? (
+		<div className='relative h-full'>
+			<LoadingOverlay visible={loading} transitionDuration={500} overlayBlur={2} />
+		</div>
+	) : (
+		<DataGrid
 			rows={rows}
 			activePage={activePage}
 			setPage={setPage}

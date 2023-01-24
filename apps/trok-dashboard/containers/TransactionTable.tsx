@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Empty from '../components/Empty';
 import DataGrid from '../components/DataGrid';
-import { ActionIcon, Divider, Group, LoadingOverlay, MantineNumberSize, Text } from '@mantine/core';
+import { ActionIcon, Group, LoadingOverlay, MantineNumberSize, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { GBP, sanitize, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import { Prisma } from '@prisma/client';

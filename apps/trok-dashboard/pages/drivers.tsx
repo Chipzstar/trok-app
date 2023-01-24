@@ -40,17 +40,23 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 	const query = trpc.driver.getDrivers.useQuery({ userId: session_id });
 	const createMutation = trpc.driver.createDriver.useMutation({
 		onSuccess: function (input) {
-			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers
+				.invalidate({ userId: session_id })
+				.then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
 	const updateMutation = trpc.driver.updateDriver.useMutation({
 		onSuccess: function (input) {
-			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers
+				.invalidate({ userId: session_id })
+				.then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
 	const deleteMutation = trpc.driver.deleteDriver.useMutation({
 		onSuccess: function (input) {
-			utils.driver.getDrivers.invalidate({ userId: session_id }).then(r => console.log(input, 'Drivers refetched'));
+			utils.driver.getDrivers
+				.invalidate({ userId: session_id })
+				.then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
 

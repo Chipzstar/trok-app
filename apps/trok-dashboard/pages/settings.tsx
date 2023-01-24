@@ -24,7 +24,9 @@ const Settings = ({ testMode, user, session_id, stripe }) => {
 	const query = trpc.bank.getBankAccounts.useQuery({ userId: session_id });
 	const mutation = trpc.bank.addBankAccount.useMutation({
 		onSuccess: function (input) {
-			utils.bank.getBankAccounts.invalidate({ userId: session_id }).then(r => console.log(input, 'Bank Accounts refetched'));
+			utils.bank.getBankAccounts
+				.invalidate({ userId: session_id })
+				.then(r => console.log(input, 'Bank Accounts refetched'));
 		}
 	});
 	const data = testMode ? SAMPLE_BANK_ACCOUNTS : !query.isLoading ? query?.data : [];

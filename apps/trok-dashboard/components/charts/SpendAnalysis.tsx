@@ -7,11 +7,10 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useLocalStorage } from '@mantine/hooks';
 import { BANNER_HEIGHT, STORAGE_KEYS } from '../../utils/constants';
 import { trpc } from '../../utils/clients';
-import { filterByTimeRange, getRndInteger } from '@trok-app/shared-utils';
+import { filterByTimeRange, GBP, getRndInteger } from '@trok-app/shared-utils';
 import { DateRangePickerValue } from '@mantine/dates';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
-import { GBP } from '@trok-app/shared-utils';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createStyles, Group, Navbar, Switch } from '@mantine/core';
+import { createStyles, Group, Navbar } from '@mantine/core';
 import {
 	IconArrowsLeftRight,
 	IconCalendarTime,
@@ -7,14 +7,13 @@ import {
 	IconCreditCard,
 	IconFileInvoice,
 	IconFileText,
-	IconGift,
 	IconLogout,
 	IconSettings,
 	IconUsers
 } from '@tabler/icons';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { DEFAULT_HEADER_HEIGHT, default_invoice_form_values, isProd, PATHS, STORAGE_KEYS } from '../utils/constants';
+import { DEFAULT_HEADER_HEIGHT, default_invoice_form_values, PATHS, STORAGE_KEYS } from '../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import { signOut, useSession } from 'next-auth/react';
 import { trpc } from '../utils/clients';
@@ -97,7 +96,7 @@ const Sidebar = () => {
 	});
 	const router = useRouter();
 	const { data: session } = useSession();
-	const { data, isLoading, isError } = trpc.user.checkAccountApproved.useQuery(
+	const { data } = trpc.user.checkAccountApproved.useQuery(
 		{
 			id: session?.id
 		},

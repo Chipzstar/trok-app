@@ -1,8 +1,7 @@
-import NextAuth, { DefaultSession } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import { DefaultSession } from 'next-auth';
 import Prisma from '@prisma/client';
 
-declare module "next-auth" {
+declare module 'next-auth' {
 	/**
 	 * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
 	 */
@@ -11,12 +10,12 @@ declare module "next-auth" {
 		stripe: {
 			account_id: string;
 			person_id: string;
-		},
+		};
 		user: {
 			name: string;
 			email: string;
 			company: string;
-		} & DefaultSession["user"]
+		} & DefaultSession['user'];
 	}
 }
 

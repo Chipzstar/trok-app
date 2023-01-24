@@ -25,7 +25,9 @@ const Cards = ({ testMode, session_id }) => {
 
 	const data = testMode
 		? SAMPLE_CARDS.filter(c => activeTab === 'all' || c.status === activeTab)
-		: cardsQuery.data ? cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab) : [];
+		: cardsQuery.data
+		? cardsQuery.data.filter(c => activeTab === 'all' || c.status === activeTab)
+		: [];
 
 	const form = useForm({
 		initialValues: {
@@ -39,8 +41,8 @@ const Cards = ({ testMode, session_id }) => {
 		},
 		validate: {
 			spending_limit: {
-				amount: (val, values) => val < 100 ? "Limit must be more than £100" : null,
-				interval: (val, values) => !val ? "Required" : null
+				amount: (val, values) => (val < 100 ? 'Limit must be more than £100' : null),
+				interval: (val, values) => (!val ? 'Required' : null)
 			}
 		}
 	});
@@ -83,7 +85,7 @@ const Cards = ({ testMode, session_id }) => {
 
 	return (
 		<Page.Container
-			extraClassNames="overflow-hidden"
+			extraClassNames='overflow-hidden'
 			header={
 				<Page.Header>
 					<span className='text-2xl font-medium'>Cards</span>

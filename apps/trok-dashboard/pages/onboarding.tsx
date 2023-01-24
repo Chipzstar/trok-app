@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { authOptions } from './api/auth/[...nextauth]';
 import { unstable_getServerSession } from 'next-auth';
 import Step2 from '../containers/signup/Step2';
+
 const Onboarding = () => {
 	const router = useRouter();
 	const { height } = useWindowSize();
@@ -36,11 +37,13 @@ const Onboarding = () => {
 	}, [active, router]);
 
 	const customerSupportNumber = (
-		<Stack align="center" spacing={0}>
-			<Text size="sm">If you have any questions, please call</Text>
-			<Anchor size="sm" href="tel:0333 050 9591">0333 050 9591</Anchor>
+		<Stack align='center' spacing={0}>
+			<Text size='sm'>If you have any questions, please call</Text>
+			<Anchor size='sm' href='tel:0333 050 9591'>
+				0333 050 9591
+			</Anchor>
 		</Stack>
-	)
+	);
 
 	return (
 		<ScrollArea.Autosize maxHeight={height} mx='auto'>
@@ -74,12 +77,7 @@ const Onboarding = () => {
 						content: 'w-1/3 h-full'
 					}}
 				>
-					<Stepper.Step
-						icon={<div />}
-						label='First step'
-						description='Company'
-						allowStepSelect={active > 0}
-					>
+					<Stepper.Step icon={<div />} label='First step' description='Company' allowStepSelect={active > 0}>
 						{customerSupportNumber}
 						<Step1 nextStep={nextStep} />
 					</Stepper.Step>

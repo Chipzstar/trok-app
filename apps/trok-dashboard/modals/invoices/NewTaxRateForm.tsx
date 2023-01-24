@@ -5,7 +5,8 @@ import {
 	Group,
 	Modal,
 	NumberInput,
-	Radio, Select,
+	Radio,
+	Select,
 	Stack,
 	Text,
 	Textarea,
@@ -17,7 +18,7 @@ import { IconInfoCircle } from '@tabler/icons';
 
 export interface TaxRateFormValues {
 	name: string;
-	type: "VAT" | "GST";
+	type: 'VAT' | 'GST';
 	percentage: number;
 	description?: string;
 	calculation: 'inclusive' | 'exclusive';

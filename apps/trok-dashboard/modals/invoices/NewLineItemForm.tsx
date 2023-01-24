@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Group, Modal, NumberInput, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { GBP } from '@trok-app/shared-utils';
 
 export interface LineItemFormValues {
 	name: string;
