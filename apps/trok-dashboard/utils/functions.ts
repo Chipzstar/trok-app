@@ -85,7 +85,7 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 
 export async function validateDirectorInfo(director: OnboardingDirectorInfo): Promise<{ is_valid: boolean; reason: string | null }> {
 	try {
-		if (!isDev && !isCI) return { is_valid: true, reason: null };
+		if (!isCI) return { is_valid: true, reason: null };
 		// create director as company representative
 		const building_number = director.line1.split(' ')[0];
 		console.log('BUILDING NUMBER', building_number);
