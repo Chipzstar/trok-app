@@ -129,13 +129,17 @@ export interface OnboardingFinancialInfo {
 	average_monthly_revenue: number | null;
 }
 
-export interface NewOnboardingOwnersInfo {
+export interface NewOnboardingMemberInfo {
 	dob: string | Date;
     email: string;
 	full_name: string;
 	firstname: string;
     lastname: string;
 }
+
+export type NewOnboardingOwnersInfo = NewOnboardingMemberInfo
+
+export type NewOnboardingDirectorsInfo = NewOnboardingMemberInfo
 
 export type OnboardingAccountStep1 = SignupInfo & Record<'business', OnboardingBusinessInfo>
 

@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, Center, FileButton, Group, NumberInput, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
-import { IconInfoCircle, IconX } from '@tabler/icons';
+import { Button, Group, NumberInput, Select, Stack, TextInput, Space } from '@mantine/core';
+import { IconX } from '@tabler/icons';
 import { useLocalStorage } from '@mantine/hooks';
 import { INDUSTRY_TYPES, STORAGE_KEYS } from '../../utils/constants';
-import { notifyError, NewOnboardingAccountStep1, NewOnboardingBusinessInfo } from '@trok-app/shared-utils';
+import { NewOnboardingAccountStep1, NewOnboardingBusinessInfo, notifyError } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
-import { uploadFile, validateCompanyInfo } from '../../utils/functions';
-import DocumentInfo from '../../components/DocumentInfo';
+import { validateCompanyInfo } from '../../utils/functions';
 
 const NewStep1 = ({ nextStep }) => {
 	const [loading, setLoading] = useState(false);
-	const [file, setFile] = useState<File>(null);
 	const [account, setAccount] = useLocalStorage<Partial<NewOnboardingAccountStep1>>({ key: STORAGE_KEYS.ACCOUNT, defaultValue: null });
 	const [companyForm, setCompanyForm] = useLocalStorage<NewOnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
@@ -46,10 +44,6 @@ const NewStep1 = ({ nextStep }) => {
 			try {
 				const { is_valid, reason } = await validateCompanyInfo(values.business_crn, values.legal_name);
 				if (!is_valid) throw new Error(reason);
-				if (!file) throw new Error("Please upload a picture of your driver's license before submitting");
-				const filename = encodeURIComponent(file.name);
-				const filepath = `${values.business_crn}/DRIVING_LICENCE/${filename}`;
-				await uploadFile(file, filename, filepath);
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
@@ -70,7 +64,7 @@ const NewStep1 = ({ nextStep }) => {
 				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, file, nextStep, setAccount]
+		[account, nextStep, setAccount]
 	);
 
 	useEffect(() => {
@@ -156,37 +150,7 @@ const NewStep1 = ({ nextStep }) => {
 					{...form.getInputProps('business_url')}
 					data-cy="onboarding-business-url"
 				/>
-				<Stack spacing={5}>
-					<Group spacing="xs">
-						<Text size='md'>
-							Upload front of Driver's License
-							<span className='text-danger'>*</span>
-						</Text>
-						<Tooltip
-							color='black'
-							label='To confirm that your details match your companies house registration'
-							position='right-end'
-							transition='fade'
-							multiline
-							width={220}
-							openDelay={300}
-						>
-							<Text color='dimmed' sx={{ cursor: 'help' }}>
-								<Center>
-									<IconInfoCircle size={18} stroke={1.5} />
-								</Center>
-							</Text>
-						</Tooltip>
-					</Group>
-					<FileButton onChange={setFile} accept='image/png,image/jpeg' data-cy="onboarding-driving-license">
-						{props => (
-							<Button variant='outline' fullWidth {...props}>
-								Upload picture
-							</Button>
-						)}
-					</FileButton>
-					{file && <DocumentInfo fileInfo={file} />}
-				</Stack>
+				<Space h="xs"/>
 				<Group position='right'>
 					<Button
 						type='submit'

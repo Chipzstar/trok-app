@@ -11,6 +11,8 @@ import Step2 from '../containers/signup/Step2';
 import NewStep1 from '../containers/new-signup/NewStep1';
 import NewStep2 from '../containers/new-signup/NewStep2';
 import NewStep3 from '../containers/new-signup/NewStep3';
+import NewStep4 from '../containers/new-signup/NewStep4';
+import NewStep5 from '../containers/new-signup/NewStep5';
 
 const Onboarding = () => {
 	const router = useRouter();
@@ -51,7 +53,7 @@ const Onboarding = () => {
 		<ScrollArea.Autosize maxHeight={height} mx='auto'>
 			<div className='flex min-h-screen flex-col justify-center bg-white p-5'>
 				<Text mb='md' size='lg' className='text-center'>
-					Step {active + 1} of 4
+					Step {active + 1} of 5
 				</Text>
 				<Stepper
 					iconSize={25}
@@ -86,7 +88,7 @@ const Onboarding = () => {
 					<Stepper.Step
 						icon={<div />}
 						label='Second step'
-						description='Director'
+						description='Representative'
 						allowStepSelect={active > 1}
 					>
 						{customerSupportNumber}
@@ -94,8 +96,8 @@ const Onboarding = () => {
 					</Stepper.Step>
 					<Stepper.Step
 						icon={<div />}
-						label='Second step'
-						description='Financial'
+						label='Third step'
+						description='Owners'
 						allowStepSelect={active > 2}
 					>
 						{customerSupportNumber}
@@ -103,7 +105,11 @@ const Onboarding = () => {
 					</Stepper.Step>
 					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 3}>
 						{customerSupportNumber}
-						<Step4 prevStep={prevStep} />
+						<NewStep4 nextStep={nextStep} prevStep={prevStep} />
+					</Stepper.Step>
+					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 4}>
+						{customerSupportNumber}
+						<NewStep5 prevStep={prevStep} />
 					</Stepper.Step>
 				</Stepper>
 			</div>

@@ -3,7 +3,7 @@ import { STORAGE_KEYS } from '../../utils/constants';
 import {
 	NewOnboardingAccountStep2, NewOnboardingRepresentativeInfo,
 	notifyError,
-    NewOnboardingOwnersInfo
+	NewOnboardingOwnersInfo, NewOnboardingDirectorsInfo
 } from '@trok-app/shared-utils';
 import { useLocalStorage } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -44,6 +44,10 @@ const NewStep2 = ({ prevStep, nextStep }) => {
         key: STORAGE_KEYS.OWNERS_FORM,
         defaultValue: []
     });
+	const [directors, setDirectors] = useLocalStorage<NewOnboardingDirectorsInfo[]>({
+		key: STORAGE_KEYS.DIRECTORS_FORM,
+		defaultValue: []
+	});
 	const form = useForm<NewOnboardingRepresentativeInfo>({
 		initialValues: {
 			...representative,
@@ -73,6 +77,16 @@ const NewStep2 = ({ prevStep, nextStep }) => {
                         full_name: `${values.firstname} ${values.lastname}`
                     }])
                 }
+				// check if the rep is a director
+				if (values.is_director) {
+					setDirectors([{
+						dob: values.dob,
+						email: values.email,
+						firstname: values.firstname,
+						lastname: values.lastname,
+						full_name: `${values.firstname} ${values.lastname}`
+					}])
+				}
 				values.dob = dayjs(values.dob).format("DD-MM-YYYY")
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {

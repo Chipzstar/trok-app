@@ -10,7 +10,7 @@ import {
 	notifyError, NewOnboardingOwnersInfo
 } from '@trok-app/shared-utils';
 import { apiClient } from '../../utils/clients';
-import BusinessOwnerForm from '../../modals/BusinessOwnerForm';
+import BusinessMemberForm from '../../modals/BusinessMemberForm';
 
 const NewStep3 = ({ prevStep, nextStep }) => {
 	const [loading, setLoading] = useState(false);
@@ -82,22 +82,25 @@ const NewStep3 = ({ prevStep, nextStep }) => {
 		showNewOwnerForm(false);
 	}, [form]);
 
-	const fields = form.values.owners.map((owner, index) => (
-		<Paper key={index} p='md' withBorder className='bg-slate-50'>
-			<Group position='apart' align='start'>
-				<Stack spacing={0}>
-					<span className='text-lg font-medium'>{owner.full_name}</span>
-                    <span className='text-sm text-gray-500'>{owner.email}</span>
-				</Stack>
-				{index > 0 &&
-					<CloseButton aria-label='Close modal' onClick={() => form.removeListItem('owners', index)} />}
-			</Group>
-		</Paper>
-	));
+	const fields = form.values.owners.map((owner, index) => {
+		return (
+			<Paper key={index} p='md' withBorder className='bg-slate-50'>
+				<Group position='apart' align='start'>
+					<Stack spacing={0}>
+						<span className='text-lg font-medium'>{owner.full_name}</span>
+						<span className='text-sm text-gray-500'>{owner.email}</span>
+					</Stack>
+					<CloseButton aria-label='Close modal' onClick={() => form.removeListItem('owners', index)} sx={{
+						display: (!index && account?.representative?.is_owner) && "none",
+					}}/>
+				</Group>
+			</Paper>
+		)
+	});
 
 	return (
 		<>
-			<BusinessOwnerForm
+			<BusinessMemberForm
 				opened={newOwnerForm}
 				onClose={() => showNewOwnerForm(false)}
 				onSubmit={addNewOwner}
@@ -119,7 +122,7 @@ const NewStep3 = ({ prevStep, nextStep }) => {
 						size='lg'
 						onClick={() => showNewOwnerForm(true)}
 					>
-						<Text>+ Add Another Owner</Text>
+						<Text>+ Add {form.values.owners.length ? 'another' : 'a'} owner</Text>
 					</Button>
 					<Group mt='md' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Group, Modal, Stack, Tabs, Space, Text, TextInput } from '@mantine/core';
 import { useForm, isEmail } from '@mantine/form';
-import { NewOnboardingOwnersInfo } from '@trok-app/shared-utils';
+import { NewOnboardingMemberInfo } from '@trok-app/shared-utils';
 import { DatePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
-const BusinessOwnerForm = ({opened, onClose, onSubmit, loading}) => {
-    const form = useForm<NewOnboardingOwnersInfo>({
+const BusinessMemberForm = ({opened, onClose, onSubmit, loading}) => {
+    const form = useForm<NewOnboardingMemberInfo>({
         initialValues: {
             dob: '',
             email: '',
@@ -81,4 +81,4 @@ const BusinessOwnerForm = ({opened, onClose, onSubmit, loading}) => {
     )
 }
 
-export default BusinessOwnerForm;
+export default BusinessMemberForm;

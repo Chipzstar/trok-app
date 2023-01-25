@@ -31,7 +31,7 @@ export const STORAGE_KEYS = {
 	COMPANY_FORM: 'company-form',
 	REPRESENTATIVE_FORM: 'representative-form',
 	OWNERS_FORM: 'owners-form',
-	DIRECTORS_FORM: 'director-form',
+	DIRECTORS_FORM: 'directors-form',
 	FINANCIAL_FORM: 'financial-form',
 	LOCATION_FORM: 'location-form',
 	ONBOARDING_STEP: 'onboarding-step',
