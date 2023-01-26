@@ -142,8 +142,7 @@ const accountRouter = t.router({
 					person_id: z.string()
 				}),
 				legal_name: z.string(),
-				weekly_fuel_spend: z.number(),
-				average_monthly_revenue: z.number(),
+				num_monthly_invoices: z.number(),
 				business_type: z.string(),
 				merchant_category_code: z.string(),
 				business_crn: z.string(),
@@ -183,8 +182,7 @@ const accountRouter = t.router({
 					data: {
 						business: {
 							legal_name: input.legal_name,
-							weekly_fuel_spend: input.weekly_fuel_spend,
-							average_monthly_revenue: input.average_monthly_revenue,
+							num_monthly_invoices: input.num_monthly_invoices,
 							business_type: input.business_type,
 							merchant_category_code: input.merchant_category_code,
 							business_crn: input.business_crn,

@@ -15,20 +15,49 @@ import { limiterSlowBruteByIP } from '../middleware/rateLimitController';
 import { generateAccountLinkToken } from '../helpers/plaid';
 import { ObjectId } from 'mongodb';
 import utc from 'dayjs/plugin/utc';
+import {
+	AddressSchema,
+	cardConfigurationSchema,
+	newOnboardingBusinessInfoSchema,
+	newOnboardingDirectorsInfoSchema,
+	newOnboardingOwnersInfoSchema,
+	newOnboardingRepresentativeInfoSchema,
+	signupInfoSchema
+} from '../utils/schemas';
 
 dayjs.extend(utc);
 const router = express.Router();
 let reminderTimeout;
 
-const signupInfoSchema = z.object({
-	full_name: z.string(),
-	firstname: z.string(),
-	lastname: z.string(),
-	email: z.string(),
-	phone: z.string(),
-	password: z.string(),
-	referral_code: z.string().optional().nullable(),
-	terms: z.boolean().optional().nullable()
+export const newCreateUserSchema = signupInfoSchema.extend({
+	business: newOnboardingBusinessInfoSchema,
+	representative: newOnboardingRepresentativeInfoSchema,
+	owners: z.array(newOnboardingOwnersInfoSchema).default([]),
+	directors: z.array(newOnboardingDirectorsInfoSchema).default([]),
+	location: AddressSchema,
+	card_configuration: cardConfigurationSchema,
+	shipping_address: AddressSchema
+});
+
+const businessProfileSchema = z.object({
+	/**
+	 * [The merchant category code for the account](https://stripe.com/docs/connect/setting-mcc). MCCs are used to classify businesses based on the goods or services they provide.
+	 */
+	mcc: z.string(),
+	/**
+	 * Internal-only description of the product sold by, or service provided by, the business. Used by Stripe for risk and underwriting purposes.
+	 */
+	product_description: z.string().optional(),
+
+	/**
+	 * A publicly available email address for sending support issues to.
+	 */
+	support_email: z.string().email(),
+
+	/**
+	 * The business's publicly available website.
+	 */
+	url: z.string().optional()
 });
 
 export const authRouter = t.router({
@@ -63,6 +92,154 @@ export const authRouter = t.router({
 			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
+	completeRegistration: publicProcedure
+		.input(
+			z.object({
+				account_token: z.string(),
+				person_token: z.string(),
+				tokens: z.array(z.string()),
+				business_profile: businessProfileSchema,
+				data: newCreateUserSchema
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				const { account_token, person_token, tokens, business_profile, data } = input;
+				console.log(data);
+				const account = await stripe.accounts.create({
+					country: 'GB',
+					type: 'custom',
+					business_profile,
+					capabilities: {
+						card_payments: { requested: true },
+						transfers: { requested: true },
+						card_issuing: { requested: true }
+					},
+					settings: {
+						card_issuing: {
+							tos_acceptance: {
+								ip: ctx.ip,
+								date: dayjs().subtract(2, 'm').unix(),
+								user_agent: ctx.user_agent
+							}
+						}
+					},
+					account_token: account_token
+				});
+				const person = await stripe.accounts.createPerson(<string>account.id, {
+					person_token
+				});
+				for (const token of tokens) {
+					await stripe.accounts.createPerson(<string>account.id, {
+						person_token: token
+					});
+				}
+				console.log('-----------------------------------------------');
+				// store user in database
+				const verify_token = uuidv4();
+				const reset_token = uuidv4();
+				const issuing_account = {
+					plaid_recipient_id: '',
+					plaid_request_id: '',
+					account_holder_name: 'Stripe Payments UK Limited',
+					account_number: '00000000',
+					sort_code: '00-00-00'
+				};
+				// create the user in DB
+				const user = await prisma.user.create({
+					data: {
+						full_name: data.full_name,
+						firstname: data.firstname,
+						lastname: data.lastname,
+						email: data.email,
+						phone: data.phone,
+						password: data.password,
+						business: {
+							legal_name: data.business.legal_name,
+							num_monthly_invoices: data.business.num_monthly_invoices,
+							business_crn: data.business.business_crn,
+							num_vehicles: data.business.num_vehicles,
+							business_url: data.business.business_url,
+							merchant_category_code: data.business.merchant_category_code,
+							business_type: data.business.business_type
+						},
+						representative: {
+							dob: data.representative.dob,
+							firstname: data.representative.firstname,
+							lastname: data.representative.lastname,
+							email: data.representative.email,
+							building_number: data.representative.building_number,
+							line1: data.representative.line1,
+							line2: data.representative.line2,
+							city: data.representative.city,
+							postcode: data.representative.postcode,
+							region: data.representative.region,
+							country: data.representative.country,
+							is_owner: data.representative.is_owner,
+							is_director: data.representative.is_director
+						},
+						owners: [],
+						directors: [],
+						location: {
+							line1: data.location.line1,
+							line2: data.location.line2,
+							city: data.location.city,
+							postcode: data.location.postcode,
+							region: data.location.region,
+                            country: data.location.country
+						},
+						shipping_address: {
+							line1: data.shipping_address.line1,
+							line2: data.shipping_address.line2,
+							city: data.shipping_address.city,
+							postcode: data.shipping_address.postcode,
+							region: data.shipping_address.region,
+							country: data.shipping_address.country
+						},
+						card_configuration: {
+							card_business_name: data.card_configuration.card_business_name,
+							shipping_speed: 'standard'
+						},
+						referral_code: genReferralCode(),
+						verify_token,
+						reset_token,
+						stripe: {
+							accountId: account.id,
+							personId: person.id,
+							issuing_account
+						}
+					}
+				});
+				// if user signed up with referral code, record the referral in DB
+				if (data.referral_code) {
+					const referrer = await prisma.user.findFirstOrThrow({
+						where: {
+							referral_code: data.referral_code
+						}
+					});
+					const referral = await prisma.referral.create({
+						data: {
+							userId: user.id,
+							enabled: true,
+							referrer_user_id: referrer.id,
+							referral_code: data.referral_code
+						}
+					});
+					console.log('-----------------------------------------------');
+					console.table(referral);
+					console.log('-----------------------------------------------');
+				}
+				console.log('USER', user);
+				sendVerificationLink(user.email, user.full_name, verify_token)
+					.then(() => console.log('Verification link sent'))
+					.catch(err => console.error(err));
+				return user;
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
 	verifyEmail: publicProcedure
 		.input(
 			z.object({
@@ -178,7 +355,7 @@ export const authRouter = t.router({
 	}),
 	checkAccountLinked: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
 		const redis_account = await ctx.redis.hgetall(input);
-		return !!redis_account?.access_token
+		return !!redis_account?.access_token;
 	})
 });
 
@@ -300,7 +477,7 @@ router.post('/onboarding', async (req, res, next) => {
 	}
 });
 
-router.post('/complete-registration', async (req, res, next) => {
+/*router.post('/complete-registration', async (req, res, next) => {
 	try {
 		const { accountToken, personToken, business_profile, data } = req.body;
 		console.log(data);
@@ -380,6 +557,6 @@ router.post('/complete-registration', async (req, res, next) => {
 		console.error(err);
 		next(err);
 	}
-});
+});*/
 
 export default router;

@@ -103,7 +103,7 @@ const Onboarding = () => {
 						{customerSupportNumber}
 						<NewStep3 prevStep={prevStep} nextStep={nextStep} />
 					</Stepper.Step>
-					<Stepper.Step icon={<div />} label='Final step' description='Location' allowStepSelect={active > 3}>
+					<Stepper.Step icon={<div />} label='Fourth step' description='Directors' allowStepSelect={active > 3}>
 						{customerSupportNumber}
 						<NewStep4 nextStep={nextStep} prevStep={prevStep} />
 					</Stepper.Step>

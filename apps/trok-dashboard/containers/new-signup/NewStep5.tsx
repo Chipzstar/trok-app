@@ -6,41 +6,44 @@ import { useLocalStorage } from '@mantine/hooks';
 import { loadStripe } from '@stripe/stripe-js';
 import {
 	AddressInfo,
-	CreateUser,
 	getE164Number,
 	isValidUrl,
+	NewCreateUser,
+	NewOnboardingAccountStep4,
+	NewOnboardingBusinessInfo,
+	NewOnboardingDirectorsInfo,
+	NewOnboardingOwnersInfo,
+	NewOnboardingRepresentativeInfo,
 	notifyError,
-	OnboardingAccountStep3,
-	OnboardingBusinessInfo,
-	OnboardingDirectorInfo,
-	OnboardingFinancialInfo,
 	OnboardingLocationInfo,
 	SignupInfo
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
-import { apiClient } from '../../utils/clients';
+import { trpc } from '../../utils/clients';
 import { useRouter } from 'next/router';
-import { runGriffinKYBVerification } from '../../utils/functions';
+import { generatePersonTokens } from '../../utils/functions';
 import dayjs from 'dayjs';
-import { GRIFFIN_RISK_RATING } from '../../utils/types';
 
 const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
 
 const NewStep5 = ({ prevStep }) => {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
-	const [account, setAccount] = useLocalStorage<OnboardingAccountStep3>({
+	const [account, setAccount] = useLocalStorage<NewOnboardingAccountStep4>({
 		key: STORAGE_KEYS.ACCOUNT,
 		defaultValue: null
 	});
-	const [griffin, setGriffin] = useLocalStorage<{ legal_person_url: string | null }>({
+	/*const [griffin, setGriffin] = useLocalStorage<{ legal_person_url: string | null }>({
 		key: STORAGE_KEYS.GRIFFIN,
 		defaultValue: null
+	});*/
+	const [personal, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
+	const [representative, setRepresentative] = useLocalStorage<NewOnboardingRepresentativeInfo>({key: STORAGE_KEYS.REPRESENTATIVE_FORM})
+	const [business, setBusiness] = useLocalStorage<NewOnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
+	const [owners, setOwners] = useLocalStorage<NewOnboardingOwnersInfo[]>({ key: STORAGE_KEYS.OWNERS_FORM });
+	const [directors, setDirectors] = useLocalStorage<NewOnboardingDirectorsInfo[]>({
+		key: STORAGE_KEYS.DIRECTORS_FORM
 	});
-	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
-	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
-	const [directorObj, setDirector] = useLocalStorage<OnboardingDirectorInfo>({ key: STORAGE_KEYS.DIRECTORS_FORM });
-	const [financialObj, setFinancial] = useLocalStorage<OnboardingFinancialInfo>({ key: STORAGE_KEYS.FINANCIAL_FORM });
 	const [locationForm, setLocationForm] = useLocalStorage<OnboardingLocationInfo>({
 		key: STORAGE_KEYS.LOCATION_FORM,
 		defaultValue: {
@@ -64,6 +67,7 @@ const NewStep5 = ({ prevStep }) => {
 			}
 		}
 	});
+	const register = trpc.auth.completeRegistration.useMutation()
 	const form = useForm<OnboardingLocationInfo>({
 		initialValues: {
 			...locationForm
@@ -90,31 +94,35 @@ const NewStep5 = ({ prevStep }) => {
 					region: values.region,
 					country: values?.country
 				};
-				const risk_rating = await runGriffinKYBVerification(
-					businessObj.business_crn,
+				/*const risk_rating = await runGriffinKYBVerification(
+					business.business_crn,
 					location,
 					griffin.legal_person_url
 				);
 				if (risk_rating === GRIFFIN_RISK_RATING.HIGH)
 					throw new Error(
 						'We have detected a high risk of fraud based on your responses. We advise you check your responses carefully and try submitting again'
-					);
+					);*/
 				// convert phone number to E164 format
-				personalObj.phone = getE164Number(personalObj.phone);
-				console.log(directorObj);
-				const personResult = await Stripe.createToken('person', {
+				personal.phone = getE164Number(personal.phone);
+				let tokens = []
+				if (owners.length) {
+					tokens = await generatePersonTokens([...owners], [...directors], representative, Stripe);
+					console.log(tokens);
+				}
+				const person_result = await Stripe.createToken('person', {
 					dob: {
-						day: dayjs(directorObj.dob).date(),
-						month: dayjs(directorObj.dob).month() + 1,
-						year: dayjs(directorObj.dob).year()
+						day: dayjs(account.representative.dob).date(),
+						month: dayjs(account.representative.dob).month() + 1,
+						year: dayjs(account.representative.dob).year()
 					},
 					address: {
-						line1: directorObj.line1,
-						line2: directorObj.line2,
-						city: directorObj.city,
-						state: directorObj.region,
-						postal_code: directorObj.postcode,
-						country: directorObj.country
+						line1: account.representative.line1,
+						line2: account.representative.line2,
+						city: account.representative.city,
+						state: account.representative.region,
+						postal_code: account.representative.postcode,
+						country: account.representative.country
 					},
 					relationship: {
 						owner: true,
@@ -122,18 +130,18 @@ const NewStep5 = ({ prevStep }) => {
 						executive: true,
 						representative: true
 					},
-					first_name: directorObj.firstname,
-					last_name: directorObj.lastname,
-					email: directorObj.email,
-					phone: personalObj.phone
+					first_name: account.representative.firstname,
+					last_name: account.representative.lastname,
+					email: account.representative.email,
+					phone: personal.phone
 				});
-				if (personResult.error) throw new Error(personResult.error.message);
+				if (person_result.error) throw new Error(person_result.error.message);
 				// generate secure tokens to create account + person in stripe
-				const accountResult = await Stripe.createToken('account', {
+				const account_result = await Stripe.createToken('account', {
 					business_type: 'company',
 					company: {
-						name: businessObj.legal_name,
-						phone: personalObj.phone,
+						name: business.legal_name,
+						phone: personal.phone,
 						address: {
 							line1: values.line1,
 							line2: values.line2,
@@ -142,17 +150,17 @@ const NewStep5 = ({ prevStep }) => {
 							postal_code: values.postcode,
 							country: 'GB'
 						},
-						tax_id: businessObj.business_crn,
-						structure: businessObj.business_type,
+						tax_id: business.business_crn,
+						structure: business.business_type,
 						owners_provided: true,
 						directors_provided: true,
 						executives_provided: true
 					},
 					tos_shown_and_accepted: true
 				});
-				if (accountResult.error) throw new Error(accountResult.error.message);
-				const isUrlValid = isValidUrl(businessObj.business_url);
-				const payload: CreateUser = {
+				if (account_result.error) throw new Error(account_result.error.message);
+				const isUrlValid = isValidUrl(business.business_url);
+				const payload: NewCreateUser = {
 					...account,
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
 					location,
@@ -162,17 +170,18 @@ const NewStep5 = ({ prevStep }) => {
 						shipping_speed: values.shipping_speed
 					}
 				};
-				await apiClient.post('/server/auth/complete-registration', {
-					accountToken: accountResult.token,
-					personToken: personResult.token,
+				await register.mutateAsync({
+					account_token: account_result.token.id,
+					person_token: person_result.token.id,
+					tokens,
 					business_profile: {
-						support_email: personalObj.email,
-						mcc: businessObj.merchant_category_code,
-						url: isUrlValid ? businessObj.business_url : undefined,
-						product_description: !isUrlValid ? businessObj.business_url : undefined
+						support_email: personal.email,
+						mcc: business.merchant_category_code,
+						url: isUrlValid ? business.business_url : undefined,
+						product_description: !isUrlValid ? business.business_url : undefined
 					},
 					data: payload
-				});
+				})
 				setLoading(false);
 				router.push(PATHS.VERIFY_EMAIL);
 			} catch (err) {
@@ -181,7 +190,7 @@ const NewStep5 = ({ prevStep }) => {
 				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, griffin, personalObj, businessObj, directorObj, financialObj]
+		[account, representative, personal, business, owners, directors]
 	);
 
 	useEffect(() => {
@@ -202,25 +211,57 @@ const NewStep5 = ({ prevStep }) => {
 
 	return (
 		<div className='min-h-screen'>
-			<form onSubmit={form.onSubmit(handleSubmit)} className='flex h-full w-full flex-col' data-cy="onboarding-location-form">
+			<form
+				onSubmit={form.onSubmit(handleSubmit)}
+				className='flex h-full w-full flex-col'
+				data-cy='onboarding-location-form'
+			>
 				<h1 className='mb-4 text-2xl font-medium'>Business location</h1>
 				<Stack>
 					<Group grow>
-						<TextInput required label='Address line 1' {...form.getInputProps('line1')} data-cy="onboarding-location-line1"/>
-						<TextInput label='Address line 2' {...form.getInputProps('line2')} data-cy="onboarding-location-line2"/>
+						<TextInput
+							required
+							label='Address line 1'
+							{...form.getInputProps('line1')}
+							data-cy='onboarding-location-line1'
+						/>
+						<TextInput
+							label='Address line 2'
+							{...form.getInputProps('line2')}
+							data-cy='onboarding-location-line2'
+						/>
 					</Group>
 					<Group grow>
-						<TextInput required label='City' {...form.getInputProps('city')} data-cy="onboarding-location-city"/>
-						<TextInput required label='Postal Code' {...form.getInputProps('postcode')} data-cy="onboarding-location-postcode"/>
+						<TextInput
+							required
+							label='City'
+							{...form.getInputProps('city')}
+							data-cy='onboarding-location-city'
+						/>
+						<TextInput
+							required
+							label='Postal Code'
+							{...form.getInputProps('postcode')}
+							data-cy='onboarding-location-postcode'
+						/>
 					</Group>
 					<Group grow>
-						<TextInput required label='County / Region' {...form.getInputProps('region')} data-cy="onboarding-location-region"/>
-						<TextInput label='Country' {...form.getInputProps('country')} data-cy="onboarding-location-country"/>
+						<TextInput
+							required
+							label='County / Region'
+							{...form.getInputProps('region')}
+							data-cy='onboarding-location-region'
+						/>
+						<TextInput
+							label='Country'
+							{...form.getInputProps('country')}
+							data-cy='onboarding-location-country'
+						/>
 					</Group>
 					<Checkbox
 						label='Use a different shipping address'
 						{...form.getInputProps('diff_shipping_address', { type: 'checkbox' })}
-						data-cy="onboarding-location-diff_shipping_address"
+						data-cy='onboarding-location-diff_shipping_address'
 					/>
 					{form.values.diff_shipping_address && (
 						<>
@@ -230,17 +271,26 @@ const NewStep5 = ({ prevStep }) => {
 									required
 									label='Address line 1'
 									{...form.getInputProps('shipping_address.line1')}
-									data-cy="onboarding-shipping-address-line1"
+									data-cy='onboarding-shipping-address-line1'
 								/>
-								<TextInput label='Address line 2' {...form.getInputProps('shipping_address.line2')} data-cy="onboarding-shipping-address-line2"/>
+								<TextInput
+									label='Address line 2'
+									{...form.getInputProps('shipping_address.line2')}
+									data-cy='onboarding-shipping-address-line2'
+								/>
 							</Group>
 							<Group grow>
-								<TextInput required label='City' {...form.getInputProps('shipping_address.city')} data-cy="onboarding-shipping-address-city"/>
+								<TextInput
+									required
+									label='City'
+									{...form.getInputProps('shipping_address.city')}
+									data-cy='onboarding-shipping-address-city'
+								/>
 								<TextInput
 									required
 									label='Postal code'
 									{...form.getInputProps('shipping_address.postcode')}
-									data-cy="onboarding-shipping-address-postcode"
+									data-cy='onboarding-shipping-address-postcode'
 								/>
 							</Group>
 							<Group grow>
@@ -248,12 +298,13 @@ const NewStep5 = ({ prevStep }) => {
 									required
 									label='County/Region'
 									{...form.getInputProps('shipping_address.region')}
-									data-cy="onboarding-shipping-address-region"
+									data-cy='onboarding-shipping-address-region'
 								/>
 								<TextInput
 									label='Country'
 									{...form.getInputProps('shipping_address.country')}
-									data-cy="onboarding-shipping-address-country"/>
+									data-cy='onboarding-shipping-address-country'
+								/>
 							</Group>
 						</>
 					)}
@@ -262,7 +313,7 @@ const NewStep5 = ({ prevStep }) => {
 						required
 						label='Business name on card'
 						{...form.getInputProps('card_business_name')}
-						data-cy="onboarding-card-business-name"
+						data-cy='onboarding-card-business-name'
 					/>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>

@@ -398,17 +398,16 @@ type Address {
 }
 
 type BusinessInfo {
-  legal_name              String
-  weekly_fuel_spend       Int
-  average_monthly_revenue Int
-  business_type           String
-  business_crn            String
-  merchant_category_code  String
-  business_url            String
-  num_vehicles            Int
+  legal_name             String
+  num_monthly_invoices   Int
+  business_type          String
+  business_crn           String
+  merchant_category_code String
+  business_url           String
+  num_vehicles           Int
 }
 
-type DirectorInfo {
+type RepresentativeInfo {
   dob             String
   firstname       String
   lastname        String
@@ -420,6 +419,24 @@ type DirectorInfo {
   postcode        String
   region          String
   country         String? @default("GB")
+  is_owner        Boolean
+  is_director     Boolean
+}
+
+type OwnerInfo {
+  dob       String
+  full_name String
+  firstname String
+  lastname  String
+  email     String
+}
+
+type DirectorInfo {
+  dob       String
+  full_name String
+  firstname String
+  lastname  String
+  email     String
 }
 
 type CardInfo {
@@ -472,29 +489,31 @@ type InvoiceLineItem {
   quantity    Int
 }
 model User {
-  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
-  created_at         DateTime      @default(now())
-  updated_at         DateTime      @updatedAt
-  email              String        @unique
+  id                 String             @id @default(auto()) @map("_id") @db.ObjectId
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  email              String             @unique
   full_name          String
   firstname          String
   lastname           String
   phone              String
-  emailVerified      DateTime?     @map("email_verified")
-  admin              Boolean       @default(false)
-  approved           Boolean       @default(false)
-  verify_token       String        @default("")
-  reset_token        String        @default(uuid())
-  referral_code      String        @unique @default(cuid())
-  referral           Referral?     @relation("user_referral")
-  referrals          Referral[]    @relation("referred_users")
+  emailVerified      DateTime?          @map("email_verified")
+  admin              Boolean            @default(false)
+  approved           Boolean            @default(false)
+  verify_token       String             @default("")
+  reset_token        String             @default(uuid())
+  referral_code      String             @unique @default(cuid())
+  referral           Referral?          @relation("user_referral")
+  referrals          Referral[]         @relation("referred_users")
   terms              Boolean?
   password           String
   location           Address
   shipping_address   Address
   card_configuration CardInfo
   business           BusinessInfo
-  director           DirectorInfo
+  representative     RepresentativeInfo
+  owners             OwnerInfo[]
+  directors          DirectorInfo[]
   stripe             StripeInfo
   drivers            Driver[]
   cards              Card[]

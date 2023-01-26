@@ -26,9 +26,7 @@ type Address {
 
 type BusinessInfo {
     legal_name String
-    weekly_fuel_spend Int
     num_monthly_invoices Int
-    average_monthly_revenue Int
     business_type String
     business_crn String
     merchant_category_code String
@@ -36,18 +34,36 @@ type BusinessInfo {
     num_vehicles Int
 }
 
-type DirectorInfo {
+type RepresentativeInfo {
+    dob             String
+    firstname       String
+    lastname        String
+    email           String
+    building_number Int?
+    line1           String
+    line2           String?
+    city            String
+    postcode        String
+    region          String
+    country         String? @default("GB")
+    is_owner        Boolean
+    is_director     Boolean
+}
+
+type OwnerInfo {
     dob String
+    full_name String
     firstname String
     lastname String
     email String
-    building_number Int?
-    line1 String
-    line2 String?
-    city String
-    postcode String
-    region String
-    country String? @default("GB")
+}
+
+type DirectorInfo {
+    dob String
+    full_name String
+    firstname String
+    lastname String
+    email String
 }
 
 type CardInfo {

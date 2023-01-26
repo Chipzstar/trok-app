@@ -61,7 +61,6 @@ const NewStep2 = ({ prevStep, nextStep }) => {
 	});
 	const handleSubmit = useCallback(
 		async (values: NewOnboardingRepresentativeInfo) => {
-            console.log(values);
 			setLoading(true);
 			try {
 				const { is_valid, reason } = await validateDirectorInfo(values);
@@ -70,7 +69,7 @@ const NewStep2 = ({ prevStep, nextStep }) => {
                 // check if the rep is an owner
                 if (values.is_owner) {
                     setOwners([{
-                        dob: values.dob,
+                        dob: String(values.dob),
                         email: values.email,
                         firstname: values.firstname,
                         lastname: values.lastname,
@@ -80,7 +79,7 @@ const NewStep2 = ({ prevStep, nextStep }) => {
 				// check if the rep is a director
 				if (values.is_director) {
 					setDirectors([{
-						dob: values.dob,
+						dob: String(values.dob),
 						email: values.email,
 						firstname: values.firstname,
 						lastname: values.lastname,
@@ -96,7 +95,7 @@ const NewStep2 = ({ prevStep, nextStep }) => {
 						}
 					})
 				).data;
-				setAccount({ ...account, representative: { ...account.representative, ...values } });
+				setAccount({ ...account, representative: { ...representative, ...values } });
 				setLoading(false);
 				nextStep();
 			} catch (err) {

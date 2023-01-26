@@ -1,10 +1,18 @@
 import { apiClient, griffinClient } from './clients';
 import dayjs from 'dayjs';
 import { GRIFFIN_RISK_RATING, GRIFFIN_VERIFICATION_STATUS } from './types';
-import { isCI, isDev, requirements } from './constants';
-import { AddressInfo, isStringEqual, OnboardingDirectorInfo } from '@trok-app/shared-utils';
+import { isCI, requirements } from './constants';
+import {
+	AddressInfo,
+	isStringEqual,
+	NewOnboardingDirectorsInfo,
+	NewOnboardingOwnersInfo,
+	NewOnboardingRepresentativeInfo,
+	OnboardingDirectorInfo
+} from '@trok-app/shared-utils';
 import '../utils/string.extensions';
 import { SelectItem } from '@mantine/core';
+import { Stripe } from '@stripe/stripe-js';
 
 export function getStrength(password: string) {
 	let multiplier = password.length > 5 ? 0 : 1;
@@ -18,7 +26,7 @@ export function getStrength(password: string) {
 	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 10);
 }
 
-export function generateUniqueInvoiceNumber(invoice_numbers: string[]){
+export function generateUniqueInvoiceNumber(invoice_numbers: string[]) {
 	const num_invoices = invoice_numbers.length;
 	if (invoice_numbers.length == 0) {
 		return `INV-${String(num_invoices + 1).padStart(6, '0')}`;
@@ -38,10 +46,9 @@ export function uniqueSimpleArray(array: SelectItem[]) {
 	return [...new Set(values)];
 }
 
-export async function uploadFile(file, filename, filepath) : Promise<string> {
+export async function uploadFile(file, filename, filepath): Promise<string> {
 	try {
-		const res = (await apiClient.get(`/server/gcp/upload?filename=${filename}&filepath=${filepath}`))
-			.data;
+		const res = (await apiClient.get(`/server/gcp/upload?filename=${filename}&filepath=${filepath}`)).data;
 		const { url, fields } = res;
 		const formData = new FormData();
 
@@ -66,7 +73,7 @@ export async function uploadFile(file, filename, filepath) : Promise<string> {
 	} catch (error) {
 		console.error(error);
 		throw error;
-	}	
+	}
 }
 
 export function compareCompanyAddress(address1, address2: AddressInfo | null): boolean {
@@ -83,29 +90,30 @@ export function compareCompanyAddress(address1, address2: AddressInfo | null): b
 	return is_valid;
 }
 
-export async function validateDirectorInfo(director: OnboardingDirectorInfo): Promise<{ is_valid: boolean; reason: string | null }> {
+export async function validateDirectorInfo(
+	director: OnboardingDirectorInfo
+): Promise<{ is_valid: boolean; reason: string | null }> {
 	try {
 		if (!isCI) return { is_valid: true, reason: null };
 		// create director as company representative
 		const building_number = director.line1.split(' ')[0];
 		console.log('BUILDING NUMBER', building_number);
-		console.table(director);
 		const payload = {
 			'display-name': `${director.lastname.toUpperCase()}, ${director.firstname}`,
 			'legal-person-type': 'individual',
-			'claims': [
+			claims: [
 				{
 					'claim-type': 'individual-identity',
 					'date-of-birth': dayjs(director.dob).format('YYYY-MM-DD'),
 					'given-name': director.firstname,
-					'surname': director.lastname
+					surname: director.lastname
 				},
 				{
 					'claim-type': 'individual-residence',
 					...(!director.line2 && { 'building-number': building_number }),
 					...(director.line2 && { 'building-name': director.line2 }),
 					'street-name': director.line1 + ' ' + director.line2,
-					'city': director.city,
+					city: director.city,
 					'postal-code': director.postcode,
 					'country-code': director.country
 				},
@@ -115,8 +123,12 @@ export async function validateDirectorInfo(director: OnboardingDirectorInfo): Pr
 				}
 			]
 		};
-		console.log(payload);
-		const legal_person = (await griffinClient.post(`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`, payload)).data;
+		const legal_person = (
+			await griffinClient.post(
+				`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`,
+				payload
+			)
+		).data;
 		console.log(legal_person);
 		return {
 			is_valid: !!legal_person,
@@ -172,11 +184,16 @@ export async function validateCompanyInfo(
  * @param business_address
  * @param legal_person_url
  */
-export function runGriffinKYBVerification(crn: string, business_address: AddressInfo, legal_person_url: string) : Promise<string> {
+export function runGriffinKYBVerification(
+	crn: string,
+	business_address: AddressInfo,
+	legal_person_url: string
+): Promise<string> {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise(async (resolve, reject) => {
 		try {
-			if (!isDev) resolve(GRIFFIN_RISK_RATING.LOW);
+			console.log(isCI);
+			if (!isCI) resolve(GRIFFIN_RISK_RATING.LOW);
 			const company_profile = (await griffinClient.get(`/v0/companies-house/companies/${crn}`)).data;
 			// create a corporation legal person to represent the company using Organisation ID
 			const payload = {
@@ -189,7 +206,9 @@ export function runGriffinKYBVerification(crn: string, business_address: Address
 						'corporation-type': company_profile['corporation-type'],
 						'entity-registration-number': crn,
 						'date-of-incorporation': company_profile['date-of-incorporation'],
-						...(company_profile['company-address']['building-number'] && { 'building-number': company_profile['company-address']['building-number'] }),
+						...(company_profile['company-address']['building-number'] && {
+							'building-number': company_profile['company-address']['building-number']
+						}),
 						city: business_address.city,
 						'street-name': business_address.line1 + ' ' + business_address.line2,
 						'postal-code': business_address.postcode,
@@ -201,33 +220,125 @@ export function runGriffinKYBVerification(crn: string, business_address: Address
 					}
 				]
 			};
-			const legal_person = (await griffinClient.post(`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`, payload)).data;
+			const legal_person = (
+				await griffinClient.post(
+					`/v0/organizations/${process.env.NEXT_PUBLIC_GRIFFIN_ORG_ID}/legal-persons`,
+					payload
+				)
+			).data;
 			console.log('-----------------------------------------------');
 			console.log(legal_person);
 			// run verification
-			const verification = (await griffinClient.post(`${legal_person['legal-person-url']}/verifications`, {
-				'workflow-url': `/v0/workflows/${process.env.NEXT_PUBLIC_GRIFFIN_WORKFLOW_ID}`
-			})).data;
+			const verification = (
+				await griffinClient.post(`${legal_person['legal-person-url']}/verifications`, {
+					'workflow-url': `/v0/workflows/${process.env.NEXT_PUBLIC_GRIFFIN_WORKFLOW_ID}`
+				})
+			).data;
 			console.log('-----------------------------------------------');
 			console.log(verification);
-			const interval = setInterval(async function(verification_url) {
-				const result = (await griffinClient.get(verification_url)).data;
-				console.log('************************************************');
-				console.log(result);
-				console.log('************************************************');
-				if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.COMPLETE) {
-					resolve(result['risk-rating']);
-					clearInterval(interval);
-				} else if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.FAILED) {
-					reject(result);
-					clearInterval(interval);
-				}
-			}, 2000, verification['verification-url']);
+			const interval = setInterval(
+				async function (verification_url) {
+					const result = (await griffinClient.get(verification_url)).data;
+					console.log('************************************************');
+					console.log(result);
+					console.log('************************************************');
+					if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.COMPLETE) {
+						resolve(result['risk-rating']);
+						clearInterval(interval);
+					} else if (result['verification-status'] === GRIFFIN_VERIFICATION_STATUS.FAILED) {
+						reject(result);
+						clearInterval(interval);
+					}
+				},
+				2000,
+				verification['verification-url']
+			);
 		} catch (err) {
 			console.error(err);
 			reject(err);
 		}
-	})
+	});
+}
+
+export async function generatePersonTokens(
+	owners: NewOnboardingOwnersInfo[],
+	directors: NewOnboardingDirectorsInfo[],
+	representative: NewOnboardingRepresentativeInfo,
+	Stripe: Stripe
+) {
+	console.log(owners)
+	console.log('-----------------------------------------------');
+	console.log(directors)
+	const owner_tokens = []
+	const director_tokens = []
+	try {
+		let index = 0
+		for (const owner of owners){
+			console.log(owner.email)
+			console.log(directors)
+			let director = false
+			// check if the user signing up is an owner, is so skip creating a person token for them
+			if (owner.email === representative.email && representative.is_owner) continue;
+			// check if the owner is also a director
+			const director_index = directors.findIndex(d => owner.email === d.email)
+			console.log("DIRECTOR INDEX", director_index)
+			// if the owner is a director, flag the owner as a director and remove from directors list
+			if (director_index !== -1) {
+				director = true
+				directors.splice(director_index, 1)
+			}
+			console.log("generating token...")
+			const { token } = await Stripe.createToken('person', {
+				email: owner.email,
+				dob: {
+					day: dayjs(owner.dob).date(),
+					month: dayjs(owner.dob).month() + 1,
+					year: dayjs(owner.dob).year()
+				},
+				first_name: owner.firstname,
+				last_name: owner.lastname,
+				relationship: {
+					owner: true,
+					executive: true,
+					director
+				}
+			});
+			console.log(token)
+			index++;
+			owner_tokens.push(token.id)
+		}
+		index = 0;
+		for (const director of directors) {
+			console.log(director.email)
+			console.log(directors)
+			// check if the user signing up is an director, is so skip creating a person token for them
+			if (director.email === representative.email && representative.is_director) continue;
+			console.log("generating token...")
+			const { token } = await Stripe.createToken('person', {
+				email: director.email,
+				dob: {
+					day: dayjs(director.dob).date(),
+					month: dayjs(director.dob).month() + 1,
+					year: dayjs(director.dob).year()
+				},
+				first_name: director.firstname,
+				last_name: director.lastname,
+				relationship: {
+					director: true,
+					executive: true
+				}
+			});
+			console.log(token)
+			index++;
+			director_tokens.push(token.id)
+		}
+		console.log(owner_tokens)
+		console.log(director_tokens)
+		return owner_tokens.filter(t => t).concat(director_tokens.filter(t => t));
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
 }
 
 export function text({ url, full_name }) {
@@ -239,7 +350,7 @@ export function text({ url, full_name }) {
 		url +
 		'\n' +
 		'\n' +
-		'We\'re here to help\n' +
+		"We're here to help\n" +
 		'\n' +
 		'If you have any questions or want more information, drop us a message at hello@trok.co.\n' +
 		'\n' +
@@ -423,7 +534,7 @@ export function html({ url, full_name }) {
 
 export function exclude<Type, Key extends keyof Type>(card: Type, keys: Key[]): Omit<Type, Key> {
 	for (const key of keys) {
-		delete card[key]
+		delete card[key];
 	}
 	return card;
 }

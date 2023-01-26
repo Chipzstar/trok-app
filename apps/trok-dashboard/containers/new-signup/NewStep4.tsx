@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from '@mantine/form';
-import { Button, CloseButton, Group, Paper, Stack, Text, Space } from '@mantine/core';
-import { IconX } from '@tabler/icons';
+import { Button, CloseButton, Group, Paper, Stack, Text, Space, Menu } from '@mantine/core';
+import { IconCirclePlus, IconX } from '@tabler/icons';
 import { STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
 import {
@@ -22,6 +22,10 @@ const NewStep4 = ({ prevStep, nextStep }) => {
 	const [business, setBusiness] = useLocalStorage<NewOnboardingBusinessInfo>({
 		key: STORAGE_KEYS.COMPANY_FORM,
 		defaultValue: null
+	});
+	const [owners, setOwners] = useLocalStorage<NewOnboardingOwnersInfo[]>({
+		key: STORAGE_KEYS.OWNERS_FORM,
+		defaultValue: []
 	});
 	const [directors, setDirectors] = useLocalStorage<NewOnboardingDirectorsInfo[]>({
 		key: STORAGE_KEYS.DIRECTORS_FORM,
@@ -60,11 +64,15 @@ const NewStep4 = ({ prevStep, nextStep }) => {
 		[account, business, nextStep, setAccount]
 	);
 
+	const menu_disabled = useMemo(() => {
+		return owners.every(o => form.values.directors.some(d => o.email === d.email))
+	}, [form.values.directors, owners])
+
 	useEffect(() => {
 		const storedValue = window.localStorage.getItem(STORAGE_KEYS.DIRECTORS_FORM);
 		if (storedValue) {
 			try {
-				form.setFieldValue("directors", JSON.parse(window.localStorage.getItem(STORAGE_KEYS.DIRECTORS_FORM)));
+				form.setFieldValue('directors', JSON.parse(window.localStorage.getItem(STORAGE_KEYS.DIRECTORS_FORM)));
 			} catch (e) {
 				console.log('Failed to parse stored value');
 				console.error(e);
@@ -76,8 +84,10 @@ const NewStep4 = ({ prevStep, nextStep }) => {
 		window.localStorage.setItem(STORAGE_KEYS.DIRECTORS_FORM, JSON.stringify(form.values.directors));
 	}, [form.values]);
 
+	useEffect(() => console.log(menu_disabled), [menu_disabled]);
+
 	const addNewDirector = useCallback((values: NewOnboardingDirectorsInfo) => {
-        values.full_name = `${values.firstname} ${values.lastname}`
+		values.full_name = `${values.firstname} ${values.lastname}`;
 		form.insertListItem('directors', values);
 		showNewDirectorForm(false);
 	}, [form]);
@@ -91,11 +101,11 @@ const NewStep4 = ({ prevStep, nextStep }) => {
 						<span className='text-sm text-gray-500'>{director.email}</span>
 					</Stack>
 					<CloseButton aria-label='Close modal' onClick={() => form.removeListItem('directors', index)} sx={{
-						display: (!index && account?.representative?.is_director) && "none",
-					}}/>
+						display: (!index && account?.representative?.is_director) && 'none'
+					}} />
 				</Group>
 			</Paper>
-		)
+		);
 	});
 
 	return (
@@ -119,9 +129,31 @@ const NewStep4 = ({ prevStep, nextStep }) => {
 				<Space h='md' />
 				<Stack>
 					{fields}
-					<Button variant='outline' size='lg' onClick={() => showNewDirectorForm(true)}>
-						<Text>+ Add {form.values.directors.length ? 'another' : 'a'} director</Text>
-					</Button>
+					<Menu shadow='md' width={200} withinPortal position='bottom' disabled={menu_disabled}>
+						<Menu.Target>
+							<Button variant='outline' size='lg' onClick={() => menu_disabled && showNewDirectorForm(true)}>
+								<Text>+ Add {form.values.directors.length ? 'another' : 'a'} director</Text>
+							</Button>
+						</Menu.Target>
+						<Menu.Dropdown>
+							<Menu.Label>Existing owners</Menu.Label>
+							{owners.filter(o => !form.values.directors.some(d => d.email === o.email)).map((owner, index) => (
+								<Menu.Item
+									key={index}
+									onClick={() => form.insertListItem('directors', owner)}
+								>
+									{owner.full_name}
+								</Menu.Item>
+							))}
+							<Menu.Divider />
+							<Menu.Item
+								icon={<IconCirclePlus size={16} />}
+								onClick={() => showNewDirectorForm(true)}
+							>
+								Add director
+							</Menu.Item>
+						</Menu.Dropdown>
+					</Menu>
 					<Group mt='md' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>

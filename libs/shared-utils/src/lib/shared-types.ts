@@ -137,9 +137,9 @@ export interface NewOnboardingMemberInfo {
     lastname: string;
 }
 
-export type NewOnboardingOwnersInfo = NewOnboardingMemberInfo
+export type NewOnboardingOwnersInfo = NewOnboardingMemberInfo & { "dob" : string}
 
-export type NewOnboardingDirectorsInfo = NewOnboardingMemberInfo
+export type NewOnboardingDirectorsInfo = NewOnboardingMemberInfo & { "dob" : string }
 
 export type OnboardingAccountStep1 = SignupInfo & Record<'business', OnboardingBusinessInfo>
 
@@ -147,11 +147,13 @@ export type NewOnboardingAccountStep1 = SignupInfo & Record<'business', NewOnboa
 
 export type OnboardingAccountStep2 = SignupInfo & Record<'business', OnboardingBusinessInfo> & Record<'director', OnboardingDirectorInfo>
 
-export type NewOnboardingAccountStep2 = SignupInfo & Record<'business', NewOnboardingBusinessInfo> & Record<'representative', NewOnboardingRepresentativeInfo>
+export type NewOnboardingAccountStep2 = NewOnboardingAccountStep1 & Record<'representative', NewOnboardingRepresentativeInfo>
 
 export type OnboardingAccountStep3 = SignupInfo & Record<'business', OnboardingBusinessInfo & OnboardingFinancialInfo> & Record<'director', OnboardingDirectorInfo>
 
-export type NewOnboardingAccountStep3 = SignupInfo & Record<'business', OnboardingBusinessInfo> & Record<'representative', NewOnboardingRepresentativeInfo>
+export type NewOnboardingAccountStep3 = NewOnboardingAccountStep2 & Record<'owners', NewOnboardingOwnersInfo[]>
+
+export type NewOnboardingAccountStep4 = NewOnboardingAccountStep3 & Record<'directors', NewOnboardingDirectorsInfo[]>
 export interface CardConfiguration {
 	card_business_name: string;
 	num_cards?: number;
@@ -181,6 +183,16 @@ export interface CreateUser extends SignupInfo {
 	business?: OnboardingBusinessInfo & OnboardingFinancialInfo;
 
 	director?: OnboardingDirectorInfo
+	location?: AddressInfo;
+	card_configuration?: CardConfiguration;
+	shipping_address?: AddressInfo;
+	stripe?: StripeInfo;
+}
+
+export interface NewCreateUser extends SignupInfo {
+	business?: NewOnboardingBusinessInfo;
+	owners?: NewOnboardingOwnersInfo[]
+	directors?: NewOnboardingDirectorsInfo[]
 	location?: AddressInfo;
 	card_configuration?: CardConfiguration;
 	shipping_address?: AddressInfo;

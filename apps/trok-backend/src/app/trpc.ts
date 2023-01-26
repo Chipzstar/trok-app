@@ -21,6 +21,8 @@ export const createContext = async ({ req, res }: trpcExpress.CreateExpressConte
 	}
 	const user = await getUserFromHeader(req.headers?.authorization);
 	return {
+		ip: req.ip,
+		user_agent: req.get('User-Agent'),
 		user,
 		prisma,
 		redis: redisClient

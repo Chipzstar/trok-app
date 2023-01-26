@@ -63,13 +63,12 @@ const Company = ({ user_id, stripe, business }) => {
 	const [loading, setLoading] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const toggleEditMode = () => setEditMode(!editMode);
-	const mutation = trpc.user.updateCompanyInfo.useMutation();
+	const update = trpc.user.updateCompanyInfo.useMutation();
 
 	const form = useForm({
 		initialValues: {
 			legal_name: business?.legal_name,
-			weekly_fuel_spend: business?.weekly_fuel_spend,
-			average_monthly_revenue: business?.average_monthly_revenue,
+			num_monthly_invoices: business?.num_monthly_invoices,
 			business_type: business?.business_type,
 			merchant_category_code: business?.merchant_category_code,
 			business_crn: business?.business_crn,
@@ -82,7 +81,7 @@ const Company = ({ user_id, stripe, business }) => {
 		async values => {
 			setLoading(true);
 			try {
-				await mutation.mutateAsync({
+				await update.mutateAsync({
 					id: user_id,
 					stripe,
 					...values

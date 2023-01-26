@@ -41,7 +41,7 @@ const NewStep3 = ({ prevStep, nextStep }) => {
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
 							email: account?.email,
-							step: 4
+							step: 3
 						}
 					})
 				).data;
