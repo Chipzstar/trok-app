@@ -52,7 +52,7 @@ const InvoiceForm = ({
 	});
 
 	const title = useMemo(() => {
-		if (form.values.invoice?.status === INVOICE_STATUS.PROCESSING) {
+		if (form.values.invoice?.approval_requested) {
 			return 'We are on it';
 		} else if (form.values.invoice_id) {
 			return 'Get paid now';
@@ -61,7 +61,7 @@ const InvoiceForm = ({
 	}, [form.values]);
 
 	const subtitle = useMemo(() => {
-		if (form.values.invoice?.status === INVOICE_STATUS.PROCESSING) {
+		if (form.values.invoice?.approval_requested) {
 			return "We are currently verifying your documents to ensure they are eligible for factoring. We'll notify you when the payment has been made";
 		} else if (form.values.invoice_id) {
 			return 'Invoicing takes up to one business day. Upload your proof of delivery to receive your money now and improve your cash flow.';
@@ -74,7 +74,7 @@ const InvoiceForm = ({
 	}, [form.values]);
 
 	const get_paid_visible = useMemo(() => {
-		return form.values.new || (form.values.invoice?.status === INVOICE_STATUS.DRAFT && form.values.pod);
+		return form.values.new || !form.values.invoice?.approval_requested;
 	}, [form.values]);
 
 	/**
