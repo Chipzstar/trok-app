@@ -35,7 +35,6 @@ export const newCreateUserSchema = signupInfoSchema.extend({
 	owners: z.array(newOnboardingOwnersInfoSchema).default([]),
 	directors: z.array(newOnboardingDirectorsInfoSchema).default([]),
 	location: AddressSchema,
-	card_configuration: cardConfigurationSchema,
 	shipping_address: AddressSchema
 });
 
@@ -195,10 +194,6 @@ export const authRouter = t.router({
 							postcode: data.shipping_address.postcode,
 							region: data.shipping_address.region,
 							country: data.shipping_address.country
-						},
-						card_configuration: {
-							card_business_name: data.card_configuration.card_business_name,
-							shipping_speed: 'standard'
 						},
 						referral_code: genReferralCode(),
 						verify_token,

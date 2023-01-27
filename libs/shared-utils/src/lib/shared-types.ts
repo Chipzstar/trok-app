@@ -174,6 +174,17 @@ export interface OnboardingLocationInfo extends AddressInfo, CardConfiguration {
 	shipping_address?: AddressInfo;
 }
 
+export interface NewOnboardingLocationInfo extends AddressInfo {
+	line1: string;
+	line2?: string;
+	city: string;
+	postcode: string;
+	region: string;
+	country?: string;
+	diff_shipping_address: boolean;
+	shipping_address?: AddressInfo;
+}
+
 export interface StripeInfo {
 	accountId: string;
 	bankAccount?: null;
@@ -194,7 +205,6 @@ export interface NewCreateUser extends SignupInfo {
 	owners?: NewOnboardingOwnersInfo[]
 	directors?: NewOnboardingDirectorsInfo[]
 	location?: AddressInfo;
-	card_configuration?: CardConfiguration;
 	shipping_address?: AddressInfo;
 	stripe?: StripeInfo;
 }

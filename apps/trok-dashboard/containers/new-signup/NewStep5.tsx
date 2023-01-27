@@ -11,7 +11,7 @@ import {
 	NewCreateUser,
 	NewOnboardingAccountStep4,
 	NewOnboardingBusinessInfo,
-	NewOnboardingDirectorsInfo,
+	NewOnboardingDirectorsInfo, NewOnboardingLocationInfo,
 	NewOnboardingOwnersInfo,
 	NewOnboardingRepresentativeInfo,
 	notifyError,
@@ -44,7 +44,7 @@ const NewStep5 = ({ prevStep }) => {
 	const [directors, setDirectors] = useLocalStorage<NewOnboardingDirectorsInfo[]>({
 		key: STORAGE_KEYS.DIRECTORS_FORM
 	});
-	const [locationForm, setLocationForm] = useLocalStorage<OnboardingLocationInfo>({
+	const [locationForm, setLocationForm] = useLocalStorage<NewOnboardingLocationInfo>({
 		key: STORAGE_KEYS.LOCATION_FORM,
 		defaultValue: {
 			line1: '',
@@ -53,9 +53,6 @@ const NewStep5 = ({ prevStep }) => {
 			postcode: '',
 			region: '',
 			country: '',
-			card_business_name: '',
-			num_cards: undefined,
-			shipping_speed: 'standard',
 			diff_shipping_address: false,
 			shipping_address: {
 				line1: '',
@@ -68,22 +65,14 @@ const NewStep5 = ({ prevStep }) => {
 		}
 	});
 	const register = trpc.auth.completeRegistration.useMutation()
-	const form = useForm<OnboardingLocationInfo>({
+	const form = useForm<NewOnboardingLocationInfo>({
 		initialValues: {
 			...locationForm
-		},
-		validate: {
-			card_business_name: val =>
-				val.search(/[^a-zA-Z0-9 ]/g) !== -1
-					? 'Card business name must not contain special characters'
-					: val.length < 3 || val.length > 24
-					? 'Card business name must be between 3-24 characters'
-					: null
 		}
 	});
 
 	const handleSubmit = useCallback(
-		async (values: OnboardingLocationInfo) => {
+		async (values: NewOnboardingLocationInfo) => {
 			setLoading(true);
 			try {
 				const location: AddressInfo = {
@@ -163,12 +152,7 @@ const NewStep5 = ({ prevStep }) => {
 				const payload: NewCreateUser = {
 					...account,
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
-					location,
-					card_configuration: {
-						card_business_name: values.card_business_name,
-						num_cards: values.num_cards,
-						shipping_speed: values.shipping_speed
-					}
+					location
 				};
 				await register.mutateAsync({
 					account_token: account_result.token.id,
@@ -308,13 +292,6 @@ const NewStep5 = ({ prevStep }) => {
 							</Group>
 						</>
 					)}
-					<h1 className='text-2xl font-medium'>Configure card details</h1>
-					<TextInput
-						required
-						label='Business name on card'
-						{...form.getInputProps('card_business_name')}
-						data-cy='onboarding-card-business-name'
-					/>
 					<Group mt='lg' position='apart'>
 						<Button type='button' variant='white' size='md' onClick={prevStep}>
 							<Text weight='normal'>Go Back</Text>

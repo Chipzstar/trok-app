@@ -19,7 +19,7 @@ model User {
   password String
   location Address
   shipping_address Address
-  card_configuration CardInfo
+  card_configuration CardInfo?
   business BusinessInfo
   representative RepresentativeInfo
   owners OwnerInfo[]

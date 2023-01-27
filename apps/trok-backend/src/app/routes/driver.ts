@@ -94,13 +94,14 @@ const driverRouter = t.router({
 					id: input.userId
 				},
 				select: {
-					card_configuration: true
+					card_configuration: true,
+					business: true
 				}
 			});
 			const cardholder = await stripe.issuing.cardholders.create(
 				{
 					email: input.email,
-					name: user.card_configuration.card_business_name,
+					name: user?.card_configuration?.card_business_name ?? user.business.legal_name,
 					phone_number: input.phone,
 					type: 'individual',
 					status: 'active',
