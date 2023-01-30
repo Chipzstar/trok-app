@@ -32,6 +32,8 @@ type BusinessInfo {
     merchant_category_code String
     business_url String
     num_vehicles Int
+    weekly_fuel_spend Int?
+    average_monthly_revenue Int?
 }
 
 type RepresentativeInfo {

@@ -3,20 +3,21 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { stripe } from '../utils/clients';
 import { comparePassword, hashPassword } from '@trok-app/shared-utils';
+import { AddressSchema } from '../utils/schemas';
 
 const accountRouter = t.router({
 	countUsers: t.procedure.query(async ({ input, ctx }) => {
 		try {
-		    return await ctx.prisma.user.findMany({
+			return await ctx.prisma.user.findMany({
 				select: {
 					id: true,
 					created_at: true
 				}
-			})
+			});
 		} catch (err) {
-		    console.error(err)
+			console.error(err);
 			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message })
+			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 		}
 	}),
 	getAccount: t.procedure
@@ -227,11 +228,14 @@ const accountRouter = t.router({
 					}
 				});
 				// check current password is correct
-				const is_match = await comparePassword(input.curr_password, user.password)
+				const is_match = await comparePassword(input.curr_password, user.password);
 				if (!is_match) {
-					throw new TRPCError({ message: "Current password is invalid. Please double check", code: 'BAD_REQUEST' });
+					throw new TRPCError({
+						message: 'Current password is invalid. Please double check',
+						code: 'BAD_REQUEST'
+					});
 				}
-				const hashed_password = await hashPassword(input.new_password)
+				const hashed_password = await hashPassword(input.new_password);
 				return await ctx.prisma.user.update({
 					where: {
 						id: input.id
@@ -240,6 +244,58 @@ const accountRouter = t.router({
 						password: hashed_password
 					}
 				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ message: err.message, code: 'BAD_REQUEST' });
+			}
+		}),
+	completeCreditApplication: t.procedure
+		.input(
+			z.object({
+				userId: z.string(),
+				business: z
+					.object({
+						weekly_fuel_spend: z.number(),
+						average_monthly_revenue: z.number()
+					})
+					.required(),
+				location: AddressSchema,
+				shipping_address: AddressSchema,
+				card_configuration: z
+					.object({
+						card_business_name: z.string(),
+						num_cards: z.string().optional()
+					})
+					.required()
+			})
+		)
+		.mutation(async ({ input, ctx }) => {
+			try {
+				// find the existing user completing the application
+				let user = await ctx.prisma.user.findUniqueOrThrow({
+					where: {
+						id: input.userId
+					}
+				});
+				user = await ctx.prisma.user.update({
+					where: {
+						id: input.userId
+					},
+					data: {
+						business: {
+							...user.business,
+							weekly_fuel_spend: input.business.weekly_fuel_spend,
+							average_monthly_revenue: input.business.average_monthly_revenue
+						},
+						card_configuration: {
+							card_business_name: input.card_configuration.card_business_name,
+							shipping_speed: 'standard'
+						}
+					}
+				});
+				console.log(user);
+				return user;
 			} catch (err) {
 				console.error(err);
 				// @ts-ignore

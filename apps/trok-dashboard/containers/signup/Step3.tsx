@@ -106,13 +106,13 @@ const Step3 = ({ prevStep, nextStep }) => {
 					throw new Error("Please upload 3 bank statements from the last 3 months")
 				}
 				await Promise.all(files.map(file => uploadFile(file, business.business_crn, "BANK_STATEMENTS")))
-				if (!isProd && !isAccountLinked?.data?.access_token) {
+				if (!isProd && !plaid_access_token) {
 					throw new Error("Please link your bank account before continuing")
 				}
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
-							email: account?.email,
+							email: session?.user?.email,
 							step: 4
 						}
 					})

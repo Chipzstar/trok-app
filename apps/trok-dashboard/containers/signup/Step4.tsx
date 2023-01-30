@@ -1,33 +1,29 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Checkbox, Group, Stack, Text, TextInput } from '@mantine/core';
-import { PATHS, STORAGE_KEYS, STRIPE_PUBLIC_KEY } from '../../utils/constants';
+import { PATHS, STORAGE_KEYS } from '../../utils/constants';
 import { useLocalStorage } from '@mantine/hooks';
-import { loadStripe } from '@stripe/stripe-js';
 import {
 	AddressInfo,
 	CreateUser,
 	getE164Number,
-	isValidUrl,
 	notifyError,
 	OnboardingAccountStep3,
 	OnboardingBusinessInfo,
-	OnboardingDirectorInfo,
 	OnboardingFinancialInfo,
 	OnboardingLocationInfo,
 	SignupInfo
 } from '@trok-app/shared-utils';
 import { IconX } from '@tabler/icons';
-import { apiClient } from '../../utils/clients';
+import { trpc } from '../../utils/clients';
 import { useRouter } from 'next/router';
 import { runGriffinKYBVerification } from '../../utils/functions';
-import dayjs from 'dayjs';
 import { GRIFFIN_RISK_RATING } from '../../utils/types';
-
-const Stripe = await loadStripe(String(STRIPE_PUBLIC_KEY));
+import { useSession } from 'next-auth/react';
 
 const Step4 = ({ prevStep }) => {
 	const router = useRouter();
+	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const [account, setAccount] = useLocalStorage<OnboardingAccountStep3>({
 		key: STORAGE_KEYS.ACCOUNT,
@@ -39,7 +35,6 @@ const Step4 = ({ prevStep }) => {
 	});
 	const [personalObj, setPersonal] = useLocalStorage<SignupInfo>({ key: STORAGE_KEYS.SIGNUP_FORM });
 	const [businessObj, setBusiness] = useLocalStorage<OnboardingBusinessInfo>({ key: STORAGE_KEYS.COMPANY_FORM });
-	const [directorObj, setDirector] = useLocalStorage<OnboardingDirectorInfo>({ key: STORAGE_KEYS.DIRECTORS_FORM });
 	const [financialObj, setFinancial] = useLocalStorage<OnboardingFinancialInfo>({ key: STORAGE_KEYS.FINANCIAL_FORM });
 	const [locationForm, setLocationForm] = useLocalStorage<OnboardingLocationInfo>({
 		key: STORAGE_KEYS.LOCATION_FORM,
@@ -64,6 +59,9 @@ const Step4 = ({ prevStep }) => {
 			}
 		}
 	});
+
+	const applyCredit = trpc.user.completeCreditApplication.useMutation();
+
 	const form = useForm<OnboardingLocationInfo>({
 		initialValues: {
 			...locationForm
@@ -101,77 +99,16 @@ const Step4 = ({ prevStep }) => {
 					);
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
-				console.log(directorObj);
-				const personResult = await Stripe.createToken('person', {
-					dob: {
-						day: dayjs(directorObj.dob).date(),
-						month: dayjs(directorObj.dob).month() + 1,
-						year: dayjs(directorObj.dob).year()
+				await applyCredit.mutateAsync({
+					userId: session?.id,
+					business: {
+						...businessObj
 					},
-					address: {
-						line1: directorObj.line1,
-						line2: directorObj.line2,
-						city: directorObj.city,
-						state: directorObj.region,
-						postal_code: directorObj.postcode,
-						country: directorObj.country
-					},
-					relationship: {
-						owner: true,
-						director: true,
-						executive: true,
-						representative: true
-					},
-					first_name: directorObj.firstname,
-					last_name: directorObj.lastname,
-					email: directorObj.email,
-					phone: personalObj.phone
-				});
-				if (personResult.error) throw new Error(personResult.error.message);
-				// generate secure tokens to create account + person in stripe
-				const accountResult = await Stripe.createToken('account', {
-					business_type: 'company',
-					company: {
-						name: businessObj.legal_name,
-						phone: personalObj.phone,
-						address: {
-							line1: values.line1,
-							line2: values.line2,
-							city: values.city,
-							state: values.region,
-							postal_code: values.postcode,
-							country: 'GB'
-						},
-						tax_id: businessObj.business_crn,
-						structure: businessObj.business_type,
-						owners_provided: true,
-						directors_provided: true,
-						executives_provided: true
-					},
-					tos_shown_and_accepted: true
-				});
-				if (accountResult.error) throw new Error(accountResult.error.message);
-				const isUrlValid = isValidUrl(businessObj.business_url);
-				const payload: CreateUser = {
-					...account,
-					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
-					location,
 					card_configuration: {
-						card_business_name: values.card_business_name,
-						num_cards: values.num_cards,
-						shipping_speed: values.shipping_speed
-					}
-				};
-				await apiClient.post('/server/auth/complete-registration', {
-					accountToken: accountResult.token,
-					personToken: personResult.token,
-					business_profile: {
-						support_email: personalObj.email,
-						mcc: businessObj.merchant_category_code,
-						url: isUrlValid ? businessObj.business_url : undefined,
-						product_description: !isUrlValid ? businessObj.business_url : undefined
+						card_business_name: values.card_business_name
 					},
-					data: payload
+					location,
+					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
 				});
 				setLoading(false);
 				router.push(PATHS.VERIFY_EMAIL);
@@ -181,7 +118,7 @@ const Step4 = ({ prevStep }) => {
 				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, griffin, personalObj, businessObj, directorObj, financialObj]
+		[account, griffin, personalObj, businessObj, financialObj]
 	);
 
 	useEffect(() => {

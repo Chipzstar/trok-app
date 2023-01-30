@@ -8,8 +8,10 @@ import { notifyError, OnboardingAccountStep1, OnboardingBusinessInfo } from '@tr
 import { apiClient } from '../../utils/clients';
 import { uploadFile, validateCompanyInfo } from '../../utils/functions';
 import DocumentInfo from '../../components/DocumentInfo';
+import { useSession } from 'next-auth/react';
 
 const Step1 = ({ nextStep }) => {
+	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const [file, setFile] = useState<File>(null);
 	const [account, setAccount] = useLocalStorage<Partial<OnboardingAccountStep1>>({
@@ -56,7 +58,7 @@ const Step1 = ({ nextStep }) => {
 				const result = (
 					await apiClient.post('/server/auth/onboarding', values, {
 						params: {
-							email: account?.email,
+							email: session?.user?.email,
 							step: 2
 						}
 					})
@@ -73,7 +75,7 @@ const Step1 = ({ nextStep }) => {
 				notifyError('onboarding-step1-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, file, nextStep, setAccount]
+		[account, file, session, nextStep, setAccount]
 	);
 
 	useEffect(() => {

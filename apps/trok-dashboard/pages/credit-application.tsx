@@ -83,7 +83,7 @@ const CreditApplication = ({session_id}) => {
                         <Stepper.Step
                             icon={<div />}
                             label='Second step'
-                            description='Representative'
+                            description='Financial'
                             allowStepSelect={active > 1}
                             >
                             {customerSupportNumber}
@@ -92,7 +92,7 @@ const CreditApplication = ({session_id}) => {
                         <Stepper.Step
                             icon={<div />}
                             label='Third step'
-                            description='Owners'
+                            description='Location'
                             allowStepSelect={active > 2}
                             >
                             {customerSupportNumber}
