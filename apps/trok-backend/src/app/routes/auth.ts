@@ -17,7 +17,6 @@ import { ObjectId } from 'mongodb';
 import utc from 'dayjs/plugin/utc';
 import {
 	AddressSchema,
-	cardConfigurationSchema,
 	newOnboardingBusinessInfoSchema,
 	newOnboardingDirectorsInfoSchema,
 	newOnboardingOwnersInfoSchema,

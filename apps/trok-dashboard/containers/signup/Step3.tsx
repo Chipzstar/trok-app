@@ -55,8 +55,8 @@ const Step3 = ({ prevStep, nextStep }) => {
 	});
 	const utils = trpc.useContext();
 	const linkSessionMutation = trpc.auth.linkBusinessBankAccount.useMutation();
-	const { data: plaid_access_token } = trpc.auth.checkAccountLinked.useQuery(account?.email, {
-		enabled: !!account?.email
+    const { data: plaid_access_token } = trpc.auth.checkAccountLinked.useQuery(session?.user?.email, {
+        enabled: !!session?.user?.email
 	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>(
 		(public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
@@ -64,16 +64,16 @@ const Step3 = ({ prevStep, nextStep }) => {
 			// exchange public token
 			apiClient
 				.post('/server/plaid/set_access_token', {
-					email: account?.email,
+					email: session?.user?.email,
 					public_token
 				})
 				.then(({ data }) => {
 					console.log(data);
-					utils.auth.checkAccountLinked.invalidate(account?.email);
+                    utils.auth.checkAccountLinked.invalidate(session?.user?.email);
 				})
 				.catch(err => console.error(err));
 		},
-		[account]
+		[session]
 	);
 	const onExit = useCallback<PlaidLinkOnExit>(async (error, metadata: PlaidLinkOnExitMetadata) => {
 		try {

@@ -9,7 +9,7 @@ import Step1 from '../containers/signup/Step1'
 import Step3 from '../containers/signup/Step3'
 import Step4 from '../containers/signup/Step4'
 
-const CreditApplication = ({session_id}) => {
+const CreditApplication = ({ session_id }) => {
     const router = useRouter();
     const { height } = useWindowSize();
 
