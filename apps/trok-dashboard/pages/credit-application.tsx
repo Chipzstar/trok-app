@@ -19,7 +19,7 @@ const CreditApplication = ({session_id}) => {
 
     const nextStep = useCallback(() => {
         router.replace({
-            pathname: PATHS.ONBOARDING,
+            pathname: PATHS.CREDIT_APPLICATION,
             query: {
                 page: active + 2
             }
@@ -28,7 +28,7 @@ const CreditApplication = ({session_id}) => {
 
     const prevStep = useCallback(() => {
         router.replace({
-            pathname: PATHS.ONBOARDING,
+            pathname: PATHS.CREDIT_APPLICATION,
             query: {
                 page: active
             }
