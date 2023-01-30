@@ -111,7 +111,7 @@ const Step4 = ({ prevStep }) => {
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
 				});
 				setLoading(false);
-				router.push(PATHS.VERIFY_EMAIL);
+				router.push(PATHS.HOME);
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
