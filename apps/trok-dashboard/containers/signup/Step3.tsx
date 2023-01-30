@@ -15,6 +15,7 @@ import {
 } from 'react-plaid-link';
 import { Dropzone, FileWithPath, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { uploadFile } from '../../utils/functions';
+import { useSession } from 'next-auth/react';
 
 const DocumentInfo = ({ files }: { files: FileWithPath[] }) => {
 	return (
@@ -33,6 +34,7 @@ const DocumentInfo = ({ files }: { files: FileWithPath[] }) => {
 
 const Step3 = ({ prevStep, nextStep }) => {
 	const openRef = useRef<() => void>(null);
+    const { data: session } = useSession();
 	const [files, handlers] = useListState<FileWithPath>([]);
 	const [link_token, setLinkToken] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
