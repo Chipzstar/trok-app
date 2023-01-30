@@ -193,7 +193,7 @@ const Step3 = ({ prevStep, nextStep }) => {
 								onClick={() => {
 									setLinkLoading(true);
 									linkSessionMutation
-										.mutateAsync(account?.email)
+										.mutateAsync(session?.user?.email)
 										.then(res => {
 											setLinkLoading(false);
 											setLinkToken(res.link_token);
