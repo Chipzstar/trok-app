@@ -1,13 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import useWindowSize from '../hooks/useWindowSize';
 import { Anchor, ScrollArea, Stack, Stepper, Text } from '@mantine/core';
-import Step3 from '../containers/signup/Step3';
-import Step4 from '../containers/signup/Step4';
 import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { authOptions } from './api/auth/[...nextauth]';
 import { unstable_getServerSession } from 'next-auth';
-import Step2 from '../containers/signup/Step2';
 import NewStep1 from '../containers/new-signup/NewStep1';
 import NewStep2 from '../containers/new-signup/NewStep2';
 import NewStep3 from '../containers/new-signup/NewStep3';

@@ -26,9 +26,13 @@ import { DateRangePicker, DateRangePickerValue } from '@mantine/dates';
 import isBetween from 'dayjs/plugin/isBetween';
 import { GBP, TRANSACTION_STATUS } from '@trok-app/shared-utils';
 import ComingSoon from '../modals/ComingSoon';
+import { useRouter } from 'next/router';
 
 dayjs.extend(isBetween);
+
 export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
+	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 	const [comingSoonModal, showComingSoon] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const [range, setRange] = useState<DateRangePickerValue>([
@@ -54,7 +58,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 			return GBP(value).format();
 		}
 	}, [testMode, transactionsQuery, range]);
-	
+
 	const week_savings = useMemo(() => {
 		if (testMode) {
 			return GBP(testMode ? 726436 : 0).format();
@@ -69,18 +73,18 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 		if (testMode) {
 			return SAMPLE_INVOICES.filter(i => i.approved).length;
 		} else {
-			return invoicesQuery.data?.filter(i => i.approved).length ?? "N/A";
+			return invoicesQuery.data?.filter(i => i.approved).length ?? 'N/A';
 		}
 	}, [testMode, invoicesQuery]);
 	const num_cards = useMemo(
-		() => (testMode ? SAMPLE_CARDS.length : cardsQuery.data?.length ?? "N/A"),
+		() => (testMode ? SAMPLE_CARDS.length : cardsQuery.data?.length ?? 'N/A'),
 		[testMode, cardsQuery]
 	);
 	const current_balance = useMemo(() => (testMode ? 0 : balanceQuery?.data?.amount), [testMode, balanceQuery]);
 
 	return (
 		<Page.Container
-			data_cy="homepage"
+			data_cy='homepage'
 			classNames='flex flex-col'
 			header={
 				<Page.Header extraClassNames='mb-3'>
@@ -98,7 +102,8 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Current Week Spend</span>
-								{!testMode && transactionsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>
+								{!testMode && transactionsQuery.isLoading ? <Loader size='sm' /> :
+									<span className='heading-1'>
 									{week_spend.split('.')[0]}.
 									<span className='text-base'>{week_spend.split('.')[1]}</span>
 								</span>}
@@ -145,7 +150,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' pt='lg' pb='sm'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Account Balance</span>
-								{!testMode && balanceQuery.isLoading ? <Loader size="sm"/> : <span
+								{!testMode && balanceQuery.isLoading ? <Loader size='sm' /> : <span
 									className={`text-2xl font-medium ${
 										current_balance < FIVE_HUNDRED_POUNDS && 'text-danger'
 									}`}
@@ -163,16 +168,15 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						</Stack>
 						<Group position='center' py='xs'>
 							<Button
+								loading={loading}
 								size='md'
 								fullWidth
 								onClick={() => {
-									showComingSoon(true);
-									setTimeout(() => {
-										showComingSoon(false);
-									}, 2000);
+									setLoading(true)
+									router.push(PATHS.CREDIT_APPLICATION).then(() => setLoading(false));
 								}}
 							>
-								Pay Now
+								Apply Now
 							</Button>
 						</Group>
 					</Card>
@@ -180,11 +184,13 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 						<Stack px='md' py='lg'>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Invoices Approved</span>
-								{!testMode && invoicesQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{approved_invoices}</span>}
+								{!testMode && invoicesQuery.isLoading ? <Loader size='sm' /> :
+									<span className='heading-1'>{approved_invoices}</span>}
 							</div>
 							<div className='flex flex-col space-y-1'>
 								<span className='text-base'>Number of Cards</span>
-								{!testMode && cardsQuery.isLoading ? <Loader size="sm"/> : <span className='heading-1'>{num_cards}</span>}
+								{!testMode && cardsQuery.isLoading ? <Loader size='sm' /> :
+									<span className='heading-1'>{num_cards}</span>}
 							</div>
 						</Stack>
 						<Divider px={0} />
@@ -219,6 +225,7 @@ export function Dashboard({ testMode, user, session_id, stripe_account_id }) {
 }
 
 export async function getServerSideProps({ req, res }) {
+    // @ts-ignore
 	const session = await unstable_getServerSession(req, res, authOptions);
 	const token = await getToken({ req });
 	console.log(session);

@@ -57,7 +57,8 @@ export const PATHS = {
 	REFERRAL: '/referral',
 	VERIFY_EMAIL: '/verify-email',
 	FORGOT_PASSWORD: '/forgot-password',
-	RESET_PASSWORD: '/reset-password'
+	RESET_PASSWORD: '/reset-password',
+	CREDIT_APPLICATION: '/credit-application'
 };
 
 export const AUTH_ROUTES = [
@@ -66,7 +67,8 @@ export const AUTH_ROUTES = [
 	PATHS.ONBOARDING,
 	PATHS.VERIFY_EMAIL,
 	PATHS.FORGOT_PASSWORD,
-	PATHS.RESET_PASSWORD
+	PATHS.RESET_PASSWORD,
+	PATHS.CREDIT_APPLICATION
 ];
 
 export const SAMPLE_DRIVERS = [
