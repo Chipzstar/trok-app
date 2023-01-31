@@ -56,6 +56,9 @@ const Step3 = ({ prevStep, nextStep }) => {
 	const utils = trpc.useContext();
 	const linkSessionMutation = trpc.auth.linkBusinessBankAccount.useMutation();
     const { data: plaid_access_token } = trpc.auth.checkAccountLinked.useQuery(session?.user?.email, {
+        onSuccess: (data) => {
+          console.log(data)
+        },
         enabled: !!session?.user?.email
 	});
 	const onSuccess = useCallback<PlaidLinkOnSuccess>(
@@ -107,7 +110,11 @@ const Step3 = ({ prevStep, nextStep }) => {
 				if (files.length < 3) {
 					throw new Error("Please upload 3 bank statements from the last 3 months")
 				}
-				await Promise.all(files.map(file => uploadFile(file, business.business_crn, "BANK_STATEMENTS")))
+                await Promise.all(files.map(file => {
+                    const filename = encodeURIComponent(file.name);
+                    const filepath = `${business.business_crn}/BANK_STATEMENTS/${filename}`
+                    return uploadFile(file, filename, filepath)
+                }))
 				if (!isProd && !plaid_access_token) {
 					throw new Error("Please link your bank account before continuing")
 				}

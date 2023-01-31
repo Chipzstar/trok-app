@@ -267,7 +267,6 @@ const accountRouter = t.router({
 						card_business_name: z.string(),
 						num_cards: z.string().optional()
 					})
-					.required()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {

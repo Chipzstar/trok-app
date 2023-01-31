@@ -21,7 +21,7 @@ import { runGriffinKYBVerification } from '../../utils/functions';
 import { GRIFFIN_RISK_RATING } from '../../utils/types';
 import { useSession } from 'next-auth/react';
 
-const Step4 = ({ prevStep }) => {
+const Step4 = ({ prevStep, nextStep }) => {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
@@ -88,7 +88,7 @@ const Step4 = ({ prevStep }) => {
 					region: values.region,
 					country: values?.country
 				};
-				const risk_rating = await runGriffinKYBVerification(
+				/*const risk_rating = await runGriffinKYBVerification(
 					businessObj.business_crn,
 					location,
 					griffin.legal_person_url
@@ -96,13 +96,14 @@ const Step4 = ({ prevStep }) => {
 				if (risk_rating === GRIFFIN_RISK_RATING.HIGH)
 					throw new Error(
 						'We have detected a high risk of fraud based on your responses. We advise you check your responses carefully and try submitting again'
-					);
+					);*/
 				// convert phone number to E164 format
 				personalObj.phone = getE164Number(personalObj.phone);
 				await applyCredit.mutateAsync({
 					userId: session?.id,
 					business: {
-						...businessObj
+						...businessObj,
+                        ...financialObj,
 					},
 					card_configuration: {
 						card_business_name: values.card_business_name
@@ -111,14 +112,14 @@ const Step4 = ({ prevStep }) => {
 					shipping_address: values.diff_shipping_address ? values.shipping_address : location,
 				});
 				setLoading(false);
-				router.push(PATHS.HOME);
+                nextStep()
 			} catch (err) {
 				setLoading(false);
 				console.error(err);
 				notifyError('onboarding-step3-failure', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[account, griffin, personalObj, businessObj, financialObj]
+		[account, personalObj, businessObj, financialObj]
 	);
 
 	useEffect(() => {
