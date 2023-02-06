@@ -9,6 +9,7 @@
 // ***********************************************
 
 import {
+	DriverFormValues, NewOnboardingAccountStep3, NewOnboardingOwnersInfo,
 	OnboardingBusinessInfo,
 	OnboardingDirectorInfo,
 	OnboardingFinancialInfo, OnboardingLocationInfo,
@@ -22,29 +23,41 @@ declare global {
 		interface Chainable<Subject> {
 			login(email: string, password: string): void;
 			logout(): void;
+			auth(): void;
 			signup(values: SignupInfo): void;
 			onboardingStep1(values: OnboardingBusinessInfo, has_file?: boolean) : void;
 			onboardingStep2(values: OnboardingDirectorInfo) : void;
 			onboardingStep3(values: OnboardingFinancialInfo) : void;
 			onboardingStep4(values: OnboardingLocationInfo, delay?: number): void;
+			newOnboardingStep3(values: NewOnboardingOwnersInfo): void
+			addNewDriver(values: Partial<DriverFormValues>): void;
+			updateDriver(values: Partial<DriverFormValues>): void;
 		}
 	}
 }
 //
 // -- This is a parent command --
 Cypress.Commands.addAll({
+	// Custom command example, see `../support/commands.ts` file
 	login(email, password) {
 		cy.log('Logging in...');
 		cy.get('[data-cy="login-form"]').within(function() {
 			cy.get('input[data-cy="login-email"]').type(email);
 			cy.get('.mantine-PasswordInput-visibilityToggle').then(($btn) => cy.wrap($btn));
 			cy.get('input[data-cy="login-password"]').type(password);
-			cy.root().submit().wait(2000);
+			cy.root().submit().wait(3000);
 		});
 	},
 	logout() {
 		cy.log('Logging out...');
 		cy.get('[data-cy="logout-button"]').click();
+	},
+	auth(){
+		cy.visit('/');
+		cy.login('test@gmail.com', Cypress.env('MASTER_PASSWORD'));
+		cy.location('pathname').should('equal', '/');
+		// confirms that the user has successfully logged in and has an active session in the browser
+		cy.getCookie('next-auth.session-token').should('not.be.empty');
 	}
 });
 Cypress.Commands.add('signup', (values) => {
@@ -57,7 +70,7 @@ Cypress.Commands.add('signup', (values) => {
 		cy.get('input[data-cy="signup-password"]').type(values.password).blur();
 		values.referral_code && cy.get('input[data-cy="signup-referral-code"]').type(values.referral_code);
 		cy.get('input[data-cy="signup-terms"]').check();
-		cy.root().submit().wait(2000);
+		cy.root().submit().wait(3000);
 	});
 });
 
@@ -126,6 +139,50 @@ Cypress.Commands.add('onboardingStep4', (values, delay=1000) => {
 		cy.get('input[data-cy="onboarding-card-business-name"]').type(values.card_business_name)
 		cy.root().submit().wait(delay);
 	})
+})
+
+Cypress.Commands.add('addNewDriver', (values) => {
+	cy.log('Adding new driver...');
+	cy.get('[data-cy="add-driver-form"]').within(function() {
+		values.firstname && cy.get('input[data-cy="new-driver-firstname"]').type(values.firstname);
+		values.lastname && cy.get('input[data-cy="new-driver-lastname"]').type(values.lastname);
+		values.email && cy.get('input[data-cy="new-driver-email"]').type(values.email);
+		values.phone && cy.get('input[data-cy="new-driver-phone"]').type(values.phone);
+		values.line1 && cy.get('input[data-cy="new-driver-address-line1"]').type(values.line1);
+		values.line2 && cy.get('input[data-cy="new-driver-address-line2"]').type(values.line2);
+		values.city && cy.get('input[data-cy="new-driver-address-city"]').type(values.city);
+		values.postcode && cy.get('input[data-cy="new-driver-address-postcode"]').type(values.postcode);
+		values.region && cy.get('input[data-cy="new-driver-address-region"]').type(values.region);
+		if(values.has_spending_limit){
+			cy.get('input[data-cy="new-driver-has-spending-limit"]').check();
+			values.spending_limit.amount && cy.get('input[data-cy="new-driver-limit-amount"]').type(String(values.spending_limit.amount))
+			values.spending_limit.interval && cy.get('input[data-cy="new-driver-limit-interval"]').click().get('.mantine-Select-dropdown').click();
+		}
+		cy.root().submit().wait(2000);
+	});
+})
+
+Cypress.Commands.add('updateDriver', (values) => {
+	cy.log('Updating driver...');
+	cy.get('[data-cy="edit-driver-form"]').within(function() {
+		values.firstname && cy.get('input[data-cy="edit-driver-firstname"]').clear().type(values.firstname);
+		values.lastname && cy.get('input[data-cy="edit-driver-lastname"]').clear().type(values.lastname);
+		values.email && cy.get('input[data-cy="edit-driver-email"]').clear().type(values.email);
+		values.phone && cy.get('input[data-cy="edit-driver-phone"]').clear().type(values.phone);
+		values.line1 && cy.get('input[data-cy="edit-driver-line1"]').clear().type(values.line1);
+		values.line2 && cy.get('input[data-cy="edit-driver-line2"]').clear().type(values.line2);
+		values.city && cy.get('input[data-cy="edit-driver-city"]').clear().type(values.city);
+		values.postcode && cy.get('input[data-cy="edit-driver-postcode"]').clear().type(values.postcode);
+		values.region && cy.get('input[data-cy="edit-driver-region"]').clear().type(values.region);
+		if(values.has_spending_limit){
+			cy.get('input[data-cy="edit-driver-has-spending-limit"]').check();
+			values.spending_limit?.amount && cy.get('input[data-cy="edit-driver-limit-amount"]').clear().type(String(values.spending_limit?.amount))
+			values.spending_limit?.interval && cy.get('input[data-cy="edit-driver-limit-interval"]').clear().click().get('.mantine-Select-dropdown').click();
+		} else {
+			cy.get('input[data-cy="edit-driver-has-spending-limit"]').uncheck();
+		}
+		cy.root().submit().wait(2000);
+	});
 })
 //
 // -- This is a child command --

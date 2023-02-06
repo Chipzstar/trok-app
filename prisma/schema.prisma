@@ -126,11 +126,13 @@ model Driver {
   email          String
   phone          String
   status         String
+  vin            String?
   spending_limit SpendingLimit?
   current_spend  Int            @default(0)
   address        Address
   cards          Card[]
   transactions   Transaction[]
+  deleted        Boolean        @default(false)
 }
 enum ShippingSpeed {
   express

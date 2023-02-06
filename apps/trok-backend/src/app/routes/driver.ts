@@ -23,8 +23,7 @@ const createDriverInput = z.object({
 				z.literal('yearly'),
 				z.literal('all_time')
 			])
-		})
-		.optional(),
+		}).nullable().optional(),
 	address: AddressSchema
 });
 
@@ -120,8 +119,11 @@ const driverRouter = t.router({
 						}
 					},
 					spending_controls: {
-						// @ts-ignore
-						spending_limits: [input.spending_limit]
+						spending_limits: input.spending_limit
+							? ([
+									input.spending_limit
+							  ] as Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[])
+							: undefined
 					}
 				},
 				{ stripeAccount: input.stripeId }
@@ -198,7 +200,11 @@ const driverRouter = t.router({
 						}
 					},
 					spending_controls: {
-						spending_limits: [input.spending_limit] as Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[],
+						spending_limits: input.spending_limit
+							? ([
+									input.spending_limit
+							  ] as Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[])
+							: undefined
 					}
 				},
 				{ stripeAccount: input.stripeId }

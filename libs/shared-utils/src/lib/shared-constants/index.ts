@@ -1,7 +1,6 @@
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { customAlphabet } from 'nanoid';
 import superjson from 'superjson';
-import { DefaultTaxRate } from './shared-types';
 
 export const ONE_MINUTE = 1000 * 60;
 export const ONE_HOUR = 1000 * 60 * 60;
@@ -196,30 +195,3 @@ export const transformer = {
 		deserialize: (object: any) => eval(`(${object})`),
 	},
 };
-
-export const DEFAULT_TAX_RATES : DefaultTaxRate[] = [
-	{
-		id: "0001",
-		type: 'VAT',
-		name: 'VAT (incl.)',
-		percentage: 20,
-		description: 'Inclusive VAT (20%)',
-		calculation: 'inclusive'
-	},
-	{
-		id: "0002",
-		type: 'VAT',
-		name: 'VAT (exc.)',
-		percentage: 20,
-		description: 'Exclusive VAT (20%)',
-		calculation: 'exclusive'
-	},
-	{
-		id: "0003",
-		type: 'GST',
-		name: 'GST',
-		percentage: 2.5,
-		description: 'Standard GST (2.5%)',
-		calculation: 'inclusive'
-	}
-]

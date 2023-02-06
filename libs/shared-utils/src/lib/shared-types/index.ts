@@ -12,7 +12,7 @@ export enum CARD_STATUS {
 }
 
 export enum TRANSACTION_STATUS {
-    DECLINED = 'declined',
+	DECLINED = 'declined',
 	APPROVED = 'approved',
 }
 
@@ -43,7 +43,7 @@ export enum INVOICE_STATUS {
 
 export enum INVOICE_PAID_STATUS {
 	PAID = 'paid',
-    UNPAID = 'unpaid',
+	UNPAID = 'unpaid',
 	PARTIAL = 'partially_paid',
 }
 
@@ -51,8 +51,8 @@ export const intervals = ["per_authorization", "daily", "weekly", "monthly", "ye
 export type SpendingLimitInterval = typeof intervals[number];
 
 export type SpendingLimit = {
-    interval: SpendingLimitInterval;
-    amount: number;
+	interval: SpendingLimitInterval;
+	amount: number;
 };
 
 export interface AddressInfo {
@@ -98,14 +98,14 @@ export interface NewOnboardingBusinessInfo {
 export interface OnboardingDirectorInfo {
 	dob: string | Date;
 	email: string;
-    firstname: string;
+	firstname: string;
 	lastname: string;
-    line1: string;
+	line1: string;
 	line2?: string;
 	city: string;
-    postcode: string;
+	postcode: string;
 	region: string;
-    building_number?: number;
+	building_number?: number;
 	country?: string;
 }
 
@@ -131,13 +131,13 @@ export interface OnboardingFinancialInfo {
 
 export interface NewOnboardingMemberInfo {
 	dob: string | Date;
-    email: string;
+	email: string;
 	full_name: string;
 	firstname: string;
-    lastname: string;
+	lastname: string;
 }
 
-export type NewOnboardingOwnersInfo = NewOnboardingMemberInfo & { "dob" : string}
+export type NewOnboardingOwnersInfo = NewOnboardingMemberInfo & { "dob" : string }
 
 export type NewOnboardingDirectorsInfo = NewOnboardingMemberInfo & { "dob" : string }
 
@@ -209,11 +209,11 @@ export interface NewCreateUser extends SignupInfo {
 	stripe?: StripeInfo;
 }
 
-export interface DefaultTaxRate {
-	id: string;
-	type: 'GST' | 'VAT'
-	name: string;
-    percentage: number;
-	description?: string;
-    calculation: "inclusive" | "exclusive";
+export interface DriverFormValues extends AddressInfo {
+	firstname: string
+	lastname: string
+	email: string
+	phone: string
+	has_spending_limit: boolean
+	spending_limit: SpendingLimit
 }

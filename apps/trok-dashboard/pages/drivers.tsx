@@ -1,28 +1,16 @@
-import {
-	ActionIcon,
-	Button,
-	Checkbox,
-	Drawer,
-	Group,
-	NumberInput,
-	Select,
-	Stack,
-	Text,
-	TextInput,
-	Title
-} from '@mantine/core';
+import { Button, Checkbox, Drawer, Group, NumberInput, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import React, { useCallback, useState } from 'react';
-import { IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons';
-import { SAMPLE_DRIVERS } from '../utils/constants';
+import { IconCheck, IconX } from '@tabler/icons';
+import { PATHS, SAMPLE_DRIVERS } from '../utils/constants';
 import Page from '../layout/Page';
 import DriversTable from '../containers/DriversTable';
 import { useForm } from '@mantine/form';
 import { trpc } from '../utils/clients';
 import {
 	capitalize,
-	GBP,
 	getE164Number,
 	intervals,
+	DriverFormValues,
 	notifyError,
 	notifySuccess,
 	sanitize
@@ -31,28 +19,30 @@ import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from './api/auth/[...nextauth]';
 import EditDriverForm from '../modals/EditDriverForm';
 import { openConfirmModal } from '@mantine/modals';
+import { useRouter } from 'next/router';
 
 const Drivers = ({ testMode, session_id, stripe_account_id }) => {
+	const router = useRouter();
 	const [driver, setEditDriver] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const utils = trpc.useContext();
 	const query = trpc.driver.getDrivers.useQuery({ userId: session_id });
-	const createMutation = trpc.driver.createDriver.useMutation({
+	const createDriver = trpc.driver.createDriver.useMutation({
 		onSuccess: function (input) {
 			utils.driver.getDrivers
 				.invalidate({ userId: session_id })
 				.then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
-	const updateMutation = trpc.driver.updateDriver.useMutation({
+	const updateDriver = trpc.driver.updateDriver.useMutation({
 		onSuccess: function (input) {
 			utils.driver.getDrivers
 				.invalidate({ userId: session_id })
 				.then(r => console.log(input, 'Drivers refetched'));
 		}
 	});
-	const deleteMutation = trpc.driver.deleteDriver.useMutation({
+	const deleteDriver = trpc.driver.deleteDriver.useMutation({
 		onSuccess: function (input) {
 			utils.driver.getDrivers
 				.invalidate({ userId: session_id })
@@ -77,7 +67,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			},
 			onConfirm: async () => {
 				try {
-					await deleteMutation.mutateAsync({
+					await deleteDriver.mutateAsync({
 						id: driver.id,
 						cardholder_id: driver.cardholder_id,
 						customer_id: driver.customer_id,
@@ -91,110 +81,61 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			}
 		});
 
-	const rows = testMode
-		? SAMPLE_DRIVERS.map((element, index) => {
-				return (
-					<tr key={index}>
-						<td colSpan={1}>
-							<span>{element.firstname}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.lastname}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.current_spend).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{GBP(element.spending_limit).format()}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.phone}</span>
-						</td>
-						<td colSpan={1}>
-							<span>{element.email}</span>
-						</td>
-						<td>
-							<Group spacing='md' position='left'>
-								<ActionIcon size='sm' onClick={() => null}>
-									<IconPencil />
-								</ActionIcon>
-							</Group>
-						</td>
-					</tr>
-				);
-		  })
-		: query.data
-		? query.data
-				.filter(d => d.status === 'active')
-				.map((element, index) => {
-					return (
-						<tr key={index}>
-							<td colSpan={1}>
-								<span>{element.firstname}</span>
-							</td>
-							<td colSpan={1}>
-								<span>{element.lastname}</span>
-							</td>
-							<td colSpan={1}>
-								<span>{GBP(element.current_spend).format()}</span>
-							</td>
-							<td colSpan={1}>
-								<span>
-									{element?.spending_limit?.amount
-										? GBP(element.spending_limit.amount).format()
-										: '-'}
-								</span>
-							</td>
-							<td colSpan={1}>
-								<span>{element.phone}</span>
-							</td>
-							<td colSpan={1}>
-								<span>{element.email}</span>
-							</td>
-							<td>
-								<Group spacing='md' position='left'>
-									<ActionIcon size='sm' onClick={() => setEditDriver(element)}>
-										<IconPencil />
-									</ActionIcon>
-									<ActionIcon size='sm' onClick={() => openModal(element)} color='red'>
-										<IconTrash />
-									</ActionIcon>
-								</Group>
-							</td>
-						</tr>
-					);
-				})
-		: [];
+	const data = testMode ? SAMPLE_DRIVERS : query.data ? query.data : [];
 
-	const form = useForm({
+	const form = useForm<DriverFormValues>({
 		initialValues: {
 			firstname: '',
 			lastname: '',
 			email: '',
 			phone: '',
-			address: {
-				line1: '',
-				city: '',
-				postcode: '',
-				region: '',
-				country: 'GB'
-			},
+			line1: '',
+			line2: '',
+			city: '',
+			postcode: '',
+			region: '',
+			country: 'GB',
 			has_spending_limit: false,
 			spending_limit: {
-				amount: 100,
-				interval: ''
+				amount: null,
+				interval: null
+			}
+		},
+		validate: {
+			firstname: val => (!val ? 'Required' : null),
+			lastname: val => (!val ? 'Required' : null),
+			email: val => (!val ? 'Required' : null),
+			phone: val => (!val ? 'Required' : null),
+			line1: val => (!val ? 'Required' : null),
+			city: val => (!val ? 'Required' : null),
+			postcode: val => (!val ? 'Required' : null),
+			region: val => (!val ? 'Required' : null),
+			country: val => (!val ? 'Required' : null),
+			spending_limit: {
+				amount: (value, values) =>
+					values.has_spending_limit && (!value || Number(value) < 100)
+						? 'Amount must be at least £100'
+						: null,
+				interval: (value, values) => (values.has_spending_limit && !value ? 'Required' : null)
 			}
 		}
 	});
 
 	const handleSubmit = useCallback(
-		async values => {
+		async (values: DriverFormValues) => {
 			setLoading(true);
 			try {
-				await createMutation.mutateAsync({
+				const driver = await createDriver.mutateAsync({
 					userId: session_id,
 					stripeId: stripe_account_id,
-					address: values.address,
+					address: {
+						line1: values.line1,
+						line2: values.line2,
+						city: values.city,
+						postcode: values.postcode,
+						region: values.region,
+						country: values.country
+					},
 					email: values.email,
 					firstname: values.firstname,
 					lastname: values.lastname,
@@ -206,6 +147,8 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 						}
 					})
 				});
+				// append the driver's cardholder_id to the url for accessing the driver in integration tests
+				router.push(`${PATHS.DRIVERS}?driver_id=${driver.cardholder_id}`, undefined, { shallow: true });
 				setLoading(false);
 				setOpened(false);
 				notifySuccess('add-driver-success', 'New Driver added successfully', <IconCheck size={20} />);
@@ -219,27 +162,35 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 	);
 
 	const handleUpdate = useCallback(
-		async values => {
+		async (values: DriverFormValues) => {
 			setLoading(true);
 			try {
-				await updateMutation.mutateAsync({
-					id: values.id,
+				const updated_driver = await updateDriver.mutateAsync({
+					id: driver.id,
 					userId: session_id,
-					cardholder_id: values.cardholder_id,
-					customer_id: values.customer_id,
+					cardholder_id: driver.cardholder_id,
+					customer_id: driver.customer_id,
 					stripeId: stripe_account_id,
-					address: values.address,
+					address: {
+						line1: values.line1,
+						line2: values.line2,
+						city: values.city,
+						postcode: values.postcode,
+						region: values.region,
+						country: values.country
+					},
 					email: values.email,
 					firstname: values.firstname,
 					lastname: values.lastname,
 					phone: getE164Number(values.phone),
-					...(values.has_spending_limit && {
+					...(values.has_spending_limit ? {
 						spending_limit: {
 							amount: values.spending_limit.amount * 100,
 							interval: values.spending_limit.interval
 						}
-					})
+					} : { spending_limit: null })
 				});
+				router.push(`${PATHS.DRIVERS}?driver_id=${updated_driver.cardholder_id}`, undefined, { shallow: true });
 				setLoading(false);
 				setEditDriver(null);
 				notifySuccess('update-driver-success', 'Driver updated successfully', <IconCheck size={20} />);
@@ -249,7 +200,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				notifyError('update-driver-failed', err?.error?.message ?? err.message, <IconX size={20} />);
 			}
 		},
-		[session_id, stripe_account_id]
+		[session_id, stripe_account_id, driver]
 	);
 
 	return (
@@ -257,7 +208,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			header={
 				<Page.Header extraClassNames='mb-0'>
 					<span className='text-2xl font-medium'>Drivers</span>
-					<Button className='' onClick={() => setOpened(true)}>
+					<Button className='' onClick={() => setOpened(true)} data-cy='new-driver-btn'>
 						<span className='text-base font-normal'>Add new driver</span>
 					</Button>
 				</Page.Header>
@@ -274,36 +225,93 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					<Title order={2} weight={500}>
 						<span>Create new driver</span>
 					</Title>
-					<form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col space-y-4'>
+					<form
+						onSubmit={form.onSubmit(handleSubmit)}
+						className='flex flex-col space-y-4'
+						data-cy='add-driver-form'
+					>
 						<Group grow spacing='xl'>
-							<TextInput required label='First Name' {...form.getInputProps('firstname')} />
-							<TextInput required label='Last Name' {...form.getInputProps('lastname')} />
+							<TextInput
+								withAsterisk
+								label='First Name'
+								{...form.getInputProps('firstname')}
+								data-cy='new-driver-firstname'
+							/>
+							<TextInput
+								withAsterisk
+								label='Last Name'
+								{...form.getInputProps('lastname')}
+								data-cy='new-driver-lastname'
+							/>
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput required type='tel' label='Phone Number' {...form.getInputProps('phone')} />
-							<TextInput required type='email' label='Email' {...form.getInputProps('email')} />
+							<TextInput
+								withAsterisk
+								type='tel'
+								label='Phone Number'
+								{...form.getInputProps('phone')}
+								data-cy='new-driver-phone'
+							/>
+							<TextInput
+								withAsterisk
+								type='email'
+								label='Email'
+								{...form.getInputProps('email')}
+								data-cy='new-driver-email'
+							/>
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput required label='Address 1' {...form.getInputProps('address.line1')} />
-							<TextInput label='Address 2' {...form.getInputProps('address.line2')} />
+							<TextInput
+								withAsterisk
+								label='Address 1'
+								{...form.getInputProps('line1')}
+								data-cy='new-driver-address-line1'
+							/>
+							<TextInput
+								label='Address 2'
+								{...form.getInputProps('line2')}
+								data-cy='new-driver-address-line2'
+							/>
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput required label='City' {...form.getInputProps('address.city')} />
-							<TextInput required label='Postal Code' {...form.getInputProps('address.postcode')} />
+							<TextInput
+								withAsterisk
+								label='City'
+								{...form.getInputProps('city')}
+								data-cy='new-driver-address-city'
+							/>
+							<TextInput
+								withAsterisk
+								label='Postal Code'
+								{...form.getInputProps('postcode')}
+								data-cy='new-driver-address-postcode'
+							/>
 						</Group>
 						<Group grow spacing='xl'>
-							<TextInput required label='Region' {...form.getInputProps('address.region')} />
-							<TextInput required label='Country' readOnly {...form.getInputProps('address.country')} />
+							<TextInput
+								withAsterisk
+								label='Region'
+								{...form.getInputProps('region')}
+								data-cy='new-driver-address-region'
+							/>
+							<TextInput
+								withAsterisk
+								label='Country'
+								readOnly
+								{...form.getInputProps('country')}
+								data-cy='new-driver-address-country'
+							/>
 						</Group>
 						<Checkbox
 							label='Add spending limit'
 							size='sm'
 							{...form.getInputProps('has_spending_limit', { type: 'checkbox' })}
+							data-cy='new-driver-has-spending-limit'
 						/>
 						{form.values.has_spending_limit && (
 							<Group grow spacing='xl'>
 								<NumberInput
-									required={form.values.has_spending_limit}
+									withAsterisk={form.values.has_spending_limit}
 									type='text'
 									label='Spend Limit'
 									min={100}
@@ -316,15 +324,17 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 											: '£ '
 									}
 									{...form.getInputProps('spending_limit.amount')}
+									data-cy='new-driver-limit-amount'
 								/>
 								<Select
-									required={form.values.has_spending_limit}
+									withAsterisk={form.values.has_spending_limit}
 									label='Frequency'
 									data={intervals.slice(0, -1).map(item => ({
 										label: capitalize(sanitize(item)),
 										value: item
 									}))}
 									{...form.getInputProps('spending_limit.interval')}
+									data-cy='new-driver-limit-interval'
 								/>
 							</Group>
 						)}
@@ -337,7 +347,12 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 				</Stack>
 			</Drawer>
 			<Page.Body>
-				<DriversTable loading={!testMode && query.isLoading} rows={rows} />
+				<DriversTable
+					loading={!testMode && query.isLoading}
+					data={data}
+					onEdit={setEditDriver}
+					onDelete={openModal}
+				/>
 			</Page.Body>
 		</Page.Container>
 	);

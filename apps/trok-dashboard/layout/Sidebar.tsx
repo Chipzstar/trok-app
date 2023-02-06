@@ -113,6 +113,7 @@ const Sidebar = () => {
 				label: 'Dashboard',
 				icon: IconChartLine,
 				isActive: router.pathname === PATHS.HOME,
+				dataCy: "sidebar-dashboard",
 				disabled: false
 			},
 			{
@@ -120,6 +121,7 @@ const Sidebar = () => {
 				label: 'Transactions',
 				icon: IconArrowsLeftRight,
 				isActive: router.pathname === PATHS.TRANSACTIONS,
+				dataCy: "sidebar-transactions",
 				disabled: data === false
 			},
 			{
@@ -127,6 +129,7 @@ const Sidebar = () => {
 				label: 'Invoices',
 				icon: IconFileInvoice,
 				isActive: router.pathname === PATHS.INVOICES,
+				dataCy: "sidebar-invoices",
 				disabled: data === false
 			},
 			{
@@ -134,6 +137,7 @@ const Sidebar = () => {
 				label: 'Cards',
 				icon: IconCreditCard,
 				isActive: router.pathname.includes(PATHS.CARDS),
+				dataCy: "sidebar-cards",
 				disabled: data === false
 			},
 			{
@@ -141,6 +145,7 @@ const Sidebar = () => {
 				label: 'Drivers',
 				icon: IconUsers,
 				isActive: router.pathname.includes(PATHS.DRIVERS),
+				dataCy: "sidebar-drivers",
 				disabled: data === false
 			},
 			{
@@ -148,6 +153,7 @@ const Sidebar = () => {
 				label: 'Payments',
 				icon: IconCalendarTime,
 				isActive: router.pathname === PATHS.PAYMENTS,
+				dataCy: "sidebar-payments",
 				disabled: data === false
 			},
 			{
@@ -155,6 +161,7 @@ const Sidebar = () => {
 				label: 'Statements',
 				icon: IconFileText,
 				isActive: router.pathname === PATHS.STATEMENTS,
+				dataCy: "sidebar-statements",
 				disabled: data === false
 			}
 		]
@@ -164,6 +171,7 @@ const Sidebar = () => {
 
 	const links = tabs[section].map((item, index) => (
 		<div
+			data-cy={item.dataCy}
 			role='button'
 			className={cx(classes.link, {
 				[classes.linkDisabled]: item.disabled,

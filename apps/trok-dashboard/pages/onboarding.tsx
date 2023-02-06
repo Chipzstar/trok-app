@@ -5,11 +5,11 @@ import { PATHS } from '../utils/constants';
 import { useRouter } from 'next/router';
 import { authOptions } from './api/auth/[...nextauth]';
 import { unstable_getServerSession } from 'next-auth';
-import NewStep1 from '../containers/new-signup/NewStep1';
-import NewStep2 from '../containers/new-signup/NewStep2';
-import NewStep3 from '../containers/new-signup/NewStep3';
-import NewStep4 from '../containers/new-signup/NewStep4';
-import NewStep5 from '../containers/new-signup/NewStep5';
+import NewStep1 from '../containers/onboarding/NewStep1';
+import NewStep2 from '../containers/onboarding/NewStep2';
+import NewStep3 from '../containers/onboarding/NewStep3';
+import NewStep4 from '../containers/onboarding/NewStep4';
+import NewStep5 from '../containers/onboarding/NewStep5';
 
 const Onboarding = () => {
 	const router = useRouter();

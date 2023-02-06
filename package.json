@@ -31,6 +31,8 @@
 		"nx:dashboard:e2e": "start-server-and-test \"yarn run nx:backend:serve\" http://localhost:3333/ping \"nx e2e trok-dashboard-e2e\"",
 		"nx:dashboard:e2e:lint": "nx lint trok-dashboard-e2e",
 		"nx:dashboard:e2e:spec": "start-server-and-test nx:backend:serve http://localhost:3333/ping 'nx e2e trok-dashboard-e2e --configuration=spec'",
+		"nx:dashboard:e2e:spec:headless": "start-server-and-test nx:backend:serve http://localhost:3333/ping 'nx e2e trok-dashboard-e2e --configuration=spec-headless'",
+		"nx:dashboard:e2e:spec:record": "start-server-and-test 'nx serve trok-backend' http://localhost:3333/ping 'nx e2e trok-dashboard-e2e --configuration=spec-record'",
 		"nx:dashboard:e2e:watch": "start-server-and-test nx:backend:serve http://localhost:3333/ping 'nx e2e trok-dashboard-e2e --configuration=watch'",
 		"nx:dashboard:e2e:record": "start-server-and-test 'nx serve trok-backend' http://localhost:3333/ping 'nx e2e trok-dashboard-e2e --configuration=record'",
 		"nx:analytics:serve": "doppler run -p admin-dashboard -c loc -- nx serve trok-analytics",

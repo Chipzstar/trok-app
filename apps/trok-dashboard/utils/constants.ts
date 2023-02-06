@@ -11,12 +11,14 @@ const order_id = orderId(String(process.env.ENC_SECRET));
 export const isProd = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'production';
 export const isDev = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'development';
 export const isCI = String(process.env.NEXT_PUBLIC_ENVIRONMENT) === 'ci';
+
 export const requirements = [
 	{ re: /[0-9]/, label: 'Includes number' },
 	{ re: /[a-z]/, label: 'Includes lowercase letter' },
 	{ re: /[A-Z]/, label: 'Includes uppercase letter' },
 	{ re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: 'Includes special symbol' }
 ];
+
 export const ONE_GB = 1073741824; // in bytes units
 export const FIVE_MB = 5242880; // in bytes units
 export const TEN_MB = 2 * FIVE_MB; // in bytes units
@@ -25,6 +27,7 @@ export const FIVE_HUNDRED_POUNDS = 50000;
 export const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_API_KEY;
 export const DEFAULT_HEADER_HEIGHT = 75;
 export const BANNER_HEIGHT = 65;
+
 export const STORAGE_KEYS = {
 	ACCOUNT: 'account',
 	SIGNUP_FORM: 'signup-form',
@@ -39,6 +42,7 @@ export const STORAGE_KEYS = {
 	GRIFFIN: 'griffin',
 	INVOICE_FORM: 'invoice-form'
 };
+
 export const PATHS = {
 	HOME: '/',
 	SIGNUP: '/signup',
@@ -71,90 +75,118 @@ export const AUTH_ROUTES = [
 	PATHS.CREDIT_APPLICATION
 ];
 
-export const SAMPLE_DRIVERS = [
+export const SAMPLE_DRIVERS : Prisma.Driver[] = [
 	{
 		id: '1',
-		createdAt: dayjs().unix(),
-		driverId: `DRIVER-ID#0001`,
+		created_at: undefined,
+		updated_at: undefined,
+		userId: uuidv4(),
+		cardholder_id: uuidv4(),
+		customer_id: uuidv4(),
+		address: {
+			line1: `${faker.address.buildingNumber()} ${faker.address.streetName}`,
+			line2: faker.address.secondaryAddress(),
+			city: faker.address.city(),
+			postcode: faker.address.zipCode(),
+			region: faker.address.state(),
+			country: faker.address.country()
+		},
 		status: 'OFFLINE',
-		isActive: false,
 		full_name: 'Chisom Oguibe',
 		firstname: 'Chisom',
 		lastname: 'Oguibe',
 		vin: '2C3CCAET4CH256062',
 		email: 'chisom.oguibe@googlemail.com',
 		phone: '+447523958055',
-		dob: 884505600,
-		addressLine1: '250 Reede Road',
-		addressLine2: '',
-		city: 'Dagenham',
-		postcode: 'RM10 8EH',
-		last4: '8202',
 		current_spend: 21780200,
-		spending_limit: 350000
+		spending_limit: {
+			amount: 350000,
+			interval: "daily"
+		},
 	},
 	{
 		id: '2',
-		createdAt: dayjs().unix(),
-		driverId: `DRIVER-ID#0002`,
+		created_at: undefined,
+		updated_at: undefined,
+		userId: uuidv4(),
+		cardholder_id: uuidv4(),
+		customer_id: uuidv4(),
+		address: {
+			line1: `${faker.address.buildingNumber()} ${faker.address.streetName}`,
+			line2: faker.address.secondaryAddress(),
+			city: faker.address.city(),
+			postcode: faker.address.zipCode(),
+			region: faker.address.state(),
+			country: faker.address.country()
+		},
 		status: 'OFFLINE',
-		isActive: false,
 		full_name: 'Ola Oladapo',
 		firstname: 'Ola',
 		lastname: 'Oladapo',
 		email: 'ola.oladapo7@gmail.com',
 		phone: '+447523958055',
-		dob: 884505600,
-		addressLine1: '250 Reede Road',
-		addressLine2: '',
-		city: 'Dagenham',
-		postcode: 'RM10 8EH',
-		last4: '8202',
 		vin: 'JH4DB7540SS801338',
 		current_spend: 21780200,
-		spending_limit: 350000
+		spending_limit: {
+			amount: 350000,
+			interval: "daily"
+		},
 	},
 	{
 		id: '3',
-		createdAt: dayjs().unix(),
-		driverId: `DRIVER-ID$#0003`,
+		created_at: undefined,
+		updated_at: undefined,
+		userId: uuidv4(),
+		cardholder_id: uuidv4(),
+		customer_id: uuidv4(),
+		address: {
+			line1: `${faker.address.buildingNumber()} ${faker.address.streetName}`,
+			line2: faker.address.secondaryAddress(),
+			city: faker.address.city(),
+			postcode: faker.address.zipCode(),
+			region: faker.address.state(),
+			country: faker.address.country()
+		},
 		status: 'OFFLINE',
-		isActive: false,
 		full_name: 'Ryan Bannai',
 		firstname: 'Rayan',
 		lastname: 'Bannai',
 		email: 'rayan.bannai@googlemail.com',
 		phone: '+447523958055',
-		dob: 884505600,
-		addressLine1: '250 Reede Road',
-		addressLine2: '',
-		city: 'Dagenham',
-		postcode: 'RM10 8EH',
-		last4: '8202',
 		vin: 'JF2SHADC3DG417185',
 		current_spend: 21780200,
-		spending_limit: 350000
+		spending_limit: {
+			amount: 350000,
+			interval: "daily"
+		},
 	},
 	{
 		id: '4',
-		createdAt: dayjs().unix(),
-		driverId: `DRIVER-ID#0004`,
+		created_at: undefined,
+		updated_at: undefined,
+		userId: uuidv4(),
+		cardholder_id: uuidv4(),
+		customer_id: uuidv4(),
 		status: 'OFFLINE',
-		isActive: false,
 		full_name: 'Oscar Sanz',
 		firstname: 'Oscar',
 		lastname: 'Sanz',
 		email: 'oscar_sanz@hotmail.com',
 		phone: '+447523958055',
-		dob: 884505600,
-		addressLine1: '250 Reede Road',
-		addressLine2: '',
-		city: 'Dagenham',
-		postcode: 'RM10 8EH',
-		last4: '8202',
+		address: {
+			line1: `${faker.address.buildingNumber()} ${faker.address.streetName}`,
+			line2: faker.address.secondaryAddress(),
+			city: faker.address.city(),
+			postcode: faker.address.zipCode(),
+			region: faker.address.state(),
+			country: faker.address.country()
+		},
 		vin: 'JH4KA2640GC004861',
 		current_spend: 21780200,
-		spending_limits: 350000
+		spending_limit: {
+			amount: 350000,
+			interval: "daily"
+		},
 	}
 ];
 

@@ -1,12 +1,12 @@
 import { showNotification } from '@mantine/notifications';
 import { PhoneNumberFormat as PNF } from 'google-libphonenumber';
-import { phoneUtil } from './shared-constants';
+import { phoneUtil } from '../shared-constants';
 import bcrypt from 'bcryptjs';
 import CryptoJS from 'crypto-js';
 import Prisma from '@prisma/client';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
-import { TRANSACTION_STATUS } from './shared-types';
+import { TRANSACTION_STATUS } from '../shared-types';
 import orderId from 'order-id';
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
