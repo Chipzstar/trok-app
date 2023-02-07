@@ -103,6 +103,7 @@ export const SAMPLE_DRIVERS : Prisma.Driver[] = [
 			amount: 350000,
 			interval: "daily"
 		},
+		deleted: false
 	},
 	{
 		id: '2',
@@ -131,6 +132,7 @@ export const SAMPLE_DRIVERS : Prisma.Driver[] = [
 			amount: 350000,
 			interval: "daily"
 		},
+		deleted: false
 	},
 	{
 		id: '3',
@@ -159,6 +161,7 @@ export const SAMPLE_DRIVERS : Prisma.Driver[] = [
 			amount: 350000,
 			interval: "daily"
 		},
+		deleted: false
 	},
 	{
 		id: '4',
@@ -187,6 +190,7 @@ export const SAMPLE_DRIVERS : Prisma.Driver[] = [
 			amount: 350000,
 			interval: "daily"
 		},
+		deleted: false
 	}
 ];
 

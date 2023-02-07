@@ -4,5 +4,6 @@ import { nxE2EPreset } from '@nrwl/cypress/plugins/cypress-preset';
 export default defineConfig({
 	e2e: nxE2EPreset(__dirname),
 	projectId: "j8ghes",
-	video: false
+	video: false,
+	experimentalWebKitSupport: true
 });

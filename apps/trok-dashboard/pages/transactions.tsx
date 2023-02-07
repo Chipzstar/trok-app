@@ -207,10 +207,10 @@ const Transactions = ({ testMode, session_id }) => {
 					value={activeTab}
 					onTabChange={(val: TransactionStatus) => setActiveTab(val)}
 					classNames={{
-						root: 'h-full',
+						root: 'grow',
 						tabsList: '',
 						tab: 'mx-4',
-						panel: ''
+						panel: 'h-full'
 					}}
 				>
 					<Tabs.List>

@@ -12,8 +12,8 @@ const createDriverInput = z.object({
 	lastname: z.string(),
 	email: z.string(),
 	phone: z.string(),
-	spending_limit: z
-		.object({
+	spending_limit: z.nullable(
+		z.object({
 			amount: z.number(),
 			interval: z.union([
 				z.literal('per_authorization'),
@@ -23,7 +23,8 @@ const createDriverInput = z.object({
 				z.literal('yearly'),
 				z.literal('all_time')
 			])
-		}).nullable().optional(),
+		})
+	),
 	address: AddressSchema
 });
 
@@ -72,19 +73,25 @@ const driverRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
 			}
 		}),
-	getSingleDriver: t.procedure.input(z.string()).query(async ({ input, ctx }) => {
-		try {
-			return await ctx.prisma.driver.findUniqueOrThrow({
-				where: {
-					id: input
-				}
-			});
-		} catch (err) {
-			console.error(err);
-			// @ts-ignore
-			throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
-		}
-	}),
+	getSingleDriver: t.procedure
+		.input(
+			z.object({
+				id: z.string()
+			})
+		)
+		.query(async ({ input, ctx }) => {
+			try {
+				return await ctx.prisma.driver.findUniqueOrThrow({
+					where: {
+						id: input.id
+					}
+				});
+			} catch (err) {
+				console.error(err);
+				// @ts-ignore
+				throw new TRPCError({ code: 'BAD_REQUEST', message: err?.message });
+			}
+		}),
 	createDriver: t.procedure.input(createDriverInput).mutation(async ({ ctx, input }) => {
 		console.log(input);
 		try {
@@ -168,7 +175,8 @@ const driverRouter = t.router({
 					},
 					cardholder_id: cardholder.id,
 					customer_id: customer.id,
-					status: 'active'
+					status: 'active',
+					deleted: false
 				}
 			});
 		} catch (err) {
@@ -179,6 +187,11 @@ const driverRouter = t.router({
 	}),
 	updateDriver: t.procedure.input(updateDriverInput).mutation(async ({ input, ctx }) => {
 		try {
+			console.log('-----------------------------------------------');
+			console.log(Boolean(input.spending_limit))
+			const spending_limits: Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[] = input.spending_limit
+				? [input.spending_limit] : []
+			console.log(spending_limits);
 			const cardholder = await stripe.issuing.cardholders.update(
 				input.cardholder_id,
 				{
@@ -200,11 +213,7 @@ const driverRouter = t.router({
 						}
 					},
 					spending_controls: {
-						spending_limits: input.spending_limit
-							? ([
-									input.spending_limit
-							  ] as Stripe.Issuing.CardholderUpdateParams.SpendingControls.SpendingLimit[])
-							: undefined
+						spending_limits
 					}
 				},
 				{ stripeAccount: input.stripeId }
@@ -229,7 +238,6 @@ const driverRouter = t.router({
 				},
 				{ stripeAccount: input.stripeId }
 			);
-			console.log('-----------------------------------------------');
 			console.log(customer);
 			console.log('-----------------------------------------------');
 			return await ctx.prisma.driver.update({
@@ -242,12 +250,12 @@ const driverRouter = t.router({
 					lastname: input.lastname,
 					email: input.email,
 					phone: input.phone,
-					...(input?.spending_limit && {
-						spending_limit: {
-							amount: input.spending_limit.amount,
-							interval: input.spending_limit.interval
-						}
-					}),
+					spending_limit: input.spending_limit
+						? {
+								amount: input.spending_limit.amount,
+								interval: input.spending_limit.interval
+						  }
+						: null,
 					address: {
 						line1: input.address.line1,
 						line2: input.address?.line2,
@@ -255,8 +263,7 @@ const driverRouter = t.router({
 						postcode: input.address.postcode,
 						region: input.address.region,
 						country: input.address.country
-					},
-					status: 'active'
+					}
 				}
 			});
 		} catch (err) {
@@ -277,11 +284,6 @@ const driverRouter = t.router({
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				const card = await ctx.prisma.card.findFirstOrThrow({
-					where: {
-						driverId: input.id
-					}
-				});
 				// disable the cardholder
 				await stripe.issuing.cardholders.update(
 					input.cardholder_id,
@@ -290,21 +292,21 @@ const driverRouter = t.router({
 					},
 					{ stripeAccount: input.stripeId }
 				);
-				// cancel any card owned by the cardholder
+				/*// deactivate any card owned by the cardholder
 				await stripe.issuing.cards.update(
 					card.card_id,
 					{
-						status: 'canceled'
+						status: 'inactive'
 					},
 					{ stripeAccount: input.stripeId }
-				);
-
+				);*/
 				return await ctx.prisma.driver.update({
 					where: {
 						id: input.id
 					},
 					data: {
-						status: 'inactive'
+						status: 'inactive',
+						deleted: true
 					}
 				});
 			} catch (err) {

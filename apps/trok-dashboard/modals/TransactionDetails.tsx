@@ -13,7 +13,7 @@ interface TransactionDetailsProps {
 }
 
 const TransactionDetails = ({ opened, setOpened, transaction }: TransactionDetailsProps) => {
-	const { data: driver } = trpc.driver.getSingleDriver.useQuery(transaction?.driverId, {
+	const { data: driver } = trpc.driver.getSingleDriver.useQuery({id: transaction?.driverId }, {
 		// The query will not execute until the userId exists
 		enabled: !!transaction?.driverId
 	});

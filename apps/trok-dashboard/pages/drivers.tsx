@@ -81,7 +81,7 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 			}
 		});
 
-	const data = testMode ? SAMPLE_DRIVERS : query.data ? query.data : [];
+	const data = testMode ? SAMPLE_DRIVERS : query.data ? query.data.filter(d => !d.deleted) : [];
 
 	const form = useForm<DriverFormValues>({
 		initialValues: {
@@ -140,15 +140,15 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					firstname: values.firstname,
 					lastname: values.lastname,
 					phone: getE164Number(values.phone),
-					...(values.has_spending_limit && {
-						spending_limit: {
-							amount: values.spending_limit.amount * 100,
-							interval: values.spending_limit.interval
-						}
-					})
+					spending_limit: values.has_spending_limit
+						? {
+								amount: values.spending_limit.amount * 100,
+								interval: values.spending_limit.interval
+						  }
+						: null
 				});
-				// append the driver's cardholder_id to the url for accessing the driver in integration tests
-				router.push(`${PATHS.DRIVERS}?driver_id=${driver.cardholder_id}`, undefined, { shallow: true });
+				// append the driver's ID to the url for accessing the driver in integration tests
+				router.push(`${PATHS.DRIVERS}?driver_id=${driver.id}`, undefined, { shallow: true });
 				setLoading(false);
 				setOpened(false);
 				notifySuccess('add-driver-success', 'New Driver added successfully', <IconCheck size={20} />);
@@ -183,14 +183,15 @@ const Drivers = ({ testMode, session_id, stripe_account_id }) => {
 					firstname: values.firstname,
 					lastname: values.lastname,
 					phone: getE164Number(values.phone),
-					...(values.has_spending_limit ? {
-						spending_limit: {
-							amount: values.spending_limit.amount * 100,
-							interval: values.spending_limit.interval
-						}
-					} : { spending_limit: null })
+					spending_limit: values.has_spending_limit
+						? {
+								amount: values.spending_limit.amount * 100,
+								interval: values.spending_limit.interval
+						  }
+						: null
 				});
-				router.push(`${PATHS.DRIVERS}?driver_id=${updated_driver.cardholder_id}`, undefined, { shallow: true });
+				// append the driver's ID to the url for accessing the driver in integration tests
+				router.push(`${PATHS.DRIVERS}?driver_id=${updated_driver.id}`, undefined, { shallow: true });
 				setLoading(false);
 				setEditDriver(null);
 				notifySuccess('update-driver-success', 'Driver updated successfully', <IconCheck size={20} />);

@@ -276,7 +276,7 @@ describe('Driver - New Driver', () => {
 					cy.request({
 						url: `${Cypress.env('API_BASE_URL')}/server/trpc/admin.deleteDriver`,
 						method: 'POST',
-						body: { cardholder_id: id },
+						body: { driver_id: id },
 						headers: {
 							Authorization: Cypress.env('ADMIN_USER_ID')
 						}

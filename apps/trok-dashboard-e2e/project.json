@@ -13,20 +13,35 @@
 			},
 			"configurations": {
 				"spec": {
-					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/update-driver.cy.ts",
-					"browser": "electron",
-					"watch": true,
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
 					"exit": false
 				},
 				"spec-headless": {
-					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/update-driver.cy.ts"
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts"
+				},
+				"spec-chrome": {
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
+					"browser": "chrome"
+				},
+				"spec-firefox": {
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
+					"browser": "firefox"
+				},
+				"spec-edge": {
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
+					"browser": "edge"
+				},
+				"spec-safari": {
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
+					"browser": "webkit"
 				},
 				"spec-record": {
-					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/new-driver.cy.ts",
+					"spec": "apps/trok-dashboard-e2e/src/e2e/1-drivers/*.ts",
 					"env": {
 						"API_BASE_URL": "http://localhost:3333",
 						"BASE_URL": "http://localhost:4200"
 					},
+					"parallel": true,
 					"record": true,
 					"key": "bf0463d1-6ab9-4691-91fc-5f8578b7e72f"
 				},
@@ -43,6 +58,7 @@
 						"API_BASE_URL": "http://localhost:3333",
 						"BASE_URL": "http://localhost:4200"
 					},
+					"parallel": true,
 					"record": true,
 					"key": "bf0463d1-6ab9-4691-91fc-5f8578b7e72f"
 				},

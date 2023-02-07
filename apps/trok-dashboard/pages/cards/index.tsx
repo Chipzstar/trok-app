@@ -166,7 +166,7 @@ const Cards = ({ testMode, session_id }) => {
 						root: 'grow',
 						tabsList: '',
 						tab: 'mx-4',
-						panel: ''
+						panel: 'h-full'
 					}}
 				>
 					<Tabs.List>

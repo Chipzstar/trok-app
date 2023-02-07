@@ -4,7 +4,7 @@ import { Storage } from '@google-cloud/storage';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 export const stripe = new Stripe(String(process.env.STRIPE_SECRET_KEY), {
-	apiVersion: '2022-08-01'
+	apiVersion: '2022-11-15'
 });
 
 const plaidConfig = new Configuration({

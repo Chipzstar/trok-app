@@ -2,26 +2,31 @@ import { faker } from '@faker-js/faker';
 
 describe('Driver - Update Driver', () => {
 	before(() => {
-		cy.auth();
-		cy.visit('/drivers').location('pathname').should('equal', '/drivers');
-		cy.get('[data-cy="new-driver-btn"]').click();
-		cy.get('[data-cy="add-driver-form"]').should('be.visible');
-		cy.addNewDriver({
-			firstname: faker.name.firstName(),
-			lastname: faker.name.lastName(),
-			email: faker.internet.email(),
-			phone: faker.phone.number("+447## ### ####"),
-			line1: `${faker.address.buildingNumber()} ${faker.address.streetName()}`,
-			line2: faker.address.secondaryAddress(),
-			city: faker.address.city(),
-			postcode: faker.address.zipCode(),
-			region: faker.address.state(),
-			has_spending_limit: true,
-			spending_limit: {
-				amount: 5000,
-				interval: 'daily'
+		cy.request({
+			url: `${Cypress.env('API_BASE_URL')}/server/trpc/driver.createDriver`,
+			method: 'POST',
+			body: {
+				userId: Cypress.env('TEST_USER_ID'),
+				stripeId: Cypress.env('TEST_STRIPE_ACCOUNT_ID'),
+				firstname: faker.name.firstName(),
+				lastname: faker.name.lastName(),
+				email: faker.internet.email(),
+				phone: faker.phone.number("+447## ### ####"),
+				address: {
+					line1: `${faker.address.buildingNumber()} ${faker.address.streetName()}`,
+					line2: faker.address.secondaryAddress(),
+					city: faker.address.city(),
+					postcode: faker.address.zipCode(),
+					region: faker.address.state(),
+					country: "GB",
+				},
+				has_spending_limit: true,
+				spending_limit: {
+					amount: 5000,
+					interval: 'weekly'
+				}
 			}
-		});
+		}).then(r => console.log(r));
 	})
 
 	beforeEach(() => {
@@ -66,6 +71,19 @@ describe('Driver - Update Driver', () => {
 			.invoke('get', 'driver_id')
 			.then(id => {
 				cy.log("DRIVER-ID:" + id)
+				cy.request({
+					url: `${Cypress.env('API_BASE_URL')}/server/trpc/driver.getSingleDriver?input=${encodeURIComponent(
+						JSON.stringify({ id })
+					)}`,
+					method: 'GET',
+					headers: {
+						Authorization: Cypress.env('ADMIN_USER_ID')
+					}
+				}).then(({ body }) => {
+					cy.log(body.result.data);
+					// check that there is no spending limit for the driver database record
+					expect(body.result.data.spending_limit).to.eq(null);
+				});
 			})
 	})
 
@@ -80,7 +98,7 @@ describe('Driver - Update Driver', () => {
 					cy.request({
 						url: `${Cypress.env('API_BASE_URL')}/server/trpc/admin.deleteDriver`,
 						method: 'POST',
-						body: { cardholder_id: id },
+						body: { driver_id: id },
 						headers: {
 							Authorization: Cypress.env('ADMIN_USER_ID')
 						}

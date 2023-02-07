@@ -67,16 +67,16 @@ const adminRouter = t.router({
 	deleteDriver: adminProcedure
 		.input(
 			z.object({
-				cardholder_id: z.string()
+				driver_id: z.string()
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				console.log('INPUT', input.cardholder_id);
+				console.log('INPUT', input.driver_id);
 				// fetch the DB driver
 				const driver = await ctx.prisma.driver.findUniqueOrThrow({
 					where: {
-						cardholder_id: input.cardholder_id
+						id: input.driver_id
 					}
 				});
 				console.log('DRIVER', driver);
@@ -97,19 +97,19 @@ const adminRouter = t.router({
 				const stripe_account_id = user.stripe.accountId;
 				// mark the cardholder in stripe as inactive
 				await stripe.issuing.cardholders.update(
-					input.cardholder_id,
+					driver.cardholder_id,
 					{
 						status: 'inactive'
 					},
 					{ stripeAccount: stripe_account_id }
 				);
 				console.log('************************************************');
-				console.log(`Stripe Account cardholder with ID: ${input.cardholder_id} has been deleted`);
+				console.log(`Stripe Account cardholder with ID: ${driver.cardholder_id} has been deleted`);
 				console.log('************************************************');
 				// delete the driver from DB
 				await ctx.prisma.driver.delete({
 					where: {
-						cardholder_id: input.cardholder_id
+						id: input.driver_id
 					}
 				});
 				return driver;

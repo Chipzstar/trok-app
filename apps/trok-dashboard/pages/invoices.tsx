@@ -18,7 +18,7 @@ import PreviewInvoice from '../modals/invoices/PreviewInvoice';
 import prisma from '../prisma';
 
 const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
-	const { height } = useWindowSize();
+	const { height: HEIGHT } = useWindowSize();
 	const [activeTab, setActiveTab] = useState<string | null>('all');
 	const [podOpened, setPODOpened] = useState(false);
 	const [invUploadOpened, setInvUploadOpened] = useState(false);
@@ -150,6 +150,8 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 		if (invoice_form.values.new && invoice_form.values.invoice_id) setInvoiceOpened(true);
 	}, [invoice_form.values.invoice_id, invoice_form.values.new]);
 
+	useEffect(() => console.table({HEIGHT}), [HEIGHT]);
+
 	return (
 		<Page.Container
 			extraClassNames=''
@@ -262,7 +264,6 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 				<div className='flex h-full flex-col'>
 					<Tabs
 						value={activeTab}
-						orientation='horizontal'
 						onTabChange={setActiveTab}
 						defaultValue='all'
 						classNames={{
@@ -272,7 +273,7 @@ const Invoices = ({ testMode, session_id, invoice_id, business_CRN }) => {
 						}}
 						styles={{
 							panel: {
-								height: height - 256
+								height: HEIGHT - 265
 							}
 						}}
 					>

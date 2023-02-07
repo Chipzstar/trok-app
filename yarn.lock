@@ -10668,6 +10668,18 @@ plaid@^12.0.0:
   dependencies:
     axios "0.21.4"
 
+playwright-core@1.30.0:
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.30.0.tgz#de987cea2e86669e3b85732d230c277771873285"
+  integrity sha512-7AnRmTCf+GVYhHbLJsGUtskWTE33SwMZkybJ0v6rqR1boxq2x36U7p1vDRV7HO2IwTZgmycracLxPEJI49wu4g==
+
+playwright-webkit@^1.30.0:
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/playwright-webkit/-/playwright-webkit-1.30.0.tgz#54b53c0e9499d62f2bab58becf18d63be0148801"
+  integrity sha512-ioZGkzet/tJzs3iUHHvaoLfLbgBg28RPlXBZ2lbT/FpO+P+Pinjtgn271+ciQl5HR64RHmxStnqE++W4K5EV0g==
+  dependencies:
+    playwright-core "1.30.0"
+
 pluralize@8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
@@ -12483,10 +12495,10 @@ strip-json-comments@^3.1.0, strip-json-comments@^3.1.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-stripe@^10.15.0:
-  version "10.15.0"
-  resolved "https://registry.yarnpkg.com/stripe/-/stripe-10.15.0.tgz#1f4cde7f90959673964edb07e5a49c918b124ca5"
-  integrity sha512-KXw7dozfIEQCxsshjKUwsNwlD55CkhcvVgwwxFtQNikVlRpNUPy6Ljz2mN9OXjinbbmLIcn26MAiPxfNp8Adtg==
+stripe@^11.9.1:
+  version "11.9.1"
+  resolved "https://registry.yarnpkg.com/stripe/-/stripe-11.9.1.tgz#32e3f36cebe3a3fca0ce541221463624e5bc8b24"
+  integrity sha512-obmTRAUC1UKlb3pOlF1tBA31Zo+FBMjnG69aGGTAeq35NlzffxjMjVgh3a55f9jK98FhHkIvY5z0W1FfQymNlQ==
   dependencies:
     "@types/node" ">=8.1.0"
     qs "^6.11.0"
